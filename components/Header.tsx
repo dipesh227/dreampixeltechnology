@@ -39,7 +39,7 @@ const UserMenu: React.FC = () => {
 };
 
 const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenFeedback, apiKeyStatus, onLogin }) => {
-  const { session } = useAuth();
+  const { session, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const getKeyIconClassName = () => {
@@ -94,16 +94,19 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
             </button>
             
             {/* Auth Area */}
-            {session ? (
-                <UserMenu />
-            ) : (
-                <button 
-                  onClick={onLogin} 
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-primary-gradient text-white hover:opacity-90 transition-opacity">
-                    <HiOutlineUserCircle className="w-5 h-5" />
-                    Login
-                </button>
-            )}
+            <div className="hidden sm:block">
+              {session ? (
+                  <UserMenu />
+              ) : (
+                  <button 
+                    onClick={onLogin} 
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-primary-gradient text-white hover:opacity-90 transition-opacity">
+                      <HiOutlineUserCircle className="w-5 h-5" />
+                      Login
+                  </button>
+              )}
+            </div>
+            
 
             {/* Mobile Menu Toggle */}
             <div className="lg:hidden ml-2">
@@ -123,6 +126,16 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
           <button onClick={() => { onOpenSettings(); closeMobileMenu(); }} className="w-full flex items-center gap-3 p-3 text-base rounded-lg text-slate-300 hover:bg-slate-800 transition-colors">
             <HiOutlineKey className={`w-5 h-5 transition-all duration-300 ${getKeyIconClassName()}`}/> API Settings
           </button>
+          <div className="border-t border-slate-800 my-2"></div>
+          {session ? (
+              <button onClick={() => { logout(); closeMobileMenu(); }} className="w-full flex items-center gap-3 p-3 text-base rounded-lg text-slate-300 hover:bg-slate-800 transition-colors">
+                <HiOutlineArrowRightOnRectangle className="w-5 h-5"/> Sign Out
+              </button>
+          ) : (
+             <button onClick={() => { onLogin(); closeMobileMenu(); }} className="w-full flex items-center gap-3 p-3 text-base rounded-lg text-slate-300 hover:bg-slate-800 transition-colors">
+                <HiOutlineUserCircle className="w-5 h-5"/> Login
+              </button>
+          )}
         </div>
       )}
     </header>
