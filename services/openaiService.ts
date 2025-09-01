@@ -92,26 +92,27 @@ export const generateImage = async (prompt: string, aspectRatio: AspectRatio): P
         throw new Error("OpenAI API key is not configured.");
     }
 
-    // DALL-E 3 only supports '1024x1024', '1792x1024', '1024x1792'. We map our aspect ratios.
+    // DALL-E 3 supports '1024x1024', '1792x1024' (landscape), '1024x1792' (portrait).
+    // Map our supported aspect ratios to the closest DALL-E 3 size.
     let size: '1024x1024' | '1792x1024' | '1024x1792';
     switch (aspectRatio) {
         case '16:9':
+        case '1.91:1': // Both are landscape
             size = '1792x1024';
             break;
         case '9:16':
+        case '4:5': // Both are portrait
             size = '1024x1792';
             break;
-        case '1:1':
-        case '4:5': // DALL-E 3 doesn't support 4:5, so we use 1:1 as the closest square-like option.
-        case '1.91:1': // Closest is 16:9 landscape
-             size = '1024x1024';
-             if (aspectRatio !== '1:1') {
-                prompt += `\nCRITICAL: The final image composition MUST have a clear aspect ratio of ${aspectRatio}. Add letterboxing if necessary to achieve this exact ratio.`
-             }
-             if(aspectRatio === '1.91:1') size = '1792x1024';
-            break;
+        case '1:1': // Square
         default:
             size = '1024x1024';
+            break;
+    }
+    
+    // For ratios that don't perfectly match, add an instruction to the prompt.
+    if (aspectRatio === '4:5' || aspectRatio === '1.91:1') {
+        prompt += `\nCRITICAL: The final image composition MUST have a clear aspect ratio of ${aspectRatio}. Add letterboxing if necessary to achieve this exact ratio.`
     }
 
     try {
