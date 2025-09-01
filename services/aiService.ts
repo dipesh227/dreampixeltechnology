@@ -4,6 +4,7 @@ import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalPar
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
 import * as openRouterService from './openRouterService';
+import * as perplexityService from './perplexityService';
 
 const CONCEPTS_SCHEMA = {
     type: Type.OBJECT,
@@ -26,7 +27,9 @@ const CONCEPTS_SCHEMA = {
 
 const parseAndValidateConcepts = (jsonText: string): GeneratedConcept[] => {
     try {
-        const result = JSON.parse(jsonText);
+        // Clean the response by removing markdown code block fences that some models add.
+        const cleanedJsonText = jsonText.replace(/^```(?:json)?\s*|```\s*$/g, '').trim();
+        const result = JSON.parse(cleanedJsonText);
         
         if (result && result.concepts && Array.isArray(result.concepts)) {
             // Ensure only one is recommended, or just take the first one if multiple are.
@@ -96,25 +99,31 @@ For each of the three concepts, you must provide a grammatically perfect JSON ob
             case 'openrouter':
                 jsonText = await openRouterService.generateText(fullPrompt);
                 break;
+            case 'perplexity':
+                jsonText = await perplexityService.generateText(fullPrompt);
+                break;
             case 'gemini':
             case 'default':
+            default:
                 jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
                 break;
-            case 'perplexity':
-                 throw new Error("Perplexity API is not supported for concept generation in this tool.");
-            default:
-                 jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
         }
         return parseAndValidateConcepts(jsonText);
     } catch (error) {
         console.error("Error generating thumbnail prompts:", error);
-        throw new Error(`Failed to generate thumbnail prompts. ${error instanceof Error ? error.message : ''}`);
+        throw error;
     }
 };
 
 export const generateThumbnail = async (
     selectedPrompt: string, headshots: UploadedFile[], style: CreatorStyle, aspectRatio: AspectRatio, thumbnailText?: string, brandDetails?: string
 ): Promise<string | null> => {
+    const config = apiConfigService.getConfig();
+
+    if (config.provider === 'perplexity') {
+        throw new Error("Perplexity API does not support image generation. Please select a different provider like Default, Gemini, or OpenRouter in API Settings to generate images.");
+    }
+    
     let textInstruction = "CRITICAL: Do NOT include any text, letters, or numbers in the image unless explicitly told to. The image must be purely visual.";
     if (thumbnailText && thumbnailText.trim()) {
         textInstruction = `CRITICAL: Incorporate the following text prominently and stylistically on the thumbnail: "${thumbnailText}". Choose a bold, readable font that matches the overall mood.`;
@@ -141,17 +150,19 @@ export const generateThumbnail = async (
   - Mood: ${style.mood}
   - Image Style: ${style.imageStyle}
 `;
-    const config = apiConfigService.getConfig();
-    switch (config.provider) {
-        case 'openrouter':
-            return openRouterService.generateImage(enhancedPrompt, headshots);
-        case 'gemini':
-        case 'default':
-            return geminiNativeService.generateImage(enhancedPrompt, headshots);
-        case 'perplexity':
-            throw new Error("Perplexity API does not currently support the advanced image generation required by this tool. Please select 'Default', 'Custom Gemini' or 'OpenRouter' in the API Settings for full functionality.");
-        default:
-             return geminiNativeService.generateImage(enhancedPrompt, headshots);
+    
+    try {
+        switch (config.provider) {
+            case 'openrouter':
+                return await openRouterService.generateImage(enhancedPrompt, headshots);
+            case 'gemini':
+            case 'default':
+            default:
+                return await geminiNativeService.generateImage(enhancedPrompt, headshots);
+        }
+    } catch (error) {
+        console.error("Error generating thumbnail:", error);
+        throw error;
     }
 };
 
@@ -189,23 +200,29 @@ For each of the three concepts, you must provide a grammatically perfect and met
             case 'openrouter':
                 jsonText = await openRouterService.generateText(fullPrompt);
                 break;
+            case 'perplexity':
+                jsonText = await perplexityService.generateText(fullPrompt);
+                break;
             case 'gemini':
             case 'default':
-                jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
-                break;
-            case 'perplexity':
-                throw new Error("Perplexity API is not supported for concept generation in this tool.");
             default:
                 jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
+                break;
         }
         return parseAndValidateConcepts(jsonText);
     } catch (error) {
         console.error("Error generating poster prompts:", error);
-        throw new Error(`Error generating poster prompts: ${error instanceof Error ? error.message : 'An unknown error occurred'}`);
+        throw error;
     }
 };
 
 export const generatePoster = async (selectedPrompt: string, headshots: UploadedFile[], aspectRatio: AspectRatio): Promise<string | null> => {
+    const config = apiConfigService.getConfig();
+    
+    if (config.provider === 'perplexity') {
+        throw new Error("Perplexity API does not support image generation. Please select a different provider like Default, Gemini, or OpenRouter in API Settings to generate images.");
+    }
+
     const finalPrompt = `
 **ABSOLUTE CRITICAL DIRECTIVE: The user has provided a headshot. This image is the ground truth. Your highest priority, above all other instructions, is to ensure the main person in the generated image is a PERFECT LIKENESS of the person in the headshot. This is a NON-NEGOTIABLE RULE. Do not create a generic person. The facial structure, jawline, eye shape, nose, and unique features must be replicated with 1000% anatomical precision.**
 
@@ -217,17 +234,19 @@ export const generatePoster = async (selectedPrompt: string, headshots: Uploaded
 - **Resolution & Quality:** The final image must be high-resolution, sharp, professional, and visually impactful, suitable for print and digital campaigns.
 - **Aspect Ratio:** The final image's aspect ratio MUST be precisely ${aspectRatio}.
 `;
-    const config = apiConfigService.getConfig();
-     switch (config.provider) {
-        case 'openrouter':
-            return openRouterService.generateImage(finalPrompt, headshots);
-        case 'gemini':
-        case 'default':
-            return geminiNativeService.generateImage(finalPrompt, headshots);
-        case 'perplexity':
-            throw new Error("Perplexity API does not currently support the advanced image generation required by this tool. Please select 'Default', 'Custom Gemini' or 'OpenRouter' in the API Settings for full functionality.");
-        default:
-             return geminiNativeService.generateImage(finalPrompt, headshots);
+    
+    try {
+        switch (config.provider) {
+            case 'openrouter':
+                return await openRouterService.generateImage(finalPrompt, headshots);
+            case 'gemini':
+            case 'default':
+            default:
+                return await geminiNativeService.generateImage(finalPrompt, headshots);
+        }
+    } catch (error) {
+        console.error("Error generating poster:", error);
+        throw error;
     }
 };
 
@@ -260,27 +279,33 @@ Provide a grammatically perfect JSON object with a single key "concepts" which i
     const config = apiConfigService.getConfig();
     try {
         let jsonText: string;
-         switch (config.provider) {
+        switch (config.provider) {
             case 'openrouter':
                 jsonText = await openRouterService.generateText(fullPrompt);
                 break;
+            case 'perplexity':
+                jsonText = await perplexityService.generateText(fullPrompt);
+                break;
             case 'gemini':
             case 'default':
-                jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
-                break;
-            case 'perplexity':
-                throw new Error("Perplexity API is not supported for concept generation in this tool.");
             default:
                 jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
+                break;
         }
         return parseAndValidateConcepts(jsonText);
     } catch (error) {
         console.error("Error generating ad concepts:", error);
-        throw new Error(`Failed to generate ad concepts. ${error instanceof Error ? error.message : ''}`);
+        throw error;
     }
 };
 
 export const generateAdBanner = async (selectedPrompt: string, productImage: UploadedFile, modelHeadshot: UploadedFile, headline: string, brandDetails: string, aspectRatio: AspectRatio): Promise<string | null> => {
+    const config = apiConfigService.getConfig();
+    
+    if (config.provider === 'perplexity') {
+        throw new Error("Perplexity API does not support image generation. Please select a different provider like Default, Gemini, or OpenRouter in API Settings to generate images.");
+    }
+    
     const allImages = [productImage, modelHeadshot];
     const finalPrompt = `
 **ABSOLUTE CRITICAL DIRECTIVE: The user has provided a product image and a model's headshot. Your highest priority, above all other instructions, is to ensure the person in the generated image is a PERFECT LIKENESS of the person in the model headshot. This is a NON-NEGOTIABLE RULE. Replicate the facial structure, jawline, and unique features with 1000% anatomical precision. Failure to do so invalidates the entire generation.**
@@ -297,16 +322,18 @@ export const generateAdBanner = async (selectedPrompt: string, productImage: Upl
 
 Execute this brief with the skill of an award-winning digital artist.
 `;
-    const config = apiConfigService.getConfig();
-    switch (config.provider) {
-        case 'openrouter':
-            return openRouterService.generateImage(finalPrompt, allImages);
-        case 'gemini':
-        case 'default':
-            return geminiNativeService.generateImage(finalPrompt, allImages);
-        case 'perplexity':
-            throw new Error("Perplexity API does not currently support the advanced image generation required by this tool. Please select 'Default', 'Custom Gemini' or 'OpenRouter' in the API Settings for full functionality.");
-        default:
-            return geminiNativeService.generateImage(finalPrompt, allImages);
+    
+    try {
+        switch (config.provider) {
+            case 'openrouter':
+                return await openRouterService.generateImage(finalPrompt, allImages);
+            case 'gemini':
+            case 'default':
+            default:
+                return await geminiNativeService.generateImage(finalPrompt, allImages);
+        }
+    } catch (error) {
+        console.error("Error generating ad banner:", error);
+        throw error;
     }
 };

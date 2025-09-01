@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
           className="flex flex-col items-center justify-center w-1/2 cursor-pointer"
           onClick={onNavigateHome}
         >
-            <DreamLogo className="h-11 md:h-20 w-auto transition-all" />
+            <DreamLogo className="h-8 md:h-14 w-auto transition-all" />
             <p className="hidden md:block text-sm text-slate-400 font-light mt-2">Your Vision, Amplified by AI.</p>
         </div>
 
