@@ -1,4 +1,5 @@
 
+
 import { createClient } from '@supabase/supabase-js';
 
 // --- Supabase Configuration ---
@@ -6,14 +7,22 @@ import { createClient } from '@supabase/supabase-js';
 // for security and flexibility in deployment environments. Ensure you have a .env
 // file with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY set.
 
-// FIX: Cast `import.meta` to `any` to resolve TypeScript error about missing 'env' property.
 const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL as string;
-// FIX: Cast `import.meta` to `any` to resolve TypeScript error about missing 'env' property.
 const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY as string;
 
-if (!supabaseUrl || !supabaseAnonKey) {
+/**
+ * Checks if the Supabase environment variables are set.
+ * @returns {boolean} - True if both URL and Key are present, false otherwise.
+ */
+export const areSupabaseKeysSet = (): boolean => {
+    return !!supabaseUrl && !!supabaseAnonKey;
+};
+
+
+if (!areSupabaseKeysSet()) {
     // This provides a clear error in the developer console if the .env file is missing or misconfigured.
-    throw new Error('Supabase environment variables not found. Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.');
+    // The UI will handle showing a message to the user.
+    console.error('Supabase environment variables not found. Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.');
 }
 
 // Initialize and export the Supabase client

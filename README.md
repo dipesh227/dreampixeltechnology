@@ -151,13 +151,13 @@ cd dreampixel-ai
 npm install
 ```
 
-### 3. Environment Variables
+### 3. Environment Variables (Critical)
 
 Create a `.env` file in the root of the project by copying the example:
 ```bash
 cp .env.example .env
 ```
-Now, open `.env` and add your credentials:
+Now, open `.env` and add your credentials. **The app will not start without these.**
 
 ```env
 # .env
@@ -172,7 +172,7 @@ VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
 VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
 ```
 
-### 4. Supabase Backend Setup (CRITICAL)
+### 4. Supabase Backend Setup
 
 This step configures your database, authentication, and encryption.
 
@@ -432,13 +432,30 @@ GRANT EXECUTE ON FUNCTION public.submit_encrypted_feedback(TEXT, UUID) TO authen
 
 ### 5. Google Authentication Setup
 
-1.  Go to your Supabase Project Dashboard -> **Authentication** -> **Providers**.
-2.  Click on **Google** and enable it.
-3.  Copy the **Redirect URI (Callback URL)**.
-4.  Go to the [Google Cloud Console](https://console.cloud.google.com/), create a new project, then go to **APIs & Services -> Credentials**.
-5.  Create an **OAuth 2.0 Client ID**, select "Web application", and paste the Supabase callback URL into the "Authorized redirect URIs" field.
-6.  Copy the **Client ID** and **Client Secret** from Google Cloud back into the Supabase Google provider settings.
-7.  Click **Save**.
+To enable "Sign in with Google", you need to provide Supabase with credentials from Google Cloud.
+
+1.  **In your Supabase Project:**
+    -   Go to **Authentication** -> **Providers**.
+    -   Click on **Google** to open the configuration panel.
+    -   You will see a **Redirect URI (Callback URL)**. Copy this URL.
+
+2.  **In the Google Cloud Console:**
+    -   Go to the [Google Cloud Console](https://console.cloud.google.com/).
+    -   Create a new project (e.g., "DreamPixel Auth") or select an existing one.
+    -   In the sidebar, navigate to **APIs & Services** -> **Credentials**.
+    -   Click **+ CREATE CREDENTIALS** at the top and select **OAuth client ID**.
+    -   For **Application type**, select **Web application**.
+    -   Give it a name (e.g., "Supabase Web Login").
+    -   Under **Authorized redirect URIs**, click **+ ADD URI** and paste the **Redirect URI** you copied from Supabase.
+    -   Click **CREATE**.
+
+3.  **Connect Google to Supabase:**
+    -   After creating the credential, Google Cloud will show you a **Client ID** and a **Client Secret**.
+    -   Copy the **Client ID** and paste it into the "Client ID" field in your Supabase Google provider settings.
+    -   Copy the **Client Secret** and paste it into the "Client Secret" field in Supabase.
+    -   Click **Save** in the Supabase dashboard.
+
+Google Authentication is now configured and ready to use in the app.
 
 ### 6. Running the Development Server
 
@@ -446,7 +463,7 @@ GRANT EXECUTE ON FUNCTION public.submit_encrypted_feedback(TEXT, UUID) TO authen
 npm run dev
 ```
 
-The application should now be running locally, fully connected to your secure Supabase backend.
+The application should now be running locally, fully connected to your secure Supabase backend. If you missed the `.env` file setup, the app will show a friendly error screen with instructions.
 ---
 ## 📄 License
 
