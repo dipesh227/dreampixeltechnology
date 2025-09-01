@@ -26,19 +26,22 @@ export const saveConfig = (config: ApiConfig): void => {
 export const getApiKey = (): string => {
     const config = getConfig();
     // Vite exposes client-side environment variables on `import.meta.env`
-    // FIX: Cast `import.meta` to `any` to resolve TypeScript error about missing 'env' property.
+    // The default key is sourced from environment variables for production builds.
     const defaultApiKey = ((import.meta as any).env.VITE_API_KEY as string) || '';
 
     switch (config.provider) {
         case 'gemini':
-            // Use custom key if available, otherwise fall back to environment variable
-            return config.geminiApiKey || defaultApiKey;
+            // Use only the user-provided custom Gemini key.
+            return config.geminiApiKey || '';
         case 'openrouter':
+            // Use only the user-provided OpenRouter key.
             return config.openRouterApiKey || '';
         case 'openai':
+            // Use only the user-provided OpenAI key.
             return config.openaiApiKey || '';
         case 'default':
         default:
+            // Use only the application's default key.
             return defaultApiKey;
     }
 };
