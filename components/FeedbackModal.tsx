@@ -7,23 +7,51 @@ interface FeedbackModalProps {
     onClose: () => void;
 }
 
+const MAX_FEEDBACK_LENGTH = 2000;
+
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
     const { session } = useAuth();
     const [feedback, setFeedback] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [apiError, setApiError] = useState<string | null>(null);
+    const [validationError, setValidationError] = useState<string | null>(null);
+
+    const handleFeedbackChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const newFeedback = e.target.value;
+        // Prevent user from typing past the max length
+        if (newFeedback.length <= MAX_FEEDBACK_LENGTH) {
+            setFeedback(newFeedback);
+        }
+        
+        // Clear validation error as user types
+        if (validationError) {
+            setValidationError(null);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!feedback.trim()) return;
+        
+        const trimmedFeedback = feedback.trim();
+
+        if (trimmedFeedback.length < 10) {
+            setValidationError('Please provide at least 10 characters of feedback.');
+            return;
+        }
+
+        if (trimmedFeedback.length > MAX_FEEDBACK_LENGTH) {
+            setValidationError(`Feedback cannot exceed ${MAX_FEEDBACK_LENGTH} characters.`);
+            return;
+        }
 
         setIsSubmitting(true);
-        setError(null);
+        setApiError(null);
+        setValidationError(null);
 
         try {
             await feedbackService.submitFeedback(
-                feedback.trim(),
+                trimmedFeedback,
                 session?.user?.id || null
             );
             
@@ -34,7 +62,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
 
         } catch (err) {
             console.error('Error submitting feedback:', err);
-            setError(err instanceof Error ? err.message : 'Failed to submit feedback. Please try again.');
+            setApiError(err instanceof Error ? err.message : 'Failed to submit feedback. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -61,26 +89,38 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
                 ) : (
                     <form onSubmit={handleSubmit}>
                         <main className="p-6 space-y-4">
-                             {error && <p className="text-sm text-red-400 bg-red-900/30 p-3 rounded-lg">{error}</p>}
+                             {apiError && <p className="text-sm text-red-400 bg-red-900/30 p-3 rounded-lg">{apiError}</p>}
                             <div>
                                 <label htmlFor="feedback-textarea" className="font-semibold text-slate-300">Your Feedback</label>
                                 <p className="text-sm text-slate-500 mb-2">We'd love to hear your thoughts on what's working well and what we can improve.</p>
                                 <textarea
                                     id="feedback-textarea"
                                     value={feedback}
-                                    onChange={(e) => setFeedback(e.target.value)}
+                                    onChange={handleFeedbackChange}
                                     placeholder="Tell us about your experience..."
-                                    className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm"
+                                    className={`w-full p-3 bg-slate-800 border rounded-lg focus:ring-2 focus:border-purple-500 transition text-sm ${validationError ? 'border-red-500 focus:ring-red-500' : 'border-slate-700 focus:ring-purple-500'}`}
                                     rows={5}
                                     required
                                     disabled={isSubmitting}
+                                    aria-invalid={!!validationError}
+                                    aria-describedby="feedback-error feedback-char-count"
                                 ></textarea>
+                                <div className="flex justify-between items-start mt-1 text-xs">
+                                    {validationError && (
+                                        <p id="feedback-error" className="text-red-400" role="alert">
+                                            {validationError}
+                                        </p>
+                                    )}
+                                    <p id="feedback-char-count" className={`ml-auto ${feedback.length > MAX_FEEDBACK_LENGTH ? 'text-red-400' : 'text-slate-500'}`}>
+                                        {feedback.length}/{MAX_FEEDBACK_LENGTH}
+                                    </p>
+                                </div>
                             </div>
                         </main>
                         
                         <footer className="flex justify-end gap-3 p-4 bg-slate-950/30 border-t border-slate-800 rounded-b-2xl">
                             <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-semibold bg-slate-800 border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors">Cancel</button>
-                            <button type="submit" disabled={!feedback.trim() || isSubmitting} className="px-4 py-2 text-sm font-semibold bg-primary-gradient text-white rounded-lg hover:opacity-90 transition-opacity disabled:bg-slate-700 disabled:cursor-not-allowed">
+                            <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm font-semibold bg-primary-gradient text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed">
                                 {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
                             </button>
                         </footer>

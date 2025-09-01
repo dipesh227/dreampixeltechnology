@@ -33,6 +33,106 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
 
 ---
 
+## 📄 Database Schema
+
+For reference, here is the schema for the tables created by the setup script. The script handles encryption by storing sensitive fields like `prompt` and `content` as `BYTEA` (byte array).
+
+<details>
+<summary><strong>profiles</strong> - Stores public user data.</summary>
+
+```sql
+CREATE TABLE public.profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name TEXT,
+  avatar_url TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>creations</strong> - Stores liked creations with encrypted prompts.</summary>
+
+```sql
+CREATE TABLE public.creations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  prompt BYTEA, -- Storing encrypted data as bytes
+  image_url TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+```
+</details>
+
+<details>
+<summary><strong>feedback</strong> - Collects user feedback with encrypted content.</summary>
+
+```sql
+CREATE TABLE public.feedback (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  content BYTEA, -- Storing encrypted data as bytes
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+```
+</details>
+
+<details>
+<summary><strong>thumbnail_generation_jobs</strong> - Logs inputs for thumbnail generation.</summary>
+
+```sql
+CREATE TABLE public.thumbnail_generation_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  description TEXT,
+  thumbnail_text TEXT,
+  brand_details TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT,
+  headshot_filenames TEXT[]
+);
+```
+</details>
+
+<details>
+<summary><strong>political_poster_jobs</strong> - Logs inputs for political poster generation.</summary>
+
+```sql
+CREATE TABLE public.political_poster_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  party_id TEXT,
+  event_theme TEXT,
+  custom_text TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT,
+  headshot_filename TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>ad_banner_jobs</strong> - Logs inputs for ad banner generation.</summary>
+
+```sql
+CREATE TABLE public.ad_banner_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  product_description TEXT,
+  headline TEXT,
+  brand_details TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT,
+  product_image_filename TEXT,
+  model_headshot_filename TEXT
+);
+```
+</details>
+
+---
+
 ## 🚀 Getting Started
 
 Follow these instructions to set up and run the project locally.
