@@ -304,7 +304,7 @@ CREATE POLICY "Users can manage their own creations."
 DROP POLICY IF EXISTS "Users can insert their own feedback." ON public.feedback;
 CREATE POLICY "Users can insert their own feedback."
   ON public.feedback FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (auth.uid() = user_id OR p_user_id IS NULL);
 
 DROP POLICY IF EXISTS "Users can manage their own thumbnail jobs." ON public.thumbnail_generation_jobs;
 CREATE POLICY "Users can manage their own thumbnail jobs."
