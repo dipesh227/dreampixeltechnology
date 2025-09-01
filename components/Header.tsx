@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DreamLogo } from './icons/DreamLogo';
-import { HiOutlineKey, HiOutlineHome, HiOutlineChatBubbleLeftEllipsis, HiOutlineArrowRightOnRectangle, HiOutlineUserCircle, HiOutlineBars3, HiOutlineXMark } from 'react-icons/hi2';
+import { HiOutlineKey, HiOutlineChatBubbleLeftEllipsis, HiOutlineArrowRightOnRectangle, HiOutlineUserCircle, HiOutlineBars3, HiOutlineXMark } from 'react-icons/hi2';
 import { ValidationStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
 
@@ -76,9 +76,9 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
       <div className="container mx-auto flex justify-between items-center">
         {/* Left Side */}
         <div className="flex-1 flex justify-start">
-           <button onClick={onNavigateHome} className="flex items-center gap-2 text-sm rounded-lg text-slate-300 transition-colors group">
-                <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 group-hover:from-blue-500/40 group-hover:to-cyan-500/40 transition-all">
-                   <HiOutlineHome className="w-5 h-5 text-cyan-300 icon-hover-effect" />
+           <button onClick={onOpenSettings} className="flex items-center gap-2 text-sm rounded-lg text-slate-300 transition-colors group">
+                <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-500/40 group-hover:to-pink-500/40 transition-all">
+                   <HiOutlineKey className={`w-5 h-5 transition-all duration-300 icon-hover-effect ${getKeyIconClassName()}`} />
                 </div>
             </button>
         </div>
@@ -94,7 +94,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
         </div>
 
         {/* Right Side */}
-        <div className="flex-1 flex items-center gap-2 justify-end">
+        <div className="flex-1 flex items-center gap-4 justify-end">
             {/* Desktop Buttons */}
             <button onClick={onOpenFeedback} className="hidden lg:flex items-center gap-2 p-2 text-sm rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-800 transition-colors group">
                 <div className="p-1 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-500/40 group-hover:to-pink-500/40 transition-all">
@@ -102,13 +102,9 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
                 </div>
                 <span className="hidden md:inline">Feedback</span>
             </button>
-            <button onClick={onOpenSettings} className="hidden lg:flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-800 transition-colors">
-                <HiOutlineKey className={`w-5 h-5 transition-all duration-300 icon-hover-effect ${getKeyIconClassName()}`} />
-                <span className="hidden md:inline">API</span>
-            </button>
             
-            {/* Auth Area */}
-            <div className="hidden sm:block">
+            {/* Auth Area for Desktop */}
+            <div className="hidden lg:flex">
               {session ? (
                   <UserMenu />
               ) : (
@@ -121,8 +117,9 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
               )}
             </div>
             
-            {/* Mobile Menu Toggle */}
-            <div className="lg:hidden ml-2">
+            {/* Mobile Auth Area & Menu Toggle */}
+            <div className="lg:hidden flex items-center gap-2">
+                {session && <UserMenu />}
                 <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 rounded-md text-slate-300 hover:bg-slate-800">
                     {isMobileMenuOpen ? <HiOutlineXMark className="w-6 h-6"/> : <HiOutlineBars3 className="w-6 h-6"/>}
                 </button>
