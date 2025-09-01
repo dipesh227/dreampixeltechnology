@@ -73,10 +73,14 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
       <div className="container mx-auto flex justify-between items-center">
         {/* Left Side */}
         <div className="flex-1 flex justify-start">
-           <button onClick={onOpenSettings} className="flex items-center gap-2 text-sm rounded-lg text-slate-300 transition-colors group">
-                <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-500/40 group-hover:to-pink-500/40 transition-all">
+           <button 
+                onClick={onOpenSettings} 
+                className="flex items-center gap-2 text-sm rounded-lg text-slate-300 transition-colors group lg:p-2 lg:border lg:border-slate-700 lg:bg-slate-800/80 lg:hover:bg-slate-800"
+            >
+                <div className="p-2.5 lg:p-1 bg-slate-800 border border-slate-700 rounded-lg lg:rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-500/40 group-hover:to-pink-500/40 transition-all">
                    <HiOutlineKey className={`w-5 h-5 transition-all duration-300 icon-hover-effect ${getKeyIconClassName()}`} />
                 </div>
+                <span className="hidden lg:inline">API Settings</span>
             </button>
         </div>
 
