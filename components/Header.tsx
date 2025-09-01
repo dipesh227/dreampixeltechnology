@@ -40,8 +40,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
           className="flex flex-col items-center justify-center w-1/2 cursor-pointer logo-container"
           onClick={onNavigateHome}
         >
-            <DreamLogo className="h-8 md:h-14 w-auto" />
-            <p className="hidden md:block text-sm text-slate-400 font-light mt-2">Your Vision, Amplified by AI.</p>
+            <DreamLogo className="h-10 md:h-12 w-auto" />
         </div>
 
         <div className="flex items-center gap-2 justify-end w-1/4">
