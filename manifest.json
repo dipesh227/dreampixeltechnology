@@ -1,0 +1,17 @@
+{
+  "short_name": "DreamPixel",
+  "name": "DreamPixel Technology - AI Content Creation Suite",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg width='192' height='192' viewBox='0 0 110 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='icon-grad-blue' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230ea5e9'/%3E%3Cstop offset='100%25' stop-color='%232563eb'/%3E%3C/linearGradient%3E%3ClinearGradient id='icon-grad-yellow' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23facc15'/%3E%3Cstop offset='100%25' stop-color='%23fbbf24'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M48 0H12C5.373 0 0 5.373 0 12V88C0 94.627 5.373 100 12 100H48V0Z' fill='url(%23icon-grad-blue)'/%3E%3Cpath d='M48 0H80C96.569 0 110 13.431 110 30V70C110 86.569 96.569 100 80 100H48V0ZM80 20C85.523 20 90 24.477 90 30V70C90 75.523 85.523 80 80 80H68V20H80Z' fill='url(%23icon-grad-yellow)'/%3E%3Ccircle cx='24' cy='20' r='4' fill='%2360a5fa'/%3E%3Cpath d='M24 24V40H36' stroke='%2360a5fa' stroke-width='3' fill='none'/%3E%3Ccircle cx='36' cy='40' r='4' fill='%2360a5fa'/%3E%3Ccircle cx='24' cy='80' r='4' fill='%2360a5fa'/%3E%3Cpath d='M24 76V60H36' stroke='%2360a5fa' stroke-width='3' fill='none'/%3E%3Ccircle cx='36' cy='60' r='4' fill='%2360a5fa'/%3E%3Ccircle cx='79' cy='35' r='4' fill='%23fde047'/%3E%3Ccircle cx='79' cy='65' r='4' fill='%23fde047'/%3E%3C/svg%3E",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#1e1b4b",
+  "background_color": "#030712",
+  "description": "An AI-powered content creation suite to generate YouTube thumbnails, advertisement banners, social media posts, and political posters using Google Gemini."
+}
