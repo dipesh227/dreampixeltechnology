@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { PoliticalParty, PosterStyle, AspectRatio, UploadedFile, GeneratedConcept } from '../types';
-import { generatePosterPrompts, generatePoster } from '../services/geminiService';
+import { generatePosterPrompts, generatePoster } from '../services/aiService';
 import { POLITICAL_PARTIES, POSTER_STYLES, POSTER_THEMES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import { DownloadIcon, HeartIcon, SparklesIcon, UploadIcon, XMarkIcon, FlagIcon, CalendarDaysIcon, DocumentTextIcon, ComputerDesktopIcon, DevicePhoneMobileIcon, ArrowPathIcon, ArrowLeftIcon, DocumentDuplicateIcon, CheckIcon, LightBulbIcon } from './icons/ActionIcons';

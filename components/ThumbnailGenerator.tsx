@@ -1,6 +1,7 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { CreatorStyle, AspectRatio, UploadedFile, GeneratedConcept } from '../types';
-import { generatePrompts, generateThumbnail } from '../services/geminiService';
+import { generatePrompts, generateThumbnail } from '../services/aiService';
 import { CREATOR_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import { ArrowLeftIcon, CheckIcon, ComputerDesktopIcon, DevicePhoneMobileIcon, DownloadIcon, HeartIcon, SparklesIcon, UploadIcon, XMarkIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, TagIcon, DocumentDuplicateIcon, ArrowPathIcon, LightBulbIcon } from './icons/ActionIcons';

@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { AdStyle, AspectRatio, UploadedFile, GeneratedConcept } from '../types';
-import { generateAdConcepts, generateAdBanner } from '../services/geminiService';
+import { generateAdConcepts, generateAdBanner } from '../services/aiService';
 import { AD_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import { 

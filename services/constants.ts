@@ -297,5 +297,13 @@ export const AD_STYLES: AdStyles = {
         { id: 'chobani-fresh', name: "Chobani's Fresh & Natural", tags: 'Bright & Healthy', stylePrompt: 'A bright, clean, and natural style. Use bright, high-key lighting, fresh ingredients as props, and a feeling of health and wellness. The color palette is often white with pops of natural color from fruits.' },
         { id: 'haagen-dazs-indulgent', name: "Häagen-Dazs' Indulgent", tags: 'Luxurious & Decadent', stylePrompt: 'A dark, moody, and luxurious style focused on indulgence. Use dramatic, low-key lighting to highlight rich textures (e.g., melting chocolate). The mood is decadent, sophisticated, and sensual.' },
         { id: 'coca-cola-classic', name: "Coca-Cola's Classic Vibe", tags: 'Nostalgic & Social', stylePrompt: 'A classic, nostalgic style focused on happiness and social connection. Features people enjoying the product together. Lighting is bright and happy. Mood is timeless, joyful, and universal.' }
+    ],
+    healthAndWellness: [
+        { id: 'calm-minimalist', name: "Clean & Calming", tags: 'Minimal & Natural', stylePrompt: 'A clean, minimalist, and calming aesthetic. Use soft, natural lighting, a muted or pastel color palette, and imagery of nature or serene environments. The mood is peaceful, healthy, and trustworthy.' },
+        { id: 'active-energetic', name: "Active & Energetic", tags: 'Dynamic & Vibrant', stylePrompt: 'A high-energy and dynamic style. Feature people in motion, engaging in fitness or activities. Use bright, vibrant colors, dynamic camera angles, and a sense of movement. The mood is motivational, strong, and lively.' }
+    ],
+    travelAndLeisure: [
+        { id: 'luxury-travel', name: "Exotic & Luxurious", tags: 'Aspirational & Rich', stylePrompt: 'A rich, luxurious, and aspirational travel style. Use stunning, high-resolution landscape or resort photography. Colors are deep and saturated, lighting is golden and warm. The mood is exclusive, relaxing, and high-end.' },
+        { id: 'adventure-travel', name: "Budget & Adventure", tags: 'Authentic & Exciting', stylePrompt: 'An authentic, adventurous, and exciting style. Use candid-style photography of real travel experiences, not just posed shots. Imagery is vibrant and full of life. The mood is adventurous, accessible, and fun.' }
     ]
 };
