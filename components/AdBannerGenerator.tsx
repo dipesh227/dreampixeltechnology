@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo } from 'react';
 import { AdStyle, AspectRatio, UploadedFile, GeneratedConcept } from '../types';
 import { generateAdConcepts, generateAdBanner } from '../services/aiService';
@@ -121,15 +120,13 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
         }
     };
 
-    const handleSaveCreation = () => {
+    const handleSaveCreation = async () => {
         if (generatedBanner && !isSaved) {
             const newEntry = {
-                id: new Date().toISOString(),
                 prompt: finalPrompt,
                 imageUrl: `data:image/png;base64,${generatedBanner}`,
-                timestamp: Date.now()
             };
-            historyService.saveCreation(newEntry);
+            await historyService.saveCreation(newEntry);
             setIsSaved(true);
             onBannerGenerated();
         }

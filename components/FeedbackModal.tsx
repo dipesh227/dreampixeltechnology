@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { ChatBubbleLeftEllipsisIcon, XMarkIcon } from './icons/UiIcons';
+import { supabase } from '../services/supabaseClient';
 
 interface FeedbackModalProps {
     onClose: () => void;
@@ -9,15 +9,25 @@ interface FeedbackModalProps {
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
     const [feedback, setFeedback] = useState('');
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
         if (feedback.trim()) {
-            console.log('Feedback submitted:', feedback);
-            setIsSubmitted(true);
-            setTimeout(() => {
-                onClose();
-            }, 2000);
+            const { error } = await supabase
+                .from('feedback')
+                .insert([{ content: feedback }]);
+
+            if (error) {
+                console.error('Error submitting feedback:', error);
+                setError('Could not submit your feedback. Please try again later.');
+            } else {
+                setIsSubmitted(true);
+                setTimeout(() => {
+                    onClose();
+                }, 2000);
+            }
         }
     };
 
@@ -42,6 +52,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
                 ) : (
                     <form onSubmit={handleSubmit}>
                         <main className="p-6 space-y-4">
+                            {error && <p className="text-sm text-red-400 bg-red-900/30 p-3 rounded-lg">{error}</p>}
                             <div>
                                 <label htmlFor="feedback-textarea" className="font-semibold text-slate-300">Your Feedback</label>
                                 <p className="text-sm text-slate-500 mb-2">We'd love to hear your thoughts on what's working well and what we can improve.</p>

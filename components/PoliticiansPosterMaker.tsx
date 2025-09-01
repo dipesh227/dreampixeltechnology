@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo } from 'react';
 import { PoliticalParty, PosterStyle, AspectRatio, UploadedFile, GeneratedConcept } from '../types';
 import { generatePosterPrompts, generatePoster } from '../services/aiService';
@@ -120,15 +119,13 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
         }
     };
 
-    const handleSaveCreation = () => {
+    const handleSaveCreation = async () => {
         if (generatedPoster && !isSaved && selectedParty) {
             const newEntry = {
-                id: new Date().toISOString(),
                 prompt: finalPrompt,
                 imageUrl: `data:image/png;base64,${generatedPoster}`,
-                timestamp: Date.now()
             };
-            historyService.saveCreation(newEntry);
+            await historyService.saveCreation(newEntry);
             setIsSaved(true);
             onPosterGenerated();
         }

@@ -6,14 +6,21 @@ import { SearchIcon, TrashIcon } from './icons/UiIcons';
 const HistorySidebar: React.FC = () => {
     const [creations, setCreations] = useState<HistoryEntry[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        setCreations(historyService.getCreations());
+        const fetchCreations = async () => {
+            setIsLoading(true);
+            const data = await historyService.getCreations();
+            setCreations(data);
+            setIsLoading(false);
+        };
+        fetchCreations();
     }, []);
 
-    const handleClearCreations = () => {
+    const handleClearCreations = async () => {
         if (window.confirm("Are you sure you want to delete all your liked creations? This action cannot be undone.")) {
-            historyService.clearCreations();
+            await historyService.clearCreations();
             setCreations([]);
         }
     };
@@ -53,7 +60,11 @@ const HistorySidebar: React.FC = () => {
                     <SearchIcon className="w-4 h-4 text-slate-500" />
                 </div>
             </div>
-            {filteredCreations.length > 0 ? (
+            {isLoading ? (
+                 <div className="text-center py-8 flex-grow flex items-center justify-center">
+                    <div className="w-6 h-6 border-2 border-t-transparent border-slate-400 rounded-full animate-spin"></div>
+                 </div>
+            ) : filteredCreations.length > 0 ? (
                 <div className="space-y-4 pr-2 overflow-y-auto flex-grow">
                     {filteredCreations.map(creation => (
                         <div key={creation.id} className="group relative">
