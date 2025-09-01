@@ -11,6 +11,41 @@ const getAiClient = () => {
     return new GoogleGenAI({ apiKey });
 };
 
+const generateTextWithOpenRouter = async (prompt: string): Promise<string> => {
+    const apiKey = apiConfigService.getApiKey();
+    if (!apiKey) throw new Error("OpenRouter API key is not configured.");
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://dreampixel.ai", // Required by OpenRouter
+            "X-Title": "DreamPixel Technology" // Required by OpenRouter
+        },
+        body: JSON.stringify({
+            model: "google/gemini-2.0-flash-exp:free",
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" }
+        })
+    });
+
+    if (!response.ok) {
+        const errorBody = await response.text();
+        console.error("OpenRouter API error:", errorBody);
+        throw new Error(`OpenRouter API request failed: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    if (result?.choices?.[0]?.message?.content) {
+        return result.choices[0].message.content;
+    }
+
+    console.error("Could not find text data in OpenRouter response", result);
+    throw new Error("Unsupported response format from OpenRouter.");
+};
+
+
 const generateWithOpenRouter = async (prompt: string, images: UploadedFile[]): Promise<string | null> => {
     const apiKey = apiConfigService.getApiKey();
     if (!apiKey) throw new Error("OpenRouter API key is not configured.");
@@ -45,9 +80,26 @@ const generateWithOpenRouter = async (prompt: string, images: UploadedFile[]): P
 
     const result = await response.json();
     
-    if (result?.choices?.[0]?.message?.content) {
-        const content = result.choices[0].message.content;
-         // Handle image data which might be in various formats
+    const content = result?.choices?.[0]?.message?.content;
+    if (!content) {
+        console.error("Could not find content in OpenRouter response", result);
+        throw new Error("Unsupported response format from OpenRouter.");
+    }
+
+    // Handle if content is an array of parts (standard for multimodal responses)
+    if (Array.isArray(content)) {
+        for (const part of content) {
+            if (part.type === 'image_url' && part.image_url?.url) {
+                const base64Match = part.image_url.url.match(/data:image\/\w+;base64,([\s\S]+)/);
+                if (base64Match && base64Match[1]) {
+                    return base64Match[1];
+                }
+            }
+        }
+    }
+    
+    // Handle if content is a string (some models might do this)
+    if (typeof content === 'string') {
         const base64Match = content.match(/data:image\/\w+;base64,([\s\S]+)/);
         if (base64Match && base64Match[1]) {
             return base64Match[1];
@@ -66,9 +118,8 @@ const generateWithPerplexity = async (): Promise<string | null> => {
 
 
 export const generatePrompts = async (description: string, style: CreatorStyle): Promise<GeneratedConcept[]> => {
-    const ai = getAiClient();
-    try {
-        const prompt = `
+    const config = apiConfigService.getConfig();
+    const prompt = `
 You are a PhD-level viral content strategist and a world-class YouTube thumbnail designer. Your primary mission is to generate three strategically distinct and compelling thumbnail concepts that will maximize the click-through rate (CTR) for a given video.
 
 **Primary Goal:** Generate three concepts engineered for maximum virality and viewer engagement.
@@ -95,33 +146,41 @@ For each of the three concepts, you must provide a grammatically perfect JSON ob
 2.  **"reason"**: A brief, professional explanation of the marketing psychology behind the concept and why it strategically aligns with the creator's brand to maximize clicks.
 3.  **"isRecommended"**: A boolean value. Mark ONLY ONE concept as 'true'. This must be the concept you, as an expert, believe has the absolute highest potential for virality.
 `;
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        concepts: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    prompt: { type: Type.STRING, description: "The AI image generator prompt." },
-                                    reason: { type: Type.STRING, description: "Explanation of why this concept is effective." },
-                                    isRecommended: { type: Type.BOOLEAN, description: "Set to true for the single best concept." }
+    try {
+        let jsonText: string;
+        
+        if (config.provider === 'openrouter') {
+            jsonText = await generateTextWithOpenRouter(prompt);
+        } else {
+            const ai = getAiClient();
+            const response = await ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: prompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: Type.OBJECT,
+                        properties: {
+                            concepts: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        prompt: { type: Type.STRING, description: "The AI image generator prompt." },
+                                        reason: { type: Type.STRING, description: "Explanation of why this concept is effective." },
+                                        isRecommended: { type: Type.BOOLEAN, description: "Set to true for the single best concept." }
+                                    },
+                                    required: ["prompt", "reason", "isRecommended"]
                                 },
-                                required: ["prompt", "reason", "isRecommended"]
                             },
                         },
+                        required: ["concepts"],
                     },
-                    required: ["concepts"],
                 },
-            },
-        });
-        
-        const jsonText = response.text.trim();
+            });
+            jsonText = response.text.trim();
+        }
+
         const result = JSON.parse(jsonText);
 
         if (result && result.concepts && Array.isArray(result.concepts)) {
@@ -236,7 +295,7 @@ export const generatePosterPrompts = async (
     customText: string,
     style: PosterStyle
 ): Promise<GeneratedConcept[]> => {
-    const ai = getAiClient();
+    const config = apiConfigService.getConfig();
     const prompt = `
 You are a world-class political design director and a professional campaign strategist with decades of experience in high-stakes elections. Your task is to generate three distinct, powerful, and professional political poster concepts that will create a strong emotional connection with the target audience and leave a lasting impact.
 
@@ -264,33 +323,39 @@ For each of the three concepts, you must provide a grammatically perfect and met
 3.  **"isRecommended"**: A boolean value. You must mark ONLY ONE concept as 'true'. This should be the concept that you, as a seasoned expert, believe is the most strategically brilliant, visually compelling, and professionally executed.
 `;
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        concepts: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    prompt: { type: Type.STRING, description: "The AI image generator prompt for the poster." },
-                                    reason: { type: Type.STRING, description: "Explanation of why this concept is effective." },
-                                    isRecommended: { type: Type.BOOLEAN, description: "Set to true for the single best concept." }
+        let jsonText: string;
+        if(config.provider === 'openrouter') {
+            jsonText = await generateTextWithOpenRouter(prompt);
+        } else {
+            const ai = getAiClient();
+            const response = await ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: prompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: Type.OBJECT,
+                        properties: {
+                            concepts: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        prompt: { type: Type.STRING, description: "The AI image generator prompt for the poster." },
+                                        reason: { type: Type.STRING, description: "Explanation of why this concept is effective." },
+                                        isRecommended: { type: Type.BOOLEAN, description: "Set to true for the single best concept." }
+                                    },
+                                    required: ["prompt", "reason", "isRecommended"]
                                 },
-                                required: ["prompt", "reason", "isRecommended"]
                             },
                         },
+                        required: ["concepts"],
                     },
-                    required: ["concepts"],
                 },
-            },
-        });
+            });
+            jsonText = response.text.trim();
+        }
 
-        const jsonText = response.text.trim();
         const result = JSON.parse(jsonText);
         if (result && result.concepts && Array.isArray(result.concepts)) {
             let recommendedFound = false;
@@ -379,7 +444,7 @@ export const generateAdConcepts = async (
     headline: string,
     style: AdStyle
 ): Promise<GeneratedConcept[]> => {
-    const ai = getAiClient();
+    const config = apiConfigService.getConfig();
     const prompt = `
 You are a world-class Creative Director at a top-tier global advertising agency. You are a master of visual storytelling, marketing psychology, and brand strategy. Your task is to devise three strategically brilliant and visually stunning ad banner concepts.
 
@@ -406,32 +471,39 @@ Provide a grammatically perfect JSON object with a single key "concepts" which i
 3.  **"isRecommended"**: A boolean value. Mark ONLY ONE concept as 'true'—the one you, as a creative genius, believe will have the highest ROI.
 `;
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        concepts: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    prompt: { type: Type.STRING, description: "The AI image generator prompt for the ad banner." },
-                                    reason: { type: Type.STRING, description: "Explanation of the ad's marketing strategy." },
-                                    isRecommended: { type: Type.BOOLEAN, description: "Set to true for the single best concept." }
+        let jsonText: string;
+        if (config.provider === 'openrouter') {
+            jsonText = await generateTextWithOpenRouter(prompt);
+        } else {
+            const ai = getAiClient();
+            const response = await ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: prompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: Type.OBJECT,
+                        properties: {
+                            concepts: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        prompt: { type: Type.STRING, description: "The AI image generator prompt for the ad banner." },
+                                        reason: { type: Type.STRING, description: "Explanation of the ad's marketing strategy." },
+                                        isRecommended: { type: Type.BOOLEAN, description: "Set to true for the single best concept." }
+                                    },
+                                    required: ["prompt", "reason", "isRecommended"]
                                 },
-                                required: ["prompt", "reason", "isRecommended"]
                             },
                         },
+                        required: ["concepts"],
                     },
-                    required: ["concepts"],
                 },
-            },
-        });
-        const jsonText = response.text.trim();
+            });
+            jsonText = response.text.trim();
+        }
+        
         const result = JSON.parse(jsonText);
         if (result && result.concepts && Array.isArray(result.concepts)) {
             let recommendedFound = false;
