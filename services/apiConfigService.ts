@@ -35,8 +35,8 @@ export const getApiKey = (): string => {
             return config.geminiApiKey || defaultApiKey;
         case 'openrouter':
             return config.openRouterApiKey || '';
-        case 'perplexity':
-            return config.perplexityApiKey || '';
+        case 'openai':
+            return config.openaiApiKey || '';
         case 'default':
         default:
             return defaultApiKey;

@@ -53,13 +53,13 @@ export interface HistoryEntry {
   timestamp: number;
 }
 
-export type ApiProvider = 'default' | 'gemini' | 'openrouter' | 'perplexity';
+export type ApiProvider = 'default' | 'gemini' | 'openrouter' | 'openai';
 
 export interface ApiConfig {
   provider: ApiProvider;
   geminiApiKey?: string;
   openRouterApiKey?: string;
-  perplexityApiKey?: string;
+  openaiApiKey?: string;
 }
 
 export interface GeneratedConcept {

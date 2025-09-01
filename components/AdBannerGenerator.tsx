@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { AdStyle, AspectRatio, UploadedFile, GeneratedConcept } from '../types';
+import { AdStyle, AspectRatio, UploadedFile, GeneratedConcept, ApiProvider } from '../types';
 import { generateAdConcepts, generateAdBanner } from '../services/aiService';
 import { AD_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
-// FIX: 'HiOutlineDownload' and 'HiOutlineUpload' are not exported members of 'react-icons/hi2'. Replaced them with 'HiArrowDownTray' and 'HiArrowUpTray'.
+import * as apiConfigService from '../services/apiConfigService';
 import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineDocumentText, HiOutlineChatBubbleLeftRight, HiOutlineTag, HiOutlineArrowPath, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb, HiOutlineCube, HiOutlineUserCircle } from 'react-icons/hi2';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
@@ -14,7 +14,6 @@ interface AdBannerGeneratorProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
-// FIX: Corrected component structure. The closing brace for the component was misplaced, causing all logic to be outside its scope.
 const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, onBannerGenerated, onGenerating }) => {
     const [step, setStep] = useState<Step>('input');
     const [productImage, setProductImage] = useState<UploadedFile | null>(null);
@@ -33,6 +32,12 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
     const [isLoading, setIsLoading] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
     const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
+    const [apiProvider, setApiProvider] = useState<ApiProvider>('default');
+
+    useEffect(() => {
+        const config = apiConfigService.getConfig();
+        setApiProvider(config.provider);
+    }, []);
 
     useEffect(() => {
         onGenerating(isLoading);
@@ -154,6 +159,11 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                         <h2 className="text-xl font-bold text-white mb-1">1. Upload Assets</h2>
                         <p className="text-sm text-slate-400">Provide your product image and model headshot.</p>
                      </div>
+                      {apiProvider === 'openai' && (
+                        <div className="p-3 bg-yellow-900/20 border border-yellow-700/50 rounded-lg text-xs text-yellow-400">
+                            <strong>Provider Note:</strong> You have OpenAI selected. DALL-E 3 is a powerful text-to-image model but does not use uploaded images for likeness. The generated image will be based on the text prompt only.
+                        </div>
+                    )}
                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Product Image Upload */}
                         <div className="text-center">
@@ -306,7 +316,6 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                  <button onClick={() => handleGenerateBanner(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed"><HiOutlineArrowPath className="w-5 h-5"/> Regenerate</button>
                  <button onClick={handleSaveCreation} disabled={isSaved} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed"><HiOutlineHeart className={`w-5 h-5 ${isSaved ? 'text-pink-500' : ''}`} /> {isSaved ? 'Saved!' : 'Like & Save Banner'}</button>
                  <a href={`data:image/png;base64,${generatedBanner}`} download="dreampixel-banner.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
-                    {/* FIX: Replaced 'HiOutlineDownload' with 'HiArrowDownTray' */}
                     <HiArrowDownTray className="w-5 h-5"/> Download
                  </a>
              </div>

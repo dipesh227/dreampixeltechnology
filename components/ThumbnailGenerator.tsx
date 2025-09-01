@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { CreatorStyle, AspectRatio, UploadedFile, GeneratedConcept } from '../types';
+import { CreatorStyle, AspectRatio, UploadedFile, GeneratedConcept, ApiProvider } from '../types';
 import { generatePrompts, generateThumbnail } from '../services/aiService';
 import { CREATOR_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
-// FIX: 'HiOutlineDownload' and 'HiOutlineUpload' are not exported members of 'react-icons/hi2'. Replaced them with 'HiArrowDownTray' and 'HiArrowUpTray'.
+import * as apiConfigService from '../services/apiConfigService';
 import { HiArrowLeft, HiCheck, HiComputerDesktop, HiDevicePhoneMobile, HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineDocumentText, HiOutlineChatBubbleLeftRight, HiOutlineTag, HiOutlineDocumentDuplicate, HiOutlineArrowPath, HiOutlineLightBulb } from 'react-icons/hi2';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
@@ -31,6 +31,12 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
     const [loadingMessage, setLoadingMessage] = useState('');
     const [isSaved, setIsSaved] = useState(false);
     const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
+    const [apiProvider, setApiProvider] = useState<ApiProvider>('default');
+
+    useEffect(() => {
+        const config = apiConfigService.getConfig();
+        setApiProvider(config.provider);
+    }, []);
 
     useEffect(() => {
         onGenerating(isLoading);
@@ -206,10 +212,14 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
                     <h2 className="text-xl font-bold text-white mb-1">2. Upload Headshots</h2>
                     <p className="text-sm text-slate-400 mb-4">Provide 1-5 images for the best face accuracy.</p>
+                     {apiProvider === 'openai' && (
+                        <div className="p-3 mb-4 bg-yellow-900/20 border border-yellow-700/50 rounded-lg text-xs text-yellow-400">
+                            <strong>Provider Note:</strong> You have OpenAI selected. DALL-E 3 is a powerful text-to-image model but does not use uploaded headshots to create a likeness. The generated image will be based on the text prompt only.
+                        </div>
+                    )}
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
                          <input type="file" id="file-upload" className="hidden" multiple accept="image/png, image/jpeg" onChange={handleFileChange} disabled={headshots.length >= 5} />
                          <label htmlFor="file-upload" className={`cursor-pointer ${headshots.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                            {/* FIX: Replaced 'HiOutlineUpload' with 'HiArrowUpTray' */}
                             <HiArrowUpTray className="w-8 h-8 mx-auto text-slate-500 mb-2"/>
                             <p className="text-slate-300 font-semibold">Click to upload or drag & drop</p>
                             <p className="text-xs text-slate-500">You can add {5 - headshots.length} more images.</p>
@@ -391,7 +401,6 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                     <HiOutlineHeart className={`w-5 h-5 ${isSaved ? 'text-pink-500' : ''}`} /> {isSaved ? 'Saved!' : 'Like & Save Creation'}
                  </button>
                  <a href={`data:image/png;base64,${generatedThumbnail}`} download="dreampixel-thumbnail.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
-                    {/* FIX: Replaced 'HiOutlineDownload' with 'HiArrowDownTray' */}
                     <HiArrowDownTray className="w-5 h-5"/> Download
                  </a>
              </div>

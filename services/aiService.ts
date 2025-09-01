@@ -4,7 +4,7 @@ import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalPar
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
 import * as openRouterService from './openRouterService';
-import * as perplexityService from './perplexityService';
+import * as openaiService from './openaiService';
 
 const CONCEPTS_SCHEMA = {
     type: Type.OBJECT,
@@ -99,8 +99,8 @@ For each of the three concepts, you must provide a grammatically perfect JSON ob
             case 'openrouter':
                 jsonText = await openRouterService.generateText(fullPrompt);
                 break;
-            case 'perplexity':
-                jsonText = await perplexityService.generateText(fullPrompt);
+            case 'openai':
+                jsonText = await openaiService.generateText(fullPrompt);
                 break;
             case 'gemini':
             case 'default':
@@ -119,10 +119,6 @@ export const generateThumbnail = async (
     selectedPrompt: string, headshots: UploadedFile[], style: CreatorStyle, aspectRatio: AspectRatio, thumbnailText?: string, brandDetails?: string
 ): Promise<string | null> => {
     const config = apiConfigService.getConfig();
-
-    if (config.provider === 'perplexity') {
-        throw new Error("Perplexity API does not support image generation. Please select a different provider like Default, Gemini, or OpenRouter in API Settings to generate images.");
-    }
     
     let textInstruction = "CRITICAL: Do NOT include any text, letters, or numbers in the image unless explicitly told to. The image must be purely visual.";
     if (thumbnailText && thumbnailText.trim()) {
@@ -155,6 +151,10 @@ export const generateThumbnail = async (
         switch (config.provider) {
             case 'openrouter':
                 return await openRouterService.generateImage(enhancedPrompt, headshots);
+            case 'openai':
+                // DALL-E 3 doesn't use input images for likeness, so we don't pass them.
+                // The UI will show a warning to the user about this.
+                return await openaiService.generateImage(enhancedPrompt, aspectRatio);
             case 'gemini':
             case 'default':
             default:
@@ -200,8 +200,8 @@ For each of the three concepts, you must provide a grammatically perfect and met
             case 'openrouter':
                 jsonText = await openRouterService.generateText(fullPrompt);
                 break;
-            case 'perplexity':
-                jsonText = await perplexityService.generateText(fullPrompt);
+            case 'openai':
+                jsonText = await openaiService.generateText(fullPrompt);
                 break;
             case 'gemini':
             case 'default':
@@ -218,10 +218,6 @@ For each of the three concepts, you must provide a grammatically perfect and met
 
 export const generatePoster = async (selectedPrompt: string, headshots: UploadedFile[], aspectRatio: AspectRatio): Promise<string | null> => {
     const config = apiConfigService.getConfig();
-    
-    if (config.provider === 'perplexity') {
-        throw new Error("Perplexity API does not support image generation. Please select a different provider like Default, Gemini, or OpenRouter in API Settings to generate images.");
-    }
 
     const finalPrompt = `
 **ABSOLUTE CRITICAL DIRECTIVE: The user has provided a headshot. This image is the ground truth. Your highest priority, above all other instructions, is to ensure the main person in the generated image is a PERFECT LIKENESS of the person in the headshot. This is a NON-NEGOTIABLE RULE. Do not create a generic person. The facial structure, jawline, eye shape, nose, and unique features must be replicated with 1000% anatomical precision.**
@@ -239,6 +235,8 @@ export const generatePoster = async (selectedPrompt: string, headshots: Uploaded
         switch (config.provider) {
             case 'openrouter':
                 return await openRouterService.generateImage(finalPrompt, headshots);
+            case 'openai':
+                return await openaiService.generateImage(finalPrompt, aspectRatio);
             case 'gemini':
             case 'default':
             default:
@@ -283,8 +281,8 @@ Provide a grammatically perfect JSON object with a single key "concepts" which i
             case 'openrouter':
                 jsonText = await openRouterService.generateText(fullPrompt);
                 break;
-            case 'perplexity':
-                jsonText = await perplexityService.generateText(fullPrompt);
+            case 'openai':
+                jsonText = await openaiService.generateText(fullPrompt);
                 break;
             case 'gemini':
             case 'default':
@@ -301,10 +299,6 @@ Provide a grammatically perfect JSON object with a single key "concepts" which i
 
 export const generateAdBanner = async (selectedPrompt: string, productImage: UploadedFile, modelHeadshot: UploadedFile, headline: string, brandDetails: string, aspectRatio: AspectRatio): Promise<string | null> => {
     const config = apiConfigService.getConfig();
-    
-    if (config.provider === 'perplexity') {
-        throw new Error("Perplexity API does not support image generation. Please select a different provider like Default, Gemini, or OpenRouter in API Settings to generate images.");
-    }
     
     const allImages = [productImage, modelHeadshot];
     const finalPrompt = `
@@ -327,6 +321,8 @@ Execute this brief with the skill of an award-winning digital artist.
         switch (config.provider) {
             case 'openrouter':
                 return await openRouterService.generateImage(finalPrompt, allImages);
+            case 'openai':
+                return await openaiService.generateImage(finalPrompt, aspectRatio);
             case 'gemini':
             case 'default':
             default:
@@ -344,8 +340,8 @@ export const validateApiKey = async (provider: ApiProvider, apiKey: string): Pro
             return geminiNativeService.validateApiKey(apiKey);
         case 'openrouter':
             return openRouterService.validateApiKey(apiKey);
-        case 'perplexity':
-            return perplexityService.validateApiKey(apiKey);
+        case 'openai':
+            return openaiService.validateApiKey(apiKey);
         case 'default':
         default:
             return { isValid: true }; // Default is always considered valid as it's built-in.
@@ -366,8 +362,8 @@ export const checkCurrentApiStatus = async (): Promise<ValidationStatus> => {
         case 'openrouter':
             key = config.openRouterApiKey;
             break;
-        case 'perplexity':
-            key = config.perplexityApiKey;
+        case 'openai':
+            key = config.openaiApiKey;
             break;
     }
 

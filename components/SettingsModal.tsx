@@ -29,12 +29,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     const [apiKeys, setApiKeys] = useState({
         geminiApiKey: '',
         openRouterApiKey: '',
-        perplexityApiKey: ''
+        openaiApiKey: ''
     });
     const [validationStatus, setValidationStatus] = useState({
         gemini: 'idle' as ValidationStatus,
         openrouter: 'idle' as ValidationStatus,
-        perplexity: 'idle' as ValidationStatus
+        openai: 'idle' as ValidationStatus
     });
 
     useEffect(() => {
@@ -43,13 +43,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         setApiKeys({
             geminiApiKey: savedConfig.geminiApiKey || '',
             openRouterApiKey: savedConfig.openRouterApiKey || '',
-            perplexityApiKey: savedConfig.perplexityApiKey || ''
+            openaiApiKey: savedConfig.openaiApiKey || ''
         });
     }, []);
 
     const debouncedGeminiKey = useDebounce(apiKeys.geminiApiKey, 500);
     const debouncedOpenRouterKey = useDebounce(apiKeys.openRouterApiKey, 500);
-    const debouncedPerplexityKey = useDebounce(apiKeys.perplexityApiKey, 500);
+    const debouncedOpenAIKey = useDebounce(apiKeys.openaiApiKey, 500);
 
     useEffect(() => {
         if (!debouncedGeminiKey) {
@@ -74,21 +74,21 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     }, [debouncedOpenRouterKey]);
 
     useEffect(() => {
-        if (!debouncedPerplexityKey) {
-            setValidationStatus(s => ({...s, perplexity: 'idle'}));
+        if (!debouncedOpenAIKey) {
+            setValidationStatus(s => ({...s, openai: 'idle'}));
             return;
         }
-        setValidationStatus(s => ({...s, perplexity: 'validating'}));
-        aiService.validateApiKey('perplexity', debouncedPerplexityKey).then(result => {
-            setValidationStatus(s => ({...s, perplexity: result.isValid ? 'valid' : 'invalid'}));
+        setValidationStatus(s => ({...s, openai: 'validating'}));
+        aiService.validateApiKey('openai', debouncedOpenAIKey).then(result => {
+            setValidationStatus(s => ({...s, openai: result.isValid ? 'valid' : 'invalid'}));
         });
-    }, [debouncedPerplexityKey]);
+    }, [debouncedOpenAIKey]);
 
     const handleProviderChange = (provider: ApiProvider) => {
         setConfig(prev => ({ ...prev, provider }));
     };
 
-    const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>, keyName: 'geminiApiKey' | 'openRouterApiKey' | 'perplexityApiKey') => {
+    const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>, keyName: 'geminiApiKey' | 'openRouterApiKey' | 'openaiApiKey') => {
         const { value } = e.target;
         setApiKeys(prev => ({ ...prev, [keyName]: value }));
     };
@@ -117,11 +117,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                 </div>
             );
         }
-        if (config.provider === 'perplexity') {
+        if (config.provider === 'openai') {
              return (
                 <div className="relative">
-                    <input type="password" placeholder="Enter your Perplexity API Key" value={apiKeys.perplexityApiKey} onChange={(e) => handleApiKeyChange(e, 'perplexityApiKey')} className="w-full mt-2 p-2 pr-8 bg-slate-800 border border-slate-700 rounded-md focus:ring-1 focus:ring-purple-500" />
-                    <div className="absolute inset-y-0 right-3 flex items-center"><StatusIndicator status={validationStatus.perplexity} /></div>
+                    <input type="password" placeholder="Enter your OpenAI API Key" value={apiKeys.openaiApiKey} onChange={(e) => handleApiKeyChange(e, 'openaiApiKey')} className="w-full mt-2 p-2 pr-8 bg-slate-800 border border-slate-700 rounded-md focus:ring-1 focus:ring-purple-500" />
+                    <div className="absolute inset-y-0 right-3 flex items-center"><StatusIndicator status={validationStatus.openai} /></div>
                 </div>
             );
         }
@@ -148,7 +148,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                             <button onClick={() => handleProviderChange('default')} className={`px-3 py-1.5 text-sm rounded-md transition-colors ${config.provider === 'default' ? 'bg-purple-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>Default</button>
                             <button onClick={() => handleProviderChange('gemini')} className={`px-3 py-1.5 text-sm rounded-md transition-colors ${config.provider === 'gemini' ? 'bg-purple-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>Custom Gemini</button>
                             <button onClick={() => handleProviderChange('openrouter')} className={`px-3 py-1.5 text-sm rounded-md transition-colors ${config.provider === 'openrouter' ? 'bg-purple-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>OpenRouter</button>
-                            <button onClick={() => handleProviderChange('perplexity')} className={`px-3 py-1.5 text-sm rounded-md transition-colors ${config.provider === 'perplexity' ? 'bg-purple-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>Perplexity</button>
+                            <button onClick={() => handleProviderChange('openai')} className={`px-3 py-1.5 text-sm rounded-md transition-colors ${config.provider === 'openai' ? 'bg-purple-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>OpenAI</button>
                         </div>
                         <div className="mt-3">
                             {renderProviderInput()}
