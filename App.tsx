@@ -1,15 +1,17 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import LandingPage from './components/LandingPage';
 import ThumbnailGenerator from './components/ThumbnailGenerator';
 import PoliticiansPosterMaker from './components/PoliticiansPosterMaker';
 import AdBannerGenerator from './components/AdBannerGenerator';
 import Header from './components/Header';
-import { ToolType, ValidationStatus } from './types';
+import { ToolType, ValidationStatus, ApiProvider } from './types';
 import HistorySidebar from './components/HistorySidebar';
 import Footer from './components/Footer';
 import SettingsModal from './components/SettingsModal';
 import FeedbackModal from './components/FeedbackModal';
 import * as aiService from './services/aiService';
+import * as apiConfigService from './services/apiConfigService';
 
 const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');
@@ -18,6 +20,7 @@ const App: React.FC = () => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [apiKeyStatus, setApiKeyStatus] = useState<ValidationStatus>('validating');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [apiProvider, setApiProvider] = useState<ApiProvider>(() => apiConfigService.getConfig().provider);
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -30,7 +33,7 @@ const App: React.FC = () => {
         }
     };
     checkStatus();
-  }, []);
+  }, [apiProvider]);
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
@@ -56,6 +59,7 @@ const App: React.FC = () => {
   const handleOpenSettings = useCallback(() => setIsSettingsOpen(true), []);
   const handleCloseSettings = useCallback(() => {
     setIsSettingsOpen(false);
+    setApiProvider(apiConfigService.getConfig().provider); // Update provider state on close
     setApiKeyStatus('validating');
     aiService.checkCurrentApiStatus().then(setApiKeyStatus);
   }, []);
@@ -83,9 +87,9 @@ const App: React.FC = () => {
           </div>
         ) : (
           <>
-            {activeTool === 'thumbnail' && <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'political' && <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'advertisement' && <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'thumbnail' && <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} />}
+            {activeTool === 'political' && <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} />}
+            {activeTool === 'advertisement' && <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} />}
           </>
         )}
       </main>

@@ -355,9 +355,11 @@ export const checkCurrentApiStatus = async (): Promise<ValidationStatus> => {
 
     switch(provider) {
         case 'default':
-            return 'valid';
+            // The default key is from env vars. We check if getApiKey (which handles the 'default' case) returns anything.
+            key = apiConfigService.getApiKey();
+            return key ? 'valid' : 'invalid';
         case 'gemini':
-            key = config.geminiApiKey || apiConfigService.getApiKey();
+            key = config.geminiApiKey;
             break;
         case 'openrouter':
             key = config.openRouterApiKey;
@@ -365,15 +367,12 @@ export const checkCurrentApiStatus = async (): Promise<ValidationStatus> => {
         case 'openai':
             key = config.openaiApiKey;
             break;
+        default:
+            return 'invalid';
     }
 
+    // For custom providers, if there's no key, it's definitively invalid.
     if (!key) {
-        // A custom provider is selected but no key is entered.
-        // For Gemini, it might fall back to a default key, so we check that.
-        if (provider === 'gemini' && !config.geminiApiKey) {
-            key = apiConfigService.getApiKey();
-            if(key) return 'valid';
-        }
         return 'invalid';
     }
 

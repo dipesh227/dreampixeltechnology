@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { PoliticalParty, PosterStyle, AspectRatio, UploadedFile, GeneratedConcept, ApiProvider } from '../types';
 import { generatePosterPrompts, generatePoster } from '../services/aiService';
@@ -12,9 +13,10 @@ interface PoliticiansPosterMakerProps {
     onNavigateHome: () => void;
     onPosterGenerated: () => void;
     onGenerating: (isGenerating: boolean) => void;
+    apiProvider: ApiProvider;
 }
 
-const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavigateHome, onPosterGenerated, onGenerating }) => {
+const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavigateHome, onPosterGenerated, onGenerating, apiProvider }) => {
     const [step, setStep] = useState<Step>('input');
     const [headshots, setHeadshots] = useState<UploadedFile[]>([]);
     const [selectedPartyId, setSelectedPartyId] = useState<string>(POLITICAL_PARTIES[0].id);
@@ -32,12 +34,6 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
     const [loadingMessage, setLoadingMessage] = useState('');
     const [isSaved, setIsSaved] = useState(false);
     const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
-    const [apiProvider, setApiProvider] = useState<ApiProvider>('default');
-
-    useEffect(() => {
-        const config = apiConfigService.getConfig();
-        setApiProvider(config.provider);
-    }, []);
 
     useEffect(() => {
         onGenerating(isLoading);

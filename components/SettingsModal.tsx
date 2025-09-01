@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ApiConfig, ApiProvider } from '../types';
 import * as apiConfigService from '../services/apiConfigService';
@@ -96,8 +97,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     const handleSave = () => {
         apiConfigService.saveConfig({ ...config, ...apiKeys });
         onClose();
-        // Optionally, you could add a small delay and a "reloading..." message if a full page refresh is needed.
-        window.location.reload();
     };
 
     const renderProviderInput = () => {

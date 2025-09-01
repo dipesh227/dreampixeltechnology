@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { AdStyle, AspectRatio, UploadedFile, GeneratedConcept, ApiProvider } from '../types';
 import { generateAdConcepts, generateAdBanner } from '../services/aiService';
@@ -12,9 +13,10 @@ interface AdBannerGeneratorProps {
     onNavigateHome: () => void;
     onBannerGenerated: () => void;
     onGenerating: (isGenerating: boolean) => void;
+    apiProvider: ApiProvider;
 }
 
-const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, onBannerGenerated, onGenerating }) => {
+const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, onBannerGenerated, onGenerating, apiProvider }) => {
     const [step, setStep] = useState<Step>('input');
     const [productImage, setProductImage] = useState<UploadedFile | null>(null);
     const [modelHeadshot, setModelHeadshot] = useState<UploadedFile | null>(null);
@@ -33,12 +35,6 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
     const [loadingMessage, setLoadingMessage] = useState('');
     const [isSaved, setIsSaved] = useState(false);
     const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
-    const [apiProvider, setApiProvider] = useState<ApiProvider>('default');
-
-    useEffect(() => {
-        const config = apiConfigService.getConfig();
-        setApiProvider(config.provider);
-    }, []);
 
     useEffect(() => {
         onGenerating(isLoading);

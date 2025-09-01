@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { CreatorStyle, AspectRatio, UploadedFile, GeneratedConcept, ApiProvider } from '../types';
 import { generatePrompts, generateThumbnail } from '../services/aiService';
@@ -12,9 +13,10 @@ interface ThumbnailGeneratorProps {
     onNavigateHome: () => void;
     onThumbnailGenerated: () => void;
     onGenerating: (isGenerating: boolean) => void;
+    apiProvider: ApiProvider;
 }
 
-const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome, onThumbnailGenerated, onGenerating }) => {
+const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome, onThumbnailGenerated, onGenerating, apiProvider }) => {
     const [step, setStep] = useState<Step>('input');
     const [headshots, setHeadshots] = useState<UploadedFile[]>([]);
     const [description, setDescription] = useState('');
@@ -31,12 +33,6 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
     const [loadingMessage, setLoadingMessage] = useState('');
     const [isSaved, setIsSaved] = useState(false);
     const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
-    const [apiProvider, setApiProvider] = useState<ApiProvider>('default');
-
-    useEffect(() => {
-        const config = apiConfigService.getConfig();
-        setApiProvider(config.provider);
-    }, []);
 
     useEffect(() => {
         onGenerating(isLoading);
