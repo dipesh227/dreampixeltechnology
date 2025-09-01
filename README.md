@@ -159,116 +159,172 @@ Follow these instructions to set up and run the project locally.
 ### 1. Prerequisites
 
 -   [Node.js](https://nodejs.org/) (v18.x or later)
--   A [Supabase](https://supabase.com/) account.
--   A [Google Cloud](https://console.cloud.google.com/) account for OAuth credentials.
+-   A [Supabase](https://supabase.com/) account (the free tier is sufficient).
+-   A [Google Cloud](https://console.cloud.google.com/) account for setting up OAuth.
 
-### 2. Clone & Install
+### 2. Clone the Repository
 
+Clone the project to your local machine:
 ```bash
-git clone https://github.com/your-username/dreampixel-ai.git
-cd dreampixel-ai
+git clone <repository_url>
+cd <repository_directory>
+```
+
+### 3. Install Dependencies
+```bash
 npm install
 ```
 
-### 3. Environment Variables (Critical)
+### 4. Set Up Environment Variables
 
-Create a `.env` file in the root of the project by copying the example:
-```bash
-cp .env.example .env
-```
-Now, open `.env` and add your credentials. **The app will not start without these.**
+This application requires a `.env` file for Supabase credentials.
 
-```env
-# .env
+1.  Create a file named `.env` in the root of the project.
+2.  Add the following content to it:
 
-# 1. Default Google Gemini API Key (for the 'Default' provider)
-# Get from Google AI Studio: https://aistudio.google.com/
-VITE_API_KEY="YOUR_GOOGLE_GEMINI_API_KEY"
+    ```env
+    VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
+    VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
+    ```
 
-# 2. Supabase Database Connection
-# Get from your Supabase project settings -> API
-VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
-VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
-```
+3.  Find these values in your Supabase project dashboard under **Project Settings > API**.
+4.  Copy the **Project URL** and the **`anon` public key** and paste them into your `.env` file.
 
-### 4. Supabase Backend Setup
+### 5. Set Up Supabase Database
 
-This step configures your database, authentication, and encryption.
+The database requires several tables, row-level security (RLS) policies, and server-side functions for handling user data and encryption.
 
-1.  Navigate to your project on the [Supabase Dashboard](https://supabase.com/dashboard) and go to the **SQL Editor**.
-2.  Click **+ New query** and paste the **entire script** below into the editor.
-3.  Click **RUN**. This single script will set up everything you need.
+1.  Navigate to your Supabase project dashboard.
+2.  Go to the **SQL Editor** section.
+3.  Click **+ New query**.
+4.  Copy the entire content of the SQL script below and paste it into the editor.
+5.  Click **RUN**. This will set up everything you need.
 
 <details>
-<summary><strong>Click to view the Full Supabase Setup SQL Script</strong></summary>
+<summary><strong>Click to expand the full Supabase Setup SQL Script</strong></summary>
 
 ```sql
-/******************************************************************************
-*  DREAMPIXEL TECHNOLOGY - SUPABASE DATABASE & ENCRYPTION SETUP SCRIPT
-*
-*  This script will:
-*  1. Enable the required 'pgsodium' extension for encryption.
-*  2. Create a secure vault for and store a new encryption key.
-*  3. Create all required tables: `profiles`, `creations`, `feedback`,
-*     and all job logging tables.
-*  4. Set up a trigger to automatically create a user profile on sign-up.
-*  5. Create PostgreSQL functions (RPCs) to handle secure, server-side
-*     encryption and decryption of user data.
-*  6. Enable and configure Row Level Security (RLS) to ensure users can
-*     only access their own data.
-******************************************************************************/
-
--- Step 1: Enable the pgsodium extension for encryption
--- This only needs to be run once per database.
+-- ========= ENCRYPTION SETUP =========
+-- 1. Enable the pgsodium extension
 CREATE EXTENSION IF NOT EXISTS pgsodium WITH SCHEMA pgsodium;
 
+-- 2. Create a key to encrypt data
+-- IMPORTANT: This key is stored in a protected schema. 
+-- Keep this key safe and do not expose it on the client side.
+INSERT INTO pgsodium.key (raw_key_new, name)
+VALUES (pgsodium.crypto_aead_det_keygen(), 'dreampixel_encryption_key')
+ON CONFLICT (name) DO NOTHING;
 
--- Step 2: Create a secret key in the pgsodium vault
--- This key is used to encrypt and decrypt data. It is stored securely
--- and is not directly accessible. We associate it with a key_id for reference.
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pgsodium.key WHERE name = 'dreampixel_user_data_key') THEN
-    PERFORM pgsodium.create_key(
-        name := 'dreampixel_user_data_key',
-        key_type := 'aead-det'
-    );
-  END IF;
-END $$;
-
-
--- Step 3: Create the core application tables
--- Profile table stores public user data and is linked to Supabase's auth system.
-CREATE TABLE IF NOT EXISTS public.profiles (
+-- ========= TABLE: profiles =========
+-- Stores public user data upon sign-up.
+CREATE TABLE public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
   avatar_url TEXT
 );
-COMMENT ON TABLE public.profiles IS 'Stores public profile information for each user.';
+-- Allow users to view their own profile and all other profiles.
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public profiles are viewable by everyone." ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Users can insert their own profile." ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can update own profile." ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
--- Creations table stores user-generated content.
--- The 'prompt' will be encrypted.
-CREATE TABLE IF NOT EXISTS public.creations (
+-- Function to automatically create a profile when a new user signs up.
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, avatar_url)
+  VALUES (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- Trigger the function on new user creation.
+CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users
+FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+
+-- ========= TABLE: creations =========
+-- Stores liked creations with encrypted prompts.
+CREATE TABLE public.creations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  prompt BYTEA, -- Storing encrypted data as bytes
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  prompt BYTEA, -- Encrypted prompt
   image_url TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
-COMMENT ON TABLE public.creations IS 'Stores liked creations with encrypted prompts.';
+-- Enable RLS and set policies
+ALTER TABLE public.creations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage their own creations." ON public.creations
+  FOR ALL USING (auth.uid() = user_id);
 
--- Feedback table stores user feedback.
--- The 'content' will be encrypted.
-CREATE TABLE IF NOT EXISTS public.feedback (
+-- RPC to create an encrypted creation
+CREATE OR REPLACE FUNCTION create_encrypted_creation(p_prompt TEXT, p_image_url TEXT, p_user_id UUID)
+RETURNS void AS $$
+DECLARE
+  key_id UUID;
+BEGIN
+  SELECT id INTO key_id FROM pgsodium.key WHERE name = 'dreampixel_encryption_key';
+  INSERT INTO public.creations (user_id, prompt, image_url)
+  VALUES (
+    p_user_id,
+    pgsodium.crypto_aead_det_encrypt(p_prompt::bytea, 'dreampixel'::bytea, key_id),
+    p_image_url
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- RPC to get decrypted creations
+CREATE OR REPLACE FUNCTION get_decrypted_creations(p_user_id UUID)
+RETURNS TABLE(id UUID, prompt TEXT, image_url TEXT, created_at TIMESTAMPTZ) AS $$
+DECLARE
+  key_id UUID;
+BEGIN
+  SELECT id INTO key_id FROM pgsodium.key WHERE name = 'dreampixel_encryption_key';
+  RETURN QUERY
+  SELECT
+    c.id,
+    pgsodium.crypto_aead_det_decrypt(c.prompt, 'dreampixel'::bytea, key_id)::TEXT,
+    c.image_url,
+    c.created_at
+  FROM public.creations c
+  WHERE c.user_id = p_user_id
+  ORDER BY c.created_at DESC;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- ========= TABLE: feedback =========
+-- Collects user feedback with encrypted content.
+CREATE TABLE public.feedback (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  content BYTEA, -- Storing encrypted data as bytes
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE, -- Can be NULL for anonymous feedback
+  content BYTEA, -- Encrypted content
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
-COMMENT ON TABLE public.feedback IS 'Collects user feedback with encrypted content.';
+-- Allow anyone to insert feedback.
+ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow feedback submission" ON public.feedback FOR INSERT WITH CHECK (true);
 
--- Job Logging tables to store user inputs for generation tasks
-CREATE TABLE IF NOT EXISTS public.thumbnail_generation_jobs (
+-- RPC to submit encrypted feedback
+CREATE OR REPLACE FUNCTION submit_encrypted_feedback(p_content TEXT, p_user_id UUID DEFAULT NULL)
+RETURNS void AS $$
+DECLARE
+  key_id UUID;
+BEGIN
+  SELECT id INTO key_id FROM pgsodium.key WHERE name = 'dreampixel_encryption_key';
+  INSERT INTO public.feedback (user_id, content)
+  VALUES (
+    p_user_id,
+    pgsodium.crypto_aead_det_encrypt(p_content::bytea, 'dreampixel_feedback'::bytea, key_id)
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- ========= JOB LOGGING TABLES =========
+-- These tables log inputs for analytics and debugging. They don't need RLS if only accessed via service_role key on a server.
+-- However, for Supabase client usage, we add policies to allow users to insert their own jobs.
+CREATE TABLE public.thumbnail_generation_jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
@@ -279,9 +335,10 @@ CREATE TABLE IF NOT EXISTS public.thumbnail_generation_jobs (
   aspect_ratio TEXT,
   headshot_filenames TEXT[]
 );
-COMMENT ON TABLE public.thumbnail_generation_jobs IS 'Logs all input parameters for a thumbnail generation job.';
+ALTER TABLE public.thumbnail_generation_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own thumbnail jobs" ON public.thumbnail_generation_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE TABLE IF NOT EXISTS public.political_poster_jobs (
+CREATE TABLE public.political_poster_jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
@@ -292,9 +349,10 @@ CREATE TABLE IF NOT EXISTS public.political_poster_jobs (
   aspect_ratio TEXT,
   headshot_filename TEXT
 );
-COMMENT ON TABLE public.political_poster_jobs IS 'Logs all input parameters for a political poster job.';
+ALTER TABLE public.political_poster_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own poster jobs" ON public.political_poster_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE TABLE IF NOT EXISTS public.ad_banner_jobs (
+CREATE TABLE public.ad_banner_jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
@@ -306,9 +364,10 @@ CREATE TABLE IF NOT EXISTS public.ad_banner_jobs (
   product_image_filename TEXT,
   model_headshot_filename TEXT
 );
-COMMENT ON TABLE public.ad_banner_jobs IS 'Logs all input parameters for an ad banner job.';
+ALTER TABLE public.ad_banner_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own ad banner jobs" ON public.ad_banner_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE TABLE IF NOT EXISTS public.social_media_post_jobs (
+CREATE TABLE public.social_media_post_jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
@@ -319,193 +378,43 @@ CREATE TABLE IF NOT EXISTS public.social_media_post_jobs (
   style_id TEXT,
   aspect_ratio TEXT
 );
-COMMENT ON TABLE public.social_media_post_jobs IS 'Logs input parameters for a social media post job.';
-
-
--- Step 4: Automate profile creation for new users
--- This function and trigger automatically create a public profile when a user signs up.
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public.profiles (id, full_name, avatar_url)
-  VALUES (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
-  RETURN new;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
-
-
--- Step 5: Create Server-Side Functions (RPC) for Secure Data Handling
--- These functions handle encryption/decryption on the server, so the key is never exposed.
-
--- Get the ID of our encryption key
-CREATE OR REPLACE FUNCTION get_key_id()
-RETURNS UUID AS $$
-DECLARE
-  key_id UUID;
-BEGIN
-  SELECT id INTO key_id FROM pgsodium.key WHERE name = 'dreampixel_user_data_key' LIMIT 1;
-  RETURN key_id;
-END;
-$$ LANGUAGE plpgsql;
-
--- Function to create an encrypted creation
-CREATE OR REPLACE FUNCTION create_encrypted_creation(p_prompt TEXT, p_image_url TEXT, p_user_id UUID)
-RETURNS void AS $$
-BEGIN
-  INSERT INTO public.creations (prompt, image_url, user_id)
-  VALUES (
-    pgsodium.crypto_aead_det_encrypt(
-      convert_to(p_prompt, 'utf8'),
-      '{}'::JSONB,
-      get_key_id()
-    ),
-    p_image_url,
-    p_user_id
-  );
-END;
-$$ LANGUAGE plpgsql;
-
--- Function to get and decrypt a user's creations
-CREATE OR REPLACE FUNCTION get_decrypted_creations(p_user_id UUID)
-RETURNS TABLE(id UUID, prompt TEXT, image_url TEXT, created_at TIMESTAMPTZ) AS $$
-BEGIN
-  RETURN QUERY
-  SELECT
-    c.id,
-    convert_from(
-      pgsodium.crypto_aead_det_decrypt(
-        c.prompt,
-        '{}'::JSONB,
-        get_key_id()
-      ),
-      'utf8'
-    ) AS prompt,
-    c.image_url,
-    c.created_at
-  FROM
-    public.creations c
-  WHERE
-    c.user_id = p_user_id
-  ORDER BY
-    c.created_at DESC;
-END;
-$$ LANGUAGE plpgsql;
-
--- Function to submit encrypted feedback
-CREATE OR REPLACE FUNCTION submit_encrypted_feedback(p_content TEXT, p_user_id UUID)
-RETURNS void AS $$
-BEGIN
-  INSERT INTO public.feedback (content, user_id)
-  VALUES (
-    pgsodium.crypto_aead_det_encrypt(
-      convert_to(p_content, 'utf8'),
-      '{}'::JSONB,
-      get_key_id()
-    ),
-    p_user_id
-  );
-END;
-$$ LANGUAGE plpgsql;
-
-
--- Step 6: Enable Row Level Security (RLS) on all tables
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.creations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.thumbnail_generation_jobs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.political_poster_jobs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.ad_banner_jobs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.social_media_post_jobs ENABLE ROW LEVEL SECURITY;
-
-
--- Step 7: Create Security Policies to protect user data
-DROP POLICY IF EXISTS "Users can view their own profile." ON public.profiles;
-CREATE POLICY "Users can view their own profile."
-  ON public.profiles FOR SELECT
-  USING (auth.uid() = id);
-
-DROP POLICY IF EXISTS "Users can manage their own creations." ON public.creations;
-CREATE POLICY "Users can manage their own creations."
-  ON public.creations FOR ALL
-  USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can insert their own feedback." ON public.feedback;
-CREATE POLICY "Users can insert their own feedback."
-  ON public.feedback FOR INSERT
-  WITH CHECK (auth.uid() = user_id OR p_user_id IS NULL);
-
-DROP POLICY IF EXISTS "Users can manage their own thumbnail jobs." ON public.thumbnail_generation_jobs;
-CREATE POLICY "Users can manage their own thumbnail jobs."
-  ON public.thumbnail_generation_jobs FOR ALL
-  USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can manage their own political poster jobs." ON public.political_poster_jobs;
-CREATE POLICY "Users can manage their own political poster jobs."
-  ON public.political_poster_jobs FOR ALL
-  USING (auth.uid() = user_id);
-  
-DROP POLICY IF EXISTS "Users can manage their own ad banner jobs." ON public.ad_banner_jobs;
-CREATE POLICY "Users can manage their own ad banner jobs."
-  ON public.ad_banner_jobs FOR ALL
-  USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can manage their own social media post jobs." ON public.social_media_post_jobs;
-CREATE POLICY "Users can manage their own social media post jobs."
-  ON public.social_media_post_jobs FOR ALL
-  USING (auth.uid() = user_id);
-
--- Make RPCs invokable by users
-GRANT EXECUTE ON FUNCTION public.create_encrypted_creation(TEXT, TEXT, UUID) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.get_decrypted_creations(UUID) TO authenticated;
--- Allow both logged-in and anonymous users to submit feedback
-GRANT EXECUTE ON FUNCTION public.submit_encrypted_feedback(TEXT, UUID) TO authenticated, anon;
-
+CREATE POLICY "Users can insert their own social post jobs" ON public.social_media_post_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
 ```
 </details>
 
-### 5. Google Authentication Setup
+### 6. Set Up Google Authentication
 
-To enable "Sign in with Google", you need to configure the provider in your Supabase dashboard using credentials from Google Cloud.
+To enable users to sign in with Google, you need to connect your Supabase project to a Google Cloud project.
 
-1.  **Get the Redirect URI from Supabase:**
-    -   In your Supabase project, navigate to **Authentication** -> **Providers**.
-    -   Find **Google** in the list and click on it to open the configuration panel.
-    -   **CRITICAL STEP:** Before you do anything else, make sure the **'Enable Provider' toggle at the top of the panel is switched ON.** If you don't do this, you will get an "Unsupported provider" error when trying to log in.
-    -   You will see a **Redirect URI (Callback URL)**. It will be unique to your project and look something like `https://<your-project-ref>.supabase.co/auth/v1/callback`. For example: `https://ftsvupbnmvphphvwzxha.supabase.co/auth/v1/callback`. **Copy this exact URL** for the next step.
+1.  **In Supabase:**
+    -   Go to **Authentication > Providers** in your Supabase dashboard.
+    -   Find **Google** in the list and expand it.
+    -   You will see a **Callback URL**. Click to copy it. You'll need this in the next step.
 
-2.  **Create Google Cloud OAuth Credentials:**
+2.  **In Google Cloud Console:**
     -   Go to the [Google Cloud Console](https://console.cloud.google.com/).
-    -   Create a new project (e.g., "DreamPixel Auth") or select an existing one.
-    -   In the sidebar, navigate to **APIs & Services** -> **Credentials**.
-    -   Click **+ CREATE CREDENTIALS** at the top and select **OAuth client ID**.
-    -   For **Application type**, select **Web application**.
-    -   Give it a name (e.g., "Supabase Web Login").
-    -   Under **Authorized redirect URIs**, click **+ ADD URI** and paste the **Redirect URI** you copied from Supabase.
+    -   Create a new project or select an existing one.
+    -   Navigate to **APIs & Services > Credentials**.
+    -   Click **+ CREATE CREDENTIALS** and select **OAuth client ID**.
+    -   If prompted, configure your consent screen first. For `User Type`, select **External**. Provide an app name, user support email, and developer contact information.
+    -   For `Application type`, select **Web application**.
+    -   Under **Authorized redirect URIs**, click **+ ADD URI**.
+    -   Paste the **Callback URL** you copied from Supabase here.
     -   Click **CREATE**.
 
-3.  **Add Credentials to Supabase:**
-    -   After creating the credential, Google Cloud will show you a **Client ID** and a **Client Secret**.
-    -   Go back to your Supabase dashboard where you left off (Authentication -> Providers -> Google).
-    -   Copy the **Client ID** from Google Cloud and paste it into the "Client ID" field in Supabase.
-    -   Copy the **Client Secret** from Google Cloud and paste it into the "Client Secret" field in Supabase.
-    -   **Final Check:** Double-check that the **'Enable Provider' toggle is still ON**.
+3.  **Back in Supabase:**
+    -   After creating the credentials in Google Cloud, a modal will show your **Client ID** and **Client Secret**.
+    -   Copy the **Client ID** from Google Cloud and paste it into the **Client ID** field in Supabase.
+    -   Copy the **Client Secret** from Google Cloud and paste it into the **Client Secret** field in Supabase.
+    -   **Crucially, make sure the "Enable Provider" toggle for Google is turned ON.**
     -   Click **Save**.
 
-Google Authentication is now configured. The app should now allow users to sign in with Google.
+### 7. Run the Application
 
-### 6. Running the Development Server
+Now you can start the development server:
 
 ```bash
 npm run dev
 ```
-
-The application should now be running locally, fully connected to your secure Supabase backend. If you missed the `.env` file setup, the app will show a friendly error screen with instructions.
----
-## 📄 License
-
-This project is licensed under the MIT License.
+The application should now be running locally, connected to your Supabase backend.
