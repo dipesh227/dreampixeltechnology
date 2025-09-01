@@ -21,18 +21,18 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings }) => {
           className="flex flex-col items-center justify-center w-1/2 cursor-pointer"
           onClick={onNavigateHome}
         >
-            <DreamLogo className="h-28 w-auto" />
-            <p className="text-sm text-slate-400 font-light mt-2">Your Vision, Amplified by AI.</p>
+            <DreamLogo className="h-16 md:h-28 w-auto transition-all" />
+            <p className="hidden md:block text-sm text-slate-400 font-light mt-2">Your Vision, Amplified by AI.</p>
         </div>
 
         <div className="flex items-center gap-2 justify-end w-1/4">
             <button className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 transition-colors">
                 <GlobeIcon className="w-4 h-4" />
-                EN
+                <span className="hidden md:inline">EN</span>
             </button>
             <button onClick={onOpenSettings} className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 transition-colors">
                 <KeyIcon className="w-4 h-4" />
-                API Settings
+                <span className="hidden md:inline">API Settings</span>
             </button>
         </div>
       </div>

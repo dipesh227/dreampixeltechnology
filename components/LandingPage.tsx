@@ -55,8 +55,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool }) => {
     return (
         <div className="animate-fade-in-up">
             <div className="mb-12">
-                <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-3">The AI Content Creation Suite</h2>
-                <p className="text-lg text-slate-400 max-w-3xl">One platform for all your creative needs. Generate stunning visuals for your brand, channel, or campaign in seconds.</p>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-3">The AI Content Creation Suite</h2>
+                <p className="text-base md:text-lg text-slate-400 max-w-3xl">One platform for all your creative needs. Generate stunning visuals for your brand, channel, or campaign in seconds.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                 {tools.map((tool) => (

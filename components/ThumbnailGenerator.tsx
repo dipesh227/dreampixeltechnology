@@ -178,7 +178,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
 
     const renderInputStep = () => (
         <div className="space-y-8">
-            <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
+            <div className="p-4 md:p-6 bg-slate-900 border border-slate-800 rounded-xl">
               <h2 className="text-xl font-bold text-white mb-1">1. Powered by Advanced Generative AI</h2>
               <p className="text-sm text-slate-400 mb-4">Using state-of-the-art models for the best results. You can also use your own API key in the settings.</p>
               <div className="flex divide-x divide-slate-700">
@@ -194,7 +194,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
+                <div className="p-4 md:p-6 bg-slate-900 border border-slate-800 rounded-xl">
                     <h2 className="text-xl font-bold text-white mb-1">2. Upload Headshots</h2>
                     <p className="text-sm text-slate-400 mb-4">Provide 1-5 images for the best face accuracy.</p>
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
@@ -218,7 +218,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                         </div>
                     }
                 </div>
-                 <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-4">
+                 <div className="p-4 md:p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-4">
                     <div className="flex items-start gap-3">
                         <DocumentTextIcon className="w-5 h-5 mt-1 text-slate-400"/>
                         <div>
@@ -248,7 +248,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                 </div>
             </div>
 
-            <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
+            <div className="p-4 md:p-6 bg-slate-900 border border-slate-800 rounded-xl">
                  <h2 className="text-xl font-bold text-white mb-4">3. Choose a Creator Style</h2>
                  <div className="flex flex-wrap gap-2 mb-4 border-b border-slate-800 pb-4">
                      {Object.keys(CREATOR_STYLES).map(category => (
@@ -267,7 +267,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                  </div>
             </div>
             
-            <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
+            <div className="p-4 md:p-6 bg-slate-900 border border-slate-800 rounded-xl">
                 <h2 className="text-xl font-bold text-white mb-4">4. Choose Aspect Ratio</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button onClick={() => setAspectRatio('16:9')} className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors duration-200 ${aspectRatio === '16:9' ? 'border-blue-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>
@@ -367,20 +367,20 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
              {generatedThumbnail && (
                 <img src={`data:image/png;base64,${generatedThumbnail}`} alt="Generated Thumbnail" className="rounded-xl mx-auto shadow-2xl shadow-black/30 mb-8 border-2 border-slate-700/50" style={{ aspectRatio: aspectRatio.replace(':', ' / ') }} />
              )}
-             <div className="flex justify-center gap-4 flex-wrap">
-                 <button onClick={handleBackToSettings} className="flex items-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700">
+             <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4">
+                 <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700">
                     <ArrowLeftIcon className="w-5 h-5"/> Back to Settings
                  </button>
-                 <button onClick={() => setStep('promptSelection')} className="flex items-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700">
+                 <button onClick={() => setStep('promptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700">
                     <LightBulbIcon className="w-5 h-5"/> Back to Concepts
                  </button>
-                 <button onClick={() => handleGenerateThumbnail(finalPrompt)} disabled={isLoading} className="flex items-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed">
+                 <button onClick={() => handleGenerateThumbnail(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed">
                     <ArrowPathIcon className="w-5 h-5"/> Regenerate
                  </button>
-                 <button onClick={handleSaveCreation} disabled={isSaved} className="flex items-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed">
+                 <button onClick={handleSaveCreation} disabled={isSaved} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed">
                     <HeartIcon className={`w-5 h-5 ${isSaved ? 'text-pink-500' : ''}`} /> {isSaved ? 'Saved!' : 'Like & Save Creation'}
                  </button>
-                 <a href={`data:image/png;base64,${generatedThumbnail}`} download="dreampixel-thumbnail.png" className="flex items-center gap-2 px-6 py-3 bg-slate-200 text-slate-900 font-bold rounded-lg hover:bg-white transition-all duration-300 transform hover:scale-105">
+                 <a href={`data:image/png;base64,${generatedThumbnail}`} download="dreampixel-thumbnail.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 text-slate-900 font-bold rounded-lg hover:bg-white transition-all duration-300 transform hover:scale-105">
                     <DownloadIcon className="w-5 h-5"/> Download
                  </a>
              </div>
