@@ -1,35 +1,55 @@
 import { HistoryEntry } from '../types';
+import { supabase } from './supabaseClient';
 
-const HISTORY_KEY = 'dreamPixelCreations';
-const MAX_HISTORY_ITEMS = 50;
-
-export const getCreations = (): HistoryEntry[] => {
+export const getCreations = async (): Promise<HistoryEntry[]> => {
     try {
-        const creationsJson = localStorage.getItem(HISTORY_KEY);
-        if (creationsJson) {
-            return JSON.parse(creationsJson);
-        }
+        const { data, error } = await supabase
+            .from('creations')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        
+        return data.map(item => ({
+            id: item.id,
+            prompt: item.prompt,
+            imageUrl: item.image_url,
+            timestamp: new Date(item.created_at).getTime()
+        }));
+
     } catch (error) {
-        console.error("Failed to parse history from localStorage", error);
+        console.error("Failed to fetch creations from Supabase", error);
         return [];
     }
-    return [];
 };
 
-export const saveCreation = (newEntry: HistoryEntry): void => {
+export const saveCreation = async (newEntry: HistoryEntry): Promise<void> => {
     try {
-        const creations = getCreations();
-        const updatedCreations = [newEntry, ...creations].slice(0, MAX_HISTORY_ITEMS);
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(updatedCreations));
+        const { error } = await supabase
+            .from('creations')
+            .insert([{ 
+                prompt: newEntry.prompt, 
+                image_url: newEntry.imageUrl 
+            }]);
+        
+        if (error) throw error;
+
     } catch (error) {
-        console.error("Failed to save creation to localStorage", error);
+        console.error("Failed to save creation to Supabase", error);
+        throw error;
     }
 };
 
-export const clearCreations = (): void => {
+export const clearCreations = async (): Promise<void> => {
     try {
-        localStorage.removeItem(HISTORY_KEY);
+        const { error } = await supabase
+            .from('creations')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000'); // Safe delete all
+        
+        if (error) throw error;
+
     } catch (error) {
-        console.error("Failed to clear creations from localStorage", error);
+        console.error("Failed to clear creations from Supabase", error);
     }
 };
