@@ -25,6 +25,27 @@ const CONCEPTS_SCHEMA = {
     required: ["concepts"],
 };
 
+const SOCIAL_CONCEPTS_SCHEMA = {
+    type: Type.OBJECT,
+    properties: {
+        concepts: {
+            type: Type.ARRAY,
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    prompt: { type: Type.STRING, description: "The AI image generator prompt for the visual." },
+                    caption: { type: Type.STRING, description: "The written text content for the social media post caption." },
+                    reason: { type: Type.STRING, description: "Explanation of why this concept is effective." },
+                    isRecommended: { type: Type.BOOLEAN, description: "Set to true for the single best concept." }
+                },
+                required: ["prompt", "caption", "reason", "isRecommended"]
+            },
+        },
+    },
+    required: ["concepts"],
+};
+
+
 const parseAndValidateConcepts = (jsonText: string): GeneratedConcept[] => {
     try {
         // Clean the response by removing markdown code block fences that some models add.
@@ -333,6 +354,96 @@ Execute this brief with the skill of an award-winning digital artist.
         throw error;
     }
 };
+
+export const generateSocialPostConcepts = async (topic: string, platform: string, tone: string, style: AdStyle, callToAction?: string): Promise<GeneratedConcept[]> => {
+    const fullPrompt = `
+You are an expert social media manager and content strategist for a top global brand. Your task is to generate three complete, distinct, and engaging social media post concepts based on a user's topic. Each concept must include both a visual element and a text caption.
+
+**Social Media Post Brief:**
+- **Core Topic:** "${topic}"
+- **Target Platform:** ${platform} (tailor caption length, style, and hashtags accordingly)
+- **Desired Tone:** ${tone}
+- **Visual Style:** '${style.name}' (${style.stylePrompt})
+- **Call to Action (Optional):** "${callToAction || 'None'}"
+
+**Your Critical Creative Task:**
+For each of the three concepts, you must develop a complete package: a compelling visual and an engaging caption that work together.
+
+**For the Visual:**
+Translate the requested 'Visual Style' into a detailed art direction. Your prompt for the AI image generator must specify:
+- **Composition & Subject:** What is the main focus of the image? How is it framed?
+- **Lighting & Color:** What is the mood of the lighting? What is the color palette?
+- **Overall Vibe:** How does it align with the '${style.name}' aesthetic?
+
+**For the Caption:**
+Write a compelling, platform-aware caption that embodies the '${tone}' tone. It must:
+- Be well-written, engaging, and grammatically perfect.
+- Seamlessly integrate the 'Core Topic'.
+- Include the 'Call to Action' if one was provided.
+- Include 3-5 relevant and popular hashtags for the '${platform}' platform.
+
+**Final Output Requirement:**
+Provide a grammatically perfect JSON object with a key "concepts" containing an array of three objects. Each object must have:
+1.  **"prompt"**: A detailed, direct-instruction prompt for an AI image generator to create the visual.
+2.  **"caption"**: The complete, ready-to-post text caption.
+3.  **"reason"**: A brief, expert analysis of why this combination of visual and caption is a strong strategy for this platform and topic.
+4.  **"isRecommended"**: A boolean value. Mark ONLY ONE concept as 'true'—the one you believe will perform best.
+`;
+    const config = apiConfigService.getConfig();
+    try {
+        let jsonText: string;
+        switch (config.provider) {
+            case 'openrouter':
+                jsonText = await openRouterService.generateText(fullPrompt);
+                break;
+            case 'openai':
+                jsonText = await openaiService.generateText(fullPrompt);
+                break;
+            case 'gemini':
+            case 'default':
+            default:
+                jsonText = await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA);
+                break;
+        }
+        return parseAndValidateConcepts(jsonText);
+    } catch (error) {
+        console.error("Error generating social post concepts:", error);
+        throw error;
+    }
+};
+
+export const generateSocialPost = async (selectedPrompt: string, aspectRatio: AspectRatio): Promise<string | null> => {
+    const config = apiConfigService.getConfig();
+    
+    // This is a pure text-to-image prompt.
+    const finalPrompt = `
+**Creative Brief to Execute:**
+"${selectedPrompt}"
+
+**Technical Requirements:**
+- The final image must be high-resolution, visually stunning, and follow the creative brief precisely.
+- The aspect ratio MUST be exactly ${aspectRatio}.
+`;
+    
+    try {
+        switch (config.provider) {
+            // NOTE: For now, we'll route OpenRouter and OpenAI through their standard image gen functions.
+            // A more advanced implementation might use different models for pure T2I.
+            case 'openai':
+                return await openaiService.generateImage(finalPrompt, aspectRatio);
+            case 'openrouter':
+            case 'gemini':
+            case 'default':
+            default:
+                // This uses the dedicated text-to-image model
+                return await geminiNativeService.generateImageFromText(finalPrompt, aspectRatio);
+        }
+    } catch (error) {
+        console.error("Error generating social post image:", error);
+        throw error;
+    }
+};
+
 
 export const validateApiKey = async (provider: ApiProvider, apiKey: string): Promise<{ isValid: boolean, error?: string }> => {
     switch(provider) {

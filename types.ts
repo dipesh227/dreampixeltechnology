@@ -64,6 +64,7 @@ export interface ApiConfig {
 
 export interface GeneratedConcept {
   prompt: string;
+  caption?: string;
   reason: string;
   isRecommended: boolean;
 }

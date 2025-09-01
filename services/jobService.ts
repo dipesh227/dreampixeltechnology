@@ -87,3 +87,31 @@ export const saveAdBannerJob = async (data: AdBannerJobData): Promise<void> => {
         console.error("Failed to save ad banner job", error);
     }
 };
+
+// Social Media Post Job
+interface SocialPostJobData {
+    userId: string;
+    topic: string;
+    platform: string;
+    tone: string;
+    callToAction: string;
+    styleId: string;
+    aspectRatio: AspectRatio;
+}
+
+export const saveSocialPostJob = async (data: SocialPostJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('social_media_post_jobs').insert({
+            user_id: data.userId,
+            topic: data.topic,
+            platform: data.platform,
+            tone: data.tone,
+            call_to_action: data.callToAction,
+            style_id: data.styleId,
+            aspect_ratio: data.aspectRatio,
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save social media post job", error);
+    }
+};

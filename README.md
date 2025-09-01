@@ -11,6 +11,7 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
 -   **Multiple Content Tools**:
     -   YouTube Thumbnail Generator
     -   Ad Banner Generator
+    -   Social Media Post Generator
     -   Politician's Poster Maker
 -   **Secure Google Authentication**: Sign in to save and manage your creations securely.
 -   **Database Encryption**: User-submitted prompts and feedback are encrypted at rest in the database using `pgsodium` for enhanced privacy.
@@ -131,6 +132,24 @@ CREATE TABLE public.ad_banner_jobs (
 ```
 </details>
 
+<details>
+<summary><strong>social_media_post_jobs</strong> - Logs inputs for social media post generation.</summary>
+
+```sql
+CREATE TABLE public.social_media_post_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  topic TEXT,
+  platform TEXT,
+  tone TEXT,
+  call_to_action TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT
+);
+```
+</details>
+
 ---
 
 ## 🚀 Getting Started
@@ -191,7 +210,7 @@ This step configures your database, authentication, and encryption.
 *  1. Enable the required 'pgsodium' extension for encryption.
 *  2. Create a secure vault for and store a new encryption key.
 *  3. Create all required tables: `profiles`, `creations`, `feedback`,
-*     and job logging tables.
+*     and all job logging tables.
 *  4. Set up a trigger to automatically create a user profile on sign-up.
 *  5. Create PostgreSQL functions (RPCs) to handle secure, server-side
 *     encryption and decryption of user data.
@@ -288,6 +307,19 @@ CREATE TABLE IF NOT EXISTS public.ad_banner_jobs (
   model_headshot_filename TEXT
 );
 COMMENT ON TABLE public.ad_banner_jobs IS 'Logs all input parameters for an ad banner job.';
+
+CREATE TABLE IF NOT EXISTS public.social_media_post_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  topic TEXT,
+  platform TEXT,
+  tone TEXT,
+  call_to_action TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT
+);
+COMMENT ON TABLE public.social_media_post_jobs IS 'Logs input parameters for a social media post job.';
 
 
 -- Step 4: Automate profile creation for new users
@@ -388,6 +420,7 @@ ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.thumbnail_generation_jobs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.political_poster_jobs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ad_banner_jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.social_media_post_jobs ENABLE ROW LEVEL SECURITY;
 
 
 -- Step 7: Create Security Policies to protect user data
@@ -419,6 +452,11 @@ CREATE POLICY "Users can manage their own political poster jobs."
 DROP POLICY IF EXISTS "Users can manage their own ad banner jobs." ON public.ad_banner_jobs;
 CREATE POLICY "Users can manage their own ad banner jobs."
   ON public.ad_banner_jobs FOR ALL
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can manage their own social media post jobs." ON public.social_media_post_jobs;
+CREATE POLICY "Users can manage their own social media post jobs."
+  ON public.social_media_post_jobs FOR ALL
   USING (auth.uid() = user_id);
 
 -- Make RPCs invokable by users

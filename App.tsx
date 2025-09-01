@@ -3,6 +3,7 @@ import LandingPage from './components/LandingPage';
 import ThumbnailGenerator from './components/ThumbnailGenerator';
 import PoliticiansPosterMaker from './components/PoliticiansPosterMaker';
 import AdBannerGenerator from './components/AdBannerGenerator';
+import SocialMediaPostGenerator from './components/SocialMediaPostGenerator';
 import Header from './components/Header';
 import { ToolType, ValidationStatus, ApiProvider } from './types';
 import HistorySidebar from './components/HistorySidebar';
@@ -108,6 +109,7 @@ const App: React.FC = () => {
             {activeTool === 'thumbnail' && <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} />}
             {activeTool === 'political' && <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} />}
             {activeTool === 'advertisement' && <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} />}
+            {activeTool === 'social' && <SocialMediaPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} />}
           </>
         )}
       </main>

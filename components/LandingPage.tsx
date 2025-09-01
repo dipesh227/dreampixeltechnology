@@ -47,7 +47,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool }) => {
     const tools: Tool[] = [
         { id: 'thumbnail', title: "YouTube Thumbnail Generator", description: "Create high-impact, click-worthy thumbnails by providing a headshot and a video description.", enabled: true },
         { id: 'advertisement', title: "Ad Banner Generator", description: "Instantly produce professional advertisement banners for your marketing campaigns and social media.", enabled: true },
-        { id: 'social', title: "Social Media Post Generator", description: "Design engaging and visually appealing posts tailored for platforms like Instagram, Facebook, and X.", enabled: false },
+        { id: 'social', title: "Social Media Post Generator", description: "Design engaging posts with both an image and a caption, tailored for platforms like Instagram, Facebook, and X.", enabled: true },
         { id: 'political', title: "Politician's Poster Maker", description: "Generate timely and impactful posters for political campaigns based on current events and topics.", enabled: true },
     ];
 

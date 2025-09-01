@@ -1,5 +1,5 @@
 import { GoogleGenAI, Modality } from "@google/genai";
-import { UploadedFile } from '../types';
+import { UploadedFile, AspectRatio } from '../types';
 import * as apiConfigService from './apiConfigService';
 
 const getAiClient = (apiKeyOverride?: string) => {
@@ -76,6 +76,32 @@ export const generateImage = async (prompt: string, images: UploadedFile[]): Pro
 
     } catch (error) {
         console.error("Error generating image with Gemini:", error);
+        throw handleGeminiError(error);
+    }
+};
+
+export const generateImageFromText = async (prompt: string, aspectRatio: AspectRatio): Promise<string | null> => {
+    try {
+        const ai = getAiClient();
+        const response = await ai.models.generateImages({
+            model: 'imagen-4.0-generate-001',
+            prompt: prompt,
+            config: {
+              numberOfImages: 1,
+              outputMimeType: 'image/jpeg',
+              aspectRatio: aspectRatio.replace(':', ' / ') as any, // Convert '16:9' to '16 / 9'
+            },
+        });
+
+        const base64ImageBytes: string | undefined = response.generatedImages[0]?.image.imageBytes;
+
+        if (base64ImageBytes) {
+            return base64ImageBytes;
+        }
+
+        return null;
+    } catch (error) {
+        console.error("Error generating image from text with Gemini:", error);
         throw handleGeminiError(error);
     }
 };
