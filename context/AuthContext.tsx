@@ -68,10 +68,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoggingIn(true);
         setAuthError(null);
         try {
+            // Dynamically construct the redirect URL from the env var for better portability.
+            const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL as string;
+            const redirectTo = supabaseUrl ? `${supabaseUrl}/auth/v1/callback` : window.location.origin;
+
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: 'https://ftsvupbnmvphphvwzxha.supabase.co/auth/v1/callback'
+                    redirectTo: redirectTo
                 }
             });
             if (error) throw error;

@@ -390,7 +390,7 @@ To enable users to sign in with Google, you need to connect your Supabase projec
 1.  **In Supabase:**
     -   Go to **Authentication > Providers** in your Supabase dashboard.
     -   Find **Google** in the list and expand it.
-    -   You will need the **Callback URL**. For this project, use `https://ftsvupbnmvphphvwzxha.supabase.co/auth/v1/callback`. You'll need this in the next step.
+    -   You will see a **Callback URL** listed there. Copy this URL for the next step. It will look something like `https://<your-project-ref>.supabase.co/auth/v1/callback`.
 
 2.  **In Google Cloud Console:**
     -   Go to the [Google Cloud Console](https://console.cloud.google.com/).
@@ -400,7 +400,7 @@ To enable users to sign in with Google, you need to connect your Supabase projec
     -   If prompted, configure your consent screen first. For `User Type`, select **External**. Provide an app name, user support email, and developer contact information.
     -   For `Application type`, select **Web application**.
     -   Under **Authorized redirect URIs**, click **+ ADD URI**.
-    -   Paste the **Callback URL** (`https://ftsvupbnmvphphvwzxha.supabase.co/auth/v1/callback`) here.
+    -   Paste your project's **Callback URL** that you copied from Supabase here.
     -   Click **CREATE**.
 
 3.  **Back in Supabase:**
