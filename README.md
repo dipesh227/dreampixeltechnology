@@ -432,14 +432,15 @@ GRANT EXECUTE ON FUNCTION public.submit_encrypted_feedback(TEXT, UUID) TO authen
 
 ### 5. Google Authentication Setup
 
-To enable "Sign in with Google", you need to provide Supabase with credentials from Google Cloud.
+To enable "Sign in with Google", you need to configure the provider in your Supabase dashboard using credentials from Google Cloud.
 
-1.  **In your Supabase Project:**
-    -   Go to **Authentication** -> **Providers**.
-    -   Click on **Google** to open the configuration panel.
-    -   You will see a **Redirect URI (Callback URL)**. Copy this URL.
+1.  **Get the Redirect URI from Supabase:**
+    -   In your Supabase project, navigate to **Authentication** -> **Providers**.
+    -   Find **Google** in the list and click on it to open the configuration panel.
+    -   **CRITICAL STEP:** Before you do anything else, make sure the **'Enable Provider' toggle at the top of the panel is switched ON.** If you don't do this, you will get an "Unsupported provider" error when trying to log in.
+    -   You will see a **Redirect URI (Callback URL)**. Copy this URL for the next step.
 
-2.  **In the Google Cloud Console:**
+2.  **Create Google Cloud OAuth Credentials:**
     -   Go to the [Google Cloud Console](https://console.cloud.google.com/).
     -   Create a new project (e.g., "DreamPixel Auth") or select an existing one.
     -   In the sidebar, navigate to **APIs & Services** -> **Credentials**.
@@ -449,13 +450,15 @@ To enable "Sign in with Google", you need to provide Supabase with credentials f
     -   Under **Authorized redirect URIs**, click **+ ADD URI** and paste the **Redirect URI** you copied from Supabase.
     -   Click **CREATE**.
 
-3.  **Connect Google to Supabase:**
+3.  **Add Credentials to Supabase:**
     -   After creating the credential, Google Cloud will show you a **Client ID** and a **Client Secret**.
-    -   Copy the **Client ID** and paste it into the "Client ID" field in your Supabase Google provider settings.
-    -   Copy the **Client Secret** and paste it into the "Client Secret" field in Supabase.
-    -   Click **Save** in the Supabase dashboard.
+    -   Go back to your Supabase dashboard where you left off (Authentication -> Providers -> Google).
+    -   Copy the **Client ID** from Google Cloud and paste it into the "Client ID" field in Supabase.
+    -   Copy the **Client Secret** from Google Cloud and paste it into the "Client Secret" field in Supabase.
+    -   **Final Check:** Double-check that the **'Enable Provider' toggle is still ON**.
+    -   Click **Save**.
 
-Google Authentication is now configured and ready to use in the app.
+Google Authentication is now configured. The app should now allow users to sign in with Google.
 
 ### 6. Running the Development Server
 
