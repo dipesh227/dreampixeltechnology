@@ -1,4 +1,3 @@
-
 # DreamPixel Technology - AI Content Creation Suite
 
 ![DreamPixel Logo](https://ai.dreampixeltechnology.in/logo.svg)
