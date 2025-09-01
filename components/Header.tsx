@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
         <div className="w-1/4">
            <button onClick={onNavigateHome} className="flex items-center gap-2 text-sm rounded-lg text-slate-300 transition-colors group">
                 <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 group-hover:from-blue-500/40 group-hover:to-cyan-500/40 transition-all">
-                   <HiOutlineHome className="w-5 h-5 icon-hover-effect" />
+                   <HiOutlineHome className="w-5 h-5 text-cyan-300 icon-hover-effect" />
                 </div>
             </button>
         </div>
@@ -47,7 +47,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
         <div className="flex items-center gap-2 justify-end w-1/4">
             <button onClick={onOpenFeedback} className="flex items-center gap-2 p-2 text-sm rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-800 transition-colors group">
                 <div className="p-1 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-500/40 group-hover:to-pink-500/40 transition-all">
-                  <HiOutlineChatBubbleLeftEllipsis className="w-5 h-5 icon-hover-effect" />
+                  <HiOutlineChatBubbleLeftEllipsis className="w-5 h-5 text-pink-300 icon-hover-effect" />
                 </div>
                 <span className="hidden md:inline">Feedback</span>
             </button>

@@ -201,7 +201,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                              <div className="p-4 border-2 border-dashed border-slate-700 rounded-xl bg-slate-800/50 hover:border-slate-600 transition h-40 flex flex-col justify-center">
                                  <input type="file" id="product-upload" className="hidden" accept="image/png, image/jpeg" onChange={(e) => handleFileChange(e, 'product')} />
                                  <label htmlFor="product-upload" className="cursor-pointer">
-                                    <HiOutlineCube className="w-8 h-8 mx-auto text-slate-500 mb-2"/>
+                                    <HiOutlineCube className="w-8 h-8 mx-auto text-purple-400 mb-2"/>
                                     <p className="text-slate-300 font-semibold text-sm">Upload Product Image</p>
                                  </label>
                              </div>
@@ -215,7 +215,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                              <div className="p-4 border-2 border-dashed border-slate-700 rounded-xl bg-slate-800/50 hover:border-slate-600 transition h-40 flex flex-col justify-center">
                                  <input type="file" id="model-upload" className="hidden" accept="image/png, image/jpeg" onChange={(e) => handleFileChange(e, 'model')} />
                                  <label htmlFor="model-upload" className="cursor-pointer">
-                                    <HiOutlineUserCircle className="w-8 h-8 mx-auto text-slate-500 mb-2"/>
+                                    <HiOutlineUserCircle className="w-8 h-8 mx-auto text-pink-400 mb-2"/>
                                     <p className="text-slate-300 font-semibold text-sm">Upload Model Headshot</p>
                                  </label>
                              </div>
@@ -342,10 +342,10 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
              <h2 className="text-3xl font-bold text-center mb-8 text-white">Your Ad Banner is Ready!</h2>
              {generatedBanner && <img src={`data:image/png;base64,${generatedBanner}`} alt="Generated Ad Banner" className="rounded-xl mx-auto shadow-2xl shadow-black/30 mb-8 border-2 border-slate-700/50" style={{ aspectRatio: aspectRatio.replace(':', ' / ') }} />}
              <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4">
-                 <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect"><HiArrowLeft className="w-5 h-5"/> Back to Settings</button>
-                 <button onClick={() => setStep('promptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect"><HiOutlineLightBulb className="w-5 h-5"/> Back to Concepts</button>
-                 <button onClick={() => handleGenerateBanner(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect"><HiOutlineArrowPath className="w-5 h-5"/> Regenerate</button>
-                 <button onClick={handleSaveCreation} disabled={isSaved} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect"><HiOutlineHeart className={`w-5 h-5 ${isSaved ? 'text-pink-500' : ''}`} /> {isSaved ? 'Saved!' : 'Like & Save Banner'}</button>
+                 <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect"><HiArrowLeft className="w-5 h-5 text-slate-300"/> Back to Settings</button>
+                 <button onClick={() => setStep('promptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect icon-hover-effect-yellow"><HiOutlineLightBulb className="w-5 h-5 text-yellow-400"/> Back to Concepts</button>
+                 <button onClick={() => handleGenerateBanner(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-blue"><HiOutlineArrowPath className="w-5 h-5 text-sky-400"/> Regenerate</button>
+                 <button onClick={handleSaveCreation} disabled={isSaved} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-pink"><HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save Banner'}</button>
                  <a href={`data:image/png;base64,${generatedBanner}`} download="dreampixel-banner.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
                     <HiArrowDownTray className="w-5 h-5"/> Download
                  </a>
