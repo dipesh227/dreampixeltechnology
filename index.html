@@ -66,6 +66,21 @@
       .animate-fade-in { animation: fade-in 0.8s ease-out forwards; }
       .animate-fade-in-down { animation: fade-in-down 0.6s ease-out forwards; }
       .animate-fade-in-up { animation: fade-in-up 0.6s 0.2s ease-out forwards; }
+
+      /* Neon Glow Effect */
+      @keyframes pulse-yellow {
+        0%, 100% { filter: drop-shadow(0 0 2px #facc15) drop-shadow(0 0 5px #facc15); opacity: 1; }
+        50% { filter: drop-shadow(0 0 5px #fde047) drop-shadow(0 0 10px #fde047); opacity: 0.8; }
+      }
+      .neon-green {
+        filter: drop-shadow(0 0 2px #4ade80) drop-shadow(0 0 5px #4ade80);
+      }
+      .neon-red {
+        filter: drop-shadow(0 0 2px #f87171) drop-shadow(0 0 5px #f87171);
+      }
+      .neon-yellow-pulse {
+        animation: pulse-yellow 1.5s infinite ease-in-out;
+      }
     </style>
   <script type="importmap">
 {

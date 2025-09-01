@@ -67,3 +67,5 @@ export interface GeneratedConcept {
   reason: string;
   isRecommended: boolean;
 }
+
+export type ValidationStatus = 'idle' | 'validating' | 'valid' | 'invalid';

@@ -1,6 +1,6 @@
 
 import { Type } from "@google/genai";
-import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ApiProvider } from '../types';
+import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ApiProvider, ValidationStatus } from '../types';
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
 import * as openRouterService from './openRouterService';
@@ -350,4 +350,37 @@ export const validateApiKey = async (provider: ApiProvider, apiKey: string): Pro
         default:
             return { isValid: true }; // Default is always considered valid as it's built-in.
     }
+};
+
+export const checkCurrentApiStatus = async (): Promise<ValidationStatus> => {
+    const config = apiConfigService.getConfig();
+    const provider = config.provider;
+    let key: string | undefined;
+
+    switch(provider) {
+        case 'default':
+            return 'valid';
+        case 'gemini':
+            key = config.geminiApiKey || apiConfigService.getApiKey();
+            break;
+        case 'openrouter':
+            key = config.openRouterApiKey;
+            break;
+        case 'perplexity':
+            key = config.perplexityApiKey;
+            break;
+    }
+
+    if (!key) {
+        // A custom provider is selected but no key is entered.
+        // For Gemini, it might fall back to a default key, so we check that.
+        if (provider === 'gemini' && !config.geminiApiKey) {
+            key = apiConfigService.getApiKey();
+            if(key) return 'valid';
+        }
+        return 'invalid';
+    }
+
+    const result = await validateApiKey(provider, key);
+    return result.isValid ? 'valid' : 'invalid';
 };
