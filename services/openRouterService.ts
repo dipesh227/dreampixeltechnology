@@ -57,7 +57,9 @@ export const generateText = async (prompt: string): Promise<string> => {
         body: JSON.stringify({
             model: "google/gemini-2.0-flash-exp:free",
             messages: [{ role: "user", content: prompt }],
-            response_format: { type: "json_object" }
+            // Although we request JSON, some models don't respect it perfectly.
+            // We'll handle the response robustly below.
+            response_format: { type: "json_object" } 
         })
     });
 
@@ -66,15 +68,27 @@ export const generateText = async (prompt: string): Promise<string> => {
     }
 
     const result = await response.json();
-    let content = result?.choices?.[0]?.message?.content;
+    const content = result?.choices?.[0]?.message?.content;
 
     if (!content) {
         console.error("Could not find text data in OpenRouter response", result);
         throw new Error("Unsupported response format from OpenRouter: No content found.");
     }
     
-    // The content from OpenRouter is often a stringified JSON object
-    return typeof content === 'string' ? content : JSON.stringify(content);
+    const responseText = typeof content === 'string' ? content : JSON.stringify(content);
+    
+    // Some models wrap their JSON output in markdown or conversational text.
+    // This regex robustly finds the JSON block within the string.
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+
+    if (jsonMatch && jsonMatch[0]) {
+        // We found a JSON-like object. Return it for parsing.
+        return jsonMatch[0];
+    }
+    
+    // If no match was found, return the original text and let the caller try to parse it.
+    console.warn("Could not find a JSON object in the OpenRouter response. Returning raw text.", responseText);
+    return responseText;
 };
 
 export const generateImage = async (prompt: string, images: UploadedFile[]): Promise<string | null> => {
