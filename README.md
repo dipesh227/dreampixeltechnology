@@ -4,25 +4,22 @@
 
 **Your Vision, Amplified by AI.**
 
-DreamPixel is a powerful, all-in-one AI-powered content creation suite designed to help creators, marketers, and campaigners produce stunning visual content in seconds. Generate high-impact YouTube thumbnails, professional ad banners, and timely political posters with ease.
+DreamPixel is a powerful, all-in-one AI-powered content creation suite designed to help creators, marketers, and campaigners produce stunning visual content in seconds. It features a secure authentication system, user-specific data storage, and server-side encryption for sensitive information.
 
 ## ✨ Key Features
 
 -   **Multiple Content Tools**:
-    -   **YouTube Thumbnail Generator**: Create click-worthy thumbnails by emulating popular creator styles.
-    -   **Ad Banner Generator**: Produce professional ad banners in various aspect ratios using proven marketing styles.
-    -   **Politician's Poster Maker**: Generate impactful posters for political campaigns based on specific themes and party branding.
--   **Secure User Authentication**: Sign in with your Google account to save and manage your creations.
+    -   YouTube Thumbnail Generator
+    -   Ad Banner Generator
+    -   Politician's Poster Maker
+-   **Secure Google Authentication**: Sign in to save and manage your creations securely.
+-   **Database Encryption**: User-submitted prompts and feedback are encrypted at rest in the database using `pgsodium` for enhanced privacy.
 -   **Flexible AI Provider Support**:
-    -   Use the application's **default Google Gemini** provider out-of-the-box.
+    -   Use the application's **default Google Gemini** provider.
     -   Integrate your own API keys for **Custom Gemini**, **OpenRouter**, and **OpenAI (GPT-4 & DALL-E 3)**.
--   **Live API Key Validation**: Instant feedback in the settings modal to confirm your API keys are valid.
--   **Interactive & Modern UI**:
-    -   A vibrant, colorful UI with a "glassmorphism" aesthetic.
-    -   An interactive neon mouse trail and glowing hover effects.
-    -   An animated background that synchronizes with AI generation tasks for beautiful visual feedback.
--   **Personalized History**: Like and save your favorite creations, which are stored securely and tied to your user account in a Supabase database.
--   **Advanced AI Prompt Engineering**: Sophisticated, multi-step prompt generation ensures high-quality, relevant, and creative outputs.
+-   **Live API Key Validation**: Instant feedback to confirm your API keys are valid.
+-   **Interactive & Modern UI**: A vibrant, colorful UI with a neon mouse trail, glowing hover effects, and an animated background that synchronizes with AI generation tasks.
+-   **Personalized History**: Like and save your favorite creations, stored securely and tied to your user account.
 
 ---
 
@@ -30,11 +27,8 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
 
 -   **Frontend**: React, TypeScript, Vite
 -   **Styling**: Tailwind CSS
--   **AI APIs**:
-    -   Google Gemini API (`@google/genai`)
-    -   OpenRouter API
-    -   OpenAI API (GPT-4 Turbo & DALL-E 3)
--   **Backend & Auth**: Supabase (Auth, PostgreSQL)
+-   **AI APIs**: Google Gemini, OpenRouter, OpenAI
+-   **Backend & Auth**: Supabase (Auth, PostgreSQL with `pgsodium` for encryption)
 -   **Icons**: `react-icons`
 
 ---
@@ -45,81 +39,253 @@ Follow these instructions to set up and run the project locally.
 
 ### 1. Prerequisites
 
--   [Node.js](https://nodejs.org/) (v18.x or later recommended)
--   [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+-   [Node.js](https://nodejs.org/) (v18.x or later)
+-   A [Supabase](https://supabase.com/) account.
+-   A [Google Cloud](https://console.cloud.google.com/) account for OAuth credentials.
 
-### 2. Clone the Repository
+### 2. Clone & Install
 
 ```bash
 git clone https://github.com/your-username/dreampixel-ai.git
 cd dreampixel-ai
-```
-
-### 3. Install Dependencies
-
-```bash
 npm install
 ```
 
-### 4. Environment Variables Setup
+### 3. Environment Variables
 
-This is the most critical step. The application requires API keys and database credentials to function correctly.
-
-Create a `.env` file in the root of the project by copying the example file:
+Create a `.env` file in the root of the project by copying the example:
 ```bash
 cp .env.example .env
 ```
-
-Now, open the `.env` file and add your credentials.
+Now, open `.env` and add your credentials:
 
 ```env
 # .env
 
-# 1. Default Google Gemini API Key (Required for the 'Default' provider)
-# Get your key from Google AI Studio: https://aistudio.google.com/
+# 1. Default Google Gemini API Key (for the 'Default' provider)
+# Get from Google AI Studio: https://aistudio.google.com/
 VITE_API_KEY="YOUR_GOOGLE_GEMINI_API_KEY"
 
-# 2. Supabase Database Connection (Required for auth, saving/loading creations)
-# Create a project on https://supabase.com/ to get your credentials.
+# 2. Supabase Database Connection
+# Get from your Supabase project settings -> API
 VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
 VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
 ```
 
-### 5. Supabase Authentication Setup
+### 4. Supabase Backend Setup (CRITICAL)
 
-You must enable Google as an authentication provider in your Supabase project.
-
-1.  Go to your Supabase Project Dashboard.
-2.  Navigate to **Authentication** -> **Providers**.
-3.  Click on **Google** and enable it.
-4.  You will see a **Redirect URI (Callback URL)**. Copy this URL.
-5.  Go to the [Google Cloud Console](https://console.cloud.google.com/), create a new project, then go to **APIs & Services -> Credentials**.
-6.  Create an **OAuth 2.0 Client ID**, select "Web application", and paste the Supabase callback URL into the "Authorized redirect URIs" field.
-7.  Copy the **Client ID** and **Client Secret** from Google Cloud back into the Supabase Google provider settings.
-8.  Click **Save**.
-
-### 6. Supabase Database Setup
-
-For authentication and data storage to work, you need to configure your Supabase database schema.
+This step configures your database, authentication, and encryption.
 
 1.  Navigate to your project on the [Supabase Dashboard](https://supabase.com/dashboard) and go to the **SQL Editor**.
-2.  You will need to create three core tables: `profiles`, `creations`, and `feedback`.
-3.  **Profiles Table**: This table should store public user information and be linked to `auth.users` via a foreign key relationship on the user's `id`.
-4.  **Database Trigger**: Create a trigger and function that automatically inserts a new row into your `profiles` table whenever a new user signs up in `auth.users`.
-5.  **Link Tables**: Add a `user_id` foreign key column to your `creations` and `feedback` tables that references the `profiles` table.
-6.  **Enable Row Level Security (RLS)**: This is a critical security step.
-    -   Enable RLS on all three tables (`profiles`, `creations`, `feedback`).
-    -   Create security policies to ensure that users can only access and manage their own data. For example, a user should only be able to `SELECT` their own profile and perform `ALL` actions on their own `creations`.
+2.  Click **+ New query** and paste the **entire script** below into the editor.
+3.  Click **RUN**. This single script will set up everything you need.
 
-### 7. Running the Development Server
+<details>
+<summary><strong>Click to view the Full Supabase Setup SQL Script</strong></summary>
 
-You are now ready to start the application.
+```sql
+/******************************************************************************
+*  DREAMPIXEL TECHNOLOGY - SUPABASE DATABASE & ENCRYPTION SETUP SCRIPT
+*
+*  This script will:
+*  1. Enable the required 'pgsodium' extension for encryption.
+*  2. Create a secure vault for and store a new encryption key.
+*  3. Create the core tables: `profiles`, `creations`, and `feedback`.
+*  4. Set up a trigger to automatically create a user profile on sign-up.
+*  5. Create PostgreSQL functions (RPCs) to handle secure, server-side
+*     encryption and decryption of user data.
+*  6. Enable and configure Row Level Security (RLS) to ensure users can
+*     only access their own data.
+******************************************************************************/
+
+-- Step 1: Enable the pgsodium extension for encryption
+-- This only needs to be run once per database.
+CREATE EXTENSION IF NOT EXISTS pgsodium WITH SCHEMA pgsodium;
+
+
+-- Step 2: Create a secret key in the pgsodium vault
+-- This key is used to encrypt and decrypt data. It is stored securely
+-- and is not directly accessible. We associate it with a key_id for reference.
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pgsodium.key WHERE name = 'dreampixel_user_data_key') THEN
+    PERFORM pgsodium.create_key(
+        name := 'dreampixel_user_data_key',
+        key_type := 'aead-det'
+    );
+  END IF;
+END $$;
+
+
+-- Step 3: Create the core application tables
+-- Profile table stores public user data and is linked to Supabase's auth system.
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name TEXT,
+  avatar_url TEXT
+);
+COMMENT ON TABLE public.profiles IS 'Stores public profile information for each user.';
+
+-- Creations table stores user-generated content.
+-- The 'prompt' will be encrypted.
+CREATE TABLE IF NOT EXISTS public.creations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  prompt BYTEA, -- Storing encrypted data as bytes
+  image_url TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+COMMENT ON TABLE public.creations IS 'Stores liked creations with encrypted prompts.';
+
+-- Feedback table stores user feedback.
+-- The 'content' will be encrypted.
+CREATE TABLE IF NOT EXISTS public.feedback (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  content BYTEA, -- Storing encrypted data as bytes
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+COMMENT ON TABLE public.feedback IS 'Collects user feedback with encrypted content.';
+
+
+-- Step 4: Automate profile creation for new users
+-- This function and trigger automatically create a public profile when a user signs up.
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, avatar_url)
+  VALUES (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+
+-- Step 5: Create Server-Side Functions (RPC) for Secure Data Handling
+-- These functions handle encryption/decryption on the server, so the key is never exposed.
+
+-- Get the ID of our encryption key
+CREATE OR REPLACE FUNCTION get_key_id()
+RETURNS UUID AS $$
+DECLARE
+  key_id UUID;
+BEGIN
+  SELECT id INTO key_id FROM pgsodium.key WHERE name = 'dreampixel_user_data_key' LIMIT 1;
+  RETURN key_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to create an encrypted creation
+CREATE OR REPLACE FUNCTION create_encrypted_creation(p_prompt TEXT, p_image_url TEXT, p_user_id UUID)
+RETURNS void AS $$
+BEGIN
+  INSERT INTO public.creations (prompt, image_url, user_id)
+  VALUES (
+    pgsodium.crypto_aead_det_encrypt(
+      convert_to(p_prompt, 'utf8'),
+      '{}'::JSONB,
+      get_key_id()
+    ),
+    p_image_url,
+    p_user_id
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to get and decrypt a user's creations
+CREATE OR REPLACE FUNCTION get_decrypted_creations(p_user_id UUID)
+RETURNS TABLE(id UUID, prompt TEXT, image_url TEXT, created_at TIMESTAMPTZ) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    c.id,
+    convert_from(
+      pgsodium.crypto_aead_det_decrypt(
+        c.prompt,
+        '{}'::JSONB,
+        get_key_id()
+      ),
+      'utf8'
+    ) AS prompt,
+    c.image_url,
+    c.created_at
+  FROM
+    public.creations c
+  WHERE
+    c.user_id = p_user_id
+  ORDER BY
+    c.created_at DESC;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to submit encrypted feedback
+CREATE OR REPLACE FUNCTION submit_encrypted_feedback(p_content TEXT, p_user_id UUID)
+RETURNS void AS $$
+BEGIN
+  INSERT INTO public.feedback (content, user_id)
+  VALUES (
+    pgsodium.crypto_aead_det_encrypt(
+      convert_to(p_content, 'utf8'),
+      '{}'::JSONB,
+      get_key_id()
+    ),
+    p_user_id
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Step 6: Enable Row Level Security (RLS) on all tables
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.creations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
+
+
+-- Step 7: Create Security Policies to protect user data
+DROP POLICY IF EXISTS "Users can view their own profile." ON public.profiles;
+CREATE POLICY "Users can view their own profile."
+  ON public.profiles FOR SELECT
+  USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can manage their own creations." ON public.creations;
+CREATE POLICY "Users can manage their own creations."
+  ON public.creations FOR ALL
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert their own feedback." ON public.feedback;
+CREATE POLICY "Users can insert their own feedback."
+  ON public.feedback FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- Make RPCs invokable by authenticated users
+GRANT EXECUTE ON FUNCTION public.create_encrypted_creation(TEXT, TEXT, UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_decrypted_creations(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.submit_encrypted_feedback(TEXT, UUID) TO authenticated;
+
+```
+</details>
+
+### 5. Google Authentication Setup
+
+1.  Go to your Supabase Project Dashboard -> **Authentication** -> **Providers**.
+2.  Click on **Google** and enable it.
+3.  Copy the **Redirect URI (Callback URL)**.
+4.  Go to the [Google Cloud Console](https://console.cloud.google.com/), create a new project, then go to **APIs & Services -> Credentials**.
+5.  Create an **OAuth 2.0 Client ID**, select "Web application", and paste the Supabase callback URL into the "Authorized redirect URIs" field.
+6.  Copy the **Client ID** and **Client Secret** from Google Cloud back into the Supabase Google provider settings.
+7.  Click **Save**.
+
+### 6. Running the Development Server
 
 ```bash
 npm run dev
 ```
 
-The application should now be running on `http://localhost:5173`.
+The application should now be running locally, fully connected to your secure Supabase backend.
 ---
 ## 📄 License
 

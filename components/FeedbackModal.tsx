@@ -22,16 +22,12 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
         setError(null);
 
         try {
-            const feedbackData: { content: string; user_id?: string } = {
-                content: feedback.trim(),
-            };
-            if (session?.user?.id) {
-                feedbackData.user_id = session.user.id;
-            }
-
+            // Call the secure RPC function to submit encrypted feedback
             const { error } = await supabase
-                .from('feedback')
-                .insert([feedbackData]);
+                .rpc('submit_encrypted_feedback', {
+                    p_content: feedback.trim(),
+                    p_user_id: session?.user?.id || null
+                });
 
             if (error) throw error;
             
