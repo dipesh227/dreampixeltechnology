@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ApiConfig, ApiProvider } from '../types';
 import * as apiConfigService from '../services/apiConfigService';
@@ -132,11 +131,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             <div className="bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
                 <header className="flex items-center justify-between p-4 border-b border-slate-800">
                     <div className="flex items-center gap-3">
-                        <HiOutlineCog8Tooth className="w-6 h-6 text-slate-400"/>
+                        <HiOutlineCog8Tooth className="w-6 h-6 text-purple-400"/>
                         <h2 className="text-lg font-bold text-white">API Provider Settings</h2>
                     </div>
                     <button onClick={onClose} className="text-slate-500 hover:text-white">
-                        <HiOutlineXMark className="w-6 h-6"/>
+                        <HiOutlineXMark className="w-6 h-6 icon-hover-effect"/>
                     </button>
                 </header>
 

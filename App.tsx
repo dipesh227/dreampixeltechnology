@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import LandingPage from './components/LandingPage';
 import ThumbnailGenerator from './components/ThumbnailGenerator';
@@ -12,6 +11,7 @@ import SettingsModal from './components/SettingsModal';
 import FeedbackModal from './components/FeedbackModal';
 import * as aiService from './services/aiService';
 import * as apiConfigService from './services/apiConfigService';
+import MouseTrail from './components/MouseTrail';
 
 const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');
@@ -34,15 +34,6 @@ const App: React.FC = () => {
     };
     checkStatus();
   }, [apiProvider]);
-
-  useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      document.documentElement.style.setProperty('--mouse-x', `${event.clientX}px`);
-      document.documentElement.style.setProperty('--mouse-y', `${event.clientY}px`);
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   const handleSelectTool = useCallback((tool: ToolType) => {
     setActiveTool(tool);
@@ -73,7 +64,8 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className={`min-h-screen pointer-glow animated-bg ${isGenerating ? 'generating-active' : ''}`}>
+    <div className={`min-h-screen animated-bg ${isGenerating ? 'generating-active' : ''}`}>
+      <MouseTrail />
       <Header onNavigateHome={handleNavigateHome} onOpenSettings={handleOpenSettings} onOpenFeedback={handleOpenFeedback} apiKeyStatus={apiKeyStatus} />
       <main className="container mx-auto px-4 py-8">
         {activeTool === 'landing' ? (

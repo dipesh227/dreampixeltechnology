@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { CreatorStyle, AspectRatio, UploadedFile, GeneratedConcept, ApiProvider } from '../types';
 import { generatePrompts, generateThumbnail } from '../services/aiService';
@@ -241,7 +240,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                                 <div key={index} className="relative group aspect-square">
                                     <img src={`data:${file.mimeType};base64,${file.base64}`} alt={file.name} className="rounded-lg object-cover w-full h-full"/>
                                     <button onClick={() => removeHeadshot(index)} className="absolute top-1 right-1 bg-black/60 rounded-full p-1 text-white hover:bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                        <HiXMark className="w-4 h-4" />
+                                        <HiXMark className="w-4 h-4 icon-hover-effect" />
                                     </button>
                                 </div>
                             ))}
@@ -250,7 +249,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                 </div>
                  <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
                     <div className="flex items-start gap-3">
-                        <HiOutlineDocumentText className="w-5 h-5 mt-1 text-slate-400"/>
+                        <HiOutlineDocumentText className="w-6 h-6 mt-1 text-purple-400"/>
                         <div>
                            <h3 className="text-md font-bold text-white">2. Describe Your Video</h3>
                            <p className="text-sm text-slate-400 mb-2">The more detail, the better the thumbnail concepts.</p>
@@ -259,7 +258,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                     <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., 'A video essay exploring the rise of AI in creative industries, and whether it will replace human artists...'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" rows={4}></textarea>
                     
                      <div className="flex items-start gap-3">
-                        <HiOutlineChatBubbleLeftRight className="w-5 h-5 mt-1 text-slate-400"/>
+                        <HiOutlineChatBubbleLeftRight className="w-6 h-6 mt-1 text-pink-400"/>
                         <div>
                            <h3 className="text-md font-bold text-white">Text on Thumbnail <span className="text-slate-400 font-normal">(Optional)</span></h3>
                            <p className="text-sm text-slate-400 mb-2">Add compelling text to grab attention. Keep it short!</p>
@@ -268,7 +267,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                     <input type="text" value={thumbnailText} onChange={e => setThumbnailText(e.target.value)} placeholder="e.g., 'AI TAKEOVER?!' or 'My BIGGEST Secret'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
 
                     <div className="flex items-start gap-3">
-                        <HiOutlineTag className="w-5 h-5 mt-1 text-slate-400"/>
+                        <HiOutlineTag className="w-6 h-6 mt-1 text-sky-400"/>
                         <div>
                            <h3 className="text-md font-bold text-white">Brand Details <span className="text-slate-400 font-normal">(Optional)</span></h3>
                            <p className="text-sm text-slate-400 mb-2">Add a brand name or style notes (e.g., 'Use our font "Poppins"').</p>
@@ -364,7 +363,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                                 onClick={(e) => { e.stopPropagation(); handleCopyPrompt(concept.prompt); }}
                                 className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors"
                             >
-                                {copiedPrompt === concept.prompt ? <HiCheck className="w-4 h-4 text-green-400" /> : <HiOutlineDocumentDuplicate className="w-4 h-4" />}
+                                {copiedPrompt === concept.prompt ? <HiCheck className="w-4 h-4 text-green-400" /> : <HiOutlineDocumentDuplicate className="w-4 h-4 icon-hover-effect" />}
                                 {copiedPrompt === concept.prompt ? 'Copied!' : 'Copy'}
                             </button>
                         </div>
@@ -372,7 +371,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                 ))}
             </div>
             <div className="flex justify-center mt-10">
-                <button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors">
+                <button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
                     <HiArrowLeft className="w-5 h-5" /> Back
                 </button>
             </div>
@@ -398,16 +397,16 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                 <img src={`data:image/png;base64,${generatedThumbnail}`} alt="Generated Thumbnail" className="rounded-xl mx-auto shadow-2xl shadow-black/30 mb-8 border-2 border-slate-700/50" style={{ aspectRatio: aspectRatio.replace(':', ' / ') }} />
              )}
              <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4">
-                 <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700">
+                 <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect">
                     <HiArrowLeft className="w-5 h-5"/> Back to Settings
                  </button>
-                 <button onClick={() => setStep('promptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700">
+                 <button onClick={() => setStep('promptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect">
                     <HiOutlineLightBulb className="w-5 h-5"/> Back to Concepts
                  </button>
-                 <button onClick={() => handleGenerateThumbnail(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed">
+                 <button onClick={() => handleGenerateThumbnail(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect">
                     <HiOutlineArrowPath className="w-5 h-5"/> Regenerate
                  </button>
-                 <button onClick={handleSaveCreation} disabled={isSaved} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed">
+                 <button onClick={handleSaveCreation} disabled={isSaved} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect">
                     <HiOutlineHeart className={`w-5 h-5 ${isSaved ? 'text-pink-500' : ''}`} /> {isSaved ? 'Saved!' : 'Like & Save Creation'}
                  </button>
                  <a href={`data:image/png;base64,${generatedThumbnail}`} download="dreampixel-thumbnail.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">

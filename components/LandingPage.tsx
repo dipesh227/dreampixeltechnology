@@ -1,6 +1,5 @@
 import React from 'react';
 import { Tool, ToolType } from '../types';
-// FIX: 'HiOutlinePhotograph' is not an exported member of 'react-icons/hi2', replaced with 'HiOutlinePhoto'.
 import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineShare, HiOutlineUserGroup } from 'react-icons/hi2';
 import SocialConnect from './SocialConnect';
 
@@ -9,14 +8,13 @@ interface LandingPageProps {
 }
 
 const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = ({ tool, onClick }) => {
-    const icons: { [key in ToolType]: React.ElementType } = {
-        // FIX: 'HiOutlinePhotograph' is not an exported member of 'react-icons/hi2', replaced with 'HiOutlinePhoto'.
-        thumbnail: HiOutlinePhoto,
-        advertisement: HiOutlineMegaphone,
-        social: HiOutlineShare,
-        political: HiOutlineUserGroup
+    const icons: { [key in ToolType]: { icon: React.ElementType, gradient: string } } = {
+        thumbnail: { icon: HiOutlinePhoto, gradient: 'from-purple-500 to-indigo-500' },
+        advertisement: { icon: HiOutlineMegaphone, gradient: 'from-pink-500 to-rose-500' },
+        social: { icon: HiOutlineShare, gradient: 'from-sky-500 to-cyan-500' },
+        political: { icon: HiOutlineUserGroup, gradient: 'from-amber-500 to-orange-500' }
     };
-    const Icon = icons[tool.id];
+    const { icon: Icon, gradient } = icons[tool.id];
 
     return (
         <div
@@ -27,8 +25,8 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = ({ tool, onClick
             `}
         >
             <div className="flex-grow">
-                <div className="mb-4 p-3 bg-slate-800/70 border border-slate-700 rounded-lg inline-block">
-                    <Icon className="w-7 h-7 text-slate-300" />
+                <div className={`mb-4 p-3 bg-gradient-to-br ${gradient} border border-slate-700 rounded-lg inline-block shadow-lg`}>
+                    <Icon className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">{tool.title}</h3>
                 <p className="text-slate-400 text-sm mb-4">{tool.description}</p>

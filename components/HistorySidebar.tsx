@@ -42,7 +42,7 @@ const HistorySidebar: React.FC = () => {
                     <span className="text-xs font-semibold bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full">{creations.length}</span>
                 </h3>
                 {creations.length > 0 && (
-                    <button onClick={handleClearCreations} aria-label="Clear all creations" className="text-slate-500 hover:text-red-400 transition-colors p-1 rounded-md hover:bg-slate-800">
+                    <button onClick={handleClearCreations} aria-label="Clear all creations" className="text-slate-500 transition-colors p-1 rounded-md hover:bg-slate-800 trash-icon-hover">
                         <HiOutlineTrash className="w-5 h-5" />
                     </button>
                 )}

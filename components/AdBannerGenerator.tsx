@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { AdStyle, AspectRatio, UploadedFile, GeneratedConcept, ApiProvider } from '../types';
 import { generateAdConcepts, generateAdBanner } from '../services/aiService';
@@ -208,7 +207,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                              </div>
                              {productImage && <div className="relative group w-20 h-20 mx-auto mt-2">
                                 <img src={`data:${productImage.mimeType};base64,${productImage.base64}`} alt="Product" className="rounded-lg object-cover w-full h-full"/>
-                                <button onClick={() => setProductImage(null)} className="absolute -top-1 -right-1 bg-black/60 rounded-full p-1 text-white hover:bg-red-500"><HiXMark className="w-3 h-3" /></button>
+                                <button onClick={() => setProductImage(null)} className="absolute -top-1 -right-1 bg-black/60 rounded-full p-1 text-white hover:bg-red-500"><HiXMark className="w-3 h-3 icon-hover-effect" /></button>
                              </div>}
                         </div>
                         {/* Model Headshot Upload */}
@@ -222,7 +221,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                              </div>
                              {modelHeadshot && <div className="relative group w-20 h-20 mx-auto mt-2">
                                 <img src={`data:${modelHeadshot.mimeType};base64,${modelHeadshot.base64}`} alt="Model" className="rounded-lg object-cover w-full h-full"/>
-                                <button onClick={() => setModelHeadshot(null)} className="absolute -top-1 -right-1 bg-black/60 rounded-full p-1 text-white hover:bg-red-500"><HiXMark className="w-3 h-3" /></button>
+                                <button onClick={() => setModelHeadshot(null)} className="absolute -top-1 -right-1 bg-black/60 rounded-full p-1 text-white hover:bg-red-500"><HiXMark className="w-3 h-3 icon-hover-effect" /></button>
                              </div>}
                         </div>
                      </div>
@@ -230,7 +229,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
                     <h2 className="text-xl font-bold text-white mb-1">2. Describe Your Campaign</h2>
                     <div className="flex items-start gap-3">
-                        <HiOutlineDocumentText className="w-5 h-5 mt-1 text-slate-400"/>
+                        <HiOutlineDocumentText className="w-6 h-6 mt-1 text-purple-400"/>
                         <div>
                            <h3 className="text-md font-bold text-white">Product Description</h3>
                            <p className="text-sm text-slate-400 mb-2">Describe the product, audience, and goals.</p>
@@ -239,7 +238,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                     <textarea value={productDescription} onChange={(e) => setProductDescription(e.target.value)} placeholder="e.g., 'A new line of eco-friendly sneakers for young, urban professionals...'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" rows={2}></textarea>
                     
                      <div className="flex items-start gap-3">
-                        <HiOutlineChatBubbleLeftRight className="w-5 h-5 mt-1 text-slate-400"/>
+                        <HiOutlineChatBubbleLeftRight className="w-6 h-6 mt-1 text-pink-400"/>
                         <div>
                            <h3 className="text-md font-bold text-white">Headline</h3>
                            <p className="text-sm text-slate-400 mb-2">The main text for the ad. Keep it punchy!</p>
@@ -248,7 +247,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                     <input type="text" value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g., 'Step Into the Future'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
 
                     <div className="flex items-start gap-3">
-                        <HiOutlineTag className="w-5 h-5 mt-1 text-slate-400"/>
+                        <HiOutlineTag className="w-6 h-6 mt-1 text-sky-400"/>
                         <div>
                            <h3 className="text-md font-bold text-white">Brand Name <span className="text-slate-400 font-normal">(Optional)</span></h3>
                            <p className="text-sm text-slate-400 mb-2">The brand name to feature in the ad.</p>
@@ -319,14 +318,14 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                         </div>
                         <div className="mt-6 flex justify-end">
                             <button onClick={(e) => { e.stopPropagation(); handleCopyPrompt(concept.prompt); }} className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors">
-                                {copiedPrompt === concept.prompt ? <HiCheck className="w-4 h-4 text-green-400" /> : <HiOutlineDocumentDuplicate className="w-4 h-4" />}
+                                {copiedPrompt === concept.prompt ? <HiCheck className="w-4 h-4 text-green-400" /> : <HiOutlineDocumentDuplicate className="w-4 h-4 icon-hover-effect" />}
                                 {copiedPrompt === concept.prompt ? 'Copied!' : 'Copy'}
                             </button>
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="flex justify-center mt-10"><button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors"><HiArrowLeft className="w-5 h-5" /> Back</button></div>
+            <div className="flex justify-center mt-10"><button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect"><HiArrowLeft className="w-5 h-5" /> Back</button></div>
         </div>
     );
 
@@ -343,10 +342,10 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
              <h2 className="text-3xl font-bold text-center mb-8 text-white">Your Ad Banner is Ready!</h2>
              {generatedBanner && <img src={`data:image/png;base64,${generatedBanner}`} alt="Generated Ad Banner" className="rounded-xl mx-auto shadow-2xl shadow-black/30 mb-8 border-2 border-slate-700/50" style={{ aspectRatio: aspectRatio.replace(':', ' / ') }} />}
              <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4">
-                 <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700"><HiArrowLeft className="w-5 h-5"/> Back to Settings</button>
-                 <button onClick={() => setStep('promptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700"><HiOutlineLightBulb className="w-5 h-5"/> Back to Concepts</button>
-                 <button onClick={() => handleGenerateBanner(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed"><HiOutlineArrowPath className="w-5 h-5"/> Regenerate</button>
-                 <button onClick={handleSaveCreation} disabled={isSaved} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed"><HiOutlineHeart className={`w-5 h-5 ${isSaved ? 'text-pink-500' : ''}`} /> {isSaved ? 'Saved!' : 'Like & Save Banner'}</button>
+                 <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect"><HiArrowLeft className="w-5 h-5"/> Back to Settings</button>
+                 <button onClick={() => setStep('promptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect"><HiOutlineLightBulb className="w-5 h-5"/> Back to Concepts</button>
+                 <button onClick={() => handleGenerateBanner(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect"><HiOutlineArrowPath className="w-5 h-5"/> Regenerate</button>
+                 <button onClick={handleSaveCreation} disabled={isSaved} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect"><HiOutlineHeart className={`w-5 h-5 ${isSaved ? 'text-pink-500' : ''}`} /> {isSaved ? 'Saved!' : 'Like & Save Banner'}</button>
                  <a href={`data:image/png;base64,${generatedBanner}`} download="dreampixel-banner.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
                     <HiArrowDownTray className="w-5 h-5"/> Download
                  </a>
