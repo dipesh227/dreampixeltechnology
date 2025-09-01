@@ -30,6 +30,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
     const [generatedBanner, setGeneratedBanner] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState('');
     const [isSaved, setIsSaved] = useState(false);
     const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
     const [apiProvider, setApiProvider] = useState<ApiProvider>('default');
@@ -42,6 +43,41 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
     useEffect(() => {
         onGenerating(isLoading);
     }, [isLoading, onGenerating]);
+
+    useEffect(() => {
+        let interval: ReturnType<typeof setInterval>;
+
+        if (isLoading && step === 'input') {
+            const messages = [
+                'Analyzing product details...',
+                'Brainstorming ad angles...',
+                'Crafting creative concepts...',
+                'Finalizing suggestions...'
+            ];
+            let index = 0;
+            setLoadingMessage(messages[index]);
+            interval = setInterval(() => {
+                index = (index + 1) % messages.length;
+                setLoadingMessage(messages[index]);
+            }, 2000);
+        } else if (step === 'generating') {
+            const messages = [
+                'Setting up the ad canvas...',
+                'Compositing product and model...',
+                'Applying brand styles...',
+                'Adding headline text...',
+                'Rendering final banner...',
+                'Polishing the ad creative...'
+            ];
+            let index = 0;
+            setLoadingMessage(messages[index]);
+            interval = setInterval(() => {
+                index = (index + 1) % messages.length;
+                setLoadingMessage(messages[index]);
+            }, 2500);
+        }
+        return () => clearInterval(interval);
+    }, [isLoading, step]);
 
     const handleBackToSettings = () => {
         setStep('input');
@@ -266,7 +302,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
              <div className="flex justify-center pt-4">
                 <button onClick={handleGenerateConcepts} disabled={isLoading} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
-                    {isLoading ? 'Generating Concepts...' : 'Generate Ad Concepts'}
+                    {isLoading ? loadingMessage : 'Generate Ad Concepts'}
                 </button>
             </div>
         </div>
@@ -301,7 +337,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
     const renderGeneratingStep = () => (
         <div className="text-center py-20 animate-fade-in">
             <div className="relative w-24 h-24 mx-auto"><div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div><div className="absolute inset-0 border-4 border-t-purple-400 rounded-full animate-spin"></div></div>
-            <h2 className="text-3xl font-bold mt-8 text-white">Creating Your Ad Banner...</h2>
+            <h2 className="text-3xl font-bold mt-8 text-white">{loadingMessage}</h2>
             <p className="text-slate-400 mt-2">This can take up to a minute. Please wait.</p>
         </div>
     );

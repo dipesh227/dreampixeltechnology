@@ -29,6 +29,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
     const [generatedPoster, setGeneratedPoster] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState('');
     const [isSaved, setIsSaved] = useState(false);
     const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
     const [apiProvider, setApiProvider] = useState<ApiProvider>('default');
@@ -41,6 +42,41 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
     useEffect(() => {
         onGenerating(isLoading);
     }, [isLoading, onGenerating]);
+
+    useEffect(() => {
+        let interval: ReturnType<typeof setInterval>;
+
+        if (isLoading && step === 'input') {
+            const messages = [
+                'Analyzing campaign details...',
+                'Crafting strategic concepts...',
+                'Considering party branding...',
+                'Finalizing poster ideas...',
+            ];
+            let index = 0;
+            setLoadingMessage(messages[index]);
+            interval = setInterval(() => {
+                index = (index + 1) % messages.length;
+                setLoadingMessage(messages[index]);
+            }, 2000);
+        } else if (step === 'generating') {
+            const messages = [
+                'Initializing AI design canvas...',
+                "Integrating politician's likeness...",
+                'Applying party branding...',
+                'Typesetting slogans...',
+                'Rendering final poster...',
+                'Almost done...'
+            ];
+            let index = 0;
+            setLoadingMessage(messages[index]);
+            interval = setInterval(() => {
+                index = (index + 1) % messages.length;
+                setLoadingMessage(messages[index]);
+            }, 2500);
+        }
+        return () => clearInterval(interval);
+    }, [isLoading, step]);
 
     const handleBackToSettings = () => {
         setStep('input');
@@ -254,7 +290,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
              <div className="flex justify-center pt-4">
                 <button onClick={handleGenerateConcepts} disabled={isLoading || headshots.length === 0} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
-                    {isLoading ? 'Generating Concepts...' : 'Generate Poster Concepts'}
+                    {isLoading ? loadingMessage : 'Generate Poster Concepts'}
                 </button>
             </div>
         </div>
@@ -317,7 +353,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
                 <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
                 <div className="absolute inset-0 border-4 border-t-purple-400 rounded-full animate-spin"></div>
             </div>
-            <h2 className="text-3xl font-bold mt-8 text-white">Generating Your Poster...</h2>
+            <h2 className="text-3xl font-bold mt-8 text-white">{loadingMessage}</h2>
             <p className="text-slate-400 mt-2">This can take up to a minute. Please don't close the window.</p>
         </div>
     );

@@ -104,7 +104,6 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
         }
         setIsLoading(true);
         setError(null);
-        setLoadingMessage('Generating creative concepts...');
         try {
             const allStyles = Object.values(CREATOR_STYLES).flat();
             const selectedStyle = allStyles.find(s => s.id === selectedStyleId);
@@ -171,7 +170,21 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
     
     useEffect(() => {
         let interval: ReturnType<typeof setInterval>;
-        if (step === 'generating') {
+        
+        if (isLoading && step === 'input') {
+            const messages = [
+                'Analyzing video description...',
+                'Brainstorming viral ideas...',
+                'Crafting compelling concepts...',
+                'Finalizing suggestions...'
+            ];
+            let index = 0;
+            setLoadingMessage(messages[index]);
+            interval = setInterval(() => {
+                index = (index + 1) % messages.length;
+                setLoadingMessage(messages[index]);
+            }, 2000);
+        } else if (step === 'generating') {
             const messages = [
                 'Initializing AI art matrix...',
                 'Analyzing headshot vectors...',
@@ -187,8 +200,9 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                 setLoadingMessage(messages[index]);
             }, 2500);
         }
+        
         return () => clearInterval(interval);
-    }, [step]);
+    }, [isLoading, step]);
 
 
     const renderInputStep = () => (
