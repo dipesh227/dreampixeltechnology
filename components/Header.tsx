@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DreamLogo } from './icons/DreamLogo';
-import { HiOutlineKey, HiOutlineChatBubbleLeftEllipsis, HiOutlineArrowRightOnRectangle, HiOutlineUserCircle, HiOutlineBars3, HiOutlineXMark } from 'react-icons/hi2';
+import { HiOutlineKey, HiOutlineChatBubbleLeftEllipsis, HiOutlineArrowRightOnRectangle, HiOutlineUserCircle } from 'react-icons/hi2';
 import { ValidationStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
 
@@ -53,8 +53,7 @@ const UserMenu: React.FC = () => {
 };
 
 const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenFeedback, apiKeyStatus, onLogin }) => {
-  const { session, logout, isLoggingOut } = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { session } = useAuth();
 
   const getKeyIconClassName = () => {
     switch (apiKeyStatus) {
@@ -68,8 +67,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
             return 'text-slate-300';
     }
   };
-  
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <header className="py-4 px-4 md:px-8 bg-slate-950/50 backdrop-blur-lg border-b border-slate-700/50 sticky top-0 z-50">
@@ -117,50 +114,29 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
               )}
             </div>
             
-            {/* Mobile Auth Area & Menu Toggle */}
+            {/* Mobile Auth & Action Buttons */}
             <div className="lg:hidden flex items-center gap-2">
-                {session && <UserMenu />}
-                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 rounded-md text-slate-300 hover:bg-slate-800">
-                    {isMobileMenuOpen ? <HiOutlineXMark className="w-6 h-6"/> : <HiOutlineBars3 className="w-6 h-6"/>}
+                {session ? (
+                    <UserMenu />
+                ) : (
+                    <button 
+                        onClick={onLogin} 
+                        className="p-2 rounded-md text-slate-300 hover:bg-slate-800 icon-hover-effect"
+                        aria-label="Login"
+                    >
+                        <HiOutlineUserCircle className="w-6 h-6" />
+                    </button>
+                )}
+                <button 
+                    onClick={onOpenFeedback} 
+                    className="p-2 rounded-md text-slate-300 hover:bg-slate-800"
+                    aria-label="Send Feedback"
+                >
+                    <HiOutlineChatBubbleLeftEllipsis className="w-6 h-6 text-pink-300 icon-hover-effect" />
                 </button>
             </div>
         </div>
       </div>
-      
-      {/* Mobile Menu Panel */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden mt-4 p-4 bg-slate-900 border-t border-slate-800 space-y-3 animate-fade-in-down">
-          <button onClick={() => { onOpenFeedback(); closeMobileMenu(); }} className="w-full flex items-center gap-3 p-3 text-base rounded-lg text-slate-300 hover:bg-slate-800 transition-colors">
-            <HiOutlineChatBubbleLeftEllipsis className="w-5 h-5 text-pink-300"/> Feedback
-          </button>
-          <button onClick={() => { onOpenSettings(); closeMobileMenu(); }} className="w-full flex items-center gap-3 p-3 text-base rounded-lg text-slate-300 hover:bg-slate-800 transition-colors">
-            <HiOutlineKey className={`w-5 h-5 transition-all duration-300 ${getKeyIconClassName()}`}/> API Settings
-          </button>
-          <div className="border-t border-slate-800 my-2"></div>
-          {session ? (
-              <button 
-                onClick={() => { logout(); closeMobileMenu(); }} 
-                disabled={isLoggingOut}
-                className="w-full flex items-center justify-center gap-3 p-3 text-base rounded-lg text-slate-300 hover:bg-slate-800 transition-colors disabled:opacity-70 disabled:cursor-wait">
-                 {isLoggingOut ? (
-                    <>
-                        <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
-                        Signing Out...
-                    </>
-                ) : (
-                    <>
-                        <HiOutlineArrowRightOnRectangle className="w-5 h-5"/>
-                        Sign Out
-                    </>
-                )}
-              </button>
-          ) : (
-             <button onClick={() => { onLogin(); closeMobileMenu(); }} className="w-full flex items-center gap-3 p-3 text-base rounded-lg text-slate-300 hover:bg-slate-800 transition-colors">
-                <HiOutlineUserCircle className="w-5 h-5"/> Login
-              </button>
-          )}
-        </div>
-      )}
     </header>
   );
 };
