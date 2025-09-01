@@ -100,73 +100,16 @@ You must enable Google as an authentication provider in your Supabase project.
 
 ### 6. Supabase Database Setup
 
-For authentication and data storage to work, you need to run several SQL scripts in your Supabase project.
+For authentication and data storage to work, you need to configure your Supabase database schema.
 
-1.  Navigate to your project on the [Supabase Dashboard](https://supabase.com/dashboard).
-2.  In the left sidebar, go to the **SQL Editor**.
-3.  Click **+ New query**.
-4.  Copy and run the following SQL scripts one by one.
-
-**Script 1: Create `profiles` Table and Trigger**
-```sql
--- 1. Create the profiles table to store public user data
-CREATE TABLE profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  full_name TEXT,
-  avatar_url TEXT
-);
--- Add a comment for clarity
-COMMENT ON TABLE profiles IS 'Stores public profile information for each user.';
-
--- 2. Create a function to automatically insert a new profile when a user signs up
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public.profiles (id, full_name, avatar_url)
-  VALUES (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
-  RETURN new;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- 3. Create a trigger to execute the function on new user creation
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
-```
-
-**Script 2: Update Existing Tables**
-```sql
--- 4. Add user_id columns to link creations and feedback to users
-ALTER TABLE public.creations
-  ADD COLUMN user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE;
-
-ALTER TABLE public.feedback
-  ADD COLUMN user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE;
-```
-
-**Script 3: Enable Row Level Security (RLS) & Create Policies**
-```sql
--- 5. Enable Row Level Security (RLS) for data protection
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.creations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
-
--- 6. Create policies to control data access
--- Users can see their own profile
-CREATE POLICY "Users can view their own profile."
-  ON public.profiles FOR SELECT
-  USING (auth.uid() = id);
-
--- Users can insert, update, select, and delete their own creations
-CREATE POLICY "Users can manage their own creations."
-  ON public.creations FOR ALL
-  USING (auth.uid() = user_id);
-
--- Users can insert their own feedback
-CREATE POLICY "Users can insert feedback."
-  ON public.feedback FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-```
+1.  Navigate to your project on the [Supabase Dashboard](https://supabase.com/dashboard) and go to the **SQL Editor**.
+2.  You will need to create three core tables: `profiles`, `creations`, and `feedback`.
+3.  **Profiles Table**: This table should store public user information and be linked to `auth.users` via a foreign key relationship on the user's `id`.
+4.  **Database Trigger**: Create a trigger and function that automatically inserts a new row into your `profiles` table whenever a new user signs up in `auth.users`.
+5.  **Link Tables**: Add a `user_id` foreign key column to your `creations` and `feedback` tables that references the `profiles` table.
+6.  **Enable Row Level Security (RLS)**: This is a critical security step.
+    -   Enable RLS on all three tables (`profiles`, `creations`, `feedback`).
+    -   Create security policies to ensure that users can only access and manage their own data. For example, a user should only be able to `SELECT` their own profile and perform `ALL` actions on their own `creations`.
 
 ### 7. Running the Development Server
 
