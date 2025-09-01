@@ -14,6 +14,7 @@ import * as aiService from './services/aiService';
 import * as apiConfigService from './services/apiConfigService';
 import MouseTrail from './components/MouseTrail';
 import { useAuth } from './context/AuthContext';
+import { checkDatabaseConnection } from './services/supabaseClient';
 
 
 const App: React.FC = () => {
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   const [apiKeyStatus, setApiKeyStatus] = useState<ValidationStatus>('validating');
   const [isGenerating, setIsGenerating] = useState(false);
   const [apiProvider, setApiProvider] = useState<ApiProvider>(() => apiConfigService.getConfig().provider);
+  const [dbStatus, setDbStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
 
   const { session } = useAuth();
 
@@ -40,6 +42,15 @@ const App: React.FC = () => {
     };
     checkStatus();
   }, [apiProvider, session]);
+
+  useEffect(() => {
+    const verifyConnection = async () => {
+        const isConnected = await checkDatabaseConnection();
+        setDbStatus(isConnected ? 'connected' : 'error');
+    };
+    const timer = setTimeout(verifyConnection, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSelectTool = useCallback((tool: ToolType) => {
     setActiveTool(tool);
@@ -100,7 +111,7 @@ const App: React.FC = () => {
           </>
         )}
       </main>
-      <Footer />
+      <Footer dbStatus={dbStatus} />
       {isSettingsOpen && <SettingsModal onClose={handleCloseSettings} />}
       {isFeedbackOpen && <FeedbackModal onClose={handleCloseFeedback} />}
       {isAuthModalOpen && <AuthModal onClose={handleCloseAuthModal} />}

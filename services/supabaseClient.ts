@@ -18,3 +18,28 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 // Initialize and export the Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+/**
+ * Checks the connection to the Supabase database by performing a lightweight query.
+ * @returns {Promise<boolean>} - True if the connection is successful, false otherwise.
+ */
+export const checkDatabaseConnection = async (): Promise<boolean> => {
+    try {
+        // This is a very lightweight query. It asks for the count of a table
+        // but with `head: true`, it doesn't return any data, just the status
+        // and the count in the headers, which is enough to verify the connection
+        // and table access are working. We check against a table we know should exist.
+        const { error } = await supabase
+            .from('profiles')
+            .select('id', { count: 'exact', head: true });
+
+        if (error) {
+            console.error("Supabase connection check failed:", error.message);
+            return false;
+        }
+        return true;
+    } catch (e) {
+        console.error("Supabase client error during connection check:", e);
+        return false;
+    }
+};
