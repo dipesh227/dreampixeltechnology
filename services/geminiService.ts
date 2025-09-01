@@ -3,6 +3,21 @@ import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle } from '../types';
 import * as apiConfigService from './apiConfigService';
 
+// Helper to get site identifiers for OpenRouter headers
+const getOpenRouterSiteHeaders = () => {
+    if (typeof window !== 'undefined') {
+        return {
+            "HTTP-Referer": window.location.origin,
+            "X-Title": window.location.hostname,
+        };
+    }
+    // Fallback for SSR or other environments, though this is a CSR app.
+    return {
+        "HTTP-Referer": "https://dreampixel.ai", // Hardcoded fallback
+        "X-Title": "DreamPixel Technology", // Hardcoded fallback
+    };
+};
+
 const getAiClient = () => {
     const apiKey = apiConfigService.getApiKey();
     if (!apiKey) {
@@ -20,8 +35,7 @@ const generateTextWithOpenRouter = async (prompt: string): Promise<string> => {
         headers: {
             "Authorization": `Bearer ${apiKey}`,
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://dreampixel.ai", // Required by OpenRouter
-            "X-Title": "DreamPixel Technology" // Required by OpenRouter
+            ...getOpenRouterSiteHeaders()
         },
         body: JSON.stringify({
             model: "google/gemini-2.0-flash-exp:free",
@@ -75,8 +89,7 @@ const generateWithOpenRouter = async (prompt: string, images: UploadedFile[]): P
         headers: {
             "Authorization": `Bearer ${apiKey}`,
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://dreampixel.ai", // Required by OpenRouter
-            "X-Title": "DreamPixel Technology" // Required by OpenRouter
+            ...getOpenRouterSiteHeaders()
         },
         body: JSON.stringify({
             model: "google/gemini-2.5-flash-image-preview:free",
