@@ -476,7 +476,7 @@ To enable "Sign in with Google", you need to configure the provider in your Supa
     -   In your Supabase project, navigate to **Authentication** -> **Providers**.
     -   Find **Google** in the list and click on it to open the configuration panel.
     -   **CRITICAL STEP:** Before you do anything else, make sure the **'Enable Provider' toggle at the top of the panel is switched ON.** If you don't do this, you will get an "Unsupported provider" error when trying to log in.
-    -   You will see a **Redirect URI (Callback URL)**. Copy this URL for the next step.
+    -   You will see a **Redirect URI (Callback URL)**. It will be unique to your project and look something like `https://<your-project-ref>.supabase.co/auth/v1/callback`. For example: `https://ftsvupbnmvphphvwzxha.supabase.co/auth/v1/callback`. **Copy this exact URL** for the next step.
 
 2.  **Create Google Cloud OAuth Credentials:**
     -   Go to the [Google Cloud Console](https://console.cloud.google.com/).
