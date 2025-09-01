@@ -13,10 +13,14 @@ interface HeaderProps {
 }
 
 const UserMenu: React.FC = () => {
-    const { profile, logout } = useAuth();
+    const { profile, logout, isLoggingOut } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
 
     if (!profile) return null;
+
+    const handleLogout = () => {
+        logout().then(() => setIsOpen(false));
+    };
 
     return (
         <div className="relative">
@@ -27,10 +31,20 @@ const UserMenu: React.FC = () => {
             {isOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-lg py-1 z-50">
                     <button 
-                        onClick={logout} 
-                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 transition-colors icon-hover-effect">
-                        <HiOutlineArrowRightOnRectangle className="w-5 h-5"/>
-                        Sign Out
+                        onClick={handleLogout} 
+                        disabled={isLoggingOut}
+                        className="w-full flex items-center justify-center gap-3 px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 transition-colors icon-hover-effect disabled:opacity-70 disabled:cursor-wait">
+                        {isLoggingOut ? (
+                            <>
+                                <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+                                Signing Out...
+                            </>
+                        ) : (
+                            <>
+                                <HiOutlineArrowRightOnRectangle className="w-5 h-5"/>
+                                Sign Out
+                            </>
+                        )}
                     </button>
                 </div>
             )}
@@ -39,7 +53,7 @@ const UserMenu: React.FC = () => {
 };
 
 const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenFeedback, apiKeyStatus, onLogin }) => {
-  const { session, logout } = useAuth();
+  const { session, logout, isLoggingOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const getKeyIconClassName = () => {
@@ -107,7 +121,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
               )}
             </div>
             
-
             {/* Mobile Menu Toggle */}
             <div className="lg:hidden ml-2">
                 <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 rounded-md text-slate-300 hover:bg-slate-800">
@@ -128,8 +141,21 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
           </button>
           <div className="border-t border-slate-800 my-2"></div>
           {session ? (
-              <button onClick={() => { logout(); closeMobileMenu(); }} className="w-full flex items-center gap-3 p-3 text-base rounded-lg text-slate-300 hover:bg-slate-800 transition-colors">
-                <HiOutlineArrowRightOnRectangle className="w-5 h-5"/> Sign Out
+              <button 
+                onClick={() => { logout(); closeMobileMenu(); }} 
+                disabled={isLoggingOut}
+                className="w-full flex items-center justify-center gap-3 p-3 text-base rounded-lg text-slate-300 hover:bg-slate-800 transition-colors disabled:opacity-70 disabled:cursor-wait">
+                 {isLoggingOut ? (
+                    <>
+                        <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+                        Signing Out...
+                    </>
+                ) : (
+                    <>
+                        <HiOutlineArrowRightOnRectangle className="w-5 h-5"/>
+                        Sign Out
+                    </>
+                )}
               </button>
           ) : (
              <button onClick={() => { onLogin(); closeMobileMenu(); }} className="w-full flex items-center gap-3 p-3 text-base rounded-lg text-slate-300 hover:bg-slate-800 transition-colors">

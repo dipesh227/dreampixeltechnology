@@ -16,6 +16,9 @@ interface AuthContextType {
     login: () => Promise<void>;
     logout: () => Promise<void>;
     loading: boolean;
+    isLoggingIn: boolean;
+    isLoggingOut: boolean;
+    authError: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,6 +37,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [session, setSession] = useState<Session | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [authError, setAuthError] = useState<string | null>(null);
     
     const userId = user?.id;
     const { data: profile } = useSWR(userId ? ['profile', userId] : null, ([_, id]) => fetcher('profiles', id));
@@ -59,13 +65,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const login = async () => {
-        await supabase.auth.signInWithOAuth({
-            provider: 'google',
-        });
+        setIsLoggingIn(true);
+        setAuthError(null);
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+            });
+            if (error) throw error;
+        } catch (error) {
+            console.error("Error signing in:", error);
+            setAuthError(error instanceof Error ? error.message : "An unknown error occurred during login.");
+            setIsLoggingIn(false);
+        }
     };
 
     const logout = async () => {
-        await supabase.auth.signOut();
+        setIsLoggingOut(true);
+        setAuthError(null);
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
+        } catch (error) {
+            console.error("Error signing out:", error);
+            setAuthError(error instanceof Error ? error.message : "An unknown error occurred during logout.");
+        } finally {
+            setIsLoggingOut(false);
+        }
     };
 
     const value = {
@@ -75,6 +100,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         logout,
         loading,
+        isLoggingIn,
+        isLoggingOut,
+        authError,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

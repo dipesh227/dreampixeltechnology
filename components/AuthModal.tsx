@@ -8,7 +8,7 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
-    const { login } = useAuth();
+    const { login, isLoggingIn, authError } = useAuth();
     
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" onClick={onClose}>
@@ -24,10 +24,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                     <p className="text-slate-400 mb-6">Sign in to save your creations, access your history, and unlock all features.</p>
                     <button 
                         onClick={login}
-                        className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-slate-800 border border-slate-700 text-white font-semibold rounded-lg hover:bg-slate-700 transition-colors duration-200">
-                        <FaGoogle className="w-5 h-5 text-white"/>
-                        Sign in with Google
+                        disabled={isLoggingIn}
+                        className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-slate-800 border border-slate-700 text-white font-semibold rounded-lg hover:bg-slate-700 transition-colors duration-200 disabled:bg-slate-700 disabled:cursor-not-allowed">
+                        {isLoggingIn ? (
+                             <>
+                                <div className="w-5 h-5 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+                                <span>Redirecting...</span>
+                             </>
+                        ) : (
+                            <>
+                                <FaGoogle className="w-5 h-5 text-white"/>
+                                Sign in with Google
+                            </>
+                        )}
                     </button>
+                    {authError && <p className="text-sm text-red-400 mt-4">{authError}</p>}
                 </main>
             </div>
         </div>
