@@ -3,7 +3,7 @@ import { AdStyle, AspectRatio, UploadedFile, GeneratedConcept, ApiProvider } fro
 import { generateAdConcepts, generateAdBanner } from '../services/aiService';
 import { AD_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
-import * as apiConfigService from '../services/apiConfigService';
+import * as jobService from '../services/jobService';
 import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineDocumentText, HiOutlineChatBubbleLeftRight, HiOutlineTag, HiOutlineArrowPath, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb, HiOutlineCube, HiOutlineUserCircle } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 
@@ -116,6 +116,21 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
             setError('Please provide a product description and a headline.');
             return;
         }
+        
+        // Log the job
+        if (session) {
+            jobService.saveAdBannerJob({
+                userId: session.user.id,
+                productDescription,
+                headline,
+                brandDetails,
+                styleId: selectedStyleId,
+                aspectRatio,
+                productImage,
+                modelHeadshot
+            });
+        }
+        
         setIsLoading(true);
         setError(null);
         try {

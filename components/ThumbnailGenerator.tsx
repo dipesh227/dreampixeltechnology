@@ -3,7 +3,7 @@ import { CreatorStyle, AspectRatio, UploadedFile, GeneratedConcept, ApiProvider 
 import { generatePrompts, generateThumbnail } from '../services/aiService';
 import { CREATOR_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
-import * as apiConfigService from '../services/apiConfigService';
+import * as jobService from '../services/jobService';
 import { HiArrowLeft, HiCheck, HiComputerDesktop, HiDevicePhoneMobile, HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineDocumentText, HiOutlineChatBubbleLeftRight, HiOutlineTag, HiOutlineDocumentDuplicate, HiOutlineArrowPath, HiOutlineLightBulb } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 
@@ -99,6 +99,20 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
             setError('Please provide a video description.');
             return;
         }
+
+        // Log the job before starting generation
+        if (session) {
+            jobService.saveThumbnailJob({
+                userId: session.user.id,
+                description,
+                thumbnailText,
+                brandDetails,
+                styleId: selectedStyleId,
+                aspectRatio,
+                headshots
+            });
+        }
+
         setIsLoading(true);
         setError(null);
         try {

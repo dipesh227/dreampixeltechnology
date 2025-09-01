@@ -90,7 +90,8 @@ This step configures your database, authentication, and encryption.
 *  This script will:
 *  1. Enable the required 'pgsodium' extension for encryption.
 *  2. Create a secure vault for and store a new encryption key.
-*  3. Create the core tables: `profiles`, `creations`, and `feedback`.
+*  3. Create all required tables: `profiles`, `creations`, `feedback`,
+*     and job logging tables.
 *  4. Set up a trigger to automatically create a user profile on sign-up.
 *  5. Create PostgreSQL functions (RPCs) to handle secure, server-side
 *     encryption and decryption of user data.
@@ -146,6 +147,47 @@ CREATE TABLE IF NOT EXISTS public.feedback (
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 COMMENT ON TABLE public.feedback IS 'Collects user feedback with encrypted content.';
+
+-- Job Logging tables to store user inputs for generation tasks
+CREATE TABLE IF NOT EXISTS public.thumbnail_generation_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  description TEXT,
+  thumbnail_text TEXT,
+  brand_details TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT,
+  headshot_filenames TEXT[]
+);
+COMMENT ON TABLE public.thumbnail_generation_jobs IS 'Logs all input parameters for a thumbnail generation job.';
+
+CREATE TABLE IF NOT EXISTS public.political_poster_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  party_id TEXT,
+  event_theme TEXT,
+  custom_text TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT,
+  headshot_filename TEXT
+);
+COMMENT ON TABLE public.political_poster_jobs IS 'Logs all input parameters for a political poster job.';
+
+CREATE TABLE IF NOT EXISTS public.ad_banner_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  product_description TEXT,
+  headline TEXT,
+  brand_details TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT,
+  product_image_filename TEXT,
+  model_headshot_filename TEXT
+);
+COMMENT ON TABLE public.ad_banner_jobs IS 'Logs all input parameters for an ad banner job.';
 
 
 -- Step 4: Automate profile creation for new users
@@ -243,6 +285,9 @@ $$ LANGUAGE plpgsql;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.creations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.thumbnail_generation_jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.political_poster_jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.ad_banner_jobs ENABLE ROW LEVEL SECURITY;
 
 
 -- Step 7: Create Security Policies to protect user data
@@ -260,6 +305,21 @@ DROP POLICY IF EXISTS "Users can insert their own feedback." ON public.feedback;
 CREATE POLICY "Users can insert their own feedback."
   ON public.feedback FOR INSERT
   WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can manage their own thumbnail jobs." ON public.thumbnail_generation_jobs;
+CREATE POLICY "Users can manage their own thumbnail jobs."
+  ON public.thumbnail_generation_jobs FOR ALL
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can manage their own political poster jobs." ON public.political_poster_jobs;
+CREATE POLICY "Users can manage their own political poster jobs."
+  ON public.political_poster_jobs FOR ALL
+  USING (auth.uid() = user_id);
+  
+DROP POLICY IF EXISTS "Users can manage their own ad banner jobs." ON public.ad_banner_jobs;
+CREATE POLICY "Users can manage their own ad banner jobs."
+  ON public.ad_banner_jobs FOR ALL
+  USING (auth.uid() = user_id);
 
 -- Make RPCs invokable by users
 GRANT EXECUTE ON FUNCTION public.create_encrypted_creation(TEXT, TEXT, UUID) TO authenticated;

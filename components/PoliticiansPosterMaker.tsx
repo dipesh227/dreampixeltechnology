@@ -3,7 +3,7 @@ import { PoliticalParty, PosterStyle, AspectRatio, UploadedFile, GeneratedConcep
 import { generatePosterPrompts, generatePoster } from '../services/aiService';
 import { POLITICAL_PARTIES, POSTER_STYLES, POSTER_THEMES } from '../services/constants';
 import * as historyService from '../services/historyService';
-import * as apiConfigService from '../services/apiConfigService';
+import * as jobService from '../services/jobService';
 import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineFlag, HiOutlineCalendarDays, HiOutlineDocumentText, HiComputerDesktop, HiDevicePhoneMobile, HiOutlineArrowPath, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 
@@ -116,15 +116,29 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
             setError('A headshot is required to generate poster concepts.');
             return;
         }
+        
+        const finalEventTheme = selectedEvent === 'other' ? customEventTheme : selectedEvent;
+        if (selectedEvent === 'other' && !customEventTheme.trim()) {
+            setError('Please enter your custom theme.');
+            return;
+        }
+
+        // Log the job before starting generation
+        if (session) {
+            jobService.savePoliticalPosterJob({
+                userId: session.user.id,
+                partyId: selectedPartyId,
+                eventTheme: finalEventTheme,
+                customText,
+                styleId: selectedStyleId,
+                aspectRatio,
+                headshots
+            });
+        }
+        
         setIsLoading(true);
         setError(null);
         try {
-            const finalEventTheme = selectedEvent === 'other' ? customEventTheme : selectedEvent;
-            if (selectedEvent === 'other' && !customEventTheme.trim()) {
-                setError('Please enter your custom theme.');
-                setIsLoading(false);
-                return;
-            }
             const prompts = await generatePosterPrompts(selectedParty, finalEventTheme, customText, selectedStyle);
             setGeneratedPrompts(prompts);
             setStep('promptSelection');
