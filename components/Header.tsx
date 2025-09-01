@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { DreamLogo } from './icons/DreamLogo';
-import { KeyIcon, HomeIcon, ChatBubbleLeftEllipsisIcon } from './icons/UiIcons';
+import { GlobeIcon, KeyIcon, HomeIcon, ChatBubbleLeftEllipsisIcon } from './icons/UiIcons';
 
 interface HeaderProps {
     onNavigateHome: () => void;
@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
           className="flex flex-col items-center justify-center w-1/2 cursor-pointer"
           onClick={onNavigateHome}
         >
-            <DreamLogo className="h-12 md:h-20 w-auto transition-all" />
+            <DreamLogo className="h-16 md:h-28 w-auto transition-all" />
             <p className="hidden md:block text-sm text-slate-400 font-light mt-2">Your Vision, Amplified by AI.</p>
         </div>
 
@@ -31,6 +31,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
             <button onClick={onOpenFeedback} className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 transition-colors">
                 <ChatBubbleLeftEllipsisIcon className="w-4 h-4" />
                 <span className="hidden md:inline">Feedback</span>
+            </button>
+            <button className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 transition-colors">
+                <GlobeIcon className="w-4 h-4" />
+                <span className="hidden md:inline">EN</span>
             </button>
             <button onClick={onOpenSettings} className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 transition-colors">
                 <KeyIcon className="w-4 h-4" />

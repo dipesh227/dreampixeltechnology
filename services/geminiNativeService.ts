@@ -11,45 +11,21 @@ const getAiClient = () => {
     return new GoogleGenAI({ apiKey });
 };
 
-const handleGoogleAiError = (error: unknown): never => {
-    if (error instanceof Error) {
-        console.error("Error with Google AI:", error.message);
-        if (error.message.includes('API key not valid')) {
-            throw new Error("Invalid Google AI API Key. Please check the key in your API Settings.");
-        }
-        if (error.message.includes('429') || error.message.toLowerCase().includes('rate limit')) {
-            throw new Error("You've exceeded the Google AI API rate limit. Please wait a moment before trying again.");
-        }
-        if (error.message.includes('SAFETY')) {
-             throw new Error("Generation was blocked due to safety policies. Please modify your prompt or images and try again.");
-        }
-        if (error.message.includes('timed out') || error.message.includes('Deadline exceeded')) {
-            throw new Error("The request to Google AI timed out. The service might be busy or your internet connection is unstable. Please try again.");
-        }
-        throw new Error(`An error occurred with the Google AI service.`);
-    }
-    throw new Error("An unknown error occurred while communicating with Google AI.");
-};
-
 export const generateText = async (prompt: string, jsonSchema: object): Promise<string> => {
     const ai = getAiClient();
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: jsonSchema,
-            },
-        });
-        return response.text.trim();
-    } catch (error) {
-        handleGoogleAiError(error);
-    }
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: jsonSchema,
+        },
+    });
+    return response.text.trim();
 };
 
 export const generateImage = async (prompt: string, images: UploadedFile[]): Promise<string | null> => {
-    const ai = getAiClient();
+     const ai = getAiClient();
     try {
         const imageParts = images.map(file => ({
             inlineData: { data: file.base64, mimeType: file.mimeType }
@@ -76,6 +52,10 @@ export const generateImage = async (prompt: string, images: UploadedFile[]): Pro
         return null;
 
     } catch (error) {
-        handleGoogleAiError(error);
+        console.error("Error generating image with Gemini:", error);
+        if (error instanceof Error && error.message.includes('SAFETY')) {
+             throw new Error("Image generation was blocked due to safety policies. Please modify your prompt or images and try again.");
+        }
+        throw new Error("Failed to generate the image with Gemini. The AI model may be overloaded or the prompt might be too complex. Please try again later.");
     }
 };

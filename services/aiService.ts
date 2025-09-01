@@ -4,7 +4,6 @@ import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalPar
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
 import * as openRouterService from './openRouterService';
-import * as perplexityService from './perplexityService';
 
 const CONCEPTS_SCHEMA = {
     type: Type.OBJECT,
@@ -102,18 +101,14 @@ For each of the three concepts, you must provide a grammatically perfect JSON ob
                 jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
                 break;
             case 'perplexity':
-                 jsonText = await perplexityService.generateText(fullPrompt);
-                 break;
+                 throw new Error("Perplexity API is not supported for concept generation in this tool.");
             default:
                  jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
         }
         return parseAndValidateConcepts(jsonText);
     } catch (error) {
         console.error("Error generating thumbnail prompts:", error);
-        if (error instanceof Error) {
-            throw error; // Re-throw the user-friendly error from the service layer
-        }
-        throw new Error('An unknown error occurred during prompt generation.');
+        throw new Error(`Failed to generate thumbnail prompts. ${error instanceof Error ? error.message : ''}`);
     }
 };
 
@@ -147,24 +142,16 @@ export const generateThumbnail = async (
   - Image Style: ${style.imageStyle}
 `;
     const config = apiConfigService.getConfig();
-    try {
-        switch (config.provider) {
-            case 'openrouter':
-                return openRouterService.generateImage(enhancedPrompt, headshots);
-            case 'gemini':
-            case 'default':
-                return geminiNativeService.generateImage(enhancedPrompt, headshots);
-            case 'perplexity':
-                throw new Error("Perplexity API does not support image generation. Please select another provider like 'Default' or 'OpenRouter' in API Settings to generate images.");
-            default:
-                 return geminiNativeService.generateImage(enhancedPrompt, headshots);
-        }
-    } catch (error) {
-        console.error("Error generating thumbnail image:", error);
-        if (error instanceof Error) {
-            throw error;
-        }
-        throw new Error('An unknown error occurred during thumbnail generation.');
+    switch (config.provider) {
+        case 'openrouter':
+            return openRouterService.generateImage(enhancedPrompt, headshots);
+        case 'gemini':
+        case 'default':
+            return geminiNativeService.generateImage(enhancedPrompt, headshots);
+        case 'perplexity':
+            throw new Error("Perplexity API does not currently support the advanced image generation required by this tool. Please select 'Default', 'Custom Gemini' or 'OpenRouter' in the API Settings for full functionality.");
+        default:
+             return geminiNativeService.generateImage(enhancedPrompt, headshots);
     }
 };
 
@@ -207,18 +194,14 @@ For each of the three concepts, you must provide a grammatically perfect and met
                 jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
                 break;
             case 'perplexity':
-                jsonText = await perplexityService.generateText(fullPrompt);
-                break;
+                throw new Error("Perplexity API is not supported for concept generation in this tool.");
             default:
                 jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
         }
         return parseAndValidateConcepts(jsonText);
     } catch (error) {
         console.error("Error generating poster prompts:", error);
-        if (error instanceof Error) {
-            throw error;
-        }
-        throw new Error(`An unknown error occurred while generating poster concepts.`);
+        throw new Error(`Error generating poster prompts: ${error instanceof Error ? error.message : 'An unknown error occurred'}`);
     }
 };
 
@@ -235,24 +218,16 @@ export const generatePoster = async (selectedPrompt: string, headshots: Uploaded
 - **Aspect Ratio:** The final image's aspect ratio MUST be precisely ${aspectRatio}.
 `;
     const config = apiConfigService.getConfig();
-    try {
-        switch (config.provider) {
-            case 'openrouter':
-                return openRouterService.generateImage(finalPrompt, headshots);
-            case 'gemini':
-            case 'default':
-                return geminiNativeService.generateImage(finalPrompt, headshots);
-            case 'perplexity':
-                throw new Error("Perplexity API does not support image generation. Please select another provider like 'Default' or 'OpenRouter' in API Settings to generate images.");
-            default:
-                 return geminiNativeService.generateImage(finalPrompt, headshots);
-        }
-    } catch (error) {
-        console.error("Error generating poster image:", error);
-        if (error instanceof Error) {
-            throw error;
-        }
-        throw new Error('An unknown error occurred during poster generation.');
+     switch (config.provider) {
+        case 'openrouter':
+            return openRouterService.generateImage(finalPrompt, headshots);
+        case 'gemini':
+        case 'default':
+            return geminiNativeService.generateImage(finalPrompt, headshots);
+        case 'perplexity':
+            throw new Error("Perplexity API does not currently support the advanced image generation required by this tool. Please select 'Default', 'Custom Gemini' or 'OpenRouter' in the API Settings for full functionality.");
+        default:
+             return geminiNativeService.generateImage(finalPrompt, headshots);
     }
 };
 
@@ -294,18 +269,14 @@ Provide a grammatically perfect JSON object with a single key "concepts" which i
                 jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
                 break;
             case 'perplexity':
-                jsonText = await perplexityService.generateText(fullPrompt);
-                break;
+                throw new Error("Perplexity API is not supported for concept generation in this tool.");
             default:
                 jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
         }
         return parseAndValidateConcepts(jsonText);
     } catch (error) {
         console.error("Error generating ad concepts:", error);
-        if (error instanceof Error) {
-            throw error;
-        }
-        throw new Error('An unknown error occurred while generating ad concepts.');
+        throw new Error(`Failed to generate ad concepts. ${error instanceof Error ? error.message : ''}`);
     }
 };
 
@@ -327,23 +298,15 @@ export const generateAdBanner = async (selectedPrompt: string, productImage: Upl
 Execute this brief with the skill of an award-winning digital artist.
 `;
     const config = apiConfigService.getConfig();
-    try {
-        switch (config.provider) {
-            case 'openrouter':
-                return openRouterService.generateImage(finalPrompt, allImages);
-            case 'gemini':
-            case 'default':
-                return geminiNativeService.generateImage(finalPrompt, allImages);
-            case 'perplexity':
-                throw new Error("Perplexity API does not support image generation. Please select another provider like 'Default' or 'OpenRouter' in API Settings to generate images.");
-            default:
-                return geminiNativeService.generateImage(finalPrompt, allImages);
-        }
-    } catch (error) {
-        console.error("Error generating ad banner:", error);
-        if (error instanceof Error) {
-            throw error;
-        }
-        throw new Error('An unknown error occurred during ad banner generation.');
+    switch (config.provider) {
+        case 'openrouter':
+            return openRouterService.generateImage(finalPrompt, allImages);
+        case 'gemini':
+        case 'default':
+            return geminiNativeService.generateImage(finalPrompt, allImages);
+        case 'perplexity':
+            throw new Error("Perplexity API does not currently support the advanced image generation required by this tool. Please select 'Default', 'Custom Gemini' or 'OpenRouter' in the API Settings for full functionality.");
+        default:
+            return geminiNativeService.generateImage(finalPrompt, allImages);
     }
 };
