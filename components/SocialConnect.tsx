@@ -1,15 +1,15 @@
 import React from 'react';
-import { FacebookIcon, InstagramIcon, LinkedInIcon, XIcon } from './icons/UiIcons';
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaXTwitter } from 'react-icons/fa6';
 
 const SocialConnect: React.FC = () => {
     const socialLinks = [
-        { Icon: XIcon, name: 'X' },
-        { Icon: FacebookIcon, name: 'Facebook' },
-        { Icon: InstagramIcon, name: 'Instagram' },
-        { Icon: LinkedInIcon, name: 'LinkedIn' },
+        { Icon: FaXTwitter, name: 'X' },
+        { Icon: FaFacebookF, name: 'Facebook' },
+        { Icon: FaInstagram, name: 'Instagram' },
+        { Icon: FaLinkedinIn, name: 'LinkedIn' },
     ];
     return (
-        <div className="p-8 bg-slate-900 border border-slate-800 rounded-xl text-center">
+        <div className="p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl text-center">
             <h3 className="text-xl font-bold text-white mb-2">Connect Your Social Accounts</h3>
             <p className="text-slate-400 mb-6 max-w-md mx-auto">Enable one-click posting by connecting your social media profiles. Secure and easy to set up.</p>
             <div className="flex justify-center items-center gap-4">

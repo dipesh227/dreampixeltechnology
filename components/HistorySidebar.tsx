@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import * as historyService from '../services/historyService';
 import { HistoryEntry } from '../types';
-import { SearchIcon, TrashIcon } from './icons/UiIcons';
+import { HiOutlineMagnifyingGlass, HiOutlineTrash } from 'react-icons/hi2';
 
 const HistorySidebar: React.FC = () => {
     const [creations, setCreations] = useState<HistoryEntry[]>([]);
@@ -35,7 +35,7 @@ const HistorySidebar: React.FC = () => {
     }, [creations, searchTerm]);
 
     return (
-        <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl h-full flex flex-col">
+        <div className="p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl h-full flex flex-col">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                     Liked Creations
@@ -43,7 +43,7 @@ const HistorySidebar: React.FC = () => {
                 </h3>
                 {creations.length > 0 && (
                     <button onClick={handleClearCreations} aria-label="Clear all creations" className="text-slate-500 hover:text-red-400 transition-colors p-1 rounded-md hover:bg-slate-800">
-                        <TrashIcon className="w-4 h-4" />
+                        <HiOutlineTrash className="w-5 h-5" />
                     </button>
                 )}
             </div>
@@ -54,10 +54,10 @@ const HistorySidebar: React.FC = () => {
                     placeholder="Search history..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 text-sm bg-slate-800 border border-slate-700 rounded-lg focus:ring-1 focus:ring-slate-600 focus:border-slate-600"
+                    className="w-full pl-10 pr-4 py-2 text-sm bg-slate-800 border border-slate-700 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <SearchIcon className="w-4 h-4 text-slate-500" />
+                    <HiOutlineMagnifyingGlass className="w-5 h-5 text-slate-500" />
                 </div>
             </div>
             {isLoading ? (
@@ -71,7 +71,7 @@ const HistorySidebar: React.FC = () => {
                              <img 
                                 src={creation.imageUrl} 
                                 alt={creation.prompt} 
-                                className="w-full rounded-lg aspect-video object-cover border-2 border-transparent group-hover:border-slate-600 transition-all"
+                                className="w-full rounded-lg aspect-video object-cover border-2 border-transparent group-hover:border-purple-500 transition-all"
                             />
                             <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity p-2 text-xs text-white overflow-hidden rounded-lg">
                                 {creation.prompt}

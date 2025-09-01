@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import LandingPage from './components/LandingPage';
 import ThumbnailGenerator from './components/ThumbnailGenerator';
@@ -18,6 +17,7 @@ const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [apiKeyStatus, setApiKeyStatus] = useState<ValidationStatus>('validating');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -30,6 +30,15 @@ const App: React.FC = () => {
         }
     };
     checkStatus();
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (event: MouseEvent) => {
+      document.documentElement.style.setProperty('--mouse-x', `${event.clientX}px`);
+      document.documentElement.style.setProperty('--mouse-y', `${event.clientY}px`);
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   const handleSelectTool = useCallback((tool: ToolType) => {
@@ -47,7 +56,6 @@ const App: React.FC = () => {
   const handleOpenSettings = useCallback(() => setIsSettingsOpen(true), []);
   const handleCloseSettings = useCallback(() => {
     setIsSettingsOpen(false);
-    // Re-validate status after closing settings, as a reload only happens on save.
     setApiKeyStatus('validating');
     aiService.checkCurrentApiStatus().then(setApiKeyStatus);
   }, []);
@@ -56,9 +64,12 @@ const App: React.FC = () => {
   const handleOpenFeedback = useCallback(() => setIsFeedbackOpen(true), []);
   const handleCloseFeedback = useCallback(() => setIsFeedbackOpen(false), []);
 
+  const handleGeneratingStatusChange = useCallback((status: boolean) => {
+    setIsGenerating(status);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 dotted-bg">
+    <div className={`min-h-screen pointer-glow animated-bg ${isGenerating ? 'generating-active' : ''}`}>
       <Header onNavigateHome={handleNavigateHome} onOpenSettings={handleOpenSettings} onOpenFeedback={handleOpenFeedback} apiKeyStatus={apiKeyStatus} />
       <main className="container mx-auto px-4 py-8">
         {activeTool === 'landing' ? (
@@ -72,9 +83,9 @@ const App: React.FC = () => {
           </div>
         ) : (
           <>
-            {activeTool === 'thumbnail' && <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} />}
-            {activeTool === 'political' && <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} />}
-            {activeTool === 'advertisement' && <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} />}
+            {activeTool === 'thumbnail' && <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'political' && <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'advertisement' && <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
           </>
         )}
       </main>

@@ -3,7 +3,7 @@ import { ApiConfig, ApiProvider } from '../types';
 import * as apiConfigService from '../services/apiConfigService';
 import * as aiService from '../services/aiService';
 import { useDebounce } from '../hooks/useDebounce';
-import { CogIcon, XMarkIcon } from './icons/UiIcons';
+import { HiOutlineCog8Tooth, HiOutlineXMark } from 'react-icons/hi2';
 
 interface SettingsModalProps {
     onClose: () => void;
@@ -104,7 +104,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         if (config.provider === 'gemini') {
             return (
                 <div className="relative">
-                    <input type="password" placeholder="Enter your Gemini API Key" value={apiKeys.geminiApiKey} onChange={(e) => handleApiKeyChange(e, 'geminiApiKey')} className="w-full mt-2 p-2 pr-8 bg-slate-700 border border-slate-600 rounded-md focus:ring-1 focus:ring-slate-500" />
+                    <input type="password" placeholder="Enter your Gemini API Key" value={apiKeys.geminiApiKey} onChange={(e) => handleApiKeyChange(e, 'geminiApiKey')} className="w-full mt-2 p-2 pr-8 bg-slate-800 border border-slate-700 rounded-md focus:ring-1 focus:ring-purple-500" />
                     <div className="absolute inset-y-0 right-3 flex items-center"><StatusIndicator status={validationStatus.gemini} /></div>
                 </div>
             );
@@ -112,7 +112,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         if (config.provider === 'openrouter') {
              return (
                 <div className="relative">
-                    <input type="password" placeholder="Enter your OpenRouter API Key" value={apiKeys.openRouterApiKey} onChange={(e) => handleApiKeyChange(e, 'openRouterApiKey')} className="w-full mt-2 p-2 pr-8 bg-slate-700 border border-slate-600 rounded-md focus:ring-1 focus:ring-slate-500" />
+                    <input type="password" placeholder="Enter your OpenRouter API Key" value={apiKeys.openRouterApiKey} onChange={(e) => handleApiKeyChange(e, 'openRouterApiKey')} className="w-full mt-2 p-2 pr-8 bg-slate-800 border border-slate-700 rounded-md focus:ring-1 focus:ring-purple-500" />
                     <div className="absolute inset-y-0 right-3 flex items-center"><StatusIndicator status={validationStatus.openrouter} /></div>
                 </div>
             );
@@ -120,7 +120,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         if (config.provider === 'perplexity') {
              return (
                 <div className="relative">
-                    <input type="password" placeholder="Enter your Perplexity API Key" value={apiKeys.perplexityApiKey} onChange={(e) => handleApiKeyChange(e, 'perplexityApiKey')} className="w-full mt-2 p-2 pr-8 bg-slate-700 border border-slate-600 rounded-md focus:ring-1 focus:ring-slate-500" />
+                    <input type="password" placeholder="Enter your Perplexity API Key" value={apiKeys.perplexityApiKey} onChange={(e) => handleApiKeyChange(e, 'perplexityApiKey')} className="w-full mt-2 p-2 pr-8 bg-slate-800 border border-slate-700 rounded-md focus:ring-1 focus:ring-purple-500" />
                     <div className="absolute inset-y-0 right-3 flex items-center"><StatusIndicator status={validationStatus.perplexity} /></div>
                 </div>
             );
@@ -130,14 +130,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" onClick={onClose}>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
+            <div className="bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
                 <header className="flex items-center justify-between p-4 border-b border-slate-800">
                     <div className="flex items-center gap-3">
-                        <CogIcon className="w-6 h-6 text-slate-400"/>
+                        <HiOutlineCog8Tooth className="w-6 h-6 text-slate-400"/>
                         <h2 className="text-lg font-bold text-white">API Provider Settings</h2>
                     </div>
                     <button onClick={onClose} className="text-slate-500 hover:text-white">
-                        <XMarkIcon className="w-6 h-6"/>
+                        <HiOutlineXMark className="w-6 h-6"/>
                     </button>
                 </header>
 
@@ -145,10 +145,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                     <div>
                         <label className="font-semibold text-slate-300">AI Provider</label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1 bg-slate-800 border border-slate-700 rounded-lg mt-2">
-                            <button onClick={() => handleProviderChange('default')} className={`px-3 py-1.5 text-sm rounded-md ${config.provider === 'default' ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>Default</button>
-                            <button onClick={() => handleProviderChange('gemini')} className={`px-3 py-1.5 text-sm rounded-md ${config.provider === 'gemini' ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>Custom Gemini</button>
-                            <button onClick={() => handleProviderChange('openrouter')} className={`px-3 py-1.5 text-sm rounded-md ${config.provider === 'openrouter' ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>OpenRouter</button>
-                            <button onClick={() => handleProviderChange('perplexity')} className={`px-3 py-1.5 text-sm rounded-md ${config.provider === 'perplexity' ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>Perplexity</button>
+                            <button onClick={() => handleProviderChange('default')} className={`px-3 py-1.5 text-sm rounded-md transition-colors ${config.provider === 'default' ? 'bg-purple-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>Default</button>
+                            <button onClick={() => handleProviderChange('gemini')} className={`px-3 py-1.5 text-sm rounded-md transition-colors ${config.provider === 'gemini' ? 'bg-purple-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>Custom Gemini</button>
+                            <button onClick={() => handleProviderChange('openrouter')} className={`px-3 py-1.5 text-sm rounded-md transition-colors ${config.provider === 'openrouter' ? 'bg-purple-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>OpenRouter</button>
+                            <button onClick={() => handleProviderChange('perplexity')} className={`px-3 py-1.5 text-sm rounded-md transition-colors ${config.provider === 'perplexity' ? 'bg-purple-600 text-white font-semibold' : 'hover:bg-slate-700'}`}>Perplexity</button>
                         </div>
                         <div className="mt-3">
                             {renderProviderInput()}
@@ -160,9 +160,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                     </div>
                 </main>
                 
-                <footer className="flex justify-end gap-3 p-4 bg-slate-900/50 border-t border-slate-800 rounded-b-2xl">
-                    <button onClick={onClose} className="px-4 py-2 text-sm font-semibold bg-slate-700/50 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors">Cancel</button>
-                    <button onClick={handleSave} className="px-4 py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors">Save & Close</button>
+                <footer className="flex justify-end gap-3 p-4 bg-slate-950/30 border-t border-slate-800 rounded-b-2xl">
+                    <button onClick={onClose} className="px-4 py-2 text-sm font-semibold bg-slate-800 border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors">Cancel</button>
+                    <button onClick={handleSave} className="px-4 py-2 text-sm font-semibold bg-primary-gradient text-white rounded-lg hover:opacity-90 transition-opacity">Save & Close</button>
                 </footer>
             </div>
         </div>

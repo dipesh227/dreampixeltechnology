@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { Tool, ToolType } from '../types';
-import { PhotoIcon, MegaphoneIcon, ShareIcon, UserGroupIcon } from './icons/ToolIcons';
+// FIX: 'HiOutlinePhotograph' is not an exported member of 'react-icons/hi2', replaced with 'HiOutlinePhoto'.
+import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineShare, HiOutlineUserGroup } from 'react-icons/hi2';
 import SocialConnect from './SocialConnect';
 
 interface LandingPageProps {
@@ -10,23 +10,24 @@ interface LandingPageProps {
 
 const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = ({ tool, onClick }) => {
     const icons: { [key in ToolType]: React.ElementType } = {
-        thumbnail: PhotoIcon,
-        advertisement: MegaphoneIcon,
-        social: ShareIcon,
-        political: UserGroupIcon
+        // FIX: 'HiOutlinePhotograph' is not an exported member of 'react-icons/hi2', replaced with 'HiOutlinePhoto'.
+        thumbnail: HiOutlinePhoto,
+        advertisement: HiOutlineMegaphone,
+        social: HiOutlineShare,
+        political: HiOutlineUserGroup
     };
     const Icon = icons[tool.id];
 
     return (
         <div
             className={`
-                flex flex-col p-6 bg-slate-900 border border-slate-800 rounded-xl
+                flex flex-col p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl
                 transition-all duration-300 ease-in-out h-full
-                ${!tool.enabled ? 'opacity-50' : 'hover:border-slate-700 hover:shadow-2xl hover:shadow-slate-900/50 hover:-translate-y-1'}
+                ${!tool.enabled ? 'opacity-50' : 'hover:border-slate-600 hover:shadow-2xl hover:shadow-slate-900/50 hover:-translate-y-1'}
             `}
         >
             <div className="flex-grow">
-                <div className="mb-4 p-3 bg-slate-800/50 border border-slate-700 rounded-lg inline-block">
+                <div className="mb-4 p-3 bg-slate-800/70 border border-slate-700 rounded-lg inline-block">
                     <Icon className="w-7 h-7 text-slate-300" />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">{tool.title}</h3>
