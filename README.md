@@ -261,10 +261,11 @@ CREATE POLICY "Users can insert their own feedback."
   ON public.feedback FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
--- Make RPCs invokable by authenticated users
+-- Make RPCs invokable by users
 GRANT EXECUTE ON FUNCTION public.create_encrypted_creation(TEXT, TEXT, UUID) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_decrypted_creations(UUID) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.submit_encrypted_feedback(TEXT, UUID) TO authenticated;
+-- Allow both logged-in and anonymous users to submit feedback
+GRANT EXECUTE ON FUNCTION public.submit_encrypted_feedback(TEXT, UUID) TO authenticated, anon;
 
 ```
 </details>

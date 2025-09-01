@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HiOutlineChatBubbleLeftEllipsis, HiOutlineXMark } from 'react-icons/hi2';
-import { supabase } from '../services/supabaseClient';
+import * as feedbackService from '../services/feedbackService';
 import { useAuth } from '../context/AuthContext';
 
 interface FeedbackModalProps {
@@ -22,14 +22,10 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
         setError(null);
 
         try {
-            // Call the secure RPC function to submit encrypted feedback
-            const { error } = await supabase
-                .rpc('submit_encrypted_feedback', {
-                    p_content: feedback.trim(),
-                    p_user_id: session?.user?.id || null
-                });
-
-            if (error) throw error;
+            await feedbackService.submitFeedback(
+                feedback.trim(),
+                session?.user?.id || null
+            );
             
             setIsSubmitted(true);
             setTimeout(() => {
@@ -38,7 +34,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
 
         } catch (err) {
             console.error('Error submitting feedback:', err);
-            setError('Failed to submit feedback. Please try again.');
+            setError(err instanceof Error ? err.message : 'Failed to submit feedback. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
