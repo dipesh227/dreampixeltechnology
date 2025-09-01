@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { HiOutlineChatBubbleLeftEllipsis, HiOutlineXMark } from 'react-icons/hi2';
 import { supabase } from '../services/supabaseClient';
+import { useAuth } from '../context/AuthContext';
 
 interface FeedbackModalProps {
     onClose: () => void;
 }
 
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
+    const { session } = useAuth();
     const [feedback, setFeedback] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -20,9 +22,16 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
         setError(null);
 
         try {
+            const feedbackData: { content: string; user_id?: string } = {
+                content: feedback.trim(),
+            };
+            if (session?.user?.id) {
+                feedbackData.user_id = session.user.id;
+            }
+
             const { error } = await supabase
                 .from('feedback')
-                .insert([{ content: feedback.trim() }]);
+                .insert([feedbackData]);
 
             if (error) throw error;
             

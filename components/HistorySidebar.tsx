@@ -1,26 +1,33 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import * as historyService from '../services/historyService';
 import { HistoryEntry } from '../types';
-import { HiOutlineMagnifyingGlass, HiOutlineTrash } from 'react-icons/hi2';
+import { HiOutlineMagnifyingGlass, HiOutlineTrash, HiOutlineUserCircle } from 'react-icons/hi2';
+import { useAuth } from '../context/AuthContext';
 
 const HistorySidebar: React.FC = () => {
+    const { session } = useAuth();
     const [creations, setCreations] = useState<HistoryEntry[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchCreations = async () => {
-            setIsLoading(true);
-            const savedCreations = await historyService.getCreations();
-            setCreations(savedCreations);
-            setIsLoading(false);
+            if (session?.user?.id) {
+                setIsLoading(true);
+                const savedCreations = await historyService.getCreations(session.user.id);
+                setCreations(savedCreations);
+                setIsLoading(false);
+            } else {
+                setCreations([]);
+                setIsLoading(false);
+            }
         };
         fetchCreations();
-    }, []);
+    }, [session]);
 
     const handleClearCreations = async () => {
-        if (window.confirm("Are you sure you want to delete all your liked creations? This action cannot be undone.")) {
-            await historyService.clearCreations();
+        if (session?.user?.id && window.confirm("Are you sure you want to delete all your liked creations? This action cannot be undone.")) {
+            await historyService.clearCreations(session.user.id);
             setCreations([]);
         }
     };
@@ -33,6 +40,16 @@ const HistorySidebar: React.FC = () => {
             creation.prompt.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [creations, searchTerm]);
+
+    if (!session) {
+        return (
+            <div className="p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl h-full flex flex-col items-center justify-center text-center">
+                <HiOutlineUserCircle className="w-12 h-12 text-slate-600 mb-4" />
+                <h3 className="text-lg font-bold text-white">Sign In to See Your Creations</h3>
+                <p className="text-sm text-slate-500 mt-1">Log in to save and view your liked creations across sessions.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl h-full flex flex-col">

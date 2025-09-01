@@ -5,6 +5,7 @@ import { POLITICAL_PARTIES, POSTER_STYLES, POSTER_THEMES } from '../services/con
 import * as historyService from '../services/historyService';
 import * as apiConfigService from '../services/apiConfigService';
 import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineFlag, HiOutlineCalendarDays, HiOutlineDocumentText, HiComputerDesktop, HiDevicePhoneMobile, HiOutlineArrowPath, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb } from 'react-icons/hi2';
+import { useAuth } from '../context/AuthContext';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -16,6 +17,7 @@ interface PoliticiansPosterMakerProps {
 }
 
 const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavigateHome, onPosterGenerated, onGenerating, apiProvider }) => {
+    const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [headshots, setHeadshots] = useState<UploadedFile[]>([]);
     const [selectedPartyId, setSelectedPartyId] = useState<string>(POLITICAL_PARTIES[0].id);
@@ -161,7 +163,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
     };
 
     const handleSaveCreation = async () => {
-        if (generatedPoster && !isSaved && selectedParty) {
+        if (generatedPoster && !isSaved && selectedParty && session) {
             const newEntry = {
                 id: '',
                 prompt: finalPrompt,
@@ -169,7 +171,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
                 timestamp: Date.now()
             };
             try {
-                await historyService.saveCreation(newEntry);
+                await historyService.saveCreation(newEntry, session.user.id);
                 setIsSaved(true);
                 onPosterGenerated();
             } catch (error) {
@@ -369,9 +371,14 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
                  <button onClick={() => handleGeneratePoster(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-blue">
                     <HiOutlineArrowPath className="w-5 h-5 text-sky-400"/> Regenerate
                  </button>
-                 <button onClick={handleSaveCreation} disabled={isSaved} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-pink">
-                    <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save Poster'}
-                 </button>
+                 <div className="relative group" title={!session ? 'Please sign in to save creations' : ''}>
+                     <button 
+                        onClick={handleSaveCreation} 
+                        disabled={isSaved || !session} 
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-pink">
+                        <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save Poster'}
+                     </button>
+                 </div>
                  <a href={`data:image/png;base64,${generatedPoster}`} download="dreampixel-poster.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
                     <HiArrowDownTray className="w-5 h-5"/> Download
                  </a>

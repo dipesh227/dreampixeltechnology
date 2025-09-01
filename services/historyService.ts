@@ -1,11 +1,13 @@
 import { HistoryEntry } from '../types';
 import { supabase } from './supabaseClient';
 
-export const getCreations = async (): Promise<HistoryEntry[]> => {
+export const getCreations = async (userId: string): Promise<HistoryEntry[]> => {
+    if (!userId) return [];
     try {
         const { data, error } = await supabase
             .from('creations')
             .select('*')
+            .eq('user_id', userId)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -18,18 +20,20 @@ export const getCreations = async (): Promise<HistoryEntry[]> => {
         }));
 
     } catch (error) {
-        console.error("Failed to fetch creations from Supabase", error);
+        console.error("Failed to fetch user creations from Supabase", error);
         return [];
     }
 };
 
-export const saveCreation = async (newEntry: HistoryEntry): Promise<void> => {
+export const saveCreation = async (newEntry: HistoryEntry, userId: string): Promise<void> => {
+    if (!userId) throw new Error("User must be logged in to save a creation.");
     try {
         const { error } = await supabase
             .from('creations')
             .insert([{ 
                 prompt: newEntry.prompt, 
-                image_url: newEntry.imageUrl 
+                image_url: newEntry.imageUrl,
+                user_id: userId
             }]);
         
         if (error) throw error;
@@ -40,16 +44,17 @@ export const saveCreation = async (newEntry: HistoryEntry): Promise<void> => {
     }
 };
 
-export const clearCreations = async (): Promise<void> => {
+export const clearCreations = async (userId: string): Promise<void> => {
+    if (!userId) return;
     try {
         const { error } = await supabase
             .from('creations')
             .delete()
-            .neq('id', '00000000-0000-0000-0000-000000000000'); // Safe delete all
+            .eq('user_id', userId);
         
         if (error) throw error;
 
     } catch (error) {
-        console.error("Failed to clear creations from Supabase", error);
+        console.error("Failed to clear user creations from Supabase", error);
     }
 };

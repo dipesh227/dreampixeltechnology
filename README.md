@@ -12,6 +12,7 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
     -   **YouTube Thumbnail Generator**: Create click-worthy thumbnails by emulating popular creator styles.
     -   **Ad Banner Generator**: Produce professional ad banners in various aspect ratios using proven marketing styles.
     -   **Politician's Poster Maker**: Generate impactful posters for political campaigns based on specific themes and party branding.
+-   **Secure User Authentication**: Sign in with your Google account to save and manage your creations.
 -   **Flexible AI Provider Support**:
     -   Use the application's **default Google Gemini** provider out-of-the-box.
     -   Integrate your own API keys for **Custom Gemini**, **OpenRouter**, and **OpenAI (GPT-4 & DALL-E 3)**.
@@ -20,7 +21,7 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
     -   A vibrant, colorful UI with a "glassmorphism" aesthetic.
     -   An interactive neon mouse trail and glowing hover effects.
     -   An animated background that synchronizes with AI generation tasks for beautiful visual feedback.
--   **Persistent History**: Like and save your favorite creations, which are stored securely in a Supabase database.
+-   **Personalized History**: Like and save your favorite creations, which are stored securely and tied to your user account in a Supabase database.
 -   **Advanced AI Prompt Engineering**: Sophisticated, multi-step prompt generation ensures high-quality, relevant, and creative outputs.
 
 ---
@@ -33,7 +34,7 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
     -   Google Gemini API (`@google/genai`)
     -   OpenRouter API
     -   OpenAI API (GPT-4 Turbo & DALL-E 3)
--   **Database**: Supabase (PostgreSQL)
+-   **Backend & Auth**: Supabase (Auth, PostgreSQL)
 -   **Icons**: `react-icons`
 
 ---
@@ -59,10 +60,6 @@ cd dreampixel-ai
 ```bash
 npm install
 ```
-or
-```bash
-yarn install
-```
 
 ### 4. Environment Variables Setup
 
@@ -82,53 +79,96 @@ Now, open the `.env` file and add your credentials.
 # Get your key from Google AI Studio: https://aistudio.google.com/
 VITE_API_KEY="YOUR_GOOGLE_GEMINI_API_KEY"
 
-# 2. Supabase Database Connection (Required for saving/loading creations)
+# 2. Supabase Database Connection (Required for auth, saving/loading creations)
 # Create a project on https://supabase.com/ to get your credentials.
-VITE_SUPABASE_URL="YOUR_SUPABASE_PROJECT_URL"
-VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
+VITE_SUPABASE_URL="https://ftsvupbnmvphphvwzxha.supabase.co"
+VITE_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c3Z1cGJubXZwaHBodnd6eGhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzI3OTAsImV4cCI6MjA3MjMwODc5MH0.zSrEpRrmZNUPIM0wlaz2Kih8aSfcdbX1zXa9kDO8xK8"
 ```
 
-**Note**: The custom API keys for Gemini, OpenRouter, and OpenAI are managed through the application's "API Settings" modal and stored in your browser's local storage; they are not set in the `.env` file.
+### 5. Supabase Authentication Setup
 
-### 5. Supabase Database Setup
+You must enable Google as an authentication provider in your Supabase project.
 
-For the "Liked Creations" and "Feedback" features to work, you need to create two tables in your Supabase project.
+1.  Go to your Supabase Project Dashboard.
+2.  Navigate to **Authentication** -> **Providers**.
+3.  Click on **Google** and enable it.
+4.  You will see a **Redirect URI (Callback URL)**. Copy this URL.
+5.  Go to the [Google Cloud Console](https://console.cloud.google.com/), create a new project, then go to **APIs & Services -> Credentials**.
+6.  Create an **OAuth 2.0 Client ID**, select "Web application", and paste the Supabase callback URL into the "Authorized redirect URIs" field.
+7.  Copy the **Client ID** and **Client Secret** from Google Cloud back into the Supabase Google provider settings.
+8.  Click **Save**.
+
+### 6. Supabase Database Setup
+
+For authentication and data storage to work, you need to run several SQL scripts in your Supabase project.
 
 1.  Navigate to your project on the [Supabase Dashboard](https://supabase.com/dashboard).
 2.  In the left sidebar, go to the **SQL Editor**.
 3.  Click **+ New query**.
 4.  Copy and run the following SQL scripts one by one.
 
-**Table 1: `creations`**
+**Script 1: Create `profiles` Table and Trigger**
 ```sql
--- Creates the table to store all generated and liked creations.
-CREATE TABLE creations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  prompt TEXT NOT NULL,
-  image_url TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+-- 1. Create the profiles table to store public user data
+CREATE TABLE profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name TEXT,
+  avatar_url TEXT
 );
+-- Add a comment for clarity
+COMMENT ON TABLE profiles IS 'Stores public profile information for each user.';
 
--- Add a descriptive comment for clarity within your database schema.
-COMMENT ON TABLE creations IS 'Stores liked creations, including the prompt and the resulting image URL.';
+-- 2. Create a function to automatically insert a new profile when a user signs up
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, avatar_url)
+  VALUES (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 3. Create a trigger to execute the function on new user creation
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 ```
 
-**Table 2: `feedback`**
+**Script 2: Update Existing Tables**
 ```sql
--- Creates the table for user-submitted feedback.
-CREATE TABLE feedback (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  content TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
-);
+-- 4. Add user_id columns to link creations and feedback to users
+ALTER TABLE public.creations
+  ADD COLUMN user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE;
 
--- Add a descriptive comment.
-COMMENT ON TABLE feedback IS 'Collects user feedback submitted through the application''s feedback modal.';
+ALTER TABLE public.feedback
+  ADD COLUMN user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE;
 ```
 
-Once these tables are created, your application is fully configured to connect to your database.
+**Script 3: Enable Row Level Security (RLS) & Create Policies**
+```sql
+-- 5. Enable Row Level Security (RLS) for data protection
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.creations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
 
-### 6. Running the Development Server
+-- 6. Create policies to control data access
+-- Users can see their own profile
+CREATE POLICY "Users can view their own profile."
+  ON public.profiles FOR SELECT
+  USING (auth.uid() = id);
+
+-- Users can insert, update, select, and delete their own creations
+CREATE POLICY "Users can manage their own creations."
+  ON public.creations FOR ALL
+  USING (auth.uid() = user_id);
+
+-- Users can insert their own feedback
+CREATE POLICY "Users can insert feedback."
+  ON public.feedback FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+```
+
+### 7. Running the Development Server
 
 You are now ready to start the application.
 
@@ -136,30 +176,8 @@ You are now ready to start the application.
 npm run dev
 ```
 
-The application should now be running on `http://localhost:5173` (or another port if 5173 is in use).
-
-### 7. Building for Production
-
-To create an optimized production build:
-
-```bash
-npm run build
-```
-
-This will generate a `dist` directory with the static files for deployment.
-
----
-
-## Usage
-
-1.  **Select a Tool**: From the landing page, choose one of the available content creation tools.
-2.  **Configure API (Optional)**: Click the **API Settings** button in the header to switch between the default provider or add your own custom API keys for Gemini, OpenRouter, or OpenAI. The status indicator will provide live feedback on your key's validity.
-3.  **Provide Inputs**: Fill in the required fields for the selected tool (e.g., upload headshots, enter descriptions, choose styles).
-4.  **Generate Concepts**: The AI will generate several creative concepts or prompts for you to choose from.
-5.  **Generate Final Image**: Select your favorite concept to generate the final high-resolution image.
-6.  **Like & Save**: If you like the result, click the "Like & Save" button to store it in your history, which is accessible from the sidebar on the landing page.
-
+The application should now be running on `http://localhost:5173`.
 ---
 ## 📄 License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the MIT License.

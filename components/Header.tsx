@@ -1,16 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DreamLogo } from './icons/DreamLogo';
-import { HiOutlineKey, HiOutlineHome, HiOutlineChatBubbleLeftEllipsis } from 'react-icons/hi2';
+import { HiOutlineKey, HiOutlineHome, HiOutlineChatBubbleLeftEllipsis, HiOutlineArrowRightOnRectangle, HiOutlineUserCircle } from 'react-icons/hi2';
 import { ValidationStatus } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
     onNavigateHome: () => void;
     onOpenSettings: () => void;
     onOpenFeedback: () => void;
     apiKeyStatus: ValidationStatus;
+    onLogin: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenFeedback, apiKeyStatus }) => {
+const UserMenu: React.FC = () => {
+    const { profile, logout } = useAuth();
+    const [isOpen, setIsOpen] = useState(false);
+
+    if (!profile) return null;
+
+    return (
+        <div className="relative">
+            <button onClick={() => setIsOpen(!isOpen)} className="flex items-center gap-2">
+                <img src={profile.avatar_url} alt={profile.full_name} className="w-8 h-8 rounded-full border-2 border-slate-600" />
+                <span className="hidden md:inline text-sm font-semibold text-slate-300">{profile.full_name}</span>
+            </button>
+            {isOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-lg py-1 z-50">
+                    <button 
+                        onClick={logout} 
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 transition-colors icon-hover-effect">
+                        <HiOutlineArrowRightOnRectangle className="w-5 h-5"/>
+                        Sign Out
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenFeedback, apiKeyStatus, onLogin }) => {
+  const { session } = useAuth();
 
   const getKeyIconClassName = () => {
     switch (apiKeyStatus) {
@@ -44,16 +73,26 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenF
         </div>
 
         <div className="flex items-center gap-2 justify-end w-1/4">
-            <button onClick={onOpenFeedback} className="flex items-center gap-2 p-2 text-sm rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-800 transition-colors group">
+            <button onClick={onOpenFeedback} className="hidden lg:flex items-center gap-2 p-2 text-sm rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-800 transition-colors group">
                 <div className="p-1 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-500/40 group-hover:to-pink-500/40 transition-all">
                   <HiOutlineChatBubbleLeftEllipsis className="w-5 h-5 text-pink-300 icon-hover-effect" />
                 </div>
                 <span className="hidden md:inline">Feedback</span>
             </button>
-            <button onClick={onOpenSettings} className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-800 transition-colors">
+            <button onClick={onOpenSettings} className="hidden lg:flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-800 transition-colors">
                 <HiOutlineKey className={`w-5 h-5 transition-all duration-300 icon-hover-effect ${getKeyIconClassName()}`} />
-                <span className="hidden md:inline">API Settings</span>
+                <span className="hidden md:inline">API</span>
             </button>
+             {session ? (
+                <UserMenu />
+            ) : (
+                <button 
+                  onClick={onLogin} 
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-primary-gradient text-white hover:opacity-90 transition-opacity">
+                    <HiOutlineUserCircle className="w-5 h-5" />
+                    Login
+                </button>
+            )}
         </div>
       </div>
     </header>
