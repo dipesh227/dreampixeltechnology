@@ -81,8 +81,8 @@ VITE_API_KEY="YOUR_GOOGLE_GEMINI_API_KEY"
 
 # 2. Supabase Database Connection (Required for auth, saving/loading creations)
 # Create a project on https://supabase.com/ to get your credentials.
-VITE_SUPABASE_URL="https://ftsvupbnmvphphvwzxha.supabase.co"
-VITE_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c3Z1cGJubXZwaHBodnd6eGhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzI3OTAsImV4cCI6MjA3MjMwODc5MH0.zSrEpRrmZNUPIM0wlaz2Kih8aSfcdbX1zXa9kDO8xK8"
+VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
+VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
 ```
 
 ### 5. Supabase Authentication Setup
