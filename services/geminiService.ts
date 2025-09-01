@@ -37,8 +37,20 @@ const generateTextWithOpenRouter = async (prompt: string): Promise<string> => {
     }
 
     const result = await response.json();
-    if (result?.choices?.[0]?.message?.content) {
-        return result.choices[0].message.content;
+    let content = result?.choices?.[0]?.message?.content;
+
+    if (content) {
+        if (typeof content === 'string') {
+            // Attempt to clean the response by removing markdown code block fences
+            const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+            if (jsonMatch && jsonMatch[1]) {
+                content = jsonMatch[1].trim();
+            }
+        } else if (typeof content === 'object') {
+            // If the API directly returns a JSON object, stringify it.
+            return JSON.stringify(content);
+        }
+        return content;
     }
 
     console.error("Could not find text data in OpenRouter response", result);
@@ -80,36 +92,49 @@ const generateWithOpenRouter = async (prompt: string, images: UploadedFile[]): P
 
     const result = await response.json();
     
-    const content = result?.choices?.[0]?.message?.content;
-    if (!content) {
+    const rawContent = result?.choices?.[0]?.message?.content;
+    if (!rawContent) {
         console.error("Could not find content in OpenRouter response", result);
-        throw new Error("Unsupported response format from OpenRouter.");
+        throw new Error("Unsupported response format from OpenRouter: No content found.");
     }
 
-    // Handle if content is an array of parts (standard for multimodal responses)
-    if (Array.isArray(content)) {
-        for (const part of content) {
+    let contentParts: any[] = [];
+    
+    // Standard response is an array of content parts
+    if (Array.isArray(rawContent)) {
+        contentParts = rawContent;
+    } else if (typeof rawContent === 'string') {
+        try {
+            // Some models might stringify the content array.
+            const parsed = JSON.parse(rawContent);
+            if (Array.isArray(parsed)) {
+                contentParts = parsed;
+            }
+        } catch (e) {
+            // It's not a JSON string, so we can't parse it as a list of parts.
+            // It might be a text-only response, which we can't use for an image.
+             console.warn("OpenRouter returned a non-JSON string content which is being ignored for image generation:", rawContent);
+        }
+    }
+    
+    if (contentParts.length > 0) {
+        for (const part of contentParts) {
+            // Check for OpenAI vision-style image URL response
             if (part.type === 'image_url' && part.image_url?.url) {
                 const base64Match = part.image_url.url.match(/data:image\/\w+;base64,([\s\S]+)/);
                 if (base64Match && base64Match[1]) {
                     return base64Match[1];
                 }
             }
+            // Add a check for Gemini-style inlineData passed through by OpenRouter
+            if (part.inlineData && part.inlineData.data) {
+                return part.inlineData.data;
+            }
         }
-    }
-    
-    // Handle if content is a string (some models might do this)
-    if (typeof content === 'string') {
-        const base64Match = content.match(/data:image\/\w+;base64,([\s\S]+)/);
-        if (base64Match && base64Match[1]) {
-            return base64Match[1];
-        }
-        // It might return raw base64 string
-        return content;
     }
     
     console.error("Could not find image data in OpenRouter response", result);
-    throw new Error("Unsupported response format from OpenRouter.");
+    throw new Error("Unsupported response format from OpenRouter. Could not extract image data from the response.");
 };
 
 const generateWithPerplexity = async (): Promise<string | null> => {
