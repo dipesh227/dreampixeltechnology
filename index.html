@@ -86,11 +86,11 @@
 
       /* Animated Starfield Background */
       @keyframes pulse-dots {
-        0%, 100% { opacity: 0.1; }
-        50% { opacity: 0.6; }
+        0%, 100% { opacity: 0.2; }
+        50% { opacity: 0.7; }
       }
       @keyframes pulse-dots-fast {
-        0%, 100% { opacity: 0.4; }
+        0%, 100% { opacity: 0.5; }
         50% { opacity: 1; }
       }
       .animated-bg {
@@ -104,31 +104,30 @@
         left: 0;
         right: 0;
         bottom: 0;
+        /* A richer, more varied starfield that is consistent across states */
         background-image:
           radial-gradient(circle at 15% 25%, #a855f7 1px, transparent 1px),
           radial-gradient(circle at 85% 75%, #ec4899 1px, transparent 1px),
           radial-gradient(circle at 50% 50%, #60a5fa 1px, transparent 1px),
           radial-gradient(circle at 30% 80%, #f472b6 1px, transparent 1px),
           radial-gradient(circle at 70% 10%, #818cf8 1px, transparent 1px),
-          radial-gradient(circle at 5% 95%, #fde047 1px, transparent 1px);
-        background-size: 50px 50px;
+          radial-gradient(circle at 5% 95%, #fde047 1px, transparent 1px),
+          radial-gradient(circle at 95% 5%, #5eead4 1px, transparent 1px),
+          radial-gradient(circle at 45% 90%, #fef08a 1px, transparent 1px),
+          radial-gradient(circle at 20% 5%, #fb7185 1px, transparent 1px),
+          radial-gradient(circle at 80% 40%, #818cf8 1px, transparent 1px);
+        background-size: 70px 70px; /* Adjust density */
         animation: pulse-dots 8s infinite ease-in-out;
         z-index: -1;
-        transition: all 0.5s ease-in-out;
       }
       .generating-active.animated-bg::before {
+        /* ONLY change the animation to be faster and more intense */
         animation: pulse-dots-fast 1.5s infinite ease-in-out;
-        background-image:
-          radial-gradient(circle at 15% 25%, #d946ef 1px, transparent 1px),
-          radial-gradient(circle at 85% 75%, #f43f5e 1px, transparent 1px),
-          radial-gradient(circle at 50% 50%, #38bdf8 1px, transparent 1px),
-          radial-gradient(circle at 30% 80%, #fb7185 1px, transparent 1px),
-          radial-gradient(circle at 70% 10%, #a78bfa 1px, transparent 1px),
-          radial-gradient(circle at 5% 95%, #facc15 1px, transparent 1px);
       }
       
       .bg-primary-gradient {
-        background-image: linear-gradient(120deg, #ec4899 0%, #d946ef 50%, #8b5cf6 100%);
+        /* New, more vibrant gradient with a subtle hover animation */
+        background-image: linear-gradient(to right, #a855f7 0%, #ec4899 50%, #f59e0b 100%);
         transition: all 0.4s ease-out;
         background-size: 200% auto;
       }
