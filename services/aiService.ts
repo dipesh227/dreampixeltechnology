@@ -1,6 +1,6 @@
 
 import { Type } from "@google/genai";
-import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle } from '../types';
+import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ApiProvider } from '../types';
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
 import * as openRouterService from './openRouterService';
@@ -335,5 +335,19 @@ Execute this brief with the skill of an award-winning digital artist.
     } catch (error) {
         console.error("Error generating ad banner:", error);
         throw error;
+    }
+};
+
+export const validateApiKey = async (provider: ApiProvider, apiKey: string): Promise<{ isValid: boolean, error?: string }> => {
+    switch(provider) {
+        case 'gemini':
+            return geminiNativeService.validateApiKey(apiKey);
+        case 'openrouter':
+            return openRouterService.validateApiKey(apiKey);
+        case 'perplexity':
+            return perplexityService.validateApiKey(apiKey);
+        case 'default':
+        default:
+            return { isValid: true }; // Default is always considered valid as it's built-in.
     }
 };

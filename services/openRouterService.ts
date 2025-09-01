@@ -1,4 +1,3 @@
-
 import { UploadedFile } from '../types';
 import * as apiConfigService from './apiConfigService';
 
@@ -14,6 +13,34 @@ const getOpenRouterSiteHeaders = () => {
         "HTTP-Referer": "https://dreampixel.ai",
         "X-Title": "DreamPixel Technology",
     };
+};
+
+const handleOpenRouterError = async (response: Response): Promise<Error> => {
+    try {
+        const errorBody = await response.json();
+        const errorMessage = errorBody?.error?.message || response.statusText;
+        const rawMetadata = errorBody?.error?.metadata?.raw;
+
+        if (response.status === 401) {
+            return new Error("Invalid OpenRouter API Key. Please check your key in API Settings.");
+        }
+        if (response.status === 402) {
+             return new Error("Insufficient funds in your OpenRouter account. Please add credits to your account.");
+        }
+        if (response.status === 429) {
+            if (rawMetadata && rawMetadata.includes('rate-limited upstream')) {
+                return new Error("The free model on OpenRouter is temporarily rate-limited. Please try again shortly or add your own key and credits at openrouter.ai to avoid this limit.");
+            }
+            return new Error("OpenRouter API rate limit exceeded. Please check your account usage and try again later.");
+        }
+        if (response.status >= 500) {
+            return new Error("OpenRouter's servers seem to be experiencing issues. Please try again later.");
+        }
+        
+        return new Error(`OpenRouter API request failed: ${errorMessage}`);
+    } catch (e) {
+        return new Error(`OpenRouter API request failed with status: ${response.status} ${response.statusText}`);
+    }
 };
 
 export const generateText = async (prompt: string): Promise<string> => {
@@ -35,9 +62,7 @@ export const generateText = async (prompt: string): Promise<string> => {
     });
 
     if (!response.ok) {
-        const errorBody = await response.text();
-        console.error("OpenRouter API error:", errorBody);
-        throw new Error(`OpenRouter API request failed: ${response.statusText}. Details: ${errorBody}`);
+        throw await handleOpenRouterError(response);
     }
 
     const result = await response.json();
@@ -48,20 +73,8 @@ export const generateText = async (prompt: string): Promise<string> => {
         throw new Error("Unsupported response format from OpenRouter: No content found.");
     }
     
-    if (typeof content === 'string') {
-        // Attempt to clean the response by removing markdown code block fences
-        const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-        if (jsonMatch && jsonMatch[1]) {
-            content = jsonMatch[1].trim();
-        }
-        return content;
-    } else if (typeof content === 'object') {
-        // If the API directly returns a JSON object, stringify it.
-        return JSON.stringify(content);
-    }
-
-    console.error("Unexpected content type in OpenRouter response", content);
-    throw new Error("Unsupported response format from OpenRouter.");
+    // The content from OpenRouter is often a stringified JSON object
+    return typeof content === 'string' ? content : JSON.stringify(content);
 };
 
 export const generateImage = async (prompt: string, images: UploadedFile[]): Promise<string | null> => {
@@ -90,9 +103,7 @@ export const generateImage = async (prompt: string, images: UploadedFile[]): Pro
     });
 
     if (!response.ok) {
-        const errorBody = await response.text();
-        console.error("OpenRouter API error:", errorBody);
-        throw new Error(`OpenRouter API request failed: ${response.statusText}`);
+        throw await handleOpenRouterError(response);
     }
 
     const result = await response.json();
@@ -134,4 +145,27 @@ export const generateImage = async (prompt: string, images: UploadedFile[]): Pro
     
     console.error("Could not find image data in OpenRouter response", result);
     throw new Error("Unsupported response format from OpenRouter. Could not extract image data from the response.");
+};
+
+
+export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean, error?: string }> => {
+    if (!apiKey) return { isValid: false };
+    try {
+        const response = await fetch("https://openrouter.ai/api/v1/auth/key", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+            }
+        });
+
+        if (response.status === 401) return { isValid: false, error: "Invalid API Key." };
+        if (response.ok) {
+             return { isValid: true };
+        }
+        
+        const errorData = await response.json();
+        return { isValid: false, error: errorData?.error?.message || "Validation failed." };
+    } catch (e) {
+        return { isValid: false, error: "Network error during validation." };
+    }
 };

@@ -1,19 +1,88 @@
-
 import React, { useState, useEffect } from 'react';
 import { ApiConfig, ApiProvider } from '../types';
 import * as apiConfigService from '../services/apiConfigService';
+import * as aiService from '../services/aiService';
+import { useDebounce } from '../hooks/useDebounce';
 import { CogIcon, XMarkIcon } from './icons/UiIcons';
 
 interface SettingsModalProps {
     onClose: () => void;
 }
 
+type ValidationStatus = 'idle' | 'validating' | 'valid' | 'invalid';
+
+const StatusIndicator: React.FC<{ status: ValidationStatus }> = ({ status }) => {
+    if (status === 'idle') {
+        return <div className="w-2 h-2 rounded-full bg-slate-600" title="Enter a key to validate"></div>;
+    }
+    if (status === 'validating') {
+        return <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" title="Validating..."></div>;
+    }
+    const color = status === 'valid' ? 'bg-green-500' : 'bg-red-500';
+    const title = status === 'valid' ? 'API Key is valid' : 'API Key is invalid';
+    return <div className={`w-2 h-2 rounded-full ${color}`} title={title}></div>;
+};
+
+
 const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     const [config, setConfig] = useState<ApiConfig>({ provider: 'default' });
+    const [apiKeys, setApiKeys] = useState({
+        geminiApiKey: '',
+        openRouterApiKey: '',
+        perplexityApiKey: ''
+    });
+    const [validationStatus, setValidationStatus] = useState({
+        gemini: 'idle' as ValidationStatus,
+        openrouter: 'idle' as ValidationStatus,
+        perplexity: 'idle' as ValidationStatus
+    });
 
     useEffect(() => {
-        setConfig(apiConfigService.getConfig());
+        const savedConfig = apiConfigService.getConfig();
+        setConfig(savedConfig);
+        setApiKeys({
+            geminiApiKey: savedConfig.geminiApiKey || '',
+            openRouterApiKey: savedConfig.openRouterApiKey || '',
+            perplexityApiKey: savedConfig.perplexityApiKey || ''
+        });
     }, []);
+
+    const debouncedGeminiKey = useDebounce(apiKeys.geminiApiKey, 500);
+    const debouncedOpenRouterKey = useDebounce(apiKeys.openRouterApiKey, 500);
+    const debouncedPerplexityKey = useDebounce(apiKeys.perplexityApiKey, 500);
+
+    useEffect(() => {
+        if (!debouncedGeminiKey) {
+            setValidationStatus(s => ({...s, gemini: 'idle'}));
+            return;
+        }
+        setValidationStatus(s => ({...s, gemini: 'validating'}));
+        aiService.validateApiKey('gemini', debouncedGeminiKey).then(result => {
+            setValidationStatus(s => ({...s, gemini: result.isValid ? 'valid' : 'invalid'}));
+        });
+    }, [debouncedGeminiKey]);
+
+    useEffect(() => {
+        if (!debouncedOpenRouterKey) {
+            setValidationStatus(s => ({...s, openrouter: 'idle'}));
+            return;
+        }
+        setValidationStatus(s => ({...s, openrouter: 'validating'}));
+        aiService.validateApiKey('openrouter', debouncedOpenRouterKey).then(result => {
+            setValidationStatus(s => ({...s, openrouter: result.isValid ? 'valid' : 'invalid'}));
+        });
+    }, [debouncedOpenRouterKey]);
+
+    useEffect(() => {
+        if (!debouncedPerplexityKey) {
+            setValidationStatus(s => ({...s, perplexity: 'idle'}));
+            return;
+        }
+        setValidationStatus(s => ({...s, perplexity: 'validating'}));
+        aiService.validateApiKey('perplexity', debouncedPerplexityKey).then(result => {
+            setValidationStatus(s => ({...s, perplexity: result.isValid ? 'valid' : 'invalid'}));
+        });
+    }, [debouncedPerplexityKey]);
 
     const handleProviderChange = (provider: ApiProvider) => {
         setConfig(prev => ({ ...prev, provider }));
@@ -21,25 +90,42 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
 
     const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>, keyName: 'geminiApiKey' | 'openRouterApiKey' | 'perplexityApiKey') => {
         const { value } = e.target;
-        setConfig(prev => ({ ...prev, [keyName]: value }));
+        setApiKeys(prev => ({ ...prev, [keyName]: value }));
     };
     
     const handleSave = () => {
-        apiConfigService.saveConfig(config);
+        apiConfigService.saveConfig({ ...config, ...apiKeys });
         onClose();
+        // Optionally, you could add a small delay and a "reloading..." message if a full page refresh is needed.
+        window.location.reload();
     };
 
     const renderProviderInput = () => {
         if (config.provider === 'gemini') {
-            return <input type="password" placeholder="Enter your Gemini API Key" value={config.geminiApiKey || ''} onChange={(e) => handleApiKeyChange(e, 'geminiApiKey')} className="w-full mt-2 p-2 bg-slate-700 border border-slate-600 rounded-md focus:ring-1 focus:ring-slate-500" />;
+            return (
+                <div className="relative">
+                    <input type="password" placeholder="Enter your Gemini API Key" value={apiKeys.geminiApiKey} onChange={(e) => handleApiKeyChange(e, 'geminiApiKey')} className="w-full mt-2 p-2 pr-8 bg-slate-700 border border-slate-600 rounded-md focus:ring-1 focus:ring-slate-500" />
+                    <div className="absolute inset-y-0 right-3 flex items-center"><StatusIndicator status={validationStatus.gemini} /></div>
+                </div>
+            );
         }
         if (config.provider === 'openrouter') {
-             return <input type="password" placeholder="Enter your OpenRouter API Key" value={config.openRouterApiKey || ''} onChange={(e) => handleApiKeyChange(e, 'openRouterApiKey')} className="w-full mt-2 p-2 bg-slate-700 border border-slate-600 rounded-md focus:ring-1 focus:ring-slate-500" />;
+             return (
+                <div className="relative">
+                    <input type="password" placeholder="Enter your OpenRouter API Key" value={apiKeys.openRouterApiKey} onChange={(e) => handleApiKeyChange(e, 'openRouterApiKey')} className="w-full mt-2 p-2 pr-8 bg-slate-700 border border-slate-600 rounded-md focus:ring-1 focus:ring-slate-500" />
+                    <div className="absolute inset-y-0 right-3 flex items-center"><StatusIndicator status={validationStatus.openrouter} /></div>
+                </div>
+            );
         }
         if (config.provider === 'perplexity') {
-             return <input type="password" placeholder="Enter your Perplexity API Key" value={config.perplexityApiKey || ''} onChange={(e) => handleApiKeyChange(e, 'perplexityApiKey')} className="w-full mt-2 p-2 bg-slate-700 border border-slate-600 rounded-md focus:ring-1 focus:ring-slate-500" />;
+             return (
+                <div className="relative">
+                    <input type="password" placeholder="Enter your Perplexity API Key" value={apiKeys.perplexityApiKey} onChange={(e) => handleApiKeyChange(e, 'perplexityApiKey')} className="w-full mt-2 p-2 pr-8 bg-slate-700 border border-slate-600 rounded-md focus:ring-1 focus:ring-slate-500" />
+                    <div className="absolute inset-y-0 right-3 flex items-center"><StatusIndicator status={validationStatus.perplexity} /></div>
+                </div>
+            );
         }
-        return <p className="text-sm text-slate-400 mt-2">You are using the application's default API configuration.</p>;
+        return <p className="text-sm text-slate-400 mt-2">You are using the application's default API configuration. No key is needed.</p>;
     };
 
     return (

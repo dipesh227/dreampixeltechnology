@@ -1,32 +1,55 @@
-
-import { GoogleGenAI, Type, Modality } from "@google/genai";
+import { GoogleGenAI, Modality } from "@google/genai";
 import { UploadedFile } from '../types';
 import * as apiConfigService from './apiConfigService';
 
-const getAiClient = () => {
-    const apiKey = apiConfigService.getApiKey();
+const getAiClient = (apiKeyOverride?: string) => {
+    const apiKey = apiKeyOverride || apiConfigService.getApiKey();
     if (!apiKey) {
         throw new Error("API key is not configured. Please set it in API Settings or ensure the environment variable is set.");
     }
     return new GoogleGenAI({ apiKey });
 };
 
+const handleGeminiError = (error: unknown): Error => {
+    if (error instanceof Error) {
+        if (error.message.includes('API key not valid')) {
+            return new Error("Invalid Gemini API Key. Please check the key in your API Settings.");
+        }
+        if (error.message.includes('429')) {
+            return new Error("You have exceeded your Gemini API request quota. Please wait and try again later, or check your Google AI Studio dashboard.");
+        }
+        if (error.message.includes('SAFETY')) {
+            return new Error("The request was blocked due to safety policies. Please adjust your prompt or images and try again.");
+        }
+        if (error.message.includes('fetch failed') || error.message.includes('NetworkError')) {
+             return new Error("A network error occurred. Please check your internet connection and try again.");
+        }
+        return new Error(`An error occurred with the Gemini API: ${error.message}`);
+    }
+    return new Error("An unknown error occurred while communicating with the Gemini API.");
+};
+
+
 export const generateText = async (prompt: string, jsonSchema: object): Promise<string> => {
-    const ai = getAiClient();
-    const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: jsonSchema,
-        },
-    });
-    return response.text.trim();
+    try {
+        const ai = getAiClient();
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: jsonSchema,
+            },
+        });
+        return response.text.trim();
+    } catch (error) {
+        throw handleGeminiError(error);
+    }
 };
 
 export const generateImage = async (prompt: string, images: UploadedFile[]): Promise<string | null> => {
-     const ai = getAiClient();
-    try {
+     try {
+        const ai = getAiClient();
         const imageParts = images.map(file => ({
             inlineData: { data: file.base64, mimeType: file.mimeType }
         }));
@@ -53,9 +76,28 @@ export const generateImage = async (prompt: string, images: UploadedFile[]): Pro
 
     } catch (error) {
         console.error("Error generating image with Gemini:", error);
-        if (error instanceof Error && error.message.includes('SAFETY')) {
-             throw new Error("Image generation was blocked due to safety policies. Please modify your prompt or images and try again.");
+        throw handleGeminiError(error);
+    }
+};
+
+export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean, error?: string }> => {
+    if (!apiKey) return { isValid: false };
+    try {
+        const ai = getAiClient(apiKey);
+        // Use a very simple, fast model and request to validate the key
+        await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: "test",
+            config: {
+                maxOutputTokens: 1,
+                thinkingConfig: { thinkingBudget: 0 } // disable thinking for speed
+            },
+        });
+        return { isValid: true };
+    } catch (error) {
+        if (error instanceof Error && error.message.includes('API key not valid')) {
+            return { isValid: false, error: 'Invalid API Key.' };
         }
-        throw new Error("Failed to generate the image with Gemini. The AI model may be overloaded or the prompt might be too complex. Please try again later.");
+        return { isValid: false, error: 'Validation failed.' };
     }
 };

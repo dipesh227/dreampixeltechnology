@@ -1,4 +1,3 @@
-
 import * as apiConfigService from './apiConfigService';
 
 /**
@@ -48,8 +47,10 @@ export const generateText = async (prompt: string): Promise<string> => {
             },
             body: JSON.stringify({
                 model: "llama-3-sonar-large-32k-chat",
-                messages: [{ role: "user", content: prompt }],
-                response_format: { type: "json_object" }
+                messages: [
+                    { role: "system", content: "You are an expert assistant that always responds in valid, raw JSON format as requested by the user, without any markdown formatting or explanatory text." },
+                    { role: "user", content: prompt }
+                ],
             })
         });
 
@@ -73,5 +74,32 @@ export const generateText = async (prompt: string): Promise<string> => {
         }
         // Catch unexpected issues like network failures
         throw new Error("A network error occurred while contacting the Perplexity API. Please check your connection.");
+    }
+};
+
+
+export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean, error?: string }> => {
+    if (!apiKey) return { isValid: false };
+    try {
+        const response = await fetch("https://api.perplexity.ai/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                model: "llama-3-sonar-small-32k-chat", // use a cheaper model for validation
+                messages: [{ role: "user", content: "test" }],
+                max_tokens: 1
+            })
+        });
+
+        if (response.status === 401) return { isValid: false, error: "Invalid API Key." };
+        if (response.ok) return { isValid: true };
+        
+        const errorData = await response.json();
+        return { isValid: false, error: errorData?.error?.message || "Validation failed." };
+    } catch (e) {
+        return { isValid: false, error: "Network error during validation." };
     }
 };
