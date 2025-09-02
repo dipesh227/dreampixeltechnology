@@ -14,7 +14,7 @@ const getAiClient = (apiKeyOverride?: string) => {
 const handleGeminiError = (error: unknown): Error => {
     if (error instanceof Error) {
         if (error.message.includes('API key not valid')) {
-            return new Error("The provided Gemini API key is invalid. Please ensure the 'process.env.API_KEY' environment variable is set correctly.");
+            return new Error("The provided Gemini API key is invalid. Please ensure the 'GEMINI_API_KEY' environment variable is set correctly and exposed in your vite.config.ts. See README.md for setup instructions.");
         }
         if (error.message.includes('429') || error.message.includes('RESOURCE_EXHAUSTED')) {
             return new RateLimitError("Rate limit exceeded. You've made too many requests to the Gemini API recently. Please wait a minute and try again.");
@@ -134,7 +134,7 @@ export const generateImageFromText = async (prompt: string, aspectRatio: AspectR
 };
 
 export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean, error?: string }> => {
-    if (!apiKey) return { isValid: false, error: "Gemini API key is not configured. Please ensure the 'process.env.API_KEY' environment variable is set." };
+    if (!apiKey) return { isValid: false, error: "Gemini API key is not configured. Please set the 'GEMINI_API_KEY' environment variable and expose it via vite.config.ts. See README.md." };
     try {
         const ai = getAiClient(apiKey);
         // Use a very simple, fast model and request to validate the key
