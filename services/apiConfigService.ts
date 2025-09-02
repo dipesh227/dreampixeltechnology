@@ -33,7 +33,7 @@ export const saveConfig = (config: ApiConfig): void => {
 
 /**
  * Retrieves the appropriate API key based on the user's selected provider.
- * - For 'default', it uses the API_KEY from environment variables.
+ * - For 'default', it uses the VITE_API_KEY from environment variables.
  * - For custom providers, it uses the key saved in localStorage.
  * @returns {string} The resolved API key.
  */
@@ -54,7 +54,7 @@ export const getApiKey = (): string => {
         default:
             // For the 'Default' provider, use the key from environment variables.
             // This is the primary API key for the application's default setup.
-            // The user should set this in a .env file (e.g., API_KEY="...")
-            return (process.env.API_KEY as string) || '';
+            // The user should set this in a .env file (e.g., VITE_API_KEY="...")
+            return (process.env.VITE_API_KEY as string) || '';
     }
 };
