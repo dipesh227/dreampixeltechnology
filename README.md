@@ -161,6 +161,7 @@ Follow these instructions to set up and run the project locally.
 -   [Node.js](https://nodejs.org/) (v18.x or later)
 -   A [Supabase](https://supabase.com/) account (the free tier is sufficient).
 -   A [Google Cloud](https://console.cloud.google.com/) account for setting up OAuth.
+-   A [Google Gemini API Key](https://aistudio.google.com/app/apikey).
 
 ### 2. Clone the Repository
 
@@ -177,18 +178,31 @@ npm install
 
 ### 4. Set Up Environment Variables
 
-This application requires a `.env` file for Supabase credentials.
+This application requires a `.env` file for Supabase and Google AI credentials.
 
 1.  Create a file named `.env` in the root of the project.
-2.  Add the following content to it:
+2.  Copy the following content into it:
 
     ```env
+    # Supabase Credentials (Required)
+    # Found in your Supabase project dashboard under Project Settings > API
     VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
     VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
+
+    # Default Google Gemini API Key (Required for 'Default' provider)
+    # Get yours from Google AI Studio
+    API_KEY="YOUR_GEMINI_API_KEY"
     ```
 
-3.  Find these values in your Supabase project dashboard under **Project Settings > API**.
-4.  Copy the **Project URL** and the **`anon` public key** and paste them into your `.env` file.
+3.  **Find your Supabase Keys:**
+    -   Navigate to your Supabase project dashboard.
+    -   Go to **Project Settings > API**.
+    -   Copy the **Project URL** and the **`anon` public key** and paste them into the corresponding variables in your `.env` file.
+
+4.  **Find your Google Gemini API Key:**
+    -   Go to the [Google AI Studio](https://aistudio.google.com/app/apikey).
+    -   Click **"Create API key"** to get a new key.
+    -   Copy the generated key and paste it into the `API_KEY` variable in your `.env` file.
 
 ### 5. Set Up Supabase Database
 
@@ -412,9 +426,9 @@ To enable users to sign in with Google, you need to connect your Supabase projec
 
 ### 7. Run the Application
 
-Now you can start the development server:
+Now you can start the development server. Make sure you have saved your `.env` file first.
 
 ```bash
 npm run dev
 ```
-The application should now be running locally, connected to your Supabase backend.
+The application should now be running locally, connected to your Supabase backend and ready to use the Google Gemini API.
