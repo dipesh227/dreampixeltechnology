@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, supabaseUrl } from '../services/supabaseClient';
+import { supabase } from '../services/supabaseClient';
 // FIX: Changed to type-only import to resolve potential module resolution issues with Session and User types.
 import type { Session, User } from '@supabase/supabase-js';
 import useSWR from 'swr';
@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(session?.user ?? null);
             setLoading(false);
         }).catch(err => {
-            console.error("Error getting session:", err);
+            // console.error("Error getting session:", err);
             setLoading(false);
         });
 
@@ -74,8 +74,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoggingIn(true);
         setAuthError(null);
         try {
-            // Use the exported Supabase URL for a consistent redirect path.
-            const redirectTo = supabaseUrl ? `${supabaseUrl}/auth/v1/callback` : window.location.origin;
+            // Use the application's origin as the redirect URL after successful login.
+            const redirectTo = window.location.origin;
 
             // FIX: The signInWithOAuth method is correct for supabase-js v2.
             // The error is likely a type definition issue, but the call itself is correct.
@@ -87,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
             if (error) throw error;
         } catch (error) {
-            console.error("Error signing in:", error);
+            // console.error("Error signing in:", error);
             setAuthError(error instanceof Error ? error.message : "An unknown error occurred during login.");
             setIsLoggingIn(false);
         }
@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const { error } = await supabase.auth.signOut();
             if (error) throw error;
         } catch (error) {
-            console.error("Error signing out:", error);
+            // console.error("Error signing out:", error);
             setAuthError(error instanceof Error ? error.message : "An unknown error occurred during logout.");
         } finally {
             setIsLoggingOut(false);

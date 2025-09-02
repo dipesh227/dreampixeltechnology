@@ -1,9 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, Suspense } from 'react';
 import LandingPage from './components/LandingPage';
-import ThumbnailGenerator from './components/ThumbnailGenerator';
-import PoliticiansPosterMaker from './components/PoliticiansPosterMaker';
-import AdBannerGenerator from './components/AdBannerGenerator';
-import SocialMediaPostGenerator from './components/SocialMediaPostGenerator';
 import Header from './components/Header';
 import { ToolType, ValidationStatus, ApiProvider } from './types';
 import HistorySidebar from './components/HistorySidebar';
@@ -17,6 +13,17 @@ import MouseTrail from './components/MouseTrail';
 import { useAuth } from './context/AuthContext';
 import { checkDatabaseConnection } from './services/supabaseClient';
 
+// Lazy load the generator components for better performance
+const ThumbnailGenerator = React.lazy(() => import('./components/ThumbnailGenerator'));
+const PoliticiansPosterMaker = React.lazy(() => import('./components/PoliticiansPosterMaker'));
+const AdBannerGenerator = React.lazy(() => import('./components/AdBannerGenerator'));
+const SocialMediaPostGenerator = React.lazy(() => import('./components/SocialMediaPostGenerator'));
+
+const LoadingFallback: React.FC = () => (
+    <div className="flex justify-center items-center py-20">
+        <div className="w-12 h-12 border-4 border-t-purple-400 border-slate-700 rounded-full animate-spin"></div>
+    </div>
+);
 
 const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');
@@ -52,6 +59,26 @@ const App: React.FC = () => {
     const timer = setTimeout(verifyConnection, 1000);
     return () => clearTimeout(timer);
   }, []);
+  
+  useEffect(() => {
+    const baseTitle = "DreamPixel Technology";
+    switch(activeTool) {
+      case 'thumbnail':
+        document.title = `Thumbnail Generator | ${baseTitle}`;
+        break;
+      case 'political':
+        document.title = `Political Poster Maker | ${baseTitle}`;
+        break;
+      case 'advertisement':
+        document.title = `Ad Banner Generator | ${baseTitle}`;
+        break;
+      case 'social':
+        document.title = `Social Post Generator | ${baseTitle}`;
+        break;
+      default:
+        document.title = `AI Content Creation Suite | ${baseTitle}`;
+    }
+  }, [activeTool]);
 
   const handleSelectTool = useCallback((tool: ToolType) => {
     setActiveTool(tool);
@@ -105,12 +132,12 @@ const App: React.FC = () => {
             </div>
           </div>
         ) : (
-          <>
+          <Suspense fallback={<LoadingFallback />}>
             {activeTool === 'thumbnail' && <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} onOpenSettings={handleOpenSettings} />}
             {activeTool === 'political' && <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} onOpenSettings={handleOpenSettings} />}
             {activeTool === 'advertisement' && <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} onOpenSettings={handleOpenSettings} />}
             {activeTool === 'social' && <SocialMediaPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} onOpenSettings={handleOpenSettings} />}
-          </>
+          </Suspense>
         )}
       </main>
       <Footer dbStatus={dbStatus} />

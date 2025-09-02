@@ -4,6 +4,13 @@ import { HistoryEntry } from '../types';
 import { HiOutlineMagnifyingGlass, HiOutlineTrash, HiOutlineUserCircle } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 
+const SkeletonCard: React.FC = () => (
+    <div className="animate-pulse">
+        <div className="w-full bg-slate-700 rounded-lg aspect-video"></div>
+    </div>
+);
+
+
 const HistorySidebar: React.FC = () => {
     const { session } = useAuth();
     const [creations, setCreations] = useState<HistoryEntry[]>([]);
@@ -78,8 +85,8 @@ const HistorySidebar: React.FC = () => {
                 </div>
             </div>
             {isLoading ? (
-                 <div className="text-center py-8 flex-grow flex items-center justify-center">
-                    <div className="w-6 h-6 border-2 border-t-transparent border-slate-500 rounded-full animate-spin"></div>
+                 <div className="space-y-4 pr-2 overflow-y-auto flex-grow">
+                    {[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}
                  </div>
             ) : filteredCreations.length > 0 ? (
                 <div className="space-y-4 pr-2 overflow-y-auto flex-grow">

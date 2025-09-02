@@ -7,7 +7,7 @@ interface LandingPageProps {
   onSelectTool: (tool: ToolType) => void;
 }
 
-const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = ({ tool, onClick }) => {
+const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ tool, onClick }) => {
     const icons: { [key in ToolType]: { icon: React.ElementType, gradient: string } } = {
         thumbnail: { icon: HiOutlinePhoto, gradient: 'from-purple-500 to-indigo-500' },
         advertisement: { icon: HiOutlineMegaphone, gradient: 'from-pink-500 to-rose-500' },
@@ -40,7 +40,7 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = ({ tool, onClick
             </button>
         </div>
     );
-};
+});
 
 const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool }) => {
 

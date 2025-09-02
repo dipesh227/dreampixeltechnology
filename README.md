@@ -178,13 +178,13 @@ npm install
 
 ### 4. Set Up Environment Variables
 
-This application requires a `.env` file for Supabase and Google AI credentials.
+This application **requires** a `.env` file for Supabase and Google AI credentials to function. The application will not start without the Supabase keys.
 
 1.  Create a file named `.env` in the root of the project.
 2.  Copy the following content into it:
 
     ```env
-    # Supabase Credentials (Required)
+    # Supabase Credentials (CRITICAL - App will not start without these)
     # Found in your Supabase project dashboard under Project Settings > API
     VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
     VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
