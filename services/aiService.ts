@@ -1,13 +1,7 @@
-
-
-
-
 import { Type } from "@google/genai";
-import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ApiProvider, ValidationStatus } from '../types';
+import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus } from '../types';
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
-import * as openRouterService from './openRouterService';
-import * as openaiService from './openaiService';
 import { RateLimitError } from "./errors";
 
 const CONCEPTS_SCHEMA = {
@@ -48,45 +42,6 @@ const SOCIAL_CONCEPTS_SCHEMA = {
     },
     required: ["concepts"],
 };
-
-/**
- * Executes an AI service call with an automatic fallback mechanism.
- * If the primary 'default' provider fails with a rate limit error, it
- * attempts to use the 'openrouter' provider as a backup.
- */
-async function resilientExecutor<T>(
-    providerCalls: {
-        default: () => Promise<T>,
-        gemini: () => Promise<T>,
-        openrouter: () => Promise<T>,
-        openai: () => Promise<T>
-    }
-): Promise<T> {
-    const config = apiConfigService.getConfig();
-    const primaryCall = providerCalls[config.provider] || providerCalls.default;
-    
-    try {
-        return await primaryCall();
-    } catch (error) {
-        const canFallback = !!config.openRouterApiKey;
-        // If the primary call was the 'default' provider, it failed with a rate limit,
-        // and we have an OpenRouter key configured, then we can attempt a fallback.
-        if (config.provider === 'default' && error instanceof RateLimitError && canFallback) {
-            console.warn("Default provider rate limited. Attempting fallback to OpenRouter...");
-            try {
-                // Manually call the openrouter function
-                return await providerCalls.openrouter();
-            } catch (fallbackError) {
-                console.error("Fallback to OpenRouter also failed:", fallbackError);
-                // Throw the original error, as it's more relevant to the user's initial action.
-                throw error;
-            }
-        }
-        // For any other error, or if fallback is not possible, re-throw.
-        throw error;
-    }
-}
-
 
 const parseAndValidateConcepts = (jsonText: string): GeneratedConcept[] => {
     try {
@@ -154,12 +109,8 @@ For each of the three concepts, you must provide a grammatically perfect JSON ob
 3.  **"isRecommended"**: A boolean value. Mark ONLY ONE concept as 'true'. This must be the concept you, as an expert, believe has the absolute highest potential for virality.
 `;
 
-    return resilientExecutor({
-        default:    async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA)),
-        gemini:     async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA)),
-        openrouter: async () => parseAndValidateConcepts(await openRouterService.generateText(fullPrompt)),
-        openai:     async () => parseAndValidateConcepts(await openaiService.generateText(fullPrompt)),
-    });
+    const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
+    return parseAndValidateConcepts(jsonText);
 };
 
 export const generateThumbnail = async (
@@ -192,12 +143,7 @@ export const generateThumbnail = async (
   - Image Style: ${style.imageStyle}
 `;
     
-    return resilientExecutor({
-        default:    () => geminiNativeService.generateImage(enhancedPrompt, headshots),
-        gemini:     () => geminiNativeService.generateImage(enhancedPrompt, headshots),
-        openrouter: () => openRouterService.generateImage(enhancedPrompt, headshots),
-        openai:     () => openaiService.generateImage(enhancedPrompt, aspectRatio),
-    });
+    return geminiNativeService.generateImage(enhancedPrompt, headshots);
 };
 
 export const generatePosterPrompts = async (party: PoliticalParty, event: string, customText: string, style: PosterStyle): Promise<GeneratedConcept[]> => {
@@ -233,12 +179,8 @@ For each of the three concepts, you must provide a grammatically perfect and met
 3.  **"isRecommended"**: A boolean value. You must mark ONLY ONE concept as 'true'. This should be the concept that you, as a seasoned expert, believe is the most strategically brilliant, visually compelling, and professionally executed.
 `;
 
-    return resilientExecutor({
-        default:    async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA)),
-        gemini:     async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA)),
-        openrouter: async () => parseAndValidateConcepts(await openRouterService.generateText(fullPrompt)),
-        openai:     async () => parseAndValidateConcepts(await openaiService.generateText(fullPrompt)),
-    });
+    const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
+    return parseAndValidateConcepts(jsonText);
 };
 
 export const generatePoster = async (selectedPrompt: string, headshots: UploadedFile[], aspectRatio: AspectRatio, party: PoliticalParty | undefined): Promise<string | null> => {
@@ -264,12 +206,7 @@ ${brandingInstruction}
 - **Aspect Ratio:** The final image's aspect ratio MUST be precisely ${aspectRatio}.
 `;
     
-    return resilientExecutor({
-        default:    () => geminiNativeService.generateImage(finalPrompt, headshots),
-        gemini:     () => geminiNativeService.generateImage(finalPrompt, headshots),
-        openrouter: () => openRouterService.generateImage(finalPrompt, headshots),
-        openai:     () => openaiService.generateImage(finalPrompt, aspectRatio),
-    });
+    return geminiNativeService.generateImage(finalPrompt, headshots);
 };
 
 export const generateAdConcepts = async (productDescription: string, headline: string, style: AdStyle): Promise<GeneratedConcept[]> => {
@@ -298,12 +235,8 @@ Provide a grammatically perfect JSON object with a single key "concepts" which i
 2.  **"reason"**: An expert analysis of the marketing strategy. Explain why this concept will resonate with the target audience and drive conversions.
 3.  **"isRecommended"**: A boolean value. Mark ONLY ONE concept as 'true'—the one you, as a creative genius, believe will have the highest ROI.
 `;
-    return resilientExecutor({
-        default:    async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA)),
-        gemini:     async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA)),
-        openrouter: async () => parseAndValidateConcepts(await openRouterService.generateText(fullPrompt)),
-        openai:     async () => parseAndValidateConcepts(await openaiService.generateText(fullPrompt)),
-    });
+    const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
+    return parseAndValidateConcepts(jsonText);
 };
 
 export const generateAdBanner = async (selectedPrompt: string, productImage: UploadedFile, modelHeadshot: UploadedFile, headline: string, brandDetails: string, aspectRatio: AspectRatio): Promise<string | null> => {
@@ -324,12 +257,7 @@ export const generateAdBanner = async (selectedPrompt: string, productImage: Upl
 Execute this brief with the skill of an award-winning digital artist.
 `;
     
-    return resilientExecutor({
-        default:    () => geminiNativeService.generateImage(finalPrompt, allImages),
-        gemini:     () => geminiNativeService.generateImage(finalPrompt, allImages),
-        openrouter: () => openRouterService.generateImage(finalPrompt, allImages),
-        openai:     () => openaiService.generateImage(finalPrompt, aspectRatio),
-    });
+    return geminiNativeService.generateImage(finalPrompt, allImages);
 };
 
 export const generateSocialPostConcepts = async (topic: string, platform: string, tone: string, style: AdStyle, callToAction?: string): Promise<GeneratedConcept[]> => {
@@ -366,12 +294,8 @@ Provide a grammatically perfect JSON object with a key "concepts" containing an 
 3.  **"reason"**: A brief, expert analysis of why this combination of visual and caption is a strong strategy for this platform and topic.
 4.  **"isRecommended"**: A boolean value. Mark ONLY ONE concept as 'true'—the one you believe will perform best.
 `;
-    return resilientExecutor({
-        default:    async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA)),
-        gemini:     async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA)),
-        openrouter: async () => parseAndValidateConcepts(await openRouterService.generateText(fullPrompt)),
-        openai:     async () => parseAndValidateConcepts(await openaiService.generateText(fullPrompt)),
-    });
+    const jsonText = await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA);
+    return parseAndValidateConcepts(jsonText);
 };
 
 export const generateSocialPost = async (selectedPrompt: string, aspectRatio: AspectRatio): Promise<string | null> => {
@@ -385,57 +309,14 @@ export const generateSocialPost = async (selectedPrompt: string, aspectRatio: As
 - The aspect ratio MUST be exactly ${aspectRatio}.
 `;
     
-    return resilientExecutor({
-        default:    () => geminiNativeService.generateImageFromText(finalPrompt, aspectRatio),
-        gemini:     () => geminiNativeService.generateImageFromText(finalPrompt, aspectRatio),
-        openrouter: () => geminiNativeService.generateImageFromText(finalPrompt, aspectRatio), // OpenRouter free model doesn't support pure T2I, so we use Gemini
-        openai:     () => openaiService.generateImage(finalPrompt, aspectRatio),
-    });
-};
-
-
-export const validateApiKey = async (provider: ApiProvider, apiKey: string): Promise<{ isValid: boolean, error?: string }> => {
-    switch(provider) {
-        case 'gemini':
-            return geminiNativeService.validateApiKey(apiKey);
-        case 'openrouter':
-            return openRouterService.validateApiKey(apiKey);
-        case 'openai':
-            return openaiService.validateApiKey(apiKey);
-        case 'default':
-        default:
-            return { isValid: true }; // Default is always considered valid as it's built-in.
-    }
+    return geminiNativeService.generateImageFromText(finalPrompt, aspectRatio);
 };
 
 export const checkCurrentApiStatus = async (): Promise<ValidationStatus> => {
-    const config = apiConfigService.getConfig();
-    const provider = config.provider;
-    let key: string | undefined;
-
-    switch(provider) {
-        case 'default':
-            // The default key is from env vars. We check if getApiKey (which handles the 'default' case) returns anything.
-            key = apiConfigService.getApiKey();
-            return key ? 'valid' : 'invalid';
-        case 'gemini':
-            key = config.geminiApiKey;
-            break;
-        case 'openrouter':
-            key = config.openRouterApiKey;
-            break;
-        case 'openai':
-            key = config.openaiApiKey;
-            break;
-        default:
-            return 'invalid';
-    }
-
-    // For custom providers, if there's no key, it's definitively invalid.
-    if (!key) {
+    const apiKey = apiConfigService.getApiKey();
+    if (!apiKey) {
         return 'invalid';
     }
-
-    const result = await validateApiKey(provider, key);
+    const result = await geminiNativeService.validateApiKey(apiKey);
     return result.isValid ? 'valid' : 'invalid';
 };

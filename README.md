@@ -15,10 +15,8 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
     -   Politician's Poster Maker
 -   **Secure Google Authentication**: Sign in to save and manage your creations securely.
 -   **Database Encryption**: User-submitted prompts and feedback are encrypted at rest in the database using `pgsodium` for enhanced privacy.
--   **Flexible AI Provider Support**:
-    -   Use the application's **default Google Gemini** provider.
-    -   Integrate your own API keys for **Custom Gemini**, **OpenRouter**, and **OpenAI (GPT-4 & DALL-E 3)**.
--   **Live API Key Validation**: Instant feedback to confirm your API keys are valid.
+-   **Focused on Google Gemini**: Built to exclusively use Google's powerful Gemini AI models for the best results.
+-   **Live API Status**: An indicator in the header shows if your default API key is configured correctly and operational.
 -   **Interactive & Modern UI**: A vibrant, colorful UI with a neon mouse trail, glowing hover effects, and an animated background that synchronizes with AI generation tasks.
 -   **Personalized History**: Like and save your favorite creations, stored securely and tied to your user account.
 
@@ -28,7 +26,7 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
 
 -   **Frontend**: React, TypeScript, Vite
 -   **Styling**: Tailwind CSS
--   **AI APIs**: Google Gemini, OpenRouter, OpenAI
+-   **AI API**: Google Gemini
 -   **Backend & Auth**: Supabase (Auth, PostgreSQL with `pgsodium` for encryption)
 -   **Icons**: `react-icons`
 
@@ -60,10 +58,10 @@ npm install
 
 ### 4. Configure Environment Variables (CRITICAL)
 
-For the application to function, you must provide API keys for both Gemini and Supabase.
+For the application to function, you must provide API keys for Supabase and the default Gemini key. If these are not provided, the app will display a helpful setup guide instead of launching.
 
-1.  Create a file named `.env` in the root of the project.
-2.  Copy the following content into it:
+1.  In the root of the project, create a file named `.env`.
+2.  Copy the following template into your new `.env` file:
 
     ```env
     # Default AI Provider Key (Google Gemini)
@@ -76,10 +74,9 @@ For the application to function, you must provide API keys for both Gemini and S
     VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
     ```
 
-3.  **Fill in the values:**
-    -   Replace `YOUR_GEMINI_API_KEY` with your actual Google Gemini API key.
-    -   Replace `YOUR_SUPABASE_URL` and `YOUR_SUPABASE_ANON_KEY` with the corresponding values from your Supabase project dashboard.
-    -   **Note**: For Vite to expose environment variables to the browser, they **must** be prefixed with `VITE_`.
+3.  **Fill in the placeholder values** for all three variables.
+
+    **IMPORTANT:** This application is built with Vite. For security reasons, Vite only exposes environment variables to your client-side code if they are **prefixed with `VITE_`**. This is why all keys now start with `VITE_` to ensure they are loaded correctly.
 
 ### 5. Set Up Supabase Database
 
@@ -297,7 +294,7 @@ To enable users to sign in with Google, you need to connect your Supabase projec
 3.  **Configure Site URLs in Supabase (CRITICAL):**
     -   For Google login to redirect back to your app correctly, you must tell Supabase where your app is hosted.
     -   Go to **Authentication > URL Configuration** in your Supabase dashboard.
-    -   Set the **Site URL** to the main URL of your application (e.g., `http://localhost:3000` for local development, or your production URL `https://ai.dreampixeltechnology.in`).
+    -   Set the **Site URL** to the main URL of your application (e.g., `http://localhost:5173` for local Vite development, or your production URL `https://ai.dreampixeltechnology.in`).
     -   In the **Redirect URLs** section below, add any other URLs you might use. It's good practice to add your Site URL here as well. Wildcards are supported (e.g., `http://localhost:*`, `https://*.vercel.app`).
     -   Click **Save**.
 

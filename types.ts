@@ -67,13 +67,10 @@ export interface HistoryEntry {
   timestamp: number;
 }
 
-export type ApiProvider = 'default' | 'gemini' | 'openrouter' | 'openai';
+export type ApiProvider = 'default';
 
 export interface ApiConfig {
   provider: ApiProvider;
-  geminiApiKey?: string;
-  openRouterApiKey?: string;
-  openaiApiKey?: string;
 }
 
 export interface GeneratedConcept {

@@ -1,14 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import LandingPage from './components/LandingPage';
 import Header from './components/Header';
-import { ToolType, ValidationStatus, ApiProvider } from './types';
+import { ToolType, ValidationStatus } from './types';
 import HistorySidebar from './components/HistorySidebar';
 import Footer from './components/Footer';
-import SettingsModal from './components/SettingsModal';
 import FeedbackModal from './components/FeedbackModal';
 import AuthModal from './components/AuthModal';
 import * as aiService from './services/aiService';
-import * as apiConfigService from './services/apiConfigService';
 import MouseTrail from './components/MouseTrail';
 import { useAuth } from './context/AuthContext';
 import { checkDatabaseConnection } from './services/supabaseClient';
@@ -22,18 +20,17 @@ import SocialMediaPostGenerator from './components/SocialMediaPostGenerator';
 const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');
   const [historyUpdated, setHistoryUpdated] = useState(0);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [apiKeyStatus, setApiKeyStatus] = useState<ValidationStatus>('validating');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [apiProvider, setApiProvider] = useState<ApiProvider>(() => apiConfigService.getConfig().provider);
   const [dbStatus, setDbStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
 
   const { session } = useAuth();
 
   useEffect(() => {
     const checkStatus = async () => {
+        setApiKeyStatus('validating'); // Set to validating before starting async check
         try {
             const status = await aiService.checkCurrentApiStatus();
             setApiKeyStatus(status);
@@ -43,7 +40,7 @@ const App: React.FC = () => {
         }
     };
     checkStatus();
-  }, [apiProvider, session]);
+  }, [session]);
 
   useEffect(() => {
     const verifyConnection = async () => {
@@ -86,15 +83,6 @@ const App: React.FC = () => {
     setHistoryUpdated(count => count + 1);
   }, []);
 
-  const handleOpenSettings = useCallback(() => setIsSettingsOpen(true), []);
-  const handleCloseSettings = useCallback(() => {
-    setIsSettingsOpen(false);
-    setApiProvider(apiConfigService.getConfig().provider); // Update provider state on close
-    setApiKeyStatus('validating');
-    aiService.checkCurrentApiStatus().then(setApiKeyStatus);
-  }, []);
-
-
   const handleOpenFeedback = useCallback(() => setIsFeedbackOpen(true), []);
   const handleCloseFeedback = useCallback(() => setIsFeedbackOpen(false), []);
   
@@ -110,7 +98,6 @@ const App: React.FC = () => {
       <MouseTrail />
       <Header 
         onNavigateHome={handleNavigateHome} 
-        onOpenSettings={handleOpenSettings} 
         onOpenFeedback={handleOpenFeedback} 
         apiKeyStatus={apiKeyStatus} 
         onLogin={handleOpenAuthModal}
@@ -127,15 +114,14 @@ const App: React.FC = () => {
           </div>
         ) : (
           <>
-            {activeTool === 'thumbnail' && <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} onOpenSettings={handleOpenSettings} />}
-            {activeTool === 'political' && <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} onOpenSettings={handleOpenSettings} />}
-            {activeTool === 'advertisement' && <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} onOpenSettings={handleOpenSettings} />}
-            {activeTool === 'social' && <SocialMediaPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} onOpenSettings={handleOpenSettings} />}
+            {activeTool === 'thumbnail' && <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'political' && <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'advertisement' && <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'social' && <SocialMediaPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
           </>
         )}
       </main>
       <Footer dbStatus={dbStatus} />
-      {isSettingsOpen && <SettingsModal onClose={handleCloseSettings} />}
       {isFeedbackOpen && <FeedbackModal onClose={handleCloseFeedback} />}
       {isAuthModalOpen && <AuthModal onClose={handleCloseAuthModal} />}
     </div>

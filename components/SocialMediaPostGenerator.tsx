@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AdStyle, AspectRatio, GeneratedConcept, ApiProvider } from '../types';
+import { AdStyle, AspectRatio, GeneratedConcept } from '../types';
 import { generateSocialPostConcepts, generateSocialPost } from '../services/aiService';
 import { AD_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
@@ -14,8 +14,6 @@ interface SocialMediaPostGeneratorProps {
     onNavigateHome: () => void;
     onPostGenerated: () => void;
     onGenerating: (isGenerating: boolean) => void;
-    apiProvider: ApiProvider;
-    onOpenSettings: () => void;
 }
 
 const platforms = {
@@ -30,7 +28,7 @@ type Platform = keyof typeof platforms;
 
 const tones = ["Professional", "Casual", "Humorous", "Inspirational", "Informative"];
 
-const SocialMediaPostGenerator: React.FC<SocialMediaPostGeneratorProps> = ({ onNavigateHome, onPostGenerated, onGenerating, apiProvider, onOpenSettings }) => {
+const SocialMediaPostGenerator: React.FC<SocialMediaPostGeneratorProps> = ({ onNavigateHome, onPostGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     
@@ -288,7 +286,7 @@ const SocialMediaPostGenerator: React.FC<SocialMediaPostGeneratorProps> = ({ onN
     
     return (
         <div className="animate-fade-in">
-            <ErrorMessage error={error} onOpenSettings={onOpenSettings} />
+            <ErrorMessage error={error} />
             {step === 'input' && renderInputStep()}
             {(step === 'promptSelection' || step === 'generating' || step === 'result') && (
                 <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">

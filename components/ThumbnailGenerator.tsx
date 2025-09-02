@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { CreatorStyle, AspectRatio, UploadedFile, GeneratedConcept, ApiProvider } from '../types';
+import { CreatorStyle, AspectRatio, UploadedFile, GeneratedConcept } from '../types';
 import { generatePrompts, generateThumbnail } from '../services/aiService';
 import { CREATOR_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
@@ -14,11 +14,9 @@ interface ThumbnailGeneratorProps {
     onNavigateHome: () => void;
     onThumbnailGenerated: () => void;
     onGenerating: (isGenerating: boolean) => void;
-    apiProvider: ApiProvider;
-    onOpenSettings: () => void;
 }
 
-const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome, onThumbnailGenerated, onGenerating, apiProvider, onOpenSettings }) => {
+const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome, onThumbnailGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [headshots, setHeadshots] = useState<UploadedFile[]>([]);
@@ -221,16 +219,16 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
     const renderInputStep = () => (
         <div className="space-y-8">
             <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
-              <h2 className="text-xl font-bold text-white mb-1">1. Powered by Advanced Generative AI</h2>
-              <p className="text-sm text-slate-400 mb-4">Using state-of-the-art models for the best results. You can also use your own API key in the settings.</p>
+              <h2 className="text-xl font-bold text-white mb-1">1. Powered by Google Gemini</h2>
+              <p className="text-sm text-slate-400 mb-4">Using state-of-the-art models for the best results. Make sure your API key is set correctly.</p>
               <div className="flex divide-x divide-slate-700">
                 <div className="pr-6">
                   <h3 className="font-semibold text-slate-300">Concept Generation</h3>
-                  <p className="text-sm text-slate-500">Advanced Language Model</p>
+                  <p className="text-sm text-slate-500">Gemini 1.5 Flash</p>
                 </div>
                 <div className="pl-6">
                   <h3 className="font-semibold text-slate-300">Thumbnail Generation</h3>
-                  <p className="text-sm text-slate-500">Multimodal Vision Model</p>
+                  <p className="text-sm text-slate-500">Gemini 1.5 Flash (Vision)</p>
                 </div>
               </div>
             </div>
@@ -239,11 +237,6 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
                     <h2 className="text-xl font-bold text-white mb-1">2. Upload Headshots</h2>
                     <p className="text-sm text-slate-400 mb-4">Provide 1-5 images for the best face accuracy.</p>
-                     {apiProvider === 'openai' && (
-                        <div className="p-3 mb-4 bg-yellow-900/20 border border-yellow-700/50 rounded-lg text-xs text-yellow-400">
-                            <strong>Provider Note:</strong> You have OpenAI selected. DALL-E 3 is a powerful text-to-image model but does not use uploaded headshots to create a likeness. The generated image will be based on the text prompt only.
-                        </div>
-                    )}
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
                          <input type="file" id="file-upload" className="hidden" multiple accept="image/png, image/jpeg" onChange={handleFileChange} disabled={headshots.length >= 5} />
                          <label htmlFor="file-upload" className={`cursor-pointer ${headshots.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}`}>
@@ -442,7 +435,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
 
     return (
         <div className="animate-fade-in">
-            <ErrorMessage error={error} onOpenSettings={onOpenSettings} />
+            <ErrorMessage error={error} />
             
             {step === 'input' && renderInputStep()}
             {(step === 'promptSelection' || step === 'generating' || step === 'result') && (

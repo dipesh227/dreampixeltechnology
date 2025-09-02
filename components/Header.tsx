@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
     onNavigateHome: () => void;
-    onOpenSettings: () => void;
     onOpenFeedback: () => void;
     apiKeyStatus: ValidationStatus;
     onLogin: () => void;
@@ -52,36 +51,38 @@ const UserMenu: React.FC = () => {
     );
 };
 
-const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenSettings, onOpenFeedback, apiKeyStatus, onLogin }) => {
+const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenFeedback, apiKeyStatus, onLogin }) => {
   const { session } = useAuth();
 
-  const getKeyIconClassName = () => {
+  const getKeyIconInfo = () => {
     switch (apiKeyStatus) {
         case 'valid':
-            return 'text-green-400 neon-green';
+            return { className: 'text-green-400 neon-green', title: 'Default API Key is valid and connected.' };
         case 'invalid':
-            return 'text-red-400 neon-red';
+            return { className: 'text-red-400 neon-red', title: 'Default API Key is missing or invalid. Please check your .env file.' };
         case 'validating':
-            return 'text-yellow-400 neon-yellow-pulse';
+            return { className: 'text-yellow-400 neon-yellow-pulse', title: 'Validating API Key...' };
         default:
-            return 'text-slate-300';
+            return { className: 'text-slate-300', title: 'API Status' };
     }
   };
+
+  const { className: keyIconClassName, title: keyIconTitle } = getKeyIconInfo();
 
   return (
     <header className="py-4 px-4 md:px-8 bg-slate-950/50 backdrop-blur-lg border-b border-slate-700/50 sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
-        {/* Left Side */}
+        {/* Left Side: API Status */}
         <div className="flex-1 flex justify-start">
-           <button 
-                onClick={onOpenSettings} 
-                className="flex items-center gap-2 text-sm rounded-lg text-slate-300 transition-colors group lg:p-2 lg:border lg:border-slate-700 lg:bg-slate-800/80 lg:hover:bg-slate-800"
+           <div 
+                className="flex items-center gap-2 text-sm rounded-lg text-slate-300 lg:p-2 lg:border lg:border-slate-700 lg:bg-slate-800/80"
+                title={keyIconTitle}
             >
-                <div className="p-2.5 lg:p-1 bg-slate-800 border border-slate-700 rounded-lg lg:rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-500/40 group-hover:to-pink-500/40 transition-all">
-                   <HiOutlineKey className={`w-5 h-5 transition-all duration-300 icon-hover-effect ${getKeyIconClassName()}`} />
+                <div className="p-2.5 lg:p-1 bg-slate-800 border border-slate-700 rounded-lg lg:rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                   <HiOutlineKey className={`w-5 h-5 transition-all duration-300 ${keyIconClassName}`} />
                 </div>
-                <span className="hidden lg:inline">API Settings</span>
-            </button>
+                <span className="hidden lg:inline">API Status</span>
+            </div>
         </div>
 
         {/* Center Logo */}

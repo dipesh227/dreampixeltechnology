@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { AdStyle, AspectRatio, UploadedFile, GeneratedConcept, ApiProvider } from '../types';
+import { AdStyle, AspectRatio, UploadedFile, GeneratedConcept } from '../types';
 import { generateAdConcepts, generateAdBanner } from '../services/aiService';
 import { AD_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
@@ -14,11 +14,9 @@ interface AdBannerGeneratorProps {
     onNavigateHome: () => void;
     onBannerGenerated: () => void;
     onGenerating: (isGenerating: boolean) => void;
-    apiProvider: ApiProvider;
-    onOpenSettings: () => void;
 }
 
-const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, onBannerGenerated, onGenerating, apiProvider, onOpenSettings }) => {
+const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, onBannerGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [productImage, setProductImage] = useState<UploadedFile | null>(null);
@@ -209,11 +207,6 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                         <h2 className="text-xl font-bold text-white mb-1">1. Upload Assets</h2>
                         <p className="text-sm text-slate-400">Provide your product image and model headshot.</p>
                      </div>
-                      {apiProvider === 'openai' && (
-                        <div className="p-3 bg-yellow-900/20 border border-yellow-700/50 rounded-lg text-xs text-yellow-400">
-                            <strong>Provider Note:</strong> You have OpenAI selected. DALL-E 3 is a powerful text-to-image model but does not use uploaded images for likeness. The generated image will be based on the text prompt only.
-                        </div>
-                    )}
                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Product Image Upload */}
                         <div className="text-center">
@@ -381,7 +374,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
 
     return (
         <div className="animate-fade-in">
-            <ErrorMessage error={error} onOpenSettings={onOpenSettings} />
+            <ErrorMessage error={error} />
             
             {step === 'input' && renderInputStep()}
             {(step === 'promptSelection' || step === 'generating' || step === 'result') && (
