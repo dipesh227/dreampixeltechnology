@@ -1,3 +1,15 @@
+// FIX: Manually define Vite's import.meta.env types to address missing type definitions.
+// This provides type safety for environment variables accessed via `import.meta.env`.
+declare global {
+  interface ImportMeta {
+    readonly env: {
+      readonly VITE_API_KEY: string;
+      readonly VITE_SUPABASE_URL: string;
+      readonly VITE_SUPABASE_ANON_KEY: string;
+    };
+  }
+}
+
 
 
 export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political';

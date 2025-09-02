@@ -8,7 +8,7 @@ import EnvVarModal from './components/EnvVarModal';
 // Register Service Worker for PWA functionality
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js').then(registration => {
+    navigator.serviceWorker.register('./service-worker.js').then(registration => {
       // console.log('SW registered: ', registration);
     }).catch(registrationError => {
       console.error('SW registration failed: ', registrationError);

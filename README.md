@@ -34,124 +34,6 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
 
 ---
 
-## 📄 Database Schema
-
-For reference, here is the schema for the tables created by the setup script. The script handles encryption by storing sensitive fields like `prompt` and `content` as `BYTEA` (byte array).
-
-<details>
-<summary><strong>profiles</strong> - Stores public user data.</summary>
-
-```sql
-CREATE TABLE public.profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  full_name TEXT,
-  avatar_url TEXT
-);
-```
-</details>
-
-<details>
-<summary><strong>creations</strong> - Stores liked creations with encrypted prompts.</summary>
-
-```sql
-CREATE TABLE public.creations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  prompt BYTEA, -- Storing encrypted data as bytes
-  image_url TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
-);
-```
-</details>
-
-<details>
-<summary><strong>feedback</strong> - Collects user feedback with encrypted content.</summary>
-
-```sql
-CREATE TABLE public.feedback (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  content BYTEA, -- Storing encrypted data as bytes
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
-);
-```
-</details>
-
-<details>
-<summary><strong>thumbnail_generation_jobs</strong> - Logs inputs for thumbnail generation.</summary>
-
-```sql
-CREATE TABLE public.thumbnail_generation_jobs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-  description TEXT,
-  thumbnail_text TEXT,
-  brand_details TEXT,
-  style_id TEXT,
-  aspect_ratio TEXT,
-  headshot_filenames TEXT[]
-);
-```
-</details>
-
-<details>
-<summary><strong>political_poster_jobs</strong> - Logs inputs for political poster generation.</summary>
-
-```sql
-CREATE TABLE public.political_poster_jobs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-  party_id TEXT,
-  event_theme TEXT,
-  custom_text TEXT,
-  style_id TEXT,
-  aspect_ratio TEXT,
-  headshot_filenames TEXT[]
-);
-```
-</details>
-
-<details>
-<summary><strong>ad_banner_jobs</strong> - Logs inputs for ad banner generation.</summary>
-
-```sql
-CREATE TABLE public.ad_banner_jobs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-  product_description TEXT,
-  headline TEXT,
-  brand_details TEXT,
-  style_id TEXT,
-  aspect_ratio TEXT,
-  product_image_filename TEXT,
-  model_headshot_filename TEXT
-);
-```
-</details>
-
-<details>
-<summary><strong>social_media_post_jobs</strong> - Logs inputs for social media post generation.</summary>
-
-```sql
-CREATE TABLE public.social_media_post_jobs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-  topic TEXT,
-  platform TEXT,
-  tone TEXT,
-  call_to_action TEXT,
-  style_id TEXT,
-  aspect_ratio TEXT
-);
-```
-</details>
-
----
-
 ## 🚀 Getting Started
 
 Follow these instructions to set up and run the project locally.
@@ -185,24 +67,27 @@ This application **requires** a `.env` file for Supabase and Google AI credentia
 
     ```env
     # Supabase Credentials (CRITICAL - App will not start without these)
-    # Found in your Supabase project dashboard under Project Settings > API
     VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
     VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
 
-    # Default Google Gemini API Key (Required for 'Default' provider)
-    # Get yours from Google AI Studio
-    API_KEY="YOUR_GEMINI_API_KEY"
+    # Default Production Gemini API Key (Required for 'Default' provider)
+    VITE_API_KEY="YOUR_GEMINI_API_KEY"
     ```
 
-3.  **Find your Supabase Keys:**
-    -   Navigate to your Supabase project dashboard.
-    -   Go to **Project Settings > API**.
-    -   Copy the **Project URL** and the **`anon` public key** and paste them into the corresponding variables in your `.env` file.
+#### Supabase Credentials
 
-4.  **Find your Google Gemini API Key:**
-    -   Go to the [Google AI Studio](https://aistudio.google.com/app/apikey).
-    -   Click **"Create API key"** to get a new key.
-    -   Copy the generated key and paste it into the `API_KEY` variable in your `.env` file.
+-   Navigate to your Supabase project dashboard.
+-   Go to **Project Settings > API**.
+-   Copy the **Project URL** and the **`anon` public key** and paste them into the corresponding `VITE_` variables in your `.env` file.
+
+#### Default Production Gemini API Key
+
+This is the primary API key for the application's core functionality when using the "Default" provider.
+
+-   Go to the [Google AI Studio](https://aistudio.google.com/app/apikey).
+-   Click **"Create API key"** to get a new key.
+-   Copy the generated key and paste it into the `VITE_API_KEY` variable in your `.env` file.
+
 
 ### 5. Set Up Supabase Database
 
@@ -432,3 +317,121 @@ Now you can start the development server. Make sure you have saved your `.env` f
 npm run dev
 ```
 The application should now be running locally, connected to your Supabase backend and ready to use the Google Gemini API.
+
+---
+
+## 📄 Database Schema
+
+For reference, here is the schema for the tables created by the setup script. The script handles encryption by storing sensitive fields like `prompt` and `content` as `BYTEA` (byte array).
+
+<details>
+<summary><strong>profiles</strong> - Stores public user data.</summary>
+
+```sql
+CREATE TABLE public.profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name TEXT,
+  avatar_url TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>creations</strong> - Stores liked creations with encrypted prompts.</summary>
+
+```sql
+CREATE TABLE public.creations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  prompt BYTEA, -- Storing encrypted data as bytes
+  image_url TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+```
+</details>
+
+<details>
+<summary><strong>feedback</strong> - Collects user feedback with encrypted content.</summary>
+
+```sql
+CREATE TABLE public.feedback (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  content BYTEA, -- Storing encrypted data as bytes
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+```
+</details>
+
+<details>
+<summary><strong>thumbnail_generation_jobs</strong> - Logs inputs for thumbnail generation.</summary>
+
+```sql
+CREATE TABLE public.thumbnail_generation_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  description TEXT,
+  thumbnail_text TEXT,
+  brand_details TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT,
+  headshot_filenames TEXT[]
+);
+```
+</details>
+
+<details>
+<summary><strong>political_poster_jobs</strong> - Logs inputs for political poster generation.</summary>
+
+```sql
+CREATE TABLE public.political_poster_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  party_id TEXT,
+  event_theme TEXT,
+  custom_text TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT,
+  headshot_filenames TEXT[]
+);
+```
+</details>
+
+<details>
+<summary><strong>ad_banner_jobs</strong> - Logs inputs for ad banner generation.</summary>
+
+```sql
+CREATE TABLE public.ad_banner_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  product_description TEXT,
+  headline TEXT,
+  brand_details TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT,
+  product_image_filename TEXT,
+  model_headshot_filename TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>social_media_post_jobs</strong> - Logs inputs for social media post generation.</summary>
+
+```sql
+CREATE TABLE public.social_media_post_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  topic TEXT,
+  platform TEXT,
+  tone TEXT,
+  call_to_action TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT
+);
+```
+</details>

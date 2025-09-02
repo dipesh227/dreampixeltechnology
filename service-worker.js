@@ -1,9 +1,7 @@
-const CACHE_NAME = 'dreampixel-cache-v3'; // Bump version for update
+const CACHE_NAME = 'dreampixel-cache-v3';
 const urlsToCache = [
   '/',
   '/index.html',
-  // Note: In a real build system, a manifest of hashed assets (JS, CSS) would be injected here.
-  // For this environment, we cache the core entry points.
 ];
 
 // Install the service worker and cache essential assets
@@ -34,60 +32,33 @@ self.addEventListener('activate', (event) => {
   return self.clients.claim();
 });
 
-// Implement fetch handling with SPA fallback for 404s
+// Intercept fetch requests
 self.addEventListener('fetch', (event) => {
-  // We only handle GET requests.
-  if (event.request.method !== 'GET') {
-    return;
-  }
-
-  // For navigation requests (e.g., loading a page), use a network-first strategy
-  // that falls back to the main app shell (`/index.html`) on failure or 404.
-  // This is the standard pattern for Single Page Applications (SPAs).
+  // For navigation requests, adopt a network-first strategy that falls back
+  // to the cached app shell (index.html). This is crucial for SPAs.
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      (async () => {
-        try {
-          const networkResponse = await fetch(event.request);
-          // A 2xx response is a success. A 404 for navigation is a failure.
-          if (networkResponse.ok) {
-            return networkResponse;
-          }
-
-          // Non-ok response (e.g., 404), serve the app shell.
-          console.log(`[SW] Serving app shell for failed navigation: ${event.request.url}`);
-          const cache = await caches.open(CACHE_NAME);
-          const cachedResponse = await cache.match('/index.html');
-          return cachedResponse;
-
-        } catch (error) {
-          // Network error (offline), serve the app shell from cache.
-          console.log(`[SW] Network error during navigation, serving app shell from cache for: ${event.request.url}`);
-          const cache = await caches.open(CACHE_NAME);
-          const cachedResponse = await cache.match('/index.html');
-          return cachedResponse;
-        }
-      })()
+      fetch(event.request).catch(() => {
+        // If the network request fails (e.g., for a route like /thumbnail that doesn't exist as a file),
+        // serve the main index.html file. This allows the client-side router to handle the path.
+        return caches.match('/index.html');
+      })
     );
     return;
   }
 
-  // For all other requests (assets like JS, CSS, images), use the
-  // "stale-while-revalidate" strategy for speed and offline capability.
-  // We exclude cross-origin requests from caching.
-  if (event.request.url.startsWith(self.location.origin)) {
-    event.respondWith(
-      caches.open(CACHE_NAME).then((cache) => {
-        return cache.match(event.request).then((cachedResponse) => {
-          const fetchPromise = fetch(event.request).then((networkResponse) => {
-            if (networkResponse.ok) {
-              cache.put(event.request, networkResponse.clone());
-            }
-            return networkResponse;
-          });
-          return cachedResponse || fetchPromise;
+  // For all other requests (assets like JS, CSS, images), use a stale-while-revalidate strategy.
+  event.respondWith(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.match(event.request).then((cachedResponse) => {
+        const fetchPromise = fetch(event.request).then((networkResponse) => {
+          if (networkResponse.ok) {
+            cache.put(event.request, networkResponse.clone());
+          }
+          return networkResponse;
         });
-      })
-    );
-  }
+        return cachedResponse || fetchPromise;
+      });
+    })
+  );
 });
