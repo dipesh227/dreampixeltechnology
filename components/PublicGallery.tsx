@@ -29,20 +29,20 @@ const PublicGallery: React.FC = () => {
             {isLoading && <SkeletonGallery />}
             
             {error && (
-                <div className="text-center py-8 text-red-400 bg-red-900/30 p-4 rounded-lg border border-red-500/50">
-                    <p className="font-bold">Could not load community gallery.</p>
-                    <p className="text-sm text-red-300/80 mt-1">{error.message}</p>
+                <div className="text-center py-10 text-slate-500">
+                    <HiOutlinePhotograph className="w-12 h-12 mx-auto mb-4"/>
+                    Could not load gallery. Please try again later.
                 </div>
             )}
             
-            {!isLoading && !error && creations && creations.length === 0 && (
+            {!isLoading && creations && creations.length === 0 && (
                 <div className="text-center py-10 text-slate-500">
                     <HiOutlinePhotograph className="w-12 h-12 mx-auto mb-4"/>
                     The gallery is empty right now. <br/> Be the first to be featured!
                 </div>
             )}
 
-            {!isLoading && !error && creations && creations.length > 0 && (
+            {!isLoading && creations && creations.length > 0 && (
                 <div className="columns-2 md:columns-3 lg:columns-4 gap-4">
                     {creations.map((creation) => (
                         <div key={creation.id} className="mb-4 break-inside-avoid">

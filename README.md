@@ -16,6 +16,7 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
 -   **Secure Google Authentication**: Sign in to save and manage your creations securely.
 -   **Database Encryption**: User-submitted prompts and feedback are encrypted at rest in the database using `pgsodium` for enhanced privacy.
 -   **Focused on Google Gemini**: Built to exclusively use Google's powerful Gemini AI models for the best results.
+-   **Live API Status**: An indicator in the header shows if the default API key is configured correctly and is operational.
 -   **Interactive & Modern UI**: A vibrant, colorful UI with a neon mouse trail, glowing hover effects, and an animated background that synchronizes with AI generation tasks.
 -   **Personalized History**: Like and save your favorite creations, stored securely and tied to your user account.
 
@@ -56,23 +57,16 @@ npm install
 
 ### 4. Set Up Your Gemini API Key (Required)
 
-This application requires a Google Gemini API key to function.
+This application requires a Google Gemini API key to function. The key **must** be provided via the `API_KEY` environment variable.
 
 1.  **Get your API Key**:
-    -   Go to [**Google AI Studio**](https://aistudio.google.com/app/apikey).
+    -   If you don't have one, go to [**Google AI Studio**](https://aistudio.google.com/app/apikey).
     -   Click **"Create API key in new project"**.
     -   Copy your newly generated API key.
 
-2.  **Create a `.env.local` file**:
-    -   In the root directory of the project, create a new file named `.env.local`.
-    -   Add the following line to this file, replacing `YOUR_SECRET_GEMINI_API_KEY` with the key you copied.
-
-    ```
-    # .env.local
-    VITE_API_KEY=YOUR_SECRET_GEMINI_API_KEY
-    ```
-
-> **A Note on API Usage and Limits**: The standard Google Gemini API key comes with a generous free tier suitable for development and testing. However, this tier has rate limits and a daily quota. If you see an error about "quota exceeded," it means you have used all your free requests for the day. Your quota will reset automatically (usually the next day, PST). For higher usage, you can upgrade your Google Cloud project to a paid plan.
+2.  **Configure the Environment Variable**:
+    -   The application is hardcoded to read the key from `process.env.API_KEY`.
+    -   You must ensure that this environment variable is set in your deployment or development environment. The application will show an error in the header if the key is not found.
 
 > **Note on Supabase Credentials**: The Supabase URL and anonymous key are pre-configured in `src/services/supabaseClient.ts` to ensure a stable connection for development. No action is needed for this part.
 
@@ -181,6 +175,23 @@ BEGIN
   ORDER BY c.created_at DESC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- RPC to get public creations for the gallery
+CREATE OR REPLACE FUNCTION get_public_creations()
+RETURNS TABLE(id UUID, image_url TEXT) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    c.id,
+    c.image_url
+  FROM public.creations c
+  WHERE c.is_public = TRUE
+  ORDER BY c.created_at DESC
+  LIMIT 12;
+END;
+$$ LANGUAGE plpgsql;
+-- Grant access to anonymous and authenticated users
+GRANT EXECUTE ON FUNCTION public.get_public_creations() TO anon, authenticated;
 
 
 -- ========= TABLE: feedback =========

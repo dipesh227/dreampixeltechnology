@@ -62,30 +62,12 @@ export const clearCreations = async (userId: string): Promise<void> => {
 
 
 export const getPublicCreations = async (): Promise<PublicCreation[]> => {
-    // FIX: Switched from a potentially problematic RPC call to a direct SELECT query.
-    // This method is simpler and relies on the RLS policy that allows everyone to
-    // view creations where `is_public` is true. This should resolve the permission errors.
-    const { data, error } = await supabase
-        .from('creations')
-        .select('id, image_url')
-        .eq('is_public', true)
-        .order('created_at', { ascending: false })
-        .limit(12);
-
-    if (error) {
+    try {
+        const { data, error } = await supabase.rpc('get_public_creations');
+        if (error) throw error;
+        return data;
+    } catch (error) {
         console.error("Failed to fetch public creations:", error);
-        // Re-throw the error with a more descriptive message so SWR can handle it.
-        throw new Error(`Database error: ${error.message}`);
-    }
-
-    if (!data) {
         return [];
     }
-
-    // FIX: Manually map the 'image_url' field from the database to the 'imageUrl'
-    // field expected by the PublicCreation type.
-    return data.map(creation => ({
-        id: creation.id,
-        imageUrl: creation.image_url,
-    }));
 };

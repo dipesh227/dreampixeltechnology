@@ -1,22 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DreamLogo } from './icons/DreamLogo';
-import { HiOutlineArrowRightOnRectangle, HiOutlineUserCircle, HiBars3, HiOutlineXMark } from 'react-icons/hi2';
+import { HiOutlineKey, HiOutlineChatBubbleLeftEllipsis, HiOutlineArrowRightOnRectangle, HiOutlineUserCircle } from 'react-icons/hi2';
+import { ValidationStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
-import { ToolType } from '../types';
 
 interface HeaderProps {
     onNavigateHome: () => void;
+    onOpenFeedback: () => void;
+    apiKeyStatus: ValidationStatus;
+    apiKeyError: string | null;
     onLogin: () => void;
-    activeTool: ToolType | 'landing';
-    onSelectTool: (tool: ToolType) => void;
 }
-
-const NAV_TOOLS: { id: ToolType; label: string }[] = [
-    { id: 'thumbnail', label: 'Thumbnails' },
-    { id: 'political', label: 'Posters' },
-    { id: 'advertisement', label: 'Ad Banners' },
-    { id: 'social', label: 'Social Posts' }
-];
 
 const UserMenu: React.FC = () => {
     const { profile, logout, isLoggingOut } = useAuth();
@@ -58,124 +52,102 @@ const UserMenu: React.FC = () => {
     );
 };
 
-interface MobileMenuProps {
-    onLogin: () => void;
-    onSelectTool: (tool: ToolType) => void;
-}
-
-const MobileMenu: React.FC<MobileMenuProps> = ({ onLogin, onSelectTool }) => {
-    const { session, logout, isLoggingOut } = useAuth();
-    
-    return (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-xl z-50 animate-fade-in p-4 flex flex-col">
-            <div className="flex justify-between items-center mb-10">
-                <h2 className="text-lg font-bold text-white">Navigation</h2>
-            </div>
-
-            <div className="flex flex-col gap-2 flex-grow">
-                {NAV_TOOLS.map(tool => (
-                    <button
-                        key={tool.id}
-                        onClick={() => onSelectTool(tool.id)}
-                        className="w-full text-left p-4 text-lg font-semibold text-slate-300 hover:bg-slate-800 rounded-lg transition-colors"
-                    >
-                        {tool.label}
-                    </button>
-                ))}
-            </div>
-
-            {session ? (
-                <button 
-                    onClick={() => logout()} 
-                    disabled={isLoggingOut}
-                    className="w-full flex items-center justify-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect disabled:opacity-70 disabled:cursor-wait">
-                    {isLoggingOut ? (
-                        <>
-                            <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
-                            Signing Out...
-                        </>
-                    ) : (
-                        <>
-                            <HiOutlineArrowRightOnRectangle className="w-5 h-5"/>
-                            Sign Out
-                        </>
-                    )}
-                </button>
-            ) : (
-                <button 
-                  onClick={onLogin} 
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold rounded-lg bg-primary-gradient text-white hover:opacity-90 transition-opacity">
-                    <HiOutlineUserCircle className="w-5 h-5" />
-                    Login / Sign Up
-                </button>
-            )}
-        </div>
-    );
-};
-
-
-const Header: React.FC<HeaderProps> = ({ onNavigateHome, onLogin, activeTool, onSelectTool }) => {
+const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenFeedback, apiKeyStatus, apiKeyError, onLogin }) => {
   const { session } = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : 'auto';
-    return () => { document.body.style.overflow = 'auto'; };
-  }, [isMobileMenuOpen]);
+  const getStatusInfo = () => {
+    switch (apiKeyStatus) {
+        case 'valid':
+            return { className: 'text-green-400 neon-green', title: apiKeyError || 'API Key is valid and connected.' };
+        case 'invalid':
+            return { className: 'text-red-400 neon-red', title: apiKeyError || 'The configured API Key is invalid.' };
+        case 'validating':
+            return { className: 'text-yellow-400 neon-yellow-pulse', title: 'Validating API Key...' };
+        default:
+            return { className: 'text-slate-300', title: 'API Status Unknown' };
+    }
+  };
+
+  const { className: statusIconClassName, title: statusIconTitle } = getStatusInfo();
 
   return (
     <header className="py-4 px-4 md:px-8 bg-slate-950/50 backdrop-blur-lg border-b border-slate-700/50 sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
+        {/* Left Side: API Status */}
         <div className="flex-1 flex justify-start items-center">
-            <div 
-                className="flex-shrink-0 flex items-center justify-center cursor-pointer logo-container"
-                onClick={onNavigateHome}
+           <div 
+                className="flex items-center gap-2 text-sm rounded-lg text-slate-300 lg:p-2 lg:border lg:border-slate-700 lg:bg-slate-800/80"
+                title={statusIconTitle}
             >
-                <DreamLogo className="h-10 md:h-12 w-auto" />
+                <div className="p-2.5 lg:p-1 bg-slate-800 border border-slate-700 rounded-lg lg:rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                   <HiOutlineKey className={`w-5 h-5 transition-all duration-300 ${statusIconClassName}`} />
+                </div>
+                <span className="hidden lg:inline">API Status</span>
             </div>
         </div>
 
-        <nav className="hidden lg:flex items-center gap-2">
-            {NAV_TOOLS.map(tool => (
-                <button
-                    key={tool.id}
-                    onClick={() => onSelectTool(tool.id)}
-                    className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors duration-200 ${
-                        activeTool === tool.id
-                        ? 'bg-slate-700/50 text-white'
-                        : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
-                    }`}
-                >
-                    {tool.label}
-                </button>
-            ))}
-        </nav>
+        {/* Center Logo */}
+        <div className="flex-shrink-0">
+          <div 
+            className="flex flex-col items-center justify-center cursor-pointer logo-container"
+            onClick={onNavigateHome}
+          >
+              <DreamLogo className="h-10 md:h-12 w-auto" />
+          </div>
+        </div>
 
+        {/* Right Side */}
         <div className="flex-1 flex items-center gap-4 justify-end">
-            {session ? (
-                <UserMenu />
-            ) : (
+            <button onClick={onOpenFeedback} className="hidden lg:flex items-center gap-2 p-2 text-sm rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-800 transition-colors group">
+                <div className="p-1 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-500/40 group-hover:to-pink-500/40 transition-all">
+                  <HiOutlineChatBubbleLeftEllipsis className="w-5 h-5 text-pink-300 icon-hover-effect" />
+                </div>
+                <span className="hidden md:inline">Feedback</span>
+            </button>
+            
+            <div className="hidden lg:flex">
+              {session ? (
+                  <UserMenu />
+              ) : (
+                  <button 
+                    onClick={onLogin} 
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-primary-gradient text-white hover:opacity-90 transition-opacity">
+                      <HiOutlineUserCircle className="w-5 h-5" />
+                      Login
+                  </button>
+              )}
+            </div>
+            
+            {/* Mobile Menu */}
+            <div className="lg:hidden flex items-center gap-2">
+                {session ? (
+                    <UserMenu />
+                ) : (
+                    <button 
+                        onClick={onLogin} 
+                        className="p-2 rounded-md text-slate-300 hover:bg-slate-800 icon-hover-effect"
+                        aria-label="Login"
+                    >
+                        <HiOutlineUserCircle className="w-6 h-6" />
+                    </button>
+                )}
+                 <div 
+                    className="p-2 rounded-md"
+                    aria-label="API Status"
+                    title={statusIconTitle}
+                >
+                    <HiOutlineKey className={`w-6 h-6 transition-all duration-300 ${statusIconClassName}`} />
+                </div>
                 <button 
-                  onClick={onLogin} 
-                  className="hidden lg:flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-primary-gradient text-white hover:opacity-90 transition-opacity">
-                    <HiOutlineUserCircle className="w-5 h-5" />
-                    Login
-                </button>
-            )}
-             <div className="lg:hidden">
-                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 rounded-md text-slate-300 hover:bg-slate-800 z-50">
-                    {isMobileMenuOpen ? <HiOutlineXMark className="w-7 h-7" /> : <HiBars3 className="w-7 h-7" />}
+                    onClick={onOpenFeedback} 
+                    className="p-2 rounded-md text-slate-300 hover:bg-slate-800"
+                    aria-label="Send Feedback"
+                >
+                    <HiOutlineChatBubbleLeftEllipsis className="w-6 h-6 text-pink-300 icon-hover-effect" />
                 </button>
             </div>
         </div>
       </div>
-      
-      {isMobileMenuOpen && (
-        <MobileMenu 
-            onLogin={() => { onLogin(); setIsMobileMenuOpen(false); }}
-            onSelectTool={(tool) => { onSelectTool(tool); setIsMobileMenuOpen(false); }}
-        />
-      )}
     </header>
   );
 };

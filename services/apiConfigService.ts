@@ -2,25 +2,33 @@
  * -----------------------------------------------------------------------------
  * API KEY CONFIGURATION
  * -----------------------------------------------------------------------------
- * This application is configured to use the Gemini API key provided via
- * the `process.env.API_KEY` environment variable.
+ * This application is configured to use the Gemini API key from the
+ * `process.env.API_KEY` environment variable.
  *
- * The availability of this key is handled externally and is a hard requirement.
+ * This key is managed externally and is a hard requirement for the application
+ * to function.
  * -----------------------------------------------------------------------------
  */
 
-// FIX: Switched from import.meta.env.VITE_API_KEY to process.env.API_KEY to align with coding guidelines and fix the TypeScript error.
-const API_KEY = process.env.API_KEY as string;
-
 /**
- * Retrieves the configured Gemini API key.
+ * Retrieves the currently active API key from the environment variable.
  * @returns {string} The resolved API key.
+ * @throws {Error} If the API key is not found in the environment variables.
  */
 export const getApiKey = (): string => {
-    if (!API_KEY) {
-      // This log is for the developer in the console.
-      // FIX: Updated error message to refer to the standard API_KEY environment variable.
-      console.error("Gemini API key is not configured. Please ensure the API_KEY environment variable is set.");
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+        // This error will be caught by the API status check and displayed to the user.
+        throw new Error("API key is not configured. Please ensure the API_KEY environment variable is set.");
     }
-    return API_KEY;
+    return apiKey;
+};
+
+/**
+ * This function is deprecated as the key is now managed exclusively
+ * through environment variables.
+ * @returns {boolean} - True, to maintain compatibility.
+ */
+export const isDefaultApiKeySet = (): boolean => {
+    return true;
 };

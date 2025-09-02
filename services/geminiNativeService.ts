@@ -1,12 +1,11 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import { UploadedFile, AspectRatio } from '../types';
 import * as apiConfigService from './apiConfigService';
-import { RateLimitError, RetriableError, QuotaExceededError } from "./errors";
+import { RateLimitError } from "./errors";
 
 const getAiClient = (apiKeyOverride?: string) => {
     const apiKey = apiKeyOverride || apiConfigService.getApiKey();
     if (!apiKey) {
-        // FIX: Updated error message to refer to the standard API_KEY environment variable.
         throw new Error("API key is not configured. Please ensure the API_KEY environment variable is set.");
     }
     return new GoogleGenAI({ apiKey });
@@ -14,23 +13,17 @@ const getAiClient = (apiKeyOverride?: string) => {
 
 const handleGeminiError = (error: unknown): Error => {
     if (error instanceof Error) {
-        const errorMessage = error.message.toLowerCase();
-        
-        if (errorMessage.includes('quota exceeded') || errorMessage.includes('daily limit')) {
-            return new QuotaExceededError("You have exceeded your daily Gemini API quota. Your free usage will reset tomorrow. For higher limits, you can upgrade your Google AI account to a paid plan.");
+        if (error.message.includes('API key not valid')) {
+            return new Error("Invalid Gemini API Key. Please ensure the API_KEY environment variable is set correctly.");
         }
-        if (errorMessage.includes('api key not valid')) {
-            // FIX: Updated error message to refer to the standard API_KEY environment variable.
-            return new Error("The provided Gemini API key is invalid. Please check your API_KEY environment variable.");
-        }
-        if (errorMessage.includes('429') || errorMessage.includes('resource_exhausted')) {
+        if (error.message.includes('429') || error.message.includes('RESOURCE_EXHAUSTED')) {
             return new RateLimitError("Rate limit exceeded. You've made too many requests to the Gemini API recently. Please wait a minute and try again.");
         }
-        if (errorMessage.includes('safety')) {
+        if (error.message.includes('SAFETY')) {
             return new Error("The request was blocked due to safety policies. Please adjust your prompt or images and try again.");
         }
-        if (errorMessage.includes('fetch failed') || errorMessage.includes('networkerror')) {
-             return new RetriableError("A network error occurred. Please check your internet connection and try again.");
+        if (error.message.includes('fetch failed') || error.message.includes('NetworkError')) {
+             return new Error("A network error occurred. Please check your internet connection and try again.");
         }
         return new Error(`An error occurred with the Gemini API: ${error.message}`);
     }
@@ -48,17 +41,12 @@ const withRetries = async <T>(apiCall: () => Promise<T>): Promise<T> => {
         } catch (error) {
             const handledError = handleGeminiError(error);
             
-            // Check for the base RetriableError class to handle both rate limits and network errors
-            if (attempt >= maxRetries || !(handledError instanceof RetriableError)) {
+            if (attempt >= maxRetries || !(handledError instanceof RateLimitError)) {
                 throw handledError;
             }
 
             const delay = initialDelay * Math.pow(2, attempt);
-            const message = (handledError instanceof RateLimitError)
-                ? `Gemini API rate limit hit.`
-                : `A transient network error occurred.`;
-            
-            console.warn(`${message} Retrying in ${delay}ms... (Attempt ${attempt + 1}/${maxRetries})`);
+            console.warn(`Gemini API rate limit hit. Retrying in ${delay}ms... (Attempt ${attempt + 1}/${maxRetries})`);
             await new Promise(resolve => setTimeout(resolve, delay));
             attempt++;
         }
@@ -141,8 +129,7 @@ export const generateImageFromText = async (prompt: string, aspectRatio: AspectR
 };
 
 export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean, error?: string }> => {
-    // FIX: Updated error message to refer to the standard API_KEY environment variable.
-    if (!apiKey) return { isValid: false, error: "API key cannot be empty. Please ensure the API_KEY environment variable is set." };
+    if (!apiKey) return { isValid: false };
     try {
         const ai = getAiClient(apiKey);
         // Use a very simple, fast model and request to validate the key

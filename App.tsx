@@ -4,6 +4,7 @@ import Header from './components/Header';
 import { ToolType, ValidationStatus } from './types';
 import HistorySidebar from './components/HistorySidebar';
 import Footer from './components/Footer';
+import FeedbackModal from './components/FeedbackModal';
 import AuthModal from './components/AuthModal';
 import * as aiService from './services/aiService';
 import MouseTrail from './components/MouseTrail';
@@ -19,6 +20,7 @@ import SocialMediaPostGenerator from './components/SocialMediaPostGenerator';
 const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');
   const [historyUpdated, setHistoryUpdated] = useState(0);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [apiKeyStatus, setApiKeyStatus] = useState<ValidationStatus>('validating');
   const [apiKeyError, setApiKeyError] = useState<string | null>(null);
@@ -29,48 +31,40 @@ const App: React.FC = () => {
   const { session } = useAuth();
 
   useEffect(() => {
-    // This effect runs only once on initial mount to check connections.
-    const checkInitialConnections = async () => {
+    const checkAllConnections = async () => {
         setApiKeyStatus('validating');
         setApiKeyError(null);
+        setDbStatus('connecting');
         setDbError(null);
 
-        // Check Database Connection
-        try {
-            const dbResult = await checkDatabaseConnection();
-            setDbStatus(dbResult.isConnected ? 'connected' : 'error');
-            if (dbResult.error) setDbError(dbResult.error);
-        } catch (error: any) {
-            console.error("Failed to check DB status:", error);
-            setDbStatus('error');
-            setDbError(error.message || 'An unknown error occurred during DB connection check.');
-        }
-
-        // Check API Status
+        // Check API Status based on current config
         try {
             const apiResult = await aiService.checkCurrentApiStatus();
             setApiKeyStatus(apiResult.status);
-            if (apiResult.error) setApiKeyError(apiResult.error);
+            if (apiResult.error) {
+                setApiKeyError(apiResult.error);
+            }
         } catch (error: any) {
             console.error("Failed to check API status:", error);
             setApiKeyStatus('invalid');
             setApiKeyError(error.message || 'An unknown error occurred during API validation.');
         }
+
+        // Check Database Connection
+        try {
+            const dbResult = await checkDatabaseConnection();
+            setDbStatus(dbResult.isConnected ? 'connected' : 'error');
+             if (dbResult.error) {
+                setDbError(dbResult.error);
+            }
+        } catch (error: any) {
+             console.error("Failed to check DB status:", error);
+             setDbStatus('error');
+             setDbError(error.message || 'An unknown error occurred during DB connection check.');
+        }
     };
 
-    checkInitialConnections();
-  }, []);
-
-  useEffect(() => {
-    // This effect handles logic that should run when the session changes.
-    if (session) {
-      const preAuthTool = sessionStorage.getItem('preAuthTool');
-      if (preAuthTool) {
-        setActiveTool(preAuthTool as ToolType);
-        sessionStorage.removeItem('preAuthTool');
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    checkAllConnections();
   }, [session]);
   
   useEffect(() => {
@@ -104,13 +98,11 @@ const App: React.FC = () => {
   const onCreationGenerated = useCallback(() => {
     setHistoryUpdated(count => count + 1);
   }, []);
+
+  const handleOpenFeedback = useCallback(() => setIsFeedbackOpen(true), []);
+  const handleCloseFeedback = useCallback(() => setIsFeedbackOpen(false), []);
   
-  const handleOpenAuthModal = useCallback(() => {
-    if (activeTool !== 'landing') {
-      sessionStorage.setItem('preAuthTool', activeTool);
-    }
-    setIsAuthModalOpen(true);
-  }, [activeTool]);
+  const handleOpenAuthModal = useCallback(() => setIsAuthModalOpen(true), []);
   const handleCloseAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
 
   const handleGeneratingStatusChange = useCallback((status: boolean) => {
@@ -122,9 +114,10 @@ const App: React.FC = () => {
       <MouseTrail />
       <Header 
         onNavigateHome={handleNavigateHome} 
+        onOpenFeedback={handleOpenFeedback} 
+        apiKeyStatus={apiKeyStatus} 
+        apiKeyError={apiKeyError}
         onLogin={handleOpenAuthModal}
-        activeTool={activeTool}
-        onSelectTool={handleSelectTool}
       />
       <main className="container mx-auto px-4 py-8">
         {activeTool === 'landing' ? (
@@ -146,6 +139,7 @@ const App: React.FC = () => {
         )}
       </main>
       <Footer dbStatus={dbStatus} dbError={dbError} />
+      {isFeedbackOpen && <FeedbackModal onClose={handleCloseFeedback} />}
       {isAuthModalOpen && <AuthModal onClose={handleCloseAuthModal} />}
     </div>
   );
