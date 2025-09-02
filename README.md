@@ -65,42 +65,14 @@ This application requires a Google Gemini API key to function, provided via an e
     -   Copy your newly generated API key.
 
 2.  **Set the environment variable**:
-    -   Create a file named `.env.local` in the project root.
-    -   Add your API key to this file:
+    -   The application is configured to read the key from an environment variable named `process.env.API_KEY`.
+    -   You must set this variable in the environment where you run the application. For local development with Vite, you can create a `.env.local` file in the project root:
+
     ```
     # .env.local
-    GEMINI_API_KEY=YOUR_SECRET_GEMINI_API_KEY
+    VITE_API_KEY=YOUR_SECRET_GEMINI_API_KEY
     ```
-
-3.  **Expose the Key to the App (CRITICAL FIX FOR VITE)**:
-    -   By default, for security, the Vite build tool **does not** expose environment variables to your application code unless they are prefixed with `VITE_`.
-    -   To make `GEMINI_API_KEY` available as requested, you must explicitly configure Vite to expose it. This is the **required fix** to prevent API connection errors.
-    -   Create a file named `vite.config.ts` in your project root (if it doesn't already exist) and add the following configuration:
-
-    ```typescript
-    // vite.config.ts
-    import { defineConfig, loadEnv } from 'vite';
-    import react from '@vitejs/plugin-react';
-
-    export default defineConfig(({ mode }) => {
-      // Load env file based on `mode` in the current working directory.
-      const env = loadEnv(mode, process.cwd(), '');
-
-      return {
-        plugins: [react()],
-        define: {
-          // Expose the environment variable to your client-side code
-          'import.meta.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-        }
-      }
-    });
-    ```
-    -   After creating or modifying `vite.config.ts`, you **must restart your development server** for the changes to take effect.
-
-> #### How API Key Usage Works
-> This application is designed to be secure and straightforward. It reads the `GEMINI_API_KEY` you provide. This key is loaded when the app starts and is **never** changed or modified by the application's code, including during login or logout.
->
-> The key you get from Google AI Studio includes a generous **free tier**, which is perfect for all development and testing purposes.
+    - The application code will automatically handle the `VITE_` prefix for client-side access.
 
 > **Note on Supabase Credentials**: The Supabase URL and anonymous key are pre-configured in `src/services/supabaseClient.ts` to ensure a stable connection for development. No action is needed for this part.
 

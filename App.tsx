@@ -29,10 +29,6 @@ const App: React.FC = () => {
   const [dbError, setDbError] = useState<string | null>(null);
 
   const { session } = useAuth();
-  
-  const handleNavigateHome = useCallback(() => {
-    setActiveTool('landing');
-  }, []);
 
   useEffect(() => {
     const checkAllConnections = async () => {
@@ -70,21 +66,15 @@ const App: React.FC = () => {
 
     checkAllConnections();
     
+    // After a user logs in, check if we need to restore their previous tool.
     if (session) {
-      // After a user logs in, check if we need to restore their previous tool.
       const preAuthTool = sessionStorage.getItem('preAuthTool');
       if (preAuthTool) {
         setActiveTool(preAuthTool as ToolType);
         sessionStorage.removeItem('preAuthTool');
       }
-    } else {
-      // If the session is null (user logged out) and they are on a tool page,
-      // navigate them to the landing page for a clean experience.
-       if (activeTool !== 'landing') {
-        handleNavigateHome();
-      }
     }
-  }, [session, activeTool, handleNavigateHome]);
+  }, [session]);
   
   useEffect(() => {
     const baseTitle = "DreamPixel Technology";
@@ -108,6 +98,10 @@ const App: React.FC = () => {
 
   const handleSelectTool = useCallback((tool: ToolType) => {
     setActiveTool(tool);
+  }, []);
+
+  const handleNavigateHome = useCallback(() => {
+    setActiveTool('landing');
   }, []);
 
   const onCreationGenerated = useCallback(() => {

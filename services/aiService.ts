@@ -316,7 +316,7 @@ export const checkCurrentApiStatus = async () => {
     const apiKey = apiConfigService.getApiKey();
     
     if (!apiKey) {
-        const errorMsg = 'Gemini API key is not configured. The `GEMINI_API_KEY` environment variable must be set in your .env.local file and exposed in vite.config.ts. See README.md for instructions.';
+        const errorMsg = 'Gemini API key is not configured. The `process.env.API_KEY` environment variable must be set.';
         return { status: 'invalid' as ValidationStatus, error: errorMsg };
     }
     
