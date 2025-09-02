@@ -148,9 +148,6 @@ const SocialMediaPostGenerator: React.FC<SocialMediaPostGeneratorProps> = ({ onN
 
     const handleSaveCreation = async () => {
         if (generatedPost && !isSaved && session) {
-            const isPublic = window.confirm(
-                "Your creation has been saved to your 'Liked Creations'!\n\nWould you like to feature it in our public gallery for others to see?"
-            );
             const newEntry = {
                 id: '',
                 prompt: `Visual: ${finalPrompt} | Caption: ${finalCaption}`,
@@ -158,7 +155,7 @@ const SocialMediaPostGenerator: React.FC<SocialMediaPostGeneratorProps> = ({ onN
                 timestamp: Date.now()
             };
             try {
-                await historyService.saveCreation(newEntry, session.user.id, isPublic);
+                await historyService.saveCreation(newEntry, session.user.id);
                 setIsSaved(true);
                 onPostGenerated();
             } catch (error) {

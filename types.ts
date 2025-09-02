@@ -93,8 +93,3 @@ export interface Template {
   imageUrl: string;
   prefill: TemplatePrefillData;
 }
-
-export interface PublicCreation {
-  id: string;
-  imageUrl: string;
-}

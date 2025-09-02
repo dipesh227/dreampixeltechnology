@@ -1,4 +1,4 @@
-import { HistoryEntry, PublicCreation } from '../types';
+import { HistoryEntry } from '../types';
 import { supabase } from './supabaseClient';
 
 export const getCreations = async (userId: string): Promise<HistoryEntry[]> => {
@@ -24,7 +24,7 @@ export const getCreations = async (userId: string): Promise<HistoryEntry[]> => {
     }
 };
 
-export const saveCreation = async (newEntry: HistoryEntry, userId: string, isPublic: boolean): Promise<void> => {
+export const saveCreation = async (newEntry: HistoryEntry, userId: string): Promise<void> => {
     if (!userId) throw new Error("User must be logged in to save a creation.");
     try {
         // Call the secure RPC function to create an encrypted creation
@@ -33,7 +33,7 @@ export const saveCreation = async (newEntry: HistoryEntry, userId: string, isPub
                 p_prompt: newEntry.prompt, 
                 p_image_url: newEntry.imageUrl,
                 p_user_id: userId,
-                p_is_public: isPublic
+                p_is_public: false // Always save as private
             });
         
         if (error) throw error;
@@ -57,17 +57,5 @@ export const clearCreations = async (userId: string): Promise<void> => {
 
     } catch (error) {
         console.error("Failed to clear user creations from Supabase", error);
-    }
-};
-
-
-export const getPublicCreations = async (): Promise<PublicCreation[]> => {
-    try {
-        const { data, error } = await supabase.rpc('get_public_creations');
-        if (error) throw error;
-        return data;
-    } catch (error) {
-        console.error("Failed to fetch public creations:", error);
-        return [];
     }
 };

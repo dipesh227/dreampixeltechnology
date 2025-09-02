@@ -165,9 +165,6 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
 
     const handleSaveCreation = async () => {
         if (generatedThumbnail && !isSaved && session) {
-            const isPublic = window.confirm(
-                "Your creation has been saved to your 'Liked Creations'!\n\nWould you like to feature it in our public gallery for others to see?"
-            );
             const newEntry = {
                 id: '',
                 prompt: finalPrompt,
@@ -175,7 +172,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                 timestamp: Date.now()
             };
             try {
-                await historyService.saveCreation(newEntry, session.user.id, isPublic);
+                await historyService.saveCreation(newEntry, session.user.id);
                 setIsSaved(true);
                 onThumbnailGenerated();
             } catch (error) {

@@ -1,9 +1,4 @@
 
-
-
-
-
-
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { PoliticalParty, PosterStyle, AspectRatio, UploadedFile, GeneratedConcept, TemplatePrefillData } from '../types';
 import { generatePosterPrompts, generatePoster } from '../services/aiService';
@@ -194,9 +189,6 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
 
     const handleSaveCreation = async () => {
         if (generatedPoster && !isSaved && selectedParty && session) {
-            const isPublic = window.confirm(
-                "Your creation has been saved to your 'Liked Creations'!\n\nWould you like to feature it in our public gallery for others to see?"
-            );
             const newEntry = {
                 id: '',
                 prompt: finalPrompt,
@@ -204,7 +196,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
                 timestamp: Date.now()
             };
             try {
-                await historyService.saveCreation(newEntry, session.user.id, isPublic);
+                await historyService.saveCreation(newEntry, session.user.id);
                 setIsSaved(true);
                 onPosterGenerated();
             } catch (error) {

@@ -176,23 +176,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- RPC to get public creations for the gallery
-CREATE OR REPLACE FUNCTION get_public_creations()
-RETURNS TABLE(id UUID, image_url TEXT) AS $$
-BEGIN
-  RETURN QUERY
-  SELECT
-    c.id,
-    c.image_url
-  FROM public.creations c
-  WHERE c.is_public = TRUE
-  ORDER BY c.created_at DESC
-  LIMIT 12;
-END;
-$$ LANGUAGE plpgsql;
--- Grant access to anonymous and authenticated users
-GRANT EXECUTE ON FUNCTION public.get_public_creations() TO anon, authenticated;
-
 
 -- ========= TABLE: feedback =========
 -- Collects user feedback with encrypted content.
