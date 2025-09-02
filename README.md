@@ -57,16 +57,22 @@ npm install
 
 ### 4. Set Up Your Gemini API Key (Required)
 
-This application requires a Google Gemini API key to function. The key **must** be provided via the `API_KEY` environment variable.
+This application requires a Google Gemini API key to function.
 
 1.  **Get your API Key**:
     -   If you don't have one, go to [**Google AI Studio**](https://aistudio.google.com/app/apikey).
     -   Click **"Create API key in new project"**.
     -   Copy your newly generated API key.
 
-2.  **Configure the Environment Variable**:
-    -   The application is hardcoded to read the key from `process.env.API_KEY`.
-    -   You must ensure that this environment variable is set in your deployment or development environment. The application will show an error in the header if the key is not found.
+2.  **Create an Environment File**:
+    -   In the root directory of the project, create a new file named `.env.local`.
+
+3.  **Add Your API Key**:
+    -   Open the `.env.local` file and add the following line, replacing `your_api_key_here` with the key you just copied:
+    ```
+    GEMINI_API_KEY=your_api_key_here
+    ```
+    -   The application will automatically load this key. If the key is missing or invalid, an error will be shown in the header's API Status indicator.
 
 > **Note on Supabase Credentials**: The Supabase URL and anonymous key are pre-configured in `src/services/supabaseClient.ts` to ensure a stable connection for development. No action is needed for this part.
 

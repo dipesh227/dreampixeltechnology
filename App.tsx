@@ -30,14 +30,15 @@ const App: React.FC = () => {
 
   const { session } = useAuth();
 
+  // This effect runs ONLY ONCE when the app first loads to check static connections.
   useEffect(() => {
-    const checkAllConnections = async () => {
+    const checkInitialConnections = async () => {
         setApiKeyStatus('validating');
         setApiKeyError(null);
         setDbStatus('connecting');
         setDbError(null);
 
-        // Check API Status based on current config
+        // Check API Status - this is based on environment config, not session.
         try {
             const apiResult = await aiService.checkCurrentApiStatus();
             setApiKeyStatus(apiResult.status);
@@ -50,7 +51,7 @@ const App: React.FC = () => {
             setApiKeyError(error.message || 'An unknown error occurred during API validation.');
         }
 
-        // Check Database Connection
+        // Check Database Connection - this is also based on config, not session.
         try {
             const dbResult = await checkDatabaseConnection();
             setDbStatus(dbResult.isConnected ? 'connected' : 'error');
@@ -64,8 +65,8 @@ const App: React.FC = () => {
         }
     };
 
-    checkAllConnections();
-  }, [session]);
+    checkInitialConnections();
+  }, []); // Empty dependency array ensures this runs only once on mount.
   
   useEffect(() => {
     const baseTitle = "DreamPixel Technology";

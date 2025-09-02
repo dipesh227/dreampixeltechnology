@@ -6,7 +6,7 @@ import { RateLimitError } from "./errors";
 const getAiClient = (apiKeyOverride?: string) => {
     const apiKey = apiKeyOverride || apiConfigService.getApiKey();
     if (!apiKey) {
-        throw new Error("API key is not configured. Please ensure the API_KEY environment variable is set.");
+        throw new Error("API key is not configured. Please ensure the GEMINI_API_KEY environment variable is set.");
     }
     return new GoogleGenAI({ apiKey });
 };
@@ -14,7 +14,7 @@ const getAiClient = (apiKeyOverride?: string) => {
 const handleGeminiError = (error: unknown): Error => {
     if (error instanceof Error) {
         if (error.message.includes('API key not valid')) {
-            return new Error("Invalid Gemini API Key. Please ensure the API_KEY environment variable is set correctly.");
+            return new Error("Invalid Gemini API Key. Please ensure the GEMINI_API_KEY environment variable is set correctly.");
         }
         if (error.message.includes('429') || error.message.includes('RESOURCE_EXHAUSTED')) {
             return new RateLimitError("Rate limit exceeded. You've made too many requests to the Gemini API recently. Please wait a minute and try again.");
