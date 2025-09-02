@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
-// FIX: Changed to type-only import to resolve potential module resolution issues with Session and User types.
 import type { Session, User } from '@supabase/supabase-js';
 import useSWR from 'swr';
 
@@ -46,10 +45,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: profile } = useSWR(userId ? ['profile', userId] : null, ([_, id]) => fetcher('profiles', id));
 
     useEffect(() => {
-        // FIX: Rewrote session fetching and state change listener to be more robust
-        // and align with standard supabase-js v2 patterns. This addresses errors about
-        // getSession and onAuthStateChange not existing, likely due to a tooling issue,
-        // by getting the initial session and then subscribing to changes.
         const setAuthState = (currentSession: Session | null) => {
             setSession(currentSession);
             setUser(currentSession?.user ?? null);
@@ -110,14 +105,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         authError,
     };
 
-    // FIX: Added the missing return statement. The component was previously not
-    // returning any JSX, which caused a type error.
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// FIX: Added the missing 'useAuth' hook export. This custom hook provides a
-// convenient way for components to access the authentication context, resolving
-// the "has no exported member 'useAuth'" errors across the application.
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {

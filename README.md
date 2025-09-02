@@ -40,7 +40,7 @@ Follow these instructions to set up and run the project locally.
 
 -   [Node.js](https://nodejs.org/) (v18.x or later)
 -   A [Supabase](https://supabase.com/) account (the free tier is sufficient).
--   A [Google Cloud](https://console.cloud.google.com/) account for setting up OAuth.
+-   A Google Gemini API Key.
 
 ### 2. Clone the Repository
 
@@ -55,12 +55,32 @@ cd <repository_directory>
 npm install
 ```
 
-### 4. Configuration (Pre-configured)
+### 4. Set Up Your Gemini API Key (Required)
 
-This application is designed to work out of the box for development and testing.
+This application requires a Google Gemini API key to function. You must configure this key for the application to work.
 
--   **Google Gemini API Key**: A default development key is pre-configured in `src/services/apiConfigService.ts`. You can start using the app immediately. For a more stable experience, you can replace the placeholder key in that file with your own.
--   **Supabase Credentials**: The Supabase URL and anonymous key are pre-configured in `src/services/supabaseClient.ts` to ensure a stable connection.
+1.  **Get your API Key**:
+    -   Go to [**Google AI Studio**](https://aistudio.google.com/app/apikey).
+    -   Click **"Create API key in new project"**.
+    -   Copy your newly generated API key.
+
+2.  **Add the key to the application**:
+    -   Open the file: `src/services/apiConfigService.ts`.
+    -   Find the constant named `DEFAULT_API_KEY`.
+    -   Replace the placeholder string `"INSERT_YOUR_API_KEY_HERE"` with your actual API key.
+
+    ```typescript
+    // src/services/apiConfigService.ts
+
+    // ... (other code)
+
+    // IMPORTANT: Replace the placeholder with your actual key
+    const DEFAULT_API_KEY = "YOUR_SECRET_GEMINI_API_KEY"; // 👈 PASTE YOUR KEY HERE
+
+    // ... (other code)
+    ```
+
+> **Note on Supabase Credentials**: The Supabase URL and anonymous key are pre-configured in `src/services/supabaseClient.ts` to ensure a stable connection for development. No action is needed for this part.
 
 ### 5. Set Up Supabase Database
 

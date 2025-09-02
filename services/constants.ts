@@ -141,6 +141,38 @@ export const CREATOR_STYLES: CreatorStyles = {
         creatorStyle: 'Extremely cute, colorful, and cheerful baking content. Features adorable creations, pastel colors, and a very bright, clean aesthetic.',
         mood: 'Sweet, Cheerful, Whimsical',
         imageStyle: 'Bright and even lighting, high saturation, pastel color palette, clean kitchen background, focus on cute details.'
+    },
+    {
+      id: 'valkyrae',
+      name: 'Valkyrae',
+      tags: 'Gaming & Energetic',
+      creatorStyle: 'High-energy streamer style, often with a competitive edge. Clean graphics, branding (100 Thieves), and a focus on expressive reactions during gameplay.',
+      mood: 'Energetic, Competitive, Fun',
+      imageStyle: 'Vibrant lighting from monitors and LEDs, clean backgrounds, dynamic poses, high-contrast visuals.'
+    },
+    {
+      id: 'huda-beauty',
+      name: 'Huda Beauty',
+      tags: 'Glamour & Makeup',
+      creatorStyle: 'Ultra-polished, glamorous makeup tutorials and product showcases. A very luxurious and aspirational feel. Focus on flawless application and dramatic looks.',
+      mood: 'Luxurious, Confident, Flawless',
+      imageStyle: 'Perfect softbox studio lighting, macro beauty shots, rich and saturated color palettes, often with a clean, high-end background.'
+    },
+    {
+      id: 'michelle-khare',
+      name: 'Michelle Khare',
+      tags: 'Challenge & Transformation',
+      creatorStyle: 'Documents intense training and transformation challenges. Thumbnails often show a dramatic "before and after" or her in peak action. A very cinematic and inspiring style.',
+      mood: 'Determined, Inspiring, Epic',
+      imageStyle: 'Cinematic color grading, action shots with motion blur, high-contrast lighting to emphasize physicality, powerful poses.'
+    },
+    {
+      id: 'liza-koshy',
+      name: 'Liza Koshy',
+      tags: 'Comedy & High-Energy',
+      creatorStyle: 'Fast-paced, pun-filled, physical comedy. Thumbnails are extremely expressive and often use a wide-angle lens for comedic distortion. Bright, saturated, and chaotic.',
+      mood: 'Goofy, Hyper-energetic, Hilarious',
+      imageStyle: 'Bright, high-key lighting, saturated colors, wide-angle lens effects, exaggerated facial expressions and dynamic poses.'
     }
   ],
    indianMale: [
@@ -193,12 +225,36 @@ export const CREATOR_STYLES: CreatorStyles = {
         imageStyle: 'Natural outdoor lighting, warm color palette, focus on character interaction.'
     },
     {
-        id: 'gaurav-chaudhary',
-        name: 'Gaurav Chaudhary',
-        tags: 'Tech & Lifestyle',
-        creatorStyle: 'A blend of high-end tech and luxury lifestyle. Clean, premium aesthetic. Often features luxury cars, high-end gadgets, and a confident pose.',
-        mood: 'Aspirational, Premium, Informative',
-        imageStyle: 'Crisp, high-end commercial photography look, clean lighting, focus on luxury details.'
+      id: 'dhruv-rathee',
+      name: 'Dhruv Rathee',
+      tags: 'Informative & Clean',
+      creatorStyle: 'Educational and investigative content. Thumbnails are clean, minimalist, and data-driven, often featuring him alongside graphs, maps, or key images.',
+      mood: 'Serious, Informative, Trustworthy',
+      imageStyle: 'Clean studio lighting, minimalist graphics, professional and serious expression, often uses a blue and white color palette.'
+    },
+    {
+      id: 'flying-beast',
+      name: 'Flying Beast',
+      tags: 'Vlogging & Family',
+      creatorStyle: 'Lifestyle and family vlogging with a focus on fitness and daily life. Thumbnails are warm, authentic, and happy, featuring his family.',
+      mood: 'Wholesome, Relatable, Positive',
+      imageStyle: 'Natural, bright lighting, warm color tones, candid family photos, genuine smiles.'
+    },
+    {
+      id: 'techno-gamerz',
+      name: 'Techno Gamerz',
+      tags: 'Gaming & Exciting',
+      creatorStyle: 'Gameplay-focused content, especially GTA. Thumbnails are bright, action-packed, and often feature in-game characters or vehicles with his expressive facecam reaction.',
+      mood: 'Exciting, Fun, Action-Packed',
+      imageStyle: 'Vibrant, saturated colors from the game, bold text overlays, high-contrast, expressive facecam cutout.'
+    },
+    {
+      id: 'harsh-beniwal',
+      name: 'Harsh Beniwal',
+      tags: 'Comedy & Relatable',
+      creatorStyle: 'Character-driven comedy sketches about everyday life and friendships. Thumbnails depict funny, relatable situations with exaggerated expressions.',
+      mood: 'Humorous, Relatable, "Desi"',
+      imageStyle: 'Naturalistic lighting, often outdoor or in a home setting, focus on character interactions and comedic poses.'
     }
   ],
   indianFemale: [
@@ -233,6 +289,54 @@ export const CREATOR_STYLES: CreatorStyles = {
         creatorStyle: 'Bright, clean, and informative beauty and DIY content. Often features before-and-after shots, product close-ups, and a very clear, instructional layout.',
         mood: 'Helpful, Bright, Clean',
         imageStyle: 'Bright and even studio lighting, high-key photography, vibrant and clean color palette.'
+    },
+    {
+      id: 'vidya-vox',
+      name: 'Vidya Vox',
+      tags: 'Music & Fusion',
+      creatorStyle: 'High-production music videos blending Indian and Western styles. Thumbnails are cinematic, colorful, and often set in beautiful, scenic locations.',
+      mood: 'Artistic, Energetic, Global',
+      imageStyle: 'Cinematic lighting and color grading, vibrant costumes, stunning natural or architectural backgrounds, dynamic and artistic poses.'
+    },
+    {
+      id: 'kabitas-kitchen',
+      name: "Kabita's Kitchen",
+      tags: 'Cooking & Simple',
+      creatorStyle: 'Simple, homely, and easy-to-follow Indian recipes. Thumbnails are clean, bright, and focus on the delicious final dish. Very approachable.',
+      mood: 'Appetizing, Homely, Trustworthy',
+      imageStyle: 'Bright, clean overhead lighting (flat lay), focus on the texture of the food, simple and uncluttered background, warm and inviting feel.'
+    },
+    {
+      id: 'shruti-anand',
+      name: 'Shruti Arjun Anand',
+      tags: 'Comedy & Beauty',
+      creatorStyle: 'A mix of relatable family comedy sketches and practical beauty/DIY content. Thumbnails are bright, expressive, and clearly communicate the video\'s topic.',
+      mood: 'Funny, Helpful, Relatable',
+      imageStyle: 'Bright, even lighting (often a ring light), clear product shots or expressive character poses, vibrant color palette.'
+    },
+    {
+      id: 'kusha-kapila',
+      name: 'Kusha Kapila',
+      tags: 'Satire & Comedy',
+      creatorStyle: 'Satirical comedy sketches, often playing exaggerated characters like "Billi Maasi". Thumbnails are bold, expressive, and fashion-conscious.',
+      mood: 'Witty, Sassy, Hilarious',
+      imageStyle: 'Studio or well-lit home setup, focus on exaggerated character expressions, often uses bold text and has a slightly editorial feel.'
+    },
+    {
+      id: 'ankita-chhetri',
+      name: 'Ankita Chhetri',
+      tags: 'Gaming & Lifestyle',
+      creatorStyle: 'Gaming streams and lifestyle content with a cool, edgy vibe. Thumbnails often feature her in a gaming setup with neon lights.',
+      mood: 'Energetic, Cool, Focused',
+      imageStyle: 'Neon or RGB lighting from a gaming setup, moody and high-contrast, focus on intense or happy expressions during gameplay.'
+    },
+    {
+      id: 'tanya-khanijow',
+      name: 'Tanya Khanijow',
+      tags: 'Travel & Adventure',
+      creatorStyle: 'Cinematic solo travel vlogs. Thumbnails are beautiful, aspirational, and showcase stunning landscapes with her often in the frame.',
+      mood: 'Adventurous, Inspiring, Beautiful',
+      imageStyle: 'Warm, golden-hour lighting, cinematic color grading, epic landscape compositions, candid and joyful poses.'
     }
   ]
 };
@@ -243,8 +347,20 @@ export const POLITICAL_PARTIES: PoliticalParty[] = [
     { id: 'aap', name: 'AAP', logoPrompt: "a broom symbol", colorScheme: "blue and white", ideologyPrompt: "honesty, anti-corruption, and the empowerment of the common person (Aam Aadmi)" },
     { id: 'tmc', name: 'TMC', logoPrompt: "two flowers with leaves", colorScheme: "green and white", ideologyPrompt: "regional pride, grassroots activism, and the spirit of Bengal" },
     { id: 'dmk', name: 'DMK', logoPrompt: "a rising sun symbol", colorScheme: "black and red", ideologyPrompt: "social justice, Dravidian identity, and regional autonomy" },
-    { id: 'independent-india', name: 'Independent (India)', logoPrompt: "the Indian National Flag (the Tiranga) and its elements", colorScheme: "saffron, white, and green", ideologyPrompt: "national unity, patriotism, and direct citizen representation" },
-    { id: 'non-political', name: 'Non-Political', logoPrompt: "no specific political logo; instead, use a subtle and modern circular emblem or no logo at all for a clean look", colorScheme: "a neutral, professional, and appealing color scheme like deep blues, greys, and whites" }
+    { 
+      id: 'independent-india', 
+      name: 'Independent (India)', 
+      logoPrompt: "the Indian National Flag (the Tiranga) and its elements", 
+      colorScheme: "saffron, white, and green", 
+      ideologyPrompt: "focus on the individual as a citizen leader, community engagement, patriotism, and direct citizen representation, rather than party politics." 
+    },
+    { 
+      id: 'personal-community', 
+      name: 'Personal / Community', 
+      logoPrompt: "no specific political logo; instead, use a subtle and modern circular emblem or no logo at all for a clean look", 
+      colorScheme: "a neutral, professional, and appealing color scheme like deep blues, greys, and whites",
+      ideologyPrompt: "This is for a personal or community announcement, NOT a political campaign. The tone should be professional, celebratory, or informational. Avoid all political symbols, slogans, and imagery. Focus on themes like personal achievement, community events, or professional branding."
+    }
 ];
 
 export const POSTER_STYLES: PosterStyle[] = [
