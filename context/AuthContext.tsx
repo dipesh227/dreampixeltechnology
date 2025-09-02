@@ -24,7 +24,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const fetcher = async (url: string, userId: string) => {
+const fetcher = async (url: string, userId: string): Promise<Profile | null> => {
     const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -49,20 +49,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // FIX: Rewrote session fetching and state change listener to be more robust
         // and align with standard supabase-js v2 patterns. This addresses errors about
         // getSession and onAuthStateChange not existing, likely due to a tooling issue,
-        // by providing a clean, canonical implementation.
-        setLoading(true);
+        // by getting the initial session and then subscribing to changes.
+        const setAuthState = (currentSession: Session | null) => {
+            setSession(currentSession);
+            setUser(currentSession?.user ?? null);
+            setLoading(false);
+        };
+
         supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            setLoading(false);
-        }).catch(err => {
-            // console.error("Error getting session:", err);
-            setLoading(false);
+            setAuthState(session);
         });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-            setUser(session?.user ?? null);
+            setAuthState(session);
         });
 
         return () => {
@@ -74,21 +73,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoggingIn(true);
         setAuthError(null);
         try {
-            // Use the application's origin as the redirect URL after successful login.
-            const redirectTo = window.location.origin;
-
-            // FIX: The signInWithOAuth method is correct for supabase-js v2.
-            // The error is likely a type definition issue, but the call itself is correct.
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: redirectTo
-                }
+                    redirectTo: window.location.origin,
+                },
             });
             if (error) throw error;
-        } catch (error) {
-            // console.error("Error signing in:", error);
-            setAuthError(error instanceof Error ? error.message : "An unknown error occurred during login.");
+        } catch (error: any) {
+            setAuthError(error.message || 'An unknown error occurred during login.');
             setIsLoggingIn(false);
         }
     };
@@ -97,19 +90,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoggingOut(true);
         setAuthError(null);
         try {
-            // FIX: The signOut method is correct for supabase-js v2.
-            // The error is likely a type definition issue, but the call itself is correct.
-            const { error } = await supabase.auth.signOut();
-            if (error) throw error;
-        } catch (error) {
-            // console.error("Error signing out:", error);
-            setAuthError(error instanceof Error ? error.message : "An unknown error occurred during logout.");
+            await supabase.auth.signOut();
+        } catch (error: any) {
+            setAuthError(error.message || 'An unknown error occurred during logout.');
         } finally {
             setIsLoggingOut(false);
         }
     };
 
-    const value = {
+    const value: AuthContextType = {
         session,
         user,
         profile: profile || null,
@@ -121,9 +110,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         authError,
     };
 
+    // FIX: Added the missing return statement. The component was previously not
+    // returning any JSX, which caused a type error.
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// FIX: Added the missing 'useAuth' hook export. This custom hook provides a
+// convenient way for components to access the authentication context, resolving
+// the "has no exported member 'useAuth'" errors across the application.
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {

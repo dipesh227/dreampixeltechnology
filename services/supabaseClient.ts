@@ -1,9 +1,7 @@
-
-
 import { createClient } from '@supabase/supabase-js';
 
 // --- Supabase Configuration ---
-// Hardcoded credentials to resolve environment variable loading issues.
+// FIX: Hardcoded credentials to resolve environment variable loading issues.
 const supabaseUrl = "https://ftsvupbnmvphphvwzxha.supabase.co";
 const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c3Z1cGJubXZwaHBodnd6eGhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzI3OTAsImV4cCI6MjA3MjMwODc5MH0.zSrEpRrmZNUPIM0wlaz2Kih8aSfcdbX1zXa9kDO8xK8";
 
@@ -24,9 +22,8 @@ if (!areSupabaseKeysSet()) {
 }
 
 // Initialize and export the Supabase client
-// Note: This will throw an error if the keys are not set, which is intended.
 // The main application entry point (index.tsx) checks for keys before rendering the app,
-// so we use the non-null assertion operator (!) to satisfy TypeScript.
+// so we can be confident these will exist when the client is created.
 export const supabase = createClient(supabaseUrl!, supabaseAnonKey!);
 
 /**

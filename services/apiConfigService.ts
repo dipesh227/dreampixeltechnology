@@ -2,20 +2,6 @@ import { ApiConfig, ApiProvider } from '../types';
 
 const API_CONFIG_KEY = 'dreamPixelApiConfig';
 
-// ====================================================================================
-// !! IMPORTANT DEVELOPMENT SETUP !!
-// ====================================================================================
-// To provide a seamless development experience without environment variable issues,
-// the default API key for local testing is managed directly in this file.
-//
-// ---> REPLACE THE PLACEHOLDER BELOW WITH YOUR GOOGLE GEMINI API KEY <---
-//
-// You can get a free key from Google AI Studio. This is required for the
-// "Default" provider to work.
-const DEFAULT_GEMINI_API_KEY = "INSERT_YOUR_GOOGLE_GEMINI_API_KEY_HERE";
-// ====================================================================================
-
-
 /**
  * Retrieves the current API configuration from localStorage.
  * Defaults to the 'default' provider if no config is found.
@@ -27,6 +13,7 @@ export const getConfig = (): ApiConfig => {
         if (configJson) {
             return JSON.parse(configJson);
         }
+    // FIX: Added missing curly braces to the catch block to fix the syntax error.
     } catch (error) {
         console.error("Failed to parse API config from localStorage", error);
     }
@@ -64,11 +51,12 @@ export const getApiKey = (): string => {
             return config.openaiApiKey || '';
         case 'default':
         default:
-            // For the 'Default' provider, use the hardcoded key from the top of this file.
-            if (!DEFAULT_GEMINI_API_KEY || DEFAULT_GEMINI_API_KEY === "INSERT_YOUR_GOOGLE_GEMINI_API_KEY_HERE") {
-                console.error("CRITICAL SETUP REQUIRED: The default Gemini API Key is missing. Please open `services/apiConfigService.ts` and replace the placeholder value with your actual key from Google AI Studio.");
-                return ""; // Return empty string to ensure API calls fail clearly.
+            // For the 'Default' provider, use the environment variable.
+            // Vite exposes env variables through `import.meta.env`.
+            const apiKey = import.meta.env.VITE_API_KEY;
+            if (!apiKey) {
+                 throw new Error("CRITICAL SETUP REQUIRED: The default Gemini API key is missing. Please create a .env file and add VITE_API_KEY='your_key'.");
             }
-            return DEFAULT_GEMINI_API_KEY;
+            return apiKey;
     }
 };

@@ -36,6 +36,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         openrouter: 'idle' as ValidationStatus,
         openai: 'idle' as ValidationStatus
     });
+    const [saveError, setSaveError] = useState<string | null>(null);
 
     useEffect(() => {
         const savedConfig = apiConfigService.getConfig();
@@ -86,17 +87,44 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
 
     const handleProviderChange = (provider: ApiProvider) => {
         setConfig(prev => ({ ...prev, provider }));
+        setSaveError(null);
     };
 
     const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>, keyName: 'geminiApiKey' | 'openRouterApiKey' | 'openaiApiKey') => {
         const { value } = e.target;
         setApiKeys(prev => ({ ...prev, [keyName]: value }));
+        setSaveError(null);
     };
     
     const handleSave = () => {
+        setSaveError(null);
+        const provider = config.provider;
+
+        if (provider === 'gemini' && (validationStatus.gemini !== 'valid' || !apiKeys.geminiApiKey)) {
+            setSaveError("Please enter a valid custom Gemini API key to save.");
+            return;
+        }
+        if (provider === 'openrouter' && (validationStatus.openrouter !== 'valid' || !apiKeys.openRouterApiKey)) {
+            setSaveError("Please enter a valid OpenRouter API key to save.");
+            return;
+        }
+        if (provider === 'openai' && (validationStatus.openai !== 'valid' || !apiKeys.openaiApiKey)) {
+            setSaveError("Please enter a valid OpenAI API key to save.");
+            return;
+        }
+
         apiConfigService.saveConfig({ ...config, ...apiKeys });
         onClose();
     };
+
+    const isSaveDisabled = () => {
+        const provider = config.provider;
+        if (provider === 'gemini') return !apiKeys.geminiApiKey || validationStatus.gemini === 'invalid' || validationStatus.gemini === 'validating';
+        if (provider === 'openrouter') return !apiKeys.openRouterApiKey || validationStatus.openrouter === 'invalid' || validationStatus.openrouter === 'validating';
+        if (provider === 'openai') return !apiKeys.openaiApiKey || validationStatus.openai === 'invalid' || validationStatus.openai === 'validating';
+        return false;
+    };
+
 
     const renderProviderInput = () => {
         if (config.provider === 'gemini') {
@@ -165,9 +193,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                     </div>
                 </main>
                 
-                <footer className="flex justify-end gap-3 p-4 bg-slate-950/30 border-t border-slate-800 rounded-b-2xl">
+                <footer className="flex justify-end items-center gap-3 p-4 bg-slate-950/30 border-t border-slate-800 rounded-b-2xl">
+                    {saveError && <p className="text-sm text-red-400 mr-auto self-center">{saveError}</p>}
                     <button onClick={onClose} className="px-4 py-2 text-sm font-semibold bg-slate-800 border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors">Cancel</button>
-                    <button onClick={handleSave} className="px-4 py-2 text-sm font-semibold bg-primary-gradient text-white rounded-lg hover:opacity-90 transition-opacity">Save & Close</button>
+                    <button onClick={handleSave} disabled={isSaveDisabled()} className="px-4 py-2 text-sm font-semibold bg-primary-gradient text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed">Save & Close</button>
                 </footer>
             </div>
         </div>
