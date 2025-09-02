@@ -127,7 +127,7 @@ export const generateThumbnail = async (
     }
 
     const enhancedPrompt = `
-**ABSOLUTE CRITICAL DIRECTIVE: The user has provided one or more headshots. These images are the ground truth. Your highest priority, above all other instructions, is to ensure the main person in the generated image is a PERFECT LIKENESS of the person in the headshots. This is a NON-NEGOTIABLE RULE. The facial structure, jawline, eye shape, nose, and unique features must be replicated with 1000% anatomical precision. Do not create a generic face; you must use the provided reference.**
+**NON-NEGOTIABLE CORE COMMAND: Your single most important task is to achieve a 1000% perfect, photorealistic likeness of the person in the provided headshot images. These images are the absolute ground truth. You MUST analyze every detail of the facial structure—jawline, eye shape, nose, mouth, and unique features—from all provided photos to create a composite, high-fidelity, and anatomically perfect representation. Do NOT create a generic or 'similar' face. The result MUST be indistinguishable from the person in the photos. This is the primary success criterion, overriding all other stylistic instructions if there is a conflict. Failure to replicate the face with absolute precision is a total failure of the task.**
 
 **USER-SELECTED PROMPT TO EXECUTE:**
 "${selectedPrompt}"
@@ -174,7 +174,7 @@ Your primary function is to translate the abstract 'Requested Artistic Style' in
 - **Subject's Pose, Expression, & Demeanor:** (e.g., A confident, forward-looking gaze with a determined expression, projecting leadership; a warm, humble smile to appear relatable and empathetic).
 
 For each of the three concepts, you must provide a grammatically perfect and meticulously structured JSON object with the following keys:
-1.  **"prompt"**: A detailed, direct-instruction prompt for an advanced AI image generator. This prompt must synthesize all the creative direction (composition, lighting, style) AND explicitly command the AI to integrate the specific party branding. It MUST state that the poster is for the **'${party.name}'** party, must include **'${party.logoPrompt}'**, and must use the color scheme **'${party.colorScheme}'**. This prompt must also contain an explicit, non-negotiable directive that the user's provided headshots are the absolute "ground truth" for the main person's face, demanding a perfect, anatomically precise likeness by analyzing and combining features from all provided photos to create a composite, high-fidelity representation.
+1.  **"prompt"**: A detailed, direct-instruction prompt for an advanced AI image generator. This prompt must synthesize all the creative direction (composition, lighting, style) AND explicitly command the AI to integrate the specific party branding. It MUST state that the poster is for the **'${party.name}'** party, must include **'${party.logoPrompt}'**, and must use the color scheme **'${party.colorScheme}'**. This prompt must also contain the following NON-NEGOTIABLE command for facial likeness: "Your single most important task is to achieve a 1000% perfect, photorealistic likeness of the person in the provided headshot images. These images are the absolute ground truth. You MUST analyze every detail of their facial structure from all provided photos to create a composite, high-fidelity, and anatomically perfect representation. Failure to replicate the face with absolute precision is a total failure of the task."
 2.  **"reason"**: A brief, expert analysis of the political communication strategy behind the concept. Explain why its specific visual language (composition, lighting, etc.) is effective for this particular campaign and target audience.
 3.  **"isRecommended"**: A boolean value. You must mark ONLY ONE concept as 'true'. This should be the concept that you, as a seasoned expert, believe is the most strategically brilliant, visually compelling, and professionally executed.
 `;
@@ -195,7 +195,7 @@ export const generatePoster = async (selectedPrompt: string, headshots: Uploaded
     }
 
     const finalPrompt = `
-**ABSOLUTE CRITICAL DIRECTIVE: The user has provided one or more headshots, potentially from different angles. These images are the ground truth. Your highest priority, above all other instructions, is to ensure the main person in the generated image is a PERFECT LIKENESS of the person in the headshots. Analyze all provided images to understand the person's facial structure from multiple viewpoints. This is a NON-NEGOTIABLE RULE. Do not create a generic person. The facial structure, jawline, eye shape, nose, and unique features must be replicated with 1000% anatomical precision.**
+**NON-NEGOTIABLE CORE COMMAND: Your single most important task is to achieve a 1000% perfect, photorealistic likeness of the person in the provided headshot images. These images are the absolute ground truth. You MUST analyze every detail of the facial structure—jawline, eye shape, nose, mouth, and unique features—from all provided photos to create a composite, high-fidelity, and anatomically perfect representation. Do NOT create a generic or 'similar' face. The result MUST be indistinguishable from the person in the photos. This is the primary success criterion, overriding all other stylistic instructions if there is a conflict. Failure to replicate the face with absolute precision is a total failure of the task.**
 
 **USER-SELECTED PROMPT TO EXECUTE:**
 "${selectedPrompt}"
@@ -242,13 +242,13 @@ Provide a grammatically perfect JSON object with a single key "concepts" which i
 export const generateAdBanner = async (selectedPrompt: string, productImage: UploadedFile, modelHeadshot: UploadedFile, headline: string, brandDetails: string, aspectRatio: AspectRatio): Promise<string | null> => {
     const allImages = [productImage, modelHeadshot];
     const finalPrompt = `
-**ABSOLUTE CRITICAL DIRECTIVE: The user has provided a product image and a model's headshot. Your highest priority, above all other instructions, is to ensure the person in the generated image is a PERFECT LIKENESS of the person in the model headshot. This is a NON-NEGOTIABLE RULE. Replicate the facial structure, jawline, and unique features with 1000% anatomical precision. Failure to do so invalidates the entire generation.**
+**NON-NEGOTIABLE CORE COMMAND: Your single most important task is to achieve a 1000% perfect, photorealistic likeness of the person in the provided model headshot. This image is the absolute ground truth. You MUST analyze every detail of the facial structure—jawline, eye shape, nose, mouth, and unique features—to create a high-fidelity, and anatomically perfect representation. Do NOT create a generic or 'similar' face. The result MUST be indistinguishable from the person in the photo. This is the primary success criterion, overriding all other stylistic instructions if there is a conflict. Failure to replicate the face with absolute precision is a total failure of the task.**
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
 
 **FINAL EXECUTION CHECKLIST (NON-NEGOTIABLE):**
-1.  **Model Likeness:** You MUST adhere to the ABSOLUTE CRITICAL DIRECTIVE above. The face must be a perfect match.
+1.  **Model Likeness:** You MUST adhere to the NON-NEGOTIABLE CORE COMMAND above. The face must be a perfect match.
 2.  **Product as Hero:** The product from the user's image must be the "hero" of the advertisement. It must be featured clearly, attractively, and seamlessly integrated into the scene as described in the creative brief.
 3.  **Headline Integration:** The headline "${headline}" must be masterfully incorporated into the design. It must be legible, stylishly typeset, and placed for maximum impact without overwhelming the visual.
 4.  **Branding Details:** You must flawlessly execute the branding instructions. Subtly and professionally incorporate the brand details: "${brandDetails}".

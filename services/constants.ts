@@ -16,81 +16,81 @@ export const CREATOR_STYLES: CreatorStyles = {
       id: 'mrbeast',
       name: 'MrBeast',
       tags: 'Bold & High-Contrast',
-      creatorStyle: 'High-energy, vibrant colors, exaggerated expressions, and a sense of scale and spectacle. Often features money, explosions, or huge objects.',
-      mood: 'Excitement, Surprise, Urgency',
-      imageStyle: 'Photorealistic, hyper-saturated, dynamic lighting, wide-angle lens effect.'
+      creatorStyle: 'Explosive, high-energy spectacle. Thumbnails are meticulously designed to be the most clickable on the platform, using vibrant colors, exaggerated surprised expressions, and a massive sense of scale. Often features stacks of cash, luxury cars, or custom-built massive objects.',
+      mood: 'Maximum Excitement, Shock, Urgency, Spectacle',
+      imageStyle: 'Ultra-realistic photo, 8k resolution. Shot with a wide-angle lens (14mm) to create dramatic perspective distortion. Lighting is harsh and high-contrast, like a commercial studio setup, with dramatic highlights and deep shadows to make the subject pop. Hyper-saturated color grading with boosted vibrancy. Motion blur and particle effects (sparks, dust) are common.'
     },
     {
       id: 'mkbhd',
       name: 'MKBHD',
       tags: 'Minimalist & Techy',
-      creatorStyle: 'Sleek, minimalist, and clean aesthetic. Focus on product photography with clean lines, dark backgrounds, and precise lighting. Often uses matte black and red accents.',
-      mood: 'Sophisticated, Professional, Minimalist',
-      imageStyle: 'Studio product photography, high-detail, cinematic lighting, shallow depth of field.'
+      creatorStyle: 'Sleek, minimalist, and premium tech aesthetic. Focus on flawless product photography with clean lines, dark matte backgrounds, and precise lighting that highlights texture and form. The brand colors of matte black and red are paramount.',
+      mood: 'Sophisticated, Professional, Minimalist, Premium',
+      imageStyle: 'Ultra-realistic studio product photo, 8k. Captured with a 50mm prime lens for a natural perspective. Lighting is soft and diffused, often from a large softbox, creating subtle gradients. Cinematic color grading with deep blacks and a specific red accent (#ff0000). Extremely shallow depth of field to isolate the subject.'
     },
     {
         id: 'casey-neistat',
         name: 'Casey Neistat',
         tags: 'Scrapbook & Authentic',
-        creatorStyle: 'Gritty, authentic, scrapbook-style visuals. Often uses handwritten text, doodles, and a slightly desaturated, urban color palette. Focus on storytelling.',
-        mood: 'Authentic, Energetic, Raw',
-        imageStyle: 'Action shots, natural lighting, high-contrast, often with a cinematic and candid feel.'
+        creatorStyle: 'Gritty, authentic, scrapbook-style visuals that feel raw and in-the-moment. Often uses handwritten text, doodles, and a slightly desaturated, urban color palette. Focus on telling a story with a single image.',
+        mood: 'Authentic, Energetic, Raw, Unfiltered',
+        imageStyle: 'Realistic photo that looks like a frame from a vlog. Shot with a slight wide-angle lens, featuring natural, often harsh, daylight. High-contrast, slightly desaturated color grade with a bit of film grain to add texture. The composition is often candid and unposed.'
     },
     {
       id: 'pewdiepie',
       name: 'PewDiePie',
       tags: 'Meme & Abstract',
-      creatorStyle: 'Often chaotic, meme-focused, and surreal. Can range from simple reaction faces to highly edited, bizarre compositions. A slightly distorted, DIY aesthetic.',
-      mood: 'Ironic, Comedic, Unpredictable',
-      imageStyle: 'Mixed media, sometimes grainy, high-contrast, eclectic and colorful lighting.'
+      creatorStyle: 'Often chaotic, meme-focused, and surreal. Can range from simple reaction faces to highly edited, bizarre compositions. A slightly distorted, DIY aesthetic that feels intentionally low-fi at times.',
+      mood: 'Ironic, Comedic, Unpredictable, Surreal',
+      imageStyle: 'Mixed media look, often a composite of a real photo with graphic elements. The photo part is high-contrast, sometimes with a grainy or pixelated texture. Lighting is vibrant and can be mismatched to enhance the chaotic feel. Often uses a fish-eye lens effect for comedic distortion.'
     },
     {
         id: 'ali-abdaal',
         name: 'Ali Abdaal',
         tags: 'Productivity & Clean',
-        creatorStyle: 'Clean, bright, and organized. Often features Notion screenshots, book covers, and a light, airy aesthetic. Uses pastel colors and clear iconography.',
-        mood: 'Productive, Inspiring, Calm',
-        imageStyle: 'Bright and clean lighting, minimalist composition, use of graphics and text overlays.'
+        creatorStyle: 'Clean, bright, and organized aesthetic focused on productivity and learning. Often features screenshots of apps like Notion, book covers, and a light, airy visual style. Uses soft pastel colors and clear iconography.',
+        mood: 'Productive, Inspiring, Calm, Organized',
+        imageStyle: 'Bright and airy high-key photo. Lighting is even and shadowless, as if from a large window. The composition is minimalist and well-balanced (often rule of thirds). The color palette is light, with pastel accents. The image is sharp and clean with no grain.'
     },
     {
         id: 'linus-tech-tips',
         name: 'Linus Tech Tips',
         tags: 'Tech & In-Depth',
-        creatorStyle: 'Tech-focused, informative, and often humorous. Features hardware close-ups, custom PC builds, and expressive faces. Orange and black are common brand colors.',
-        mood: 'Informative, Enthusiastic, In-Depth',
-        imageStyle: 'Studio lighting, sharp focus on components, dynamic angles, expressive portraits.'
+        creatorStyle: 'Tech-focused, informative, and often humorous. Features hardware close-ups, custom PC builds, and expressive, sometimes goofy, faces. Orange, black, and white are key brand colors.',
+        mood: 'Informative, Enthusiastic, In-Depth, Humorous',
+        imageStyle: 'Crisp and clean studio photo. Lighting is professional and designed to eliminate glare on tech components. The composition is dynamic, often using diagonal lines. Color grading features a distinct orange and teal look. The focus is tack-sharp on the main subject.'
     },
     {
         id: 'mark-rober',
         name: 'Mark Rober',
         tags: 'Science & Engineering',
-        creatorStyle: 'Fun, educational, and epic science/engineering builds. Features explosions, crazy contraptions, and a sense of wonder. Bright and high-energy visuals.',
-        mood: 'Exciting, Educational, Epic',
-        imageStyle: 'Action photography, vibrant colors, clear shots of engineering projects, often outdoors.'
+        creatorStyle: 'Fun, educational, and epic science/engineering builds. Features explosions, crazy contraptions, and a sense of wonder. Visuals are bright, high-energy, and clearly showcase the main invention.',
+        mood: 'Exciting, Educational, Epic, Awe-Inspiring',
+        imageStyle: 'High-speed action photo, captured with a fast shutter speed to freeze motion. Lighting is typically bright, natural outdoor sunlight. Colors are vibrant and saturated to create a fun, family-friendly feel. The composition is wide to capture the scale of the projects.'
     },
     {
         id: 'logan-paul',
         name: 'Logan Paul',
         tags: 'High-Energy & Pop',
-        creatorStyle: 'Extremely high-energy, pop-culture-centric style. Bright, often neon, colors and a very polished, almost commercial look. Action poses and dramatic expressions are key.',
-        mood: 'Energetic, Bold, Sensational',
-        imageStyle: 'Commercial photography look, high-saturation, crisp details, often with motion blur or dramatic lighting effects.'
+        creatorStyle: 'Extremely high-energy, pop-culture-centric style with a very polished, almost commercial look. Action poses, dramatic expressions, and bright, often neon, colors are key.',
+        mood: 'Energetic, Bold, Sensational, Polished',
+        imageStyle: 'Ultra-polished commercial photo, 8k resolution. Lighting is dramatic and high-contrast, often using colored gels (like blue and pink). High saturation and crisp details are essential. The composition often includes motion blur or dynamic lines to enhance energy.'
     },
     {
         id: 'mrwhosetheboss',
         name: 'Mrwhosetheboss',
         tags: 'Tech & Dynamic',
-        creatorStyle: 'Dynamic and engaging tech reviews. Often features creative compositions, floating products, and a sense of motion. Clean but visually interesting backgrounds.',
-        mood: 'Intriguing, Techy, Polished',
-        imageStyle: 'Cinematic, dramatic lighting on products, shallow depth of field, often incorporates glowing lines or abstract tech elements.'
+        creatorStyle: 'Dynamic and engaging tech reviews with a highly cinematic feel. Often features creative compositions, floating products, and a sense of motion. Clean but visually interesting backgrounds are a must.',
+        mood: 'Intriguing, Techy, Polished, Cinematic',
+        imageStyle: 'Cinematic, moody photo. Lighting is dramatic, often a single key light from the side to create suspense. The background features an extremely shallow depth of field with beautiful bokeh. The color palette is often dark with a single vibrant accent color. May incorporate glowing lines or abstract tech elements.'
     },
     {
         id: 'dude-perfect',
         name: 'Dude Perfect',
         tags: 'Sports & Action',
-        creatorStyle: 'Epic-scale sports and action shots. Wide-angle views, high-speed photography, and a sense of camaraderie and fun. Bright, clean, and family-friendly.',
-        mood: 'Epic, Fun, Action-Packed',
-        imageStyle: 'High-shutter-speed photography, bright outdoor lighting, vibrant colors, dynamic team poses.'
+        creatorStyle: 'Epic-scale sports and action shots featuring incredible trick shots. Wide-angle views, high-speed photography, and a sense of camaraderie and fun. Bright, clean, and family-friendly.',
+        mood: 'Epic, Fun, Action-Packed, Unbelievable',
+        imageStyle: 'Ultra-realistic action photo, captured with a very high shutter speed to freeze the moment. Lighting is bright, sunny outdoor light. Colors are vibrant and clean. The composition is dynamic, often using a low angle to make the action feel larger than life.'
     }
   ],
   internationalFemale: [
@@ -98,81 +98,81 @@ export const CREATOR_STYLES: CreatorStyles = {
       id: 'emma-chamberlain',
       name: 'Emma Chamberlain',
       tags: 'Vlog & Aesthetic',
-      creatorStyle: 'Authentic, candid, and relatable. Often has a vintage or film-like quality. Casual poses, natural lighting, and a focus on everyday moments.',
-      mood: 'Relaxed, Authentic, Aesthetic',
-      imageStyle: 'Film grain, warm tones, natural lighting, slightly desaturated color palette, candid composition.'
+      creatorStyle: 'Authentic, candid, and relatable with a vintage or film-like quality. Casual poses, natural lighting, and a focus on everyday, unpolished moments. Feels personal and diary-like.',
+      mood: 'Relaxed, Authentic, Aesthetic, Nostalgic',
+      imageStyle: 'Realistic photo that looks shot on 35mm film. Features noticeable film grain, warm tones, and a slightly faded, desaturated color palette. Lighting is soft and natural, often from a window. The composition is unposed and feels like a captured moment.'
     },
     {
         id: 'ijustine',
         name: 'iJustine',
         tags: 'Tech & Unboxing',
-        creatorStyle: 'Bright, cheerful, and enthusiastic tech reviews and unboxings. Clean backgrounds, often featuring Apple products. A very positive and high-energy vibe.',
-        mood: 'Enthusiastic, Fun, Techy',
-        imageStyle: 'Bright studio lighting, vibrant colors (especially purple), clean product shots, expressive reactions.'
+        creatorStyle: 'Bright, cheerful, and enthusiastic tech reviews and unboxings. Clean backgrounds, often featuring Apple products. A very positive and high-energy vibe. Purple is a key brand color.',
+        mood: 'Enthusiastic, Fun, Techy, Joyful',
+        imageStyle: 'Bright, high-key studio photo. The lighting is even and shadowless, creating a clean, commercial look. Colors are vibrant and highly saturated. The composition is centered and clear, with a sharp focus on the product and her excited expression.'
     },
     {
         id: 'lilly-singh',
         name: 'Lilly Singh',
         tags: 'Comedy & Vibrant',
-        creatorStyle: 'Bold, colorful, and comedic. Often features character sketches, expressive faces, and vibrant, pop-art inspired backgrounds. High energy and confidence.',
-        mood: 'Humorous, Confident, Energetic',
-        imageStyle: 'Studio lighting, saturated colors, dynamic poses, often with graphic elements.'
+        creatorStyle: 'Bold, colorful, and comedic. Often features character sketches, highly expressive faces, and vibrant, pop-art inspired backgrounds. Conveys high energy and confidence.',
+        mood: 'Humorous, Confident, Energetic, Bold',
+        imageStyle: 'Vibrant studio photo with theatrical, multi-colored lighting (using gels). Colors are hyper-saturated, creating a pop-art feel. The composition is dynamic and posed for comedy. The image is sharp, glossy, and high-resolution.'
     },
     {
         id: 'pokimane',
         name: 'Pokimane',
         tags: 'Gaming & Streamer',
         creatorStyle: 'Friendly and engaging streamer aesthetic. Often features a gaming setup, cute branding elements, and a warm, inviting atmosphere. Poses are typically friendly and approachable.',
-        mood: 'Friendly, Cute, Engaging',
-        imageStyle: 'Soft, diffused lighting (like from a ring light), warm color tones, often with a clean or stylized gaming room background.'
+        mood: 'Friendly, Cute, Engaging, Cozy',
+        imageStyle: 'Soft, diffused photo, lit as if by a large ring light to create a flattering "beauty" light. The color tones are warm and inviting. The background is her clean gaming room, softly blurred with a shallow depth of field (bokeh).'
     },
     {
         id: 'safiya-nygaard',
         name: 'Safiya Nygaard',
         tags: 'Experimental & Themed',
         creatorStyle: 'Themed and experimental content, often with a slightly gothic or vintage twist. High-concept visuals that match the video\'s experiment. Very polished and well-produced.',
-        mood: 'Curious, Theatrical, Polished',
-        imageStyle: 'Cinematic and often dramatic lighting, color palettes that match the video\'s theme, high-resolution and detailed shots.'
+        mood: 'Curious, Theatrical, Polished, Mysterious',
+        imageStyle: 'Cinematic and moody photo. The lighting is dramatic and theme-specific (e.g., deep reds for a spooky video). The color palette is carefully controlled to match the video\'s theme. The image is high-resolution, with sharp details and a composed, intriguing expression.'
     },
     {
         id: 'rosanna-pansino',
         name: 'Rosanna Pansino',
         tags: 'Baking & Cute',
-        creatorStyle: 'Extremely cute, colorful, and cheerful baking content. Features adorable creations, pastel colors, and a very bright, clean aesthetic.',
-        mood: 'Sweet, Cheerful, Whimsical',
-        imageStyle: 'Bright and even lighting, high saturation, pastel color palette, clean kitchen background, focus on cute details.'
+        creatorStyle: 'Extremely cute, colorful, and cheerful baking content. Features adorable creations, pastel colors, and a very bright, clean aesthetic. The mood is overwhelmingly sweet and whimsical.',
+        mood: 'Sweet, Cheerful, Whimsical, Adorable',
+        imageStyle: 'Bright, high-key photo with even, shadowless lighting. The color palette is hyper-saturated with pastel colors. The composition is often a flat lay or a clean shot in a pristine kitchen. The focus is tack-sharp on the cute details of the baked goods.'
     },
     {
       id: 'valkyrae',
       name: 'Valkyrae',
       tags: 'Gaming & Energetic',
-      creatorStyle: 'High-energy streamer style, often with a competitive edge. Clean graphics, branding (100 Thieves), and a focus on expressive reactions during gameplay.',
-      mood: 'Energetic, Competitive, Fun',
-      imageStyle: 'Vibrant lighting from monitors and LEDs, clean backgrounds, dynamic poses, high-contrast visuals.'
+      creatorStyle: 'High-energy streamer style, often with a competitive and cool edge. Clean graphics, branding (100 Thieves), and a focus on expressive reactions during gameplay are central.',
+      mood: 'Energetic, Competitive, Cool, Focused',
+      imageStyle: 'High-contrast photo with vibrant RGB/neon lighting from monitors and LED strips, creating colored rim lights. The background is dark to make the colors pop. The composition is dynamic, and her expression is focused and competitive.'
     },
     {
       id: 'huda-beauty',
       name: 'Huda Beauty',
       tags: 'Glamour & Makeup',
-      creatorStyle: 'Ultra-polished, glamorous makeup tutorials and product showcases. A very luxurious and aspirational feel. Focus on flawless application and dramatic looks.',
-      mood: 'Luxurious, Confident, Flawless',
-      imageStyle: 'Perfect softbox studio lighting, macro beauty shots, rich and saturated color palettes, often with a clean, high-end background.'
+      creatorStyle: 'Ultra-polished, glamorous makeup tutorials and product showcases. A very luxurious and aspirational feel. Focus on flawless application, dramatic looks, and high-end products.',
+      mood: 'Luxurious, Confident, Flawless, Glamorous',
+      imageStyle: 'Ultra-realistic beauty photo, 8k, like a magazine cover. The lighting is perfect, soft, and shadowless, often from a large softbox or beauty dish. The shot is a macro close-up to show flawless detail. The colors are rich and saturated, and the background is clean and high-end.'
     },
     {
       id: 'michelle-khare',
       name: 'Michelle Khare',
       tags: 'Challenge & Transformation',
-      creatorStyle: 'Documents intense training and transformation challenges. Thumbnails often show a dramatic "before and after" or her in peak action. A very cinematic and inspiring style.',
-      mood: 'Determined, Inspiring, Epic',
-      imageStyle: 'Cinematic color grading, action shots with motion blur, high-contrast lighting to emphasize physicality, powerful poses.'
+      creatorStyle: 'Documents intense training and transformation challenges. Thumbnails often show a dramatic "before and after" or her in peak action. The style is cinematic and inspiring.',
+      mood: 'Determined, Inspiring, Epic, Powerful',
+      imageStyle: 'Cinematic action photo. The lighting is dramatic and low-key to sculpt muscles and create a gritty feel. The color grade is cinematic (e.g., desaturated with high contrast). The shot often has motion blur to convey action, and her pose is powerful and determined.'
     },
     {
       id: 'liza-koshy',
       name: 'Liza Koshy',
       tags: 'Comedy & High-Energy',
       creatorStyle: 'Fast-paced, pun-filled, physical comedy. Thumbnails are extremely expressive and often use a wide-angle lens for comedic distortion. Bright, saturated, and chaotic.',
-      mood: 'Goofy, Hyper-energetic, Hilarious',
-      imageStyle: 'Bright, high-key lighting, saturated colors, wide-angle lens effects, exaggerated facial expressions and dynamic poses.'
+      mood: 'Goofy, Hyper-energetic, Hilarious, Chaotic',
+      imageStyle: 'Bright, slightly overexposed photo with high-key lighting. Colors are hyper-saturated. A wide-angle lens (e.g., 16mm) is used up close to create comedic distortion. Her facial expression is exaggerated and goofy, and the pose is highly dynamic.'
     }
   ],
    indianMale: [
@@ -180,81 +180,81 @@ export const CREATOR_STYLES: CreatorStyles = {
       id: 'technical-guruji',
       name: 'Technical Guruji',
       tags: 'Tech & Informative',
-      creatorStyle: 'Direct-to-camera presentation with the tech product clearly visible. Bright, clean lighting. Often includes brand logos or box art in the background.',
-      mood: 'Informative, Trustworthy, Clear',
-      imageStyle: 'Bright studio lighting, sharp focus on product, slightly saturated colors.'
+      creatorStyle: 'Direct-to-camera presentation with the tech product clearly and professionally displayed. Bright, clean lighting. Often includes brand logos or box art in the background.',
+      mood: 'Informative, Trustworthy, Clear, Professional',
+      imageStyle: 'Clean, commercial studio photo. The lighting is bright and even, eliminating all shadows. The focus is tack-sharp on both his face and the product. Colors are true-to-life but slightly saturated. The pose is direct, confident, and trustworthy.'
     },
     {
         id: 'carryminati',
         name: 'CarryMinati',
         tags: 'Gaming & Expressive',
-        creatorStyle: 'Highly expressive and comedic reactions. Often features gaming setups, headphones, and dynamic, colorful backgrounds. Exaggerated facial expressions are key.',
-        mood: 'Humorous, Energetic, Relatable',
-        imageStyle: 'Dramatic lighting, high contrast, saturated colors, often with a slight fisheye effect to enhance comedy.'
+        creatorStyle: 'Highly expressive and comedic reactions, often during gaming or roasts. Features gaming setups, headphones, and dynamic, colorful backgrounds. Exaggerated facial expressions are key.',
+        mood: 'Humorous, Energetic, Relatable, Outrageous',
+        imageStyle: 'High-contrast photo, often a close-up shot with a wide-angle lens for comedic effect. The lighting is dramatic, with colored RGB lights creating a moody, energetic feel. His expression is highly animated and exaggerated. The background is often dark to make him pop.'
     },
     {
         id: 'bhuvan-bam',
         name: 'BB Ki Vines',
         tags: 'Comedy & Characters',
-        creatorStyle: 'Character-driven comedy. Thumbnails often feature multiple characters (played by him) in one frame, showcasing a funny situation. Relatable, middle-class Indian settings.',
-        mood: 'Comedic, Story-driven, Relatable',
-        imageStyle: 'Naturalistic lighting, composite photography, highly expressive character poses.'
+        creatorStyle: 'Character-driven comedy. Thumbnails often feature multiple characters (played by him) in one frame, showcasing a funny situation. Relatable, middle-class Indian settings are central.',
+        mood: 'Comedic, Story-driven, Relatable, "Desi"',
+        imageStyle: 'Realistic composite photo. The lighting is naturalistic, mimicking a real Indian home environment. Multiple versions of him in different character costumes are seamlessly blended. The expressions are key to telling the story of the skit.'
     },
     {
         id: 'ashish-chanchlani',
         name: 'Ashish Chanchlani',
         tags: 'Slapstick & Vibrant',
-        creatorStyle: 'Loud, vibrant, and slapstick comedy. Thumbnails are extremely colorful and feature over-the-top expressions and situations. Bold, Hindi text is common.',
-        mood: 'Hilarious, Loud, Exaggerated',
-        imageStyle: 'Hyper-saturated colors, dramatic wide-angle shots, high-energy compositions.'
+        creatorStyle: 'Loud, vibrant, and slapstick comedy. Thumbnails are extremely colorful and feature over-the-top expressions and situations. Bold, Hindi text is a common feature.',
+        mood: 'Hilarious, Loud, Exaggerated, Entertaining',
+        imageStyle: 'Hyper-saturated photo with vibrant, almost neon colors. A dramatic wide-angle lens is used to create a dynamic, high-energy composition. The lighting is bright and high-contrast. His expression is over-the-top and slapstick.'
     },
     {
         id: 'sandeep-maheshwari',
         name: 'Sandeep Maheshwari',
         tags: 'Motivational & Minimal',
-        creatorStyle: 'Minimalist and impactful. Often a powerful portrait shot with a simple, clean background and a single line of inspiring text. Focus is on the expression.',
-        mood: 'Inspirational, Calm, Profound',
-        imageStyle: 'Professional portrait lighting, clean and uncluttered backgrounds, often monochrome or with a simple color scheme.'
+        creatorStyle: 'Minimalist and impactful. Often a powerful portrait shot with a simple, clean background and a single line of inspiring text. The focus is on his calm and profound expression.',
+        mood: 'Inspirational, Calm, Profound, Serene',
+        imageStyle: 'Professional portrait photo. The lighting is a classic three-point studio setup, creating a sculpted, professional look. The background is clean and uncluttered (often gray or white). The color scheme is often monochromatic or has a simple, desaturated look.'
     },
     {
         id: 'amit-bhadana',
         name: 'Amit Bhadana',
         tags: 'Rural Comedy & Desi',
-        creatorStyle: 'Focus on "Desi" or rural/local comedy. Thumbnails often depict relatable, funny scenarios from everyday Indian life. Warm, natural tones.',
-        mood: 'Funny, Rooted, Authentic',
-        imageStyle: 'Natural outdoor lighting, warm color palette, focus on character interaction.'
+        creatorStyle: 'Focus on "Desi" or rural/local comedy, using Haryanvi dialect. Thumbnails often depict relatable, funny scenarios from everyday North Indian life. Warm, natural tones.',
+        mood: 'Funny, Rooted, Authentic, Relatable',
+        imageStyle: 'Naturalistic photo, shot as if in a real village or local setting. The lighting is warm, mimicking natural sunlight. The color palette is earthy and authentic. The focus is on the humorous interaction between characters.'
     },
     {
       id: 'dhruv-rathee',
       name: 'Dhruv Rathee',
       tags: 'Informative & Clean',
-      creatorStyle: 'Educational and investigative content. Thumbnails are clean, minimalist, and data-driven, often featuring him alongside graphs, maps, or key images.',
-      mood: 'Serious, Informative, Trustworthy',
-      imageStyle: 'Clean studio lighting, minimalist graphics, professional and serious expression, often uses a blue and white color palette.'
+      creatorStyle: 'Educational and investigative content. Thumbnails are clean, minimalist, and data-driven, often featuring him alongside graphs, maps, or key journalistic images. The look is serious and credible.',
+      mood: 'Serious, Informative, Trustworthy, Investigative',
+      imageStyle: 'Clean, professional photo, similar to a news broadcast. The lighting is bright and even. He has a serious, trustworthy expression. The composition includes minimalist graphics, charts, or maps. The color palette is often a clean blue and white.'
     },
     {
       id: 'flying-beast',
       name: 'Flying Beast',
       tags: 'Vlogging & Family',
-      creatorStyle: 'Lifestyle and family vlogging with a focus on fitness and daily life. Thumbnails are warm, authentic, and happy, featuring his family.',
-      mood: 'Wholesome, Relatable, Positive',
-      imageStyle: 'Natural, bright lighting, warm color tones, candid family photos, genuine smiles.'
+      creatorStyle: 'Lifestyle and family vlogging with a focus on fitness, travel, and daily life. Thumbnails are warm, authentic, and happy, featuring his family in relatable situations.',
+      mood: 'Wholesome, Relatable, Positive, Heartwarming',
+      imageStyle: 'Bright, happy photo with natural daylight. The color grade is warm and inviting, enhancing skin tones. The composition is a candid family photo, full of genuine smiles and affection. Shot with a shallow depth of field to create a soft background.'
     },
     {
       id: 'techno-gamerz',
       name: 'Techno Gamerz',
       tags: 'Gaming & Exciting',
-      creatorStyle: 'Gameplay-focused content, especially GTA. Thumbnails are bright, action-packed, and often feature in-game characters or vehicles with his expressive facecam reaction.',
-      mood: 'Exciting, Fun, Action-Packed',
-      imageStyle: 'Vibrant, saturated colors from the game, bold text overlays, high-contrast, expressive facecam cutout.'
+      creatorStyle: 'Gameplay-focused content, especially GTA and other story-mode games. Thumbnails are bright, action-packed, and often feature in-game characters or vehicles with his expressive facecam reaction.',
+      mood: 'Exciting, Fun, Action-Packed, Mysterious',
+      imageStyle: 'Vibrant, high-contrast composite image. The background is a dramatic, action-filled scene from the game. Colors are hyper-saturated. His face is a high-quality cutout with an excited or shocked expression. Bold, glowing text is often used.'
     },
     {
       id: 'harsh-beniwal',
       name: 'Harsh Beniwal',
       tags: 'Comedy & Relatable',
-      creatorStyle: 'Character-driven comedy sketches about everyday life and friendships. Thumbnails depict funny, relatable situations with exaggerated expressions.',
-      mood: 'Humorous, Relatable, "Desi"',
-      imageStyle: 'Naturalistic lighting, often outdoor or in a home setting, focus on character interactions and comedic poses.'
+      creatorStyle: 'Character-driven comedy sketches about school/college life, friendships, and family. Thumbnails depict funny, relatable situations with exaggerated yet authentic expressions.',
+      mood: 'Humorous, Relatable, "Desi", Youthful',
+      imageStyle: 'Naturalistic photo that looks like a scene from the video. The lighting matches the environment (e.g., classroom, home). The color is true-to-life. The main focus is on the funny, exaggerated interactions and expressions of the characters.'
     }
   ],
   indianFemale: [
@@ -262,81 +262,81 @@ export const CREATOR_STYLES: CreatorStyles = {
         id: 'mostly-sane',
         name: 'Prajakta Koli',
         tags: 'Comedy & Relatable',
-        creatorStyle: 'Relatable, slice-of-life comedy. Often features everyday settings and characters. Natural lighting and a warm, approachable feel are common.',
-        mood: 'Funny, Relatable, Warm',
-        imageStyle: 'Natural lighting, expressive but not overly exaggerated poses, warm color tones.'
+        creatorStyle: 'Relatable, slice-of-life comedy often featuring everyday settings and characters. Natural lighting and a warm, approachable feel are common. The look is authentic and not overly produced.',
+        mood: 'Funny, Relatable, Warm, Charming',
+        imageStyle: 'Natural, realistic photo. The lighting is soft and warm, as if from a window. The color grade is true-to-life with a slight warmth. The setting is a typical Indian home. Her expression is expressive and friendly.'
     },
     {
         id: 'shirley-setia',
         name: 'Shirley Setia',
         tags: 'Music & Soft',
-        creatorStyle: 'Soft, dreamy, and musical aesthetic. Often features a guitar or microphone. A very pleasant and friendly vibe with a focus on soft visuals.',
-        mood: 'Dreamy, Sweet, Musical',
-        imageStyle: 'Soft, diffused lighting, often with a bokeh background, pastel or warm color palette.'
+        creatorStyle: 'Soft, dreamy, and musical aesthetic. Often features a guitar or microphone. A very pleasant and friendly vibe with a focus on soft, almost ethereal visuals.',
+        mood: 'Dreamy, Sweet, Musical, Gentle',
+        imageStyle: 'Ethereal photo with soft, diffused backlighting to create a glowing halo effect. The shot has a very shallow depth of field, resulting in a beautifully blurred background with bokeh. The color palette is pastel and warm. Her expression is sweet and gentle.'
     },
     {
         id: 'sejal-kumar',
         name: 'Sejal Kumar',
         tags: 'Fashion & Lifestyle',
-        creatorStyle: 'Fashion-forward and aesthetic. Thumbnails look like they could be from a fashion magazine. Poses are confident and stylish. Clean, often urban backgrounds.',
-        mood: 'Fashionable, Confident, Aesthetic',
-        imageStyle: 'Magazine-style photography, often using natural light creatively, clean compositions.'
+        creatorStyle: 'Fashion-forward and aesthetic. Thumbnails look like they could be from a high-end fashion magazine. Poses are confident and stylish. Backgrounds are often clean or urban.',
+        mood: 'Fashionable, Confident, Aesthetic, Chic',
+        imageStyle: 'Editorial fashion photo. The lighting is high-contrast but flattering, like professional magazine photography. The composition is strong and follows fashion posing conventions. The color grade is modern and can be either desaturated or have a specific artistic tint.'
     },
     {
         id: 'anaysa',
         name: 'Anaysa',
         tags: 'Beauty & DIY',
-        creatorStyle: 'Bright, clean, and informative beauty and DIY content. Often features before-and-after shots, product close-ups, and a very clear, instructional layout.',
-        mood: 'Helpful, Bright, Clean',
-        imageStyle: 'Bright and even studio lighting, high-key photography, vibrant and clean color palette.'
+        creatorStyle: 'Bright, clean, and informative beauty and DIY content. Often features before-and-after shots, product close-ups, and a very clear, instructional layout. Aims to be helpful and trustworthy.',
+        mood: 'Helpful, Bright, Clean, Trustworthy',
+        imageStyle: 'Bright, high-key photo with even, shadowless lighting from a ring light. The background is clean and white or pastel. Colors are vibrant and pop. The composition is often a split-screen for before/after, with tack-sharp focus.'
     },
     {
       id: 'vidya-vox',
       name: 'Vidya Vox',
       tags: 'Music & Fusion',
-      creatorStyle: 'High-production music videos blending Indian and Western styles. Thumbnails are cinematic, colorful, and often set in beautiful, scenic locations.',
-      mood: 'Artistic, Energetic, Global',
-      imageStyle: 'Cinematic lighting and color grading, vibrant costumes, stunning natural or architectural backgrounds, dynamic and artistic poses.'
+      creatorStyle: 'High-production music videos blending Indian and Western styles. Thumbnails are cinematic, colorful, and often set in beautiful, scenic locations, showcasing fashion.',
+      mood: 'Artistic, Energetic, Global, Cinematic',
+      imageStyle: 'Vibrant, cinematic photo from a music video. The lighting is professional and dramatic, with lens flares. The color grading is rich and saturated. The background is an epic, scenic location. Her pose is dynamic, powerful, and artistic.'
     },
     {
       id: 'kabitas-kitchen',
       name: "Kabita's Kitchen",
       tags: 'Cooking & Simple',
-      creatorStyle: 'Simple, homely, and easy-to-follow Indian recipes. Thumbnails are clean, bright, and focus on the delicious final dish. Very approachable.',
-      mood: 'Appetizing, Homely, Trustworthy',
-      imageStyle: 'Bright, clean overhead lighting (flat lay), focus on the texture of the food, simple and uncluttered background, warm and inviting feel.'
+      creatorStyle: 'Simple, homely, and easy-to-follow Indian recipes. Thumbnails are clean, bright, and focus on the delicious final dish. The style is very approachable and makes cooking look easy.',
+      mood: 'Appetizing, Homely, Trustworthy, Simple',
+      imageStyle: 'Clean, appetizing food photo. The lighting is bright and even, often a flat lay (overhead shot) to clearly show the dish. The focus is tack-sharp on the food\'s texture. The background is simple and uncluttered, and the colors are warm and inviting.'
     },
     {
       id: 'shruti-anand',
       name: 'Shruti Arjun Anand',
       tags: 'Comedy & Beauty',
-      creatorStyle: 'A mix of relatable family comedy sketches and practical beauty/DIY content. Thumbnails are bright, expressive, and clearly communicate the video\'s topic.',
-      mood: 'Funny, Helpful, Relatable',
-      imageStyle: 'Bright, even lighting (often a ring light), clear product shots or expressive character poses, vibrant color palette.'
+      creatorStyle: 'A mix of relatable family comedy sketches and practical beauty/DIY content. Thumbnails are bright, expressive, and clearly communicate the video\'s topic, whether it\'s a funny situation or a beauty tip.',
+      mood: 'Funny, Helpful, Relatable, Family-Oriented',
+      imageStyle: 'Bright, high-key photo. The lighting is even and flattering, often from a softbox or ring light. The colors are vibrant and saturated. Her expression is highly animated for comedy skits or pleasant and clear for beauty videos.'
     },
     {
       id: 'kusha-kapila',
       name: 'Kusha Kapila',
       tags: 'Satire & Comedy',
-      creatorStyle: 'Satirical comedy sketches, often playing exaggerated characters like "Billi Maasi". Thumbnails are bold, expressive, and fashion-conscious.',
-      mood: 'Witty, Sassy, Hilarious',
-      imageStyle: 'Studio or well-lit home setup, focus on exaggerated character expressions, often uses bold text and has a slightly editorial feel.'
+      creatorStyle: 'Satirical comedy sketches, often playing exaggerated, fashion-conscious characters like "Billi Maasi". Thumbnails are bold, expressive, and have an editorial quality.',
+      mood: 'Witty, Sassy, Hilarious, Fashionable',
+      imageStyle: 'Polished, editorial-style photo. The lighting is professional studio quality. The composition is clean and focuses on her exaggerated character expression. The color grading is modern and fashion-forward. Often uses bold, well-designed text overlays.'
     },
     {
       id: 'ankita-chhetri',
       name: 'Ankita Chhetri',
       tags: 'Gaming & Lifestyle',
-      creatorStyle: 'Gaming streams and lifestyle content with a cool, edgy vibe. Thumbnails often feature her in a gaming setup with neon lights.',
-      mood: 'Energetic, Cool, Focused',
-      imageStyle: 'Neon or RGB lighting from a gaming setup, moody and high-contrast, focus on intense or happy expressions during gameplay.'
+      creatorStyle: 'Gaming streams and lifestyle content with a cool, edgy, and sometimes "e-girl" vibe. Thumbnails often feature her in a gaming setup with neon lights, looking focused or having fun.',
+      mood: 'Energetic, Cool, Focused, Edgy',
+      imageStyle: 'Moody, high-contrast photo. The lighting is dominated by neon/RGB lights from a gaming setup, creating deep shadows and vibrant colored highlights. Her expression is focused and intense or happy and engaging. The image has a sharp, digital feel.'
     },
     {
       id: 'tanya-khanijow',
       name: 'Tanya Khanijow',
       tags: 'Travel & Adventure',
-      creatorStyle: 'Cinematic solo travel vlogs. Thumbnails are beautiful, aspirational, and showcase stunning landscapes with her often in the frame.',
-      mood: 'Adventurous, Inspiring, Beautiful',
-      imageStyle: 'Warm, golden-hour lighting, cinematic color grading, epic landscape compositions, candid and joyful poses.'
+      creatorStyle: 'Cinematic solo travel vlogs. Thumbnails are beautiful, aspirational, and showcase stunning landscapes with her often in the frame, looking adventurous and happy.',
+      mood: 'Adventurous, Inspiring, Beautiful, Free-spirited',
+      imageStyle: 'Breathtaking landscape photo with high dynamic range. The lighting is warm and natural, often captured during the golden hour (sunrise/sunset). The color grading is cinematic, enhancing the beauty of the scene. She is composed within the epic landscape (e.g., rule of thirds) with a joyful, candid expression.'
     }
   ]
 };
