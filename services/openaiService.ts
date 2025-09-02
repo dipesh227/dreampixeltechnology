@@ -1,5 +1,6 @@
 import { AspectRatio } from '../types';
 import * as apiConfigService from './apiConfigService';
+import { RateLimitError } from './errors';
 
 /**
  * Handles specific OpenAI API errors and provides user-friendly messages.
@@ -15,7 +16,7 @@ const handleOpenAIError = async (response: Response): Promise<Error> => {
             return new Error("Invalid OpenAI API Key. Please check your key in API Settings.");
         }
         if (response.status === 429) {
-            return new Error("OpenAI API rate limit or quota exceeded. Please check your account usage and try again later.");
+            return new RateLimitError("OpenAI API rate limit or quota exceeded. Please wait and try again. For higher limits, consider adding your own key in API Settings.");
         }
          if (response.status === 400 && errorMessage.includes('billing')) {
             return new Error("Your OpenAI account has a billing issue. Please check your OpenAI dashboard.");
@@ -30,6 +31,32 @@ const handleOpenAIError = async (response: Response): Promise<Error> => {
     }
 };
 
+const fetchWithRetries = async (url: string, options: RequestInit): Promise<Response> => {
+    const maxRetries = 2;
+    const initialDelay = 1500;
+    let attempt = 0;
+
+    while (attempt <= maxRetries) {
+        const response = await fetch(url, options);
+
+        if (response.ok) {
+            return response;
+        }
+        
+        const handledError = await handleOpenAIError(response);
+
+        if (attempt >= maxRetries || !(handledError instanceof RateLimitError)) {
+            throw handledError;
+        }
+        
+        const delay = initialDelay * Math.pow(2, attempt);
+        console.warn(`OpenAI API rate limit hit. Retrying in ${delay}ms... (Attempt ${attempt + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        attempt++;
+    }
+    throw new Error("Exceeded max retries for OpenAI fetch. This should not happen.");
+};
+
 /**
  * Generates text using the OpenAI API with gpt-4-turbo.
  * @param prompt The prompt to send to the AI.
@@ -42,7 +69,7 @@ export const generateText = async (prompt: string): Promise<string> => {
     }
 
     try {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        const response = await fetchWithRetries("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
@@ -57,10 +84,6 @@ export const generateText = async (prompt: string): Promise<string> => {
                 response_format: { type: "json_object" }
             })
         });
-
-        if (!response.ok) {
-            throw await handleOpenAIError(response);
-        }
 
         const result = await response.json();
         const content = result?.choices?.[0]?.message?.content;
@@ -116,7 +139,7 @@ export const generateImage = async (prompt: string, aspectRatio: AspectRatio): P
     }
 
     try {
-        const response = await fetch("https://api.openai.com/v1/images/generations", {
+        const response = await fetchWithRetries("https://api.openai.com/v1/images/generations", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
@@ -131,10 +154,6 @@ export const generateImage = async (prompt: string, aspectRatio: AspectRatio): P
                 response_format: "b64_json"
             })
         });
-
-        if (!response.ok) {
-            throw await handleOpenAIError(response);
-        }
 
         const result = await response.json();
         const base64Image = result?.data?.[0]?.b64_json;
@@ -172,8 +191,13 @@ export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean
         if (response.status === 401) return { isValid: false, error: "Invalid API Key." };
         if (response.ok) return { isValid: true };
         
-        const errorData = await response.json();
-        return { isValid: false, error: errorData?.error?.message || "Validation failed." };
+        const handledError = await handleOpenAIError(response);
+        if (handledError instanceof RateLimitError) {
+            // Don't treat rate limit on validation as an invalid key
+            return { isValid: true, error: 'Validation rate limited, assuming key is valid for now.' };
+        }
+        
+        return { isValid: false, error: handledError.message || "Validation failed." };
     } catch (e) {
         return { isValid: false, error: "Network error during validation." };
     }

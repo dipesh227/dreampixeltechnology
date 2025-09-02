@@ -6,6 +6,7 @@ import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
 import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb, HiOutlineArrowPath, HiClipboardDocument } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
+import ErrorMessage from './ErrorMessage';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -14,6 +15,7 @@ interface SocialMediaPostGeneratorProps {
     onPostGenerated: () => void;
     onGenerating: (isGenerating: boolean) => void;
     apiProvider: ApiProvider;
+    onOpenSettings: () => void;
 }
 
 const platforms = {
@@ -28,7 +30,7 @@ type Platform = keyof typeof platforms;
 
 const tones = ["Professional", "Casual", "Humorous", "Inspirational", "Informative"];
 
-const SocialMediaPostGenerator: React.FC<SocialMediaPostGeneratorProps> = ({ onPostGenerated, onGenerating, apiProvider }) => {
+const SocialMediaPostGenerator: React.FC<SocialMediaPostGeneratorProps> = ({ onNavigateHome, onPostGenerated, onGenerating, apiProvider, onOpenSettings }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     
@@ -286,7 +288,7 @@ const SocialMediaPostGenerator: React.FC<SocialMediaPostGeneratorProps> = ({ onP
     
     return (
         <div className="animate-fade-in">
-            {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg mb-6 max-w-4xl mx-auto">{error}</div>}
+            <ErrorMessage error={error} onOpenSettings={onOpenSettings} />
             {step === 'input' && renderInputStep()}
             {(step === 'promptSelection' || step === 'generating' || step === 'result') && (
                 <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">

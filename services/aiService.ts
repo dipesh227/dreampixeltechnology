@@ -1,10 +1,13 @@
 
+
+
 import { Type } from "@google/genai";
 import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ApiProvider, ValidationStatus } from '../types';
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
 import * as openRouterService from './openRouterService';
 import * as openaiService from './openaiService';
+import { RateLimitError } from "./errors";
 
 const CONCEPTS_SCHEMA = {
     type: Type.OBJECT,
@@ -45,6 +48,44 @@ const SOCIAL_CONCEPTS_SCHEMA = {
     required: ["concepts"],
 };
 
+/**
+ * Executes an AI service call with an automatic fallback mechanism.
+ * If the primary 'default' provider fails with a rate limit error, it
+ * attempts to use the 'openrouter' provider as a backup.
+ */
+async function resilientExecutor<T>(
+    providerCalls: {
+        default: () => Promise<T>,
+        gemini: () => Promise<T>,
+        openrouter: () => Promise<T>,
+        openai: () => Promise<T>
+    }
+): Promise<T> {
+    const config = apiConfigService.getConfig();
+    const primaryCall = providerCalls[config.provider] || providerCalls.default;
+    
+    try {
+        return await primaryCall();
+    } catch (error) {
+        const canFallback = !!config.openRouterApiKey;
+        // If the primary call was the 'default' provider, it failed with a rate limit,
+        // and we have an OpenRouter key configured, then we can attempt a fallback.
+        if (config.provider === 'default' && error instanceof RateLimitError && canFallback) {
+            console.warn("Default provider rate limited. Attempting fallback to OpenRouter...");
+            try {
+                // Manually call the openrouter function
+                return await providerCalls.openrouter();
+            } catch (fallbackError) {
+                console.error("Fallback to OpenRouter also failed:", fallbackError);
+                // Throw the original error, as it's more relevant to the user's initial action.
+                throw error;
+            }
+        }
+        // For any other error, or if fallback is not possible, re-throw.
+        throw error;
+    }
+}
+
 
 const parseAndValidateConcepts = (jsonText: string): GeneratedConcept[] => {
     try {
@@ -84,8 +125,6 @@ const parseAndValidateConcepts = (jsonText: string): GeneratedConcept[] => {
 
 
 export const generatePrompts = async (description: string, style: CreatorStyle): Promise<GeneratedConcept[]> => {
-    const config = apiConfigService.getConfig();
-    
     const fullPrompt = `
 You are a PhD-level viral content strategist and a world-class YouTube thumbnail designer. Your primary mission is to generate three strategically distinct and compelling thumbnail concepts that will maximize the click-through rate (CTR) for a given video.
 
@@ -114,33 +153,17 @@ For each of the three concepts, you must provide a grammatically perfect JSON ob
 3.  **"isRecommended"**: A boolean value. Mark ONLY ONE concept as 'true'. This must be the concept you, as an expert, believe has the absolute highest potential for virality.
 `;
 
-    try {
-        let jsonText: string;
-        switch (config.provider) {
-            case 'openrouter':
-                jsonText = await openRouterService.generateText(fullPrompt);
-                break;
-            case 'openai':
-                jsonText = await openaiService.generateText(fullPrompt);
-                break;
-            case 'gemini':
-            case 'default':
-            default:
-                jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
-                break;
-        }
-        return parseAndValidateConcepts(jsonText);
-    } catch (error) {
-        console.error("Error generating thumbnail prompts:", error);
-        throw error;
-    }
+    return resilientExecutor({
+        default:    async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA)),
+        gemini:     async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA)),
+        openrouter: async () => parseAndValidateConcepts(await openRouterService.generateText(fullPrompt)),
+        openai:     async () => parseAndValidateConcepts(await openaiService.generateText(fullPrompt)),
+    });
 };
 
 export const generateThumbnail = async (
     selectedPrompt: string, headshots: UploadedFile[], style: CreatorStyle, aspectRatio: AspectRatio, thumbnailText?: string, brandDetails?: string
 ): Promise<string | null> => {
-    const config = apiConfigService.getConfig();
-    
     let textInstruction = "CRITICAL: Do NOT include any text, letters, or numbers in the image unless explicitly told to. The image must be purely visual.";
     if (thumbnailText && thumbnailText.trim()) {
         textInstruction = `CRITICAL: Incorporate the following text prominently and stylistically on the thumbnail: "${thumbnailText}". Choose a bold, readable font that matches the overall mood.`;
@@ -168,26 +191,19 @@ export const generateThumbnail = async (
   - Image Style: ${style.imageStyle}
 `;
     
-    try {
-        switch (config.provider) {
-            case 'openrouter':
-                return await openRouterService.generateImage(enhancedPrompt, headshots);
-            case 'openai':
-                // DALL-E 3 doesn't use input images for likeness, so we don't pass them.
-                // The UI will show a warning to the user about this.
-                return await openaiService.generateImage(enhancedPrompt, aspectRatio);
-            case 'gemini':
-            case 'default':
-            default:
-                return await geminiNativeService.generateImage(enhancedPrompt, headshots);
-        }
-    } catch (error) {
-        console.error("Error generating thumbnail:", error);
-        throw error;
-    }
+    return resilientExecutor({
+        default:    () => geminiNativeService.generateImage(enhancedPrompt, headshots),
+        gemini:     () => geminiNativeService.generateImage(enhancedPrompt, headshots),
+        openrouter: () => openRouterService.generateImage(enhancedPrompt, headshots),
+        openai:     () => openaiService.generateImage(enhancedPrompt, aspectRatio),
+    });
 };
 
 export const generatePosterPrompts = async (party: PoliticalParty, event: string, customText: string, style: PosterStyle): Promise<GeneratedConcept[]> => {
+    const ideologyInstruction = party.ideologyPrompt 
+        ? `- **Ideological & Thematic Core:** The poster's visual language MUST reflect the party's core ideology of **'${party.ideologyPrompt}'**. This theme must subtly influence the overall mood, composition, and symbolism of the poster.`
+        : '';
+    
     const fullPrompt = `
 You are a world-class political design director and a professional campaign strategist with decades of experience in high-stakes elections. Your task is to generate three distinct, powerful, and professional political poster concepts that will create a strong emotional connection with the target audience and leave a lasting impact.
 
@@ -200,6 +216,7 @@ You are a world-class political design director and a professional campaign stra
 **NON-NEGOTIABLE Branding Mandate:**
 - **Party Logo Elements:** ${party.logoPrompt}
 - **Official Party Color Scheme:** ${party.colorScheme}
+${ideologyInstruction}
 - **CRITICAL INSTRUCTION:** The party's branding is not merely an add-on; it is the foundational visual identity of the poster. The official logo elements and color scheme must be integrated prominently, accurately, and powerfully into the overall design. The branding should be instantly recognizable and feel integral to the composition.
 
 **Your Critical Creative Task:**
@@ -210,63 +227,48 @@ Your primary function is to translate the abstract 'Requested Artistic Style' in
 - **Subject's Pose, Expression, & Demeanor:** (e.g., A confident, forward-looking gaze with a determined expression, projecting leadership; a warm, humble smile to appear relatable and empathetic).
 
 For each of the three concepts, you must provide a grammatically perfect and meticulously structured JSON object with the following keys:
-1.  **"prompt"**: A detailed, direct-instruction prompt intended for an advanced AI image generator. This prompt must command the AI to prominently feature the party's branding. It must also contain an explicit, non-negotiable directive that the user's provided headshot is the absolute "ground truth" for the main person's face, demanding a perfect, anatomically precise likeness.
+1.  **"prompt"**: A detailed, direct-instruction prompt for an advanced AI image generator. This prompt must synthesize all the creative direction (composition, lighting, style) AND explicitly command the AI to integrate the specific party branding. It MUST state that the poster is for the **'${party.name}'** party, must include **'${party.logoPrompt}'**, and must use the color scheme **'${party.colorScheme}'**. This prompt must also contain an explicit, non-negotiable directive that the user's provided headshots are the absolute "ground truth" for the main person's face, demanding a perfect, anatomically precise likeness by analyzing and combining features from all provided photos to create a composite, high-fidelity representation.
 2.  **"reason"**: A brief, expert analysis of the political communication strategy behind the concept. Explain why its specific visual language (composition, lighting, etc.) is effective for this particular campaign and target audience.
 3.  **"isRecommended"**: A boolean value. You must mark ONLY ONE concept as 'true'. This should be the concept that you, as a seasoned expert, believe is the most strategically brilliant, visually compelling, and professionally executed.
 `;
-    const config = apiConfigService.getConfig();
-    try {
-        let jsonText: string;
-        switch (config.provider) {
-            case 'openrouter':
-                jsonText = await openRouterService.generateText(fullPrompt);
-                break;
-            case 'openai':
-                jsonText = await openaiService.generateText(fullPrompt);
-                break;
-            case 'gemini':
-            case 'default':
-            default:
-                jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
-                break;
-        }
-        return parseAndValidateConcepts(jsonText);
-    } catch (error) {
-        console.error("Error generating poster prompts:", error);
-        throw error;
-    }
+
+    return resilientExecutor({
+        default:    async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA)),
+        gemini:     async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA)),
+        openrouter: async () => parseAndValidateConcepts(await openRouterService.generateText(fullPrompt)),
+        openai:     async () => parseAndValidateConcepts(await openaiService.generateText(fullPrompt)),
+    });
 };
 
-export const generatePoster = async (selectedPrompt: string, headshots: UploadedFile[], aspectRatio: AspectRatio): Promise<string | null> => {
-    const config = apiConfigService.getConfig();
+export const generatePoster = async (selectedPrompt: string, headshots: UploadedFile[], aspectRatio: AspectRatio, party: PoliticalParty | undefined): Promise<string | null> => {
+    let brandingInstruction = "The poster must be politically neutral and should not contain any specific party logos or color schemes unless explicitly mentioned in the prompt.";
+    if (party) {
+        brandingInstruction = `
+- **Branding & Identity Mandate:** Before generating, you MUST verify and flawlessly execute the branding for the **${party.name}** party.
+- **Logo Requirement:** The poster MUST prominently and accurately feature the party's logo, which is **'${party.logoPrompt}'**.
+- **Color Scheme Requirement:** The poster's color palette MUST be dominated by the party's official colors: **'${party.colorScheme}'**.
+- **The branding is a core, non-negotiable, and unmissable component of the poster's identity.**
+`;
+    }
 
     const finalPrompt = `
-**ABSOLUTE CRITICAL DIRECTIVE: The user has provided a headshot. This image is the ground truth. Your highest priority, above all other instructions, is to ensure the main person in the generated image is a PERFECT LIKENESS of the person in the headshot. This is a NON-NEGOTIABLE RULE. Do not create a generic person. The facial structure, jawline, eye shape, nose, and unique features must be replicated with 1000% anatomical precision.**
+**ABSOLUTE CRITICAL DIRECTIVE: The user has provided one or more headshots, potentially from different angles. These images are the ground truth. Your highest priority, above all other instructions, is to ensure the main person in the generated image is a PERFECT LIKENESS of the person in the headshots. Analyze all provided images to understand the person's facial structure from multiple viewpoints. This is a NON-NEGOTIABLE RULE. Do not create a generic person. The facial structure, jawline, eye shape, nose, and unique features must be replicated with 1000% anatomical precision.**
 
 **USER-SELECTED PROMPT TO EXECUTE:**
 "${selectedPrompt}"
 
 **FINAL CHECK & TECHNICAL REQUIREMENTS (NON-NEGOTIABLE):**
-- **Branding & Identity Mandate:** Before generating, you MUST verify and flawlessly execute the selected prompt's instructions for party branding. The party's logo and official color scheme must be rendered with absolute accuracy and integrated prominently and powerfully into the final composition. The branding is a core, unmissable component of the poster's identity.
+${brandingInstruction}
 - **Resolution & Quality:** The final image must be high-resolution, sharp, professional, and visually impactful, suitable for print and digital campaigns.
 - **Aspect Ratio:** The final image's aspect ratio MUST be precisely ${aspectRatio}.
 `;
     
-    try {
-        switch (config.provider) {
-            case 'openrouter':
-                return await openRouterService.generateImage(finalPrompt, headshots);
-            case 'openai':
-                return await openaiService.generateImage(finalPrompt, aspectRatio);
-            case 'gemini':
-            case 'default':
-            default:
-                return await geminiNativeService.generateImage(finalPrompt, headshots);
-        }
-    } catch (error) {
-        console.error("Error generating poster:", error);
-        throw error;
-    }
+    return resilientExecutor({
+        default:    () => geminiNativeService.generateImage(finalPrompt, headshots),
+        gemini:     () => geminiNativeService.generateImage(finalPrompt, headshots),
+        openrouter: () => openRouterService.generateImage(finalPrompt, headshots),
+        openai:     () => openaiService.generateImage(finalPrompt, aspectRatio),
+    });
 };
 
 export const generateAdConcepts = async (productDescription: string, headline: string, style: AdStyle): Promise<GeneratedConcept[]> => {
@@ -295,32 +297,15 @@ Provide a grammatically perfect JSON object with a single key "concepts" which i
 2.  **"reason"**: An expert analysis of the marketing strategy. Explain why this concept will resonate with the target audience and drive conversions.
 3.  **"isRecommended"**: A boolean value. Mark ONLY ONE concept as 'true'—the one you, as a creative genius, believe will have the highest ROI.
 `;
-    const config = apiConfigService.getConfig();
-    try {
-        let jsonText: string;
-        switch (config.provider) {
-            case 'openrouter':
-                jsonText = await openRouterService.generateText(fullPrompt);
-                break;
-            case 'openai':
-                jsonText = await openaiService.generateText(fullPrompt);
-                break;
-            case 'gemini':
-            case 'default':
-            default:
-                jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
-                break;
-        }
-        return parseAndValidateConcepts(jsonText);
-    } catch (error) {
-        console.error("Error generating ad concepts:", error);
-        throw error;
-    }
+    return resilientExecutor({
+        default:    async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA)),
+        gemini:     async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA)),
+        openrouter: async () => parseAndValidateConcepts(await openRouterService.generateText(fullPrompt)),
+        openai:     async () => parseAndValidateConcepts(await openaiService.generateText(fullPrompt)),
+    });
 };
 
 export const generateAdBanner = async (selectedPrompt: string, productImage: UploadedFile, modelHeadshot: UploadedFile, headline: string, brandDetails: string, aspectRatio: AspectRatio): Promise<string | null> => {
-    const config = apiConfigService.getConfig();
-    
     const allImages = [productImage, modelHeadshot];
     const finalPrompt = `
 **ABSOLUTE CRITICAL DIRECTIVE: The user has provided a product image and a model's headshot. Your highest priority, above all other instructions, is to ensure the person in the generated image is a PERFECT LIKENESS of the person in the model headshot. This is a NON-NEGOTIABLE RULE. Replicate the facial structure, jawline, and unique features with 1000% anatomical precision. Failure to do so invalidates the entire generation.**
@@ -338,21 +323,12 @@ export const generateAdBanner = async (selectedPrompt: string, productImage: Upl
 Execute this brief with the skill of an award-winning digital artist.
 `;
     
-    try {
-        switch (config.provider) {
-            case 'openrouter':
-                return await openRouterService.generateImage(finalPrompt, allImages);
-            case 'openai':
-                return await openaiService.generateImage(finalPrompt, aspectRatio);
-            case 'gemini':
-            case 'default':
-            default:
-                return await geminiNativeService.generateImage(finalPrompt, allImages);
-        }
-    } catch (error) {
-        console.error("Error generating ad banner:", error);
-        throw error;
-    }
+    return resilientExecutor({
+        default:    () => geminiNativeService.generateImage(finalPrompt, allImages),
+        gemini:     () => geminiNativeService.generateImage(finalPrompt, allImages),
+        openrouter: () => openRouterService.generateImage(finalPrompt, allImages),
+        openai:     () => openaiService.generateImage(finalPrompt, aspectRatio),
+    });
 };
 
 export const generateSocialPostConcepts = async (topic: string, platform: string, tone: string, style: AdStyle, callToAction?: string): Promise<GeneratedConcept[]> => {
@@ -389,32 +365,15 @@ Provide a grammatically perfect JSON object with a key "concepts" containing an 
 3.  **"reason"**: A brief, expert analysis of why this combination of visual and caption is a strong strategy for this platform and topic.
 4.  **"isRecommended"**: A boolean value. Mark ONLY ONE concept as 'true'—the one you believe will perform best.
 `;
-    const config = apiConfigService.getConfig();
-    try {
-        let jsonText: string;
-        switch (config.provider) {
-            case 'openrouter':
-                jsonText = await openRouterService.generateText(fullPrompt);
-                break;
-            case 'openai':
-                jsonText = await openaiService.generateText(fullPrompt);
-                break;
-            case 'gemini':
-            case 'default':
-            default:
-                jsonText = await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA);
-                break;
-        }
-        return parseAndValidateConcepts(jsonText);
-    } catch (error) {
-        console.error("Error generating social post concepts:", error);
-        throw error;
-    }
+    return resilientExecutor({
+        default:    async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA)),
+        gemini:     async () => parseAndValidateConcepts(await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA)),
+        openrouter: async () => parseAndValidateConcepts(await openRouterService.generateText(fullPrompt)),
+        openai:     async () => parseAndValidateConcepts(await openaiService.generateText(fullPrompt)),
+    });
 };
 
 export const generateSocialPost = async (selectedPrompt: string, aspectRatio: AspectRatio): Promise<string | null> => {
-    const config = apiConfigService.getConfig();
-    
     // This is a pure text-to-image prompt.
     const finalPrompt = `
 **Creative Brief to Execute:**
@@ -425,23 +384,12 @@ export const generateSocialPost = async (selectedPrompt: string, aspectRatio: As
 - The aspect ratio MUST be exactly ${aspectRatio}.
 `;
     
-    try {
-        switch (config.provider) {
-            // NOTE: For now, we'll route OpenRouter and OpenAI through their standard image gen functions.
-            // A more advanced implementation might use different models for pure T2I.
-            case 'openai':
-                return await openaiService.generateImage(finalPrompt, aspectRatio);
-            case 'openrouter':
-            case 'gemini':
-            case 'default':
-            default:
-                // This uses the dedicated text-to-image model
-                return await geminiNativeService.generateImageFromText(finalPrompt, aspectRatio);
-        }
-    } catch (error) {
-        console.error("Error generating social post image:", error);
-        throw error;
-    }
+    return resilientExecutor({
+        default:    () => geminiNativeService.generateImageFromText(finalPrompt, aspectRatio),
+        gemini:     () => geminiNativeService.generateImageFromText(finalPrompt, aspectRatio),
+        openrouter: () => geminiNativeService.generateImageFromText(finalPrompt, aspectRatio), // OpenRouter free model doesn't support pure T2I, so we use Gemini
+        openai:     () => openaiService.generateImage(finalPrompt, aspectRatio),
+    });
 };
 
 

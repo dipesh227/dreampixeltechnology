@@ -106,10 +106,10 @@ const App: React.FC = () => {
           </div>
         ) : (
           <>
-            {activeTool === 'thumbnail' && <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} />}
-            {activeTool === 'political' && <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} />}
-            {activeTool === 'advertisement' && <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} />}
-            {activeTool === 'social' && <SocialMediaPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} />}
+            {activeTool === 'thumbnail' && <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} onOpenSettings={handleOpenSettings} />}
+            {activeTool === 'political' && <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} onOpenSettings={handleOpenSettings} />}
+            {activeTool === 'advertisement' && <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} onOpenSettings={handleOpenSettings} />}
+            {activeTool === 'social' && <SocialMediaPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} apiProvider={apiProvider} onOpenSettings={handleOpenSettings} />}
           </>
         )}
       </main>

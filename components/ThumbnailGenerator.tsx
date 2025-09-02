@@ -6,6 +6,7 @@ import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
 import { HiArrowLeft, HiCheck, HiComputerDesktop, HiDevicePhoneMobile, HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineDocumentText, HiOutlineChatBubbleLeftRight, HiOutlineTag, HiOutlineDocumentDuplicate, HiOutlineArrowPath, HiOutlineLightBulb } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
+import ErrorMessage from './ErrorMessage';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -14,9 +15,10 @@ interface ThumbnailGeneratorProps {
     onThumbnailGenerated: () => void;
     onGenerating: (isGenerating: boolean) => void;
     apiProvider: ApiProvider;
+    onOpenSettings: () => void;
 }
 
-const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome, onThumbnailGenerated, onGenerating, apiProvider }) => {
+const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome, onThumbnailGenerated, onGenerating, apiProvider, onOpenSettings }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [headshots, setHeadshots] = useState<UploadedFile[]>([]);
@@ -440,7 +442,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
 
     return (
         <div className="animate-fade-in">
-            {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg mb-6 max-w-4xl mx-auto">{error}</div>}
+            <ErrorMessage error={error} onOpenSettings={onOpenSettings} />
             
             {step === 'input' && renderInputStep()}
             {(step === 'promptSelection' || step === 'generating' || step === 'result') && (

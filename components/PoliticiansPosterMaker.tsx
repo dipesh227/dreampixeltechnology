@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { PoliticalParty, PosterStyle, AspectRatio, UploadedFile, GeneratedConcept, ApiProvider } from '../types';
 import { generatePosterPrompts, generatePoster } from '../services/aiService';
@@ -6,6 +7,7 @@ import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
 import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineFlag, HiOutlineCalendarDays, HiOutlineDocumentText, HiComputerDesktop, HiDevicePhoneMobile, HiOutlineArrowPath, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
+import ErrorMessage from './ErrorMessage';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -14,9 +16,10 @@ interface PoliticiansPosterMakerProps {
     onPosterGenerated: () => void;
     onGenerating: (isGenerating: boolean) => void;
     apiProvider: ApiProvider;
+    onOpenSettings: () => void;
 }
 
-const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavigateHome, onPosterGenerated, onGenerating, apiProvider }) => {
+const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavigateHome, onPosterGenerated, onGenerating, apiProvider, onOpenSettings }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [headshots, setHeadshots] = useState<UploadedFile[]>([]);
@@ -85,18 +88,26 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
     };
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files.length > 0) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                const base64 = (reader.result as string).split(',')[1];
-                setHeadshots([{ base64, mimeType: file.type, name: file.name }]);
-            };
-            reader.onerror = error => {
-                console.error("File reading error: ", error);
-                setError("There was an error reading your file.");
-            };
-            reader.readAsDataURL(file);
+        if (event.target.files) {
+            const files = Array.from(event.target.files).slice(0, 5 - headshots.length);
+            const filePromises = files.map(file => {
+                return new Promise<UploadedFile>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const base64 = (reader.result as string).split(',')[1];
+                        resolve({ base64, mimeType: file.type, name: file.name });
+                    };
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(filePromises).then(uploadedFiles => {
+                setHeadshots(prev => [...prev, ...uploadedFiles].slice(0, 5));
+            }).catch(err => {
+                console.error("File reading error: ", err);
+                setError("There was an error reading your files.");
+            });
         }
     };
     
@@ -161,7 +172,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
         setStep('generating');
         setIsSaved(false);
         try {
-            const posterResult = await generatePoster(prompt, headshots, aspectRatio);
+            const posterResult = await generatePoster(prompt, headshots, aspectRatio, selectedParty);
             if(posterResult) {
                 setGeneratedPoster(posterResult);
                 setStep('result');
@@ -204,19 +215,19 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
         <div className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
-                    <h2 className="text-xl font-bold text-white mb-1">1. Upload Headshot</h2>
-                    <p className="text-sm text-slate-400 mb-4">Provide one clear image for the poster.</p>
+                    <h2 className="text-xl font-bold text-white mb-1">1. Upload Headshots</h2>
+                    <p className="text-sm text-slate-400 mb-4">Provide 1-5 images for the best face accuracy.</p>
                      {apiProvider === 'openai' && (
                         <div className="p-3 mb-4 bg-yellow-900/20 border border-yellow-700/50 rounded-lg text-xs text-yellow-400">
                             <strong>Provider Note:</strong> You have OpenAI selected. DALL-E 3 is a powerful text-to-image model but does not use the uploaded headshot to create a likeness. The generated image will be based on the text prompt only.
                         </div>
                     )}
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
-                         <input type="file" id="file-upload" className="hidden" accept="image/png, image/jpeg" onChange={handleFileChange} disabled={headshots.length >= 1} />
-                         <label htmlFor="file-upload" className={`cursor-pointer ${headshots.length >= 1 ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                         <input type="file" id="file-upload" className="hidden" multiple accept="image/png, image/jpeg" onChange={handleFileChange} disabled={headshots.length >= 5} />
+                         <label htmlFor="file-upload" className={`cursor-pointer ${headshots.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <HiArrowUpTray className="w-8 h-8 mx-auto text-slate-500 mb-2"/>
                             <p className="text-slate-300 font-semibold">Click to upload or drag & drop</p>
-                            <p className="text-xs text-slate-500">PNG or JPG. One image only.</p>
+                            <p className="text-xs text-slate-500">You can add {5 - headshots.length} more images.</p>
                          </label>
                     </div>
                      {headshots.length > 0 && 
@@ -402,8 +413,8 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
 
     return (
         <div className="animate-fade-in">
-            {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg mb-6 max-w-4xl mx-auto">{error}</div>}
-            
+            <ErrorMessage error={error} onOpenSettings={onOpenSettings} />
+
             {step === 'input' && renderInputStep()}
             {(step === 'promptSelection' || step === 'generating' || step === 'result') && (
                 <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">

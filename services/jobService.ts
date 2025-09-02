@@ -50,7 +50,7 @@ export const savePoliticalPosterJob = async (data: PoliticalPosterJobData): Prom
             custom_text: data.customText,
             style_id: data.styleId,
             aspect_ratio: data.aspectRatio,
-            headshot_filename: data.headshots.length > 0 ? data.headshots[0].name : null,
+            headshot_filenames: data.headshots.map(h => h.name),
         });
         if (error) throw error;
     } catch (error) {

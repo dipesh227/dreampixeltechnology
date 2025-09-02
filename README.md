@@ -108,7 +108,7 @@ CREATE TABLE public.political_poster_jobs (
   custom_text TEXT,
   style_id TEXT,
   aspect_ratio TEXT,
-  headshot_filename TEXT
+  headshot_filenames TEXT[]
 );
 ```
 </details>
@@ -347,7 +347,7 @@ CREATE TABLE public.political_poster_jobs (
   custom_text TEXT,
   style_id TEXT,
   aspect_ratio TEXT,
-  headshot_filename TEXT
+  headshot_filenames TEXT[]
 );
 ALTER TABLE public.political_poster_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own poster jobs" ON public.political_poster_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);

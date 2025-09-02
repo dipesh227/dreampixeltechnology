@@ -1,6 +1,7 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import { UploadedFile, AspectRatio } from '../types';
 import * as apiConfigService from './apiConfigService';
+import { RateLimitError } from "./errors";
 
 const getAiClient = (apiKeyOverride?: string) => {
     const apiKey = apiKeyOverride || apiConfigService.getApiKey();
@@ -15,8 +16,8 @@ const handleGeminiError = (error: unknown): Error => {
         if (error.message.includes('API key not valid')) {
             return new Error("Invalid Gemini API Key. Please check the key in your API Settings.");
         }
-        if (error.message.includes('429')) {
-            return new Error("You have exceeded your Gemini API request quota. Please wait and try again later, or check your Google AI Studio dashboard.");
+        if (error.message.includes('429') || error.message.includes('RESOURCE_EXHAUSTED')) {
+            return new RateLimitError("Rate limit exceeded. You've made too many requests to the Gemini API recently. Please wait a minute and try again. For higher limits, consider adding your own key in API Settings.");
         }
         if (error.message.includes('SAFETY')) {
             return new Error("The request was blocked due to safety policies. Please adjust your prompt or images and try again.");
@@ -29,9 +30,33 @@ const handleGeminiError = (error: unknown): Error => {
     return new Error("An unknown error occurred while communicating with the Gemini API.");
 };
 
+const withRetries = async <T>(apiCall: () => Promise<T>): Promise<T> => {
+    const maxRetries = 2;
+    const initialDelay = 1500;
+    let attempt = 0;
+
+    while (attempt <= maxRetries) {
+        try {
+            return await apiCall();
+        } catch (error) {
+            const handledError = handleGeminiError(error);
+            
+            if (attempt >= maxRetries || !(handledError instanceof RateLimitError)) {
+                throw handledError;
+            }
+
+            const delay = initialDelay * Math.pow(2, attempt);
+            console.warn(`Gemini API rate limit hit. Retrying in ${delay}ms... (Attempt ${attempt + 1}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            attempt++;
+        }
+    }
+    // This part should be unreachable
+    throw new Error("Exceeded max retries. This should not happen.");
+};
 
 export const generateText = async (prompt: string, jsonSchema: object): Promise<string> => {
-    try {
+    return withRetries(async () => {
         const ai = getAiClient();
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
@@ -42,13 +67,11 @@ export const generateText = async (prompt: string, jsonSchema: object): Promise<
             },
         });
         return response.text.trim();
-    } catch (error) {
-        throw handleGeminiError(error);
-    }
+    });
 };
 
 export const generateImage = async (prompt: string, images: UploadedFile[]): Promise<string | null> => {
-     try {
+     return withRetries(async () => {
         const ai = getAiClient();
         const imageParts = images.map(file => ({
             inlineData: { data: file.base64, mimeType: file.mimeType }
@@ -73,37 +96,36 @@ export const generateImage = async (prompt: string, images: UploadedFile[]): Pro
             }
         }
         return null;
-
-    } catch (error) {
-        console.error("Error generating image with Gemini:", error);
-        throw handleGeminiError(error);
-    }
+    });
 };
 
 export const generateImageFromText = async (prompt: string, aspectRatio: AspectRatio): Promise<string | null> => {
-    try {
+    return withRetries(async () => {
         const ai = getAiClient();
-        const response = await ai.models.generateImages({
-            model: 'imagen-4.0-generate-001',
-            prompt: prompt,
-            config: {
-              numberOfImages: 1,
-              outputMimeType: 'image/jpeg',
-              aspectRatio: aspectRatio.replace(':', ' / ') as any, // Convert '16:9' to '16 / 9'
+        
+        const promptWithAspectRatio = `${prompt}\n\nCRITICAL: The final image's aspect ratio MUST be precisely ${aspectRatio}.`;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image-preview',
+            contents: {
+                parts: [
+                    { text: promptWithAspectRatio }
+                ]
             },
+            config: {
+                responseModalities: [Modality.IMAGE, Modality.TEXT]
+            }
         });
 
-        const base64ImageBytes: string | undefined = response.generatedImages[0]?.image.imageBytes;
-
-        if (base64ImageBytes) {
-            return base64ImageBytes;
+        for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData && part.inlineData.data) {
+                return part.inlineData.data;
+            }
         }
-
+        
+        console.warn("Gemini model did not return an image for the text-only prompt.");
         return null;
-    } catch (error) {
-        console.error("Error generating image from text with Gemini:", error);
-        throw handleGeminiError(error);
-    }
+    });
 };
 
 export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean, error?: string }> => {
@@ -121,9 +143,11 @@ export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean
         });
         return { isValid: true };
     } catch (error) {
-        if (error instanceof Error && error.message.includes('API key not valid')) {
-            return { isValid: false, error: 'Invalid API Key.' };
+        const handledError = handleGeminiError(error);
+        if (handledError instanceof RateLimitError) {
+             // Don't treat rate limit on validation as an invalid key
+            return { isValid: true, error: 'Validation rate limited, assuming key is valid for now.' };
         }
-        return { isValid: false, error: 'Validation failed.' };
+        return { isValid: false, error: handledError.message || 'Validation failed.' };
     }
 };

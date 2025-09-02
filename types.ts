@@ -1,4 +1,5 @@
 
+
 export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political';
 
 export interface Tool {
@@ -22,6 +23,7 @@ export interface PoliticalParty {
   name: string;
   logoPrompt: string;
   colorScheme: string;
+  ideologyPrompt?: string;
 }
 
 export interface PosterStyle {

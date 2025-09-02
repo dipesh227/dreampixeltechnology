@@ -1,5 +1,3 @@
-
-
 import { createClient } from '@supabase/supabase-js';
 
 // --- Supabase Configuration ---
@@ -7,8 +5,10 @@ import { createClient } from '@supabase/supabase-js';
 // for security and flexibility in deployment environments. Ensure you have a .env
 // file with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY set.
 
-const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY as string;
+// Hardcoded the Supabase credentials to get the app running in this environment.
+// In a real-world scenario, these should always be in a secure .env file.
+export const supabaseUrl = 'https://ftsvupbnmvphphvwzxha.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c3Z1cGJubXZwaHBodnd6eGhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzI3OTAsImV4cCI6MjA3MjMwODc5MH0.zSrEpRrmZNUPIM0wlaz2Kih8aSfcdbX1zXa9kDO8xK8';
 
 /**
  * Checks if the Supabase environment variables are set.

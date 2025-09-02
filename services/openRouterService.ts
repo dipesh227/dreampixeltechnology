@@ -1,5 +1,6 @@
 import { UploadedFile } from '../types';
 import * as apiConfigService from './apiConfigService';
+import { RateLimitError } from './errors';
 
 // Helper to get site identifiers for OpenRouter headers
 const getOpenRouterSiteHeaders = () => {
@@ -29,9 +30,9 @@ const handleOpenRouterError = async (response: Response): Promise<Error> => {
         }
         if (response.status === 429) {
             if (rawMetadata && rawMetadata.includes('rate-limited upstream')) {
-                return new Error("The free model on OpenRouter is temporarily rate-limited. Please try again shortly or add your own key and credits at openrouter.ai to avoid this limit.");
+                return new RateLimitError("The free model on OpenRouter is temporarily rate-limited. Please try again shortly or add your own key and credits at openrouter.ai to avoid this limit.");
             }
-            return new Error("OpenRouter API rate limit exceeded. Please check your account usage and try again later.");
+            return new RateLimitError("OpenRouter API rate limit exceeded. Please check your account usage and try again later.");
         }
         if (response.status >= 500) {
             return new Error("OpenRouter's servers seem to be experiencing issues. Please try again later.");
@@ -43,11 +44,37 @@ const handleOpenRouterError = async (response: Response): Promise<Error> => {
     }
 };
 
+const fetchWithRetries = async (url: string, options: RequestInit): Promise<Response> => {
+    const maxRetries = 2;
+    const initialDelay = 1500;
+    let attempt = 0;
+
+    while (attempt <= maxRetries) {
+        const response = await fetch(url, options);
+
+        if (response.ok) {
+            return response;
+        }
+
+        const handledError = await handleOpenRouterError(response);
+        
+        if (attempt >= maxRetries || !(handledError instanceof RateLimitError)) {
+            throw handledError;
+        }
+        
+        const delay = initialDelay * Math.pow(2, attempt);
+        console.warn(`OpenRouter API rate limit hit. Retrying in ${delay}ms... (Attempt ${attempt + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        attempt++;
+    }
+    throw new Error("Exceeded max retries for OpenRouter fetch. This should not happen.");
+};
+
 export const generateText = async (prompt: string): Promise<string> => {
     const apiKey = apiConfigService.getApiKey();
     if (!apiKey) throw new Error("OpenRouter API key is not configured.");
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetchWithRetries("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${apiKey}`,
@@ -57,15 +84,9 @@ export const generateText = async (prompt: string): Promise<string> => {
         body: JSON.stringify({
             model: "google/gemini-2.0-flash-exp:free",
             messages: [{ role: "user", content: prompt }],
-            // Although we request JSON, some models don't respect it perfectly.
-            // We'll handle the response robustly below.
             response_format: { type: "json_object" } 
         })
     });
-
-    if (!response.ok) {
-        throw await handleOpenRouterError(response);
-    }
 
     const result = await response.json();
     const content = result?.choices?.[0]?.message?.content;
@@ -77,16 +98,12 @@ export const generateText = async (prompt: string): Promise<string> => {
     
     const responseText = typeof content === 'string' ? content : JSON.stringify(content);
     
-    // Some models wrap their JSON output in markdown or conversational text.
-    // This regex robustly finds the JSON block within the string.
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
 
     if (jsonMatch && jsonMatch[0]) {
-        // We found a JSON-like object. Return it for parsing.
         return jsonMatch[0];
     }
     
-    // If no match was found, return the original text and let the caller try to parse it.
     console.warn("Could not find a JSON object in the OpenRouter response. Returning raw text.", responseText);
     return responseText;
 };
@@ -103,7 +120,7 @@ export const generateImage = async (prompt: string, images: UploadedFile[]): Pro
         ]
     }];
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetchWithRetries("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${apiKey}`,
@@ -115,10 +132,6 @@ export const generateImage = async (prompt: string, images: UploadedFile[]): Pro
             messages: messages,
         })
     });
-
-    if (!response.ok) {
-        throw await handleOpenRouterError(response);
-    }
 
     const result = await response.json();
     
@@ -173,12 +186,15 @@ export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean
         });
 
         if (response.status === 401) return { isValid: false, error: "Invalid API Key." };
-        if (response.ok) {
-             return { isValid: true };
-        }
+        if (response.ok) return { isValid: true };
         
-        const errorData = await response.json();
-        return { isValid: false, error: errorData?.error?.message || "Validation failed." };
+        const handledError = await handleOpenRouterError(response);
+        if (handledError instanceof RateLimitError) {
+             // Don't treat rate limit on validation as an invalid key
+            return { isValid: true, error: 'Validation rate limited, assuming key is valid for now.' };
+        }
+
+        return { isValid: false, error: handledError.message || "Validation failed." };
     } catch (e) {
         return { isValid: false, error: "Network error during validation." };
     }

@@ -1,4 +1,5 @@
 
+
 import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle } from '../types';
 
 type CreatorStyles = {
@@ -237,12 +238,12 @@ export const CREATOR_STYLES: CreatorStyles = {
 };
 
 export const POLITICAL_PARTIES: PoliticalParty[] = [
-    { id: 'bjp', name: 'BJP', logoPrompt: "a stylized lotus flower symbol", colorScheme: "saffron, green, and white" },
-    { id: 'congress', name: 'Congress', logoPrompt: "the palm of a hand facing forward", colorScheme: "blue, green, and orange" },
-    { id: 'aap', name: 'AAP', logoPrompt: "a broom symbol", colorScheme: "blue and white" },
-    { id: 'tmc', name: 'TMC', logoPrompt: "two flowers with leaves", colorScheme: "green and white" },
-    { id: 'dmk', name: 'DMK', logoPrompt: "a rising sun symbol", colorScheme: "black and red" },
-    { id: 'independent-india', name: 'Independent (India)', logoPrompt: "the Indian National Flag (the Tiranga) and its elements", colorScheme: "saffron, white, and green" },
+    { id: 'bjp', name: 'BJP', logoPrompt: "a stylized lotus flower symbol", colorScheme: "saffron, green, and white", ideologyPrompt: "nationalism, cultural heritage, and strong economic development" },
+    { id: 'congress', name: 'Congress', logoPrompt: "the palm of a hand facing forward", colorScheme: "blue, green, and orange", ideologyPrompt: "secularism, inclusivity, and social welfare for all" },
+    { id: 'aap', name: 'AAP', logoPrompt: "a broom symbol", colorScheme: "blue and white", ideologyPrompt: "honesty, anti-corruption, and the empowerment of the common person (Aam Aadmi)" },
+    { id: 'tmc', name: 'TMC', logoPrompt: "two flowers with leaves", colorScheme: "green and white", ideologyPrompt: "regional pride, grassroots activism, and the spirit of Bengal" },
+    { id: 'dmk', name: 'DMK', logoPrompt: "a rising sun symbol", colorScheme: "black and red", ideologyPrompt: "social justice, Dravidian identity, and regional autonomy" },
+    { id: 'independent-india', name: 'Independent (India)', logoPrompt: "the Indian National Flag (the Tiranga) and its elements", colorScheme: "saffron, white, and green", ideologyPrompt: "national unity, patriotism, and direct citizen representation" },
     { id: 'non-political', name: 'Non-Political', logoPrompt: "no specific political logo; instead, use a subtle and modern circular emblem or no logo at all for a clean look", colorScheme: "a neutral, professional, and appealing color scheme like deep blues, greys, and whites" }
 ];
 

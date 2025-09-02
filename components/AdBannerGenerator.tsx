@@ -6,6 +6,7 @@ import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
 import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineDocumentText, HiOutlineChatBubbleLeftRight, HiOutlineTag, HiOutlineArrowPath, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb, HiOutlineCube, HiOutlineUserCircle } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
+import ErrorMessage from './ErrorMessage';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -14,9 +15,10 @@ interface AdBannerGeneratorProps {
     onBannerGenerated: () => void;
     onGenerating: (isGenerating: boolean) => void;
     apiProvider: ApiProvider;
+    onOpenSettings: () => void;
 }
 
-const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, onBannerGenerated, onGenerating, apiProvider }) => {
+const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, onBannerGenerated, onGenerating, apiProvider, onOpenSettings }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [productImage, setProductImage] = useState<UploadedFile | null>(null);
@@ -379,7 +381,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
 
     return (
         <div className="animate-fade-in">
-            {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg mb-6 max-w-4xl mx-auto">{error}</div>}
+            <ErrorMessage error={error} onOpenSettings={onOpenSettings} />
             
             {step === 'input' && renderInputStep()}
             {(step === 'promptSelection' || step === 'generating' || step === 'result') && (

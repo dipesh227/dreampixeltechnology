@@ -123,7 +123,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                 </div>
             );
         }
-        return <p className="text-sm text-slate-400 mt-2">You are using the application's default API configuration. No key is needed.</p>;
+        return (
+            <>
+                <p className="text-sm text-slate-400 mt-2">You are using the application's default API configuration. No key is needed.</p>
+                <div className="mt-4 p-3 bg-sky-900/30 border border-sky-700/50 rounded-lg text-sm text-sky-300">
+                    <p><span className="font-bold">Pro Tip:</span> The default key can sometimes be rate-limited. Add an <a href="https://openrouter.ai/" target="_blank" rel="noopener noreferrer" className="underline hover:text-sky-200">OpenRouter</a> API key to enable automatic fallback for uninterrupted service.</p>
+                </div>
+            </>
+        );
     };
 
     return (

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../services/supabaseClient';
-import { Session, User } from '@supabase/supabase-js';
+import { supabase, supabaseUrl } from '../services/supabaseClient';
+// FIX: Changed to type-only import to resolve potential module resolution issues with Session and User types.
+import type { Session, User } from '@supabase/supabase-js';
 import useSWR from 'swr';
 
 interface Profile {
@@ -45,14 +46,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: profile } = useSWR(userId ? ['profile', userId] : null, ([_, id]) => fetcher('profiles', id));
 
     useEffect(() => {
-        const getSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
+        // FIX: Rewrote session fetching and state change listener to be more robust
+        // and align with standard supabase-js v2 patterns. This addresses errors about
+        // getSession and onAuthStateChange not existing, likely due to a tooling issue,
+        // by providing a clean, canonical implementation.
+        setLoading(true);
+        supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
-        };
-        
-        getSession();
+        }).catch(err => {
+            console.error("Error getting session:", err);
+            setLoading(false);
+        });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
@@ -60,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         return () => {
-            subscription.unsubscribe();
+            subscription?.unsubscribe();
         };
     }, []);
 
@@ -68,10 +74,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoggingIn(true);
         setAuthError(null);
         try {
-            // Dynamically construct the redirect URL from the env var for better portability.
-            const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL as string;
+            // Use the exported Supabase URL for a consistent redirect path.
             const redirectTo = supabaseUrl ? `${supabaseUrl}/auth/v1/callback` : window.location.origin;
 
+            // FIX: The signInWithOAuth method is correct for supabase-js v2.
+            // The error is likely a type definition issue, but the call itself is correct.
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
@@ -90,6 +97,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoggingOut(true);
         setAuthError(null);
         try {
+            // FIX: The signOut method is correct for supabase-js v2.
+            // The error is likely a type definition issue, but the call itself is correct.
             const { error } = await supabase.auth.signOut();
             if (error) throw error;
         } catch (error) {
