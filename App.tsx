@@ -32,17 +32,15 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const checkAllConnections = async () => {
-        // Reset states before checking
         setApiKeyStatus('validating');
         setApiKeyError(null);
         setDbStatus('connecting');
         setDbError(null);
 
-        // Check API Status
+        // Check API Status based on current config
         try {
             const apiResult = await aiService.checkCurrentApiStatus();
             setApiKeyStatus(apiResult.status);
-            // An error can exist even if valid (e.g., rate limit on validation)
             if (apiResult.error) {
                 setApiKeyError(apiResult.error);
             }

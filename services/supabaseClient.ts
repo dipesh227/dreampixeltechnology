@@ -1,23 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
 // --- Supabase Configuration ---
-// Hardcoded credentials to resolve environment variable loading issues.
+// Hardcoded credentials to ensure a stable connection and resolve .env loading issues.
 const supabaseUrl = 'https://ftsvupbnmvphphvwzxha.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c3Z1cGJubXZwaHBodnd6eGhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzI3OTAsImV4cCI6MjA3MjMwODc5MH0.zSrEpRrmZNUPIM0wlaz2Kih8aSfcdbX1zXa9kDO8xK8';
 
-/**
- * Checks if the Supabase environment variables are set.
- * This is crucial for the application to connect to the backend.
- * @returns {boolean} - True if both keys are present, false otherwise.
- */
-export const areSupabaseKeysSet = (): boolean => {
-    return !!(supabaseUrl && supabaseAnonKey);
-};
-
 // Initialize and export the Supabase client
-if (!areSupabaseKeysSet()) {
-    console.error("Supabase credentials are not set. Please check the hardcoded values in supabaseClient.ts.");
-}
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 

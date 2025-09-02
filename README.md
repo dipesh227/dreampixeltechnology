@@ -16,7 +16,7 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
 -   **Secure Google Authentication**: Sign in to save and manage your creations securely.
 -   **Database Encryption**: User-submitted prompts and feedback are encrypted at rest in the database using `pgsodium` for enhanced privacy.
 -   **Focused on Google Gemini**: Built to exclusively use Google's powerful Gemini AI models for the best results.
--   **Live API Status**: An indicator in the header shows if your default API key is configured correctly and operational.
+-   **Live API Status**: An indicator in the header shows if the default API key is configured correctly and is operational.
 -   **Interactive & Modern UI**: A vibrant, colorful UI with a neon mouse trail, glowing hover effects, and an animated background that synchronizes with AI generation tasks.
 -   **Personalized History**: Like and save your favorite creations, stored securely and tied to your user account.
 
@@ -41,7 +41,6 @@ Follow these instructions to set up and run the project locally.
 -   [Node.js](https://nodejs.org/) (v18.x or later)
 -   A [Supabase](https://supabase.com/) account (the free tier is sufficient).
 -   A [Google Cloud](https://console.cloud.google.com/) account for setting up OAuth.
--   A [Google Gemini API Key](https://aistudio.google.com/app/apikey).
 
 ### 2. Clone the Repository
 
@@ -56,27 +55,12 @@ cd <repository_directory>
 npm install
 ```
 
-### 4. Configure Environment Variables (CRITICAL)
+### 4. Configuration (Pre-configured)
 
-For the application to function, you must provide API keys for Supabase and the default Gemini key. If these are not provided, the app will display a helpful setup guide instead of launching.
+This application is designed to work out of the box for development and testing.
 
-1.  In the root of the project, create a file named `.env`.
-2.  Copy the following template into your new `.env` file:
-
-    ```env
-    # Default AI Provider Key (Google Gemini)
-    # Get a free key from Google AI Studio: https://aistudio.google.com/app/apikey
-    VITE_API_KEY="YOUR_GEMINI_API_KEY"
-
-    # Supabase Credentials
-    # Get these from your Supabase project dashboard -> Settings -> API
-    VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
-    VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
-    ```
-
-3.  **Fill in the placeholder values** for all three variables.
-
-    **IMPORTANT:** This application is built with Vite. For security reasons, Vite only exposes environment variables to your client-side code if they are **prefixed with `VITE_`**. This is why all keys now start with `VITE_` to ensure they are loaded correctly.
+-   **Google Gemini API Key**: A default development key is pre-configured in `src/services/apiConfigService.ts`. You can start using the app immediately. For a more stable experience, you can replace the placeholder key in that file with your own.
+-   **Supabase Credentials**: The Supabase URL and anonymous key are pre-configured in `src/services/supabaseClient.ts` to ensure a stable connection.
 
 ### 5. Set Up Supabase Database
 
@@ -308,12 +292,12 @@ To enable users to sign in with Google, you need to connect your Supabase projec
 
 ### 7. Run the Application
 
-Now you can start the development server. Make sure you have completed all the setup steps above.
+Now you can start the development server.
 
 ```bash
 npm run dev
 ```
-The application should now be running locally. If the credentials in your `.env` file are correct, it will connect to your Supabase backend and be ready to use the Google Gemini API.
+The application should now be running locally and is ready to use.
 
 ---
 

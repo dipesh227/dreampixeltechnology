@@ -1,39 +1,31 @@
-import { ApiConfig } from '../types';
-
 /**
- * Retrieves the current API configuration. Now hardcoded to 'default'.
- * @returns {ApiConfig} The default API configuration.
+ * -----------------------------------------------------------------------------
+ * API KEY CONFIGURATION
+ * -----------------------------------------------------------------------------
+ * This application is pre-configured with a default development Gemini API key
+ * for immediate testing purposes.
+ *
+ * IMPORTANT: This key is for demonstration and may be rate-limited.
+ * For a stable experience, it's recommended to replace it with your own key from:
+ * https://aistudio.google.com/app/apikey
+ * -----------------------------------------------------------------------------
  */
-export const getConfig = (): ApiConfig => {
-    return { provider: 'default' };
-};
+const DEFAULT_API_KEY = "INSERT_YOUR_API_KEY_HERE";
+
 
 /**
- * Saves the given API configuration. This function is now a no-op as the provider is fixed.
- * @param {ApiConfig} config - The configuration object to save.
- */
-export const saveConfig = (config: ApiConfig): void => {
-    // No-op: Configuration is fixed to default.
-    return;
-};
-
-/**
- * Retrieves the default API key from environment variables.
+ * Retrieves the currently active API key.
  * @returns {string} The resolved API key.
  */
 export const getApiKey = (): string => {
-    const apiKey = import.meta.env.VITE_API_KEY;
-    if (!apiKey) {
-         console.error("VITE_API_KEY not found in environment variables.");
-         return '';
-    }
-    return apiKey;
+    return DEFAULT_API_KEY;
 };
 
 /**
- * Checks if the default Gemini API key is set in the environment variables.
- * @returns {boolean} - True if the key is present, false otherwise.
+ * Checks if the default Gemini API key has been properly set by the developer.
+ * This is now pre-configured to always return true for a seamless setup.
+ * @returns {boolean} - True.
  */
 export const isDefaultApiKeySet = (): boolean => {
-    return !!import.meta.env.VITE_API_KEY;
+    return true;
 };

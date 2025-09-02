@@ -314,13 +314,18 @@ export const generateSocialPost = async (selectedPrompt: string, aspectRatio: As
 
 export const checkCurrentApiStatus = async () => {
     const apiKey = apiConfigService.getApiKey();
+    
     if (!apiKey) {
-        return { status: 'invalid' as ValidationStatus, error: 'VITE_API_KEY is not set in the .env file.' };
+        const errorMsg = 'Default API key is not configured. Please edit services/apiConfigService.ts';
+        return { status: 'invalid' as ValidationStatus, error: errorMsg };
     }
+    
     const result = await geminiNativeService.validateApiKey(apiKey);
+    
     if (result.isValid) {
-        // For rate-limited validation, we can still show a more informative message.
         return { status: 'valid' as ValidationStatus, error: result.error || null };
     }
-    return { status: 'invalid' as ValidationStatus, error: result.error || 'The provided API key is invalid.' };
+
+    const errorMsg = `The default API key is invalid. ${result.error}`;
+    return { status: 'invalid' as ValidationStatus, error: errorMsg };
 };

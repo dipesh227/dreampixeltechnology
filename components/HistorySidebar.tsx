@@ -15,7 +15,7 @@ const HistorySidebar: React.FC = () => {
     const { session } = useAuth();
     const [creations, setCreations] = useState<HistoryEntry[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const fetchCreations = async () => {

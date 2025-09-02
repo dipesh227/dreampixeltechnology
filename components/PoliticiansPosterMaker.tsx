@@ -1,5 +1,7 @@
 
 
+
+
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { PoliticalParty, PosterStyle, AspectRatio, UploadedFile, GeneratedConcept } from '../types';
 import { generatePosterPrompts, generatePoster } from '../services/aiService';
