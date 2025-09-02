@@ -316,7 +316,7 @@ export const checkCurrentApiStatus = async () => {
     const apiKey = apiConfigService.getApiKey();
     
     if (!apiKey) {
-        const errorMsg = 'Default API key is not configured. Please edit services/apiConfigService.ts';
+        const errorMsg = 'Gemini API key is not configured. The `process.env.API_KEY` environment variable must be set.';
         return { status: 'invalid' as ValidationStatus, error: errorMsg };
     }
     
@@ -326,6 +326,6 @@ export const checkCurrentApiStatus = async () => {
         return { status: 'valid' as ValidationStatus, error: result.error || null };
     }
 
-    const errorMsg = `The default API key is invalid. ${result.error}`;
+    const errorMsg = result.error || 'The configured API key is invalid.';
     return { status: 'invalid' as ValidationStatus, error: errorMsg };
 };

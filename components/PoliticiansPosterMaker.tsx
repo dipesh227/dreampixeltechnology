@@ -2,15 +2,18 @@
 
 
 
+
+
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { PoliticalParty, PosterStyle, AspectRatio, UploadedFile, GeneratedConcept } from '../types';
+import { PoliticalParty, PosterStyle, AspectRatio, UploadedFile, GeneratedConcept, TemplatePrefillData } from '../types';
 import { generatePosterPrompts, generatePoster } from '../services/aiService';
 import { POLITICAL_PARTIES, POSTER_STYLES, POSTER_THEMES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
-import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineFlag, HiOutlineCalendarDays, HiOutlineDocumentText, HiComputerDesktop, HiDevicePhoneMobile, HiOutlineArrowPath, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb } from 'react-icons/hi2';
+import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineFlag, HiOutlineCalendarDays, HiOutlineDocumentText, HiComputerDesktop, HiDevicePhoneMobile, HiOutlineArrowPath, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb, HiOutlineQueueList } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
+import TemplateBrowser from './TemplateBrowser';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -39,6 +42,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
     const [loadingMessage, setLoadingMessage] = useState('');
     const [isSaved, setIsSaved] = useState(false);
     const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
+    const [isTemplateBrowserOpen, setIsTemplateBrowserOpen] = useState(false);
 
     useEffect(() => {
         onGenerating(isLoading);
@@ -190,6 +194,9 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
 
     const handleSaveCreation = async () => {
         if (generatedPoster && !isSaved && selectedParty && session) {
+            const isPublic = window.confirm(
+                "Your creation has been saved to your 'Liked Creations'!\n\nWould you like to feature it in our public gallery for others to see?"
+            );
             const newEntry = {
                 id: '',
                 prompt: finalPrompt,
@@ -197,13 +204,21 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
                 timestamp: Date.now()
             };
             try {
-                await historyService.saveCreation(newEntry, session.user.id);
+                await historyService.saveCreation(newEntry, session.user.id, isPublic);
                 setIsSaved(true);
                 onPosterGenerated();
             } catch (error) {
                 setError("Failed to save creation. Please try again.");
             }
         }
+    };
+    
+    const handleSelectTemplate = (prefill: TemplatePrefillData) => {
+        if (prefill.partyId) setSelectedPartyId(prefill.partyId);
+        if (prefill.eventTheme) setSelectedEvent(prefill.eventTheme);
+        if (prefill.customText) setCustomText(prefill.customText);
+        if (prefill.styleId) setSelectedStyleId(prefill.styleId);
+        if (prefill.aspectRatio) setAspectRatio(prefill.aspectRatio);
     };
 
     const handleCopyPrompt = (prompt: string) => {
@@ -214,6 +229,16 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
 
     const renderInputStep = () => (
         <div className="space-y-8">
+            <div className="flex justify-end">
+                <button
+                    onClick={() => setIsTemplateBrowserOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors icon-hover-effect-blue"
+                >
+                    <HiOutlineQueueList className="w-5 h-5 text-sky-400" />
+                    Browse Templates
+                </button>
+            </div>
+        
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
                     <h2 className="text-xl font-bold text-white mb-1">1. Upload Headshots</h2>
@@ -409,6 +434,13 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
 
     return (
         <div className="animate-fade-in">
+            {isTemplateBrowserOpen && (
+                <TemplateBrowser
+                    tool="political"
+                    onClose={() => setIsTemplateBrowserOpen(false)}
+                    onSelect={handleSelectTemplate}
+                />
+            )}
             <ErrorMessage error={error} />
 
             {step === 'input' && renderInputStep()}

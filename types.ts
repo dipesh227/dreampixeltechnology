@@ -1,4 +1,5 @@
 
+
 export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political';
 
 export interface Tool {
@@ -62,3 +63,38 @@ export interface GeneratedConcept {
 }
 
 export type ValidationStatus = 'idle' | 'validating' | 'valid' | 'invalid';
+
+export interface TemplatePrefillData {
+    // Common
+    styleId: string;
+    aspectRatio: AspectRatio;
+    // Thumbnail
+    description?: string;
+    thumbnailText?: string;
+    // Political
+    partyId?: string;
+    eventTheme?: string;
+    customText?: string;
+    // Ad Banner
+    productDescription?: string;
+    headline?: string;
+    brandDetails?: string;
+    // Social
+    topic?: string;
+    platform?: string;
+    tone?: string;
+    callToAction?: string;
+}
+
+export interface Template {
+  id: string;
+  name: string;
+  tool: ToolType;
+  imageUrl: string;
+  prefill: TemplatePrefillData;
+}
+
+export interface PublicCreation {
+  id: string;
+  imageUrl: string;
+}

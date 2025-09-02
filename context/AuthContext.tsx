@@ -1,7 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
-import type { Session, User } from '@supabase/supabase-js';
 import useSWR from 'swr';
+
+// FIX: Update type inference to be compatible with the Supabase v2 JS client.
+// This correctly infers the Session and User types from the async `getSession` method.
+type Session = NonNullable<Awaited<ReturnType<typeof supabase.auth.getSession>>['data']['session']>;
+type User = Session['user'];
 
 interface Profile {
     id: string;
@@ -45,18 +49,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: profile } = useSWR(userId ? ['profile', userId] : null, ([_, id]) => fetcher('profiles', id));
 
     useEffect(() => {
-        const setAuthState = (currentSession: Session | null) => {
-            setSession(currentSession);
-            setUser(currentSession?.user ?? null);
-            setLoading(false);
-        };
+        setLoading(true);
 
+        // FIX: Replaced outdated Supabase v1 methods with the correct v2 equivalents.
+        // First, get the initial session state.
         supabase.auth.getSession().then(({ data: { session } }) => {
-            setAuthState(session);
+            setSession(session);
+            setUser(session?.user ?? null);
+            setLoading(false);
         });
 
+        // Then, set up a listener for future auth state changes.
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setAuthState(session);
+            setSession(session);
+            setUser(session?.user ?? null);
         });
 
         return () => {
@@ -64,15 +70,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
     }, []);
 
+    useEffect(() => {
+        // When the Supabase client detects a session from the URL after an OAuth redirect,
+        // it creates the session, but the URL still contains the hash with tokens.
+        // This effect runs when the session is set, and we can clean up the URL for a better UX.
+        if (session && window.location.hash.includes('access_token')) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }, [session]);
+
     const login = async () => {
         setIsLoggingIn(true);
         setAuthError(null);
         try {
+            // FIX: Replaced outdated signIn() with the correct v2 method, signInWithOAuth().
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: window.location.origin,
-                },
+                }
             });
             if (error) throw error;
         } catch (error: any) {
@@ -85,6 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoggingOut(true);
         setAuthError(null);
         try {
+            // The signOut() method is correct for v2.
             await supabase.auth.signOut();
         } catch (error: any) {
             setAuthError(error.message || 'An unknown error occurred during logout.');

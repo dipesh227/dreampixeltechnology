@@ -29,6 +29,10 @@ const App: React.FC = () => {
   const [dbError, setDbError] = useState<string | null>(null);
 
   const { session } = useAuth();
+  
+  const handleNavigateHome = useCallback(() => {
+    setActiveTool('landing');
+  }, []);
 
   useEffect(() => {
     const checkAllConnections = async () => {
@@ -65,7 +69,22 @@ const App: React.FC = () => {
     };
 
     checkAllConnections();
-  }, [session]);
+    
+    if (session) {
+      // After a user logs in, check if we need to restore their previous tool.
+      const preAuthTool = sessionStorage.getItem('preAuthTool');
+      if (preAuthTool) {
+        setActiveTool(preAuthTool as ToolType);
+        sessionStorage.removeItem('preAuthTool');
+      }
+    } else {
+      // If the session is null (user logged out) and they are on a tool page,
+      // navigate them to the landing page for a clean experience.
+       if (activeTool !== 'landing') {
+        handleNavigateHome();
+      }
+    }
+  }, [session, activeTool, handleNavigateHome]);
   
   useEffect(() => {
     const baseTitle = "DreamPixel Technology";
@@ -91,10 +110,6 @@ const App: React.FC = () => {
     setActiveTool(tool);
   }, []);
 
-  const handleNavigateHome = useCallback(() => {
-    setActiveTool('landing');
-  }, []);
-
   const onCreationGenerated = useCallback(() => {
     setHistoryUpdated(count => count + 1);
   }, []);
@@ -102,7 +117,14 @@ const App: React.FC = () => {
   const handleOpenFeedback = useCallback(() => setIsFeedbackOpen(true), []);
   const handleCloseFeedback = useCallback(() => setIsFeedbackOpen(false), []);
   
-  const handleOpenAuthModal = useCallback(() => setIsAuthModalOpen(true), []);
+  const handleOpenAuthModal = useCallback(() => {
+    // Save the current tool before opening the login modal to restore it after login.
+    if (activeTool !== 'landing') {
+      sessionStorage.setItem('preAuthTool', activeTool);
+    }
+    setIsAuthModalOpen(true);
+  }, [activeTool]);
+
   const handleCloseAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
 
   const handleGeneratingStatusChange = useCallback((status: boolean) => {

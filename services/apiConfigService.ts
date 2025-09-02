@@ -2,30 +2,30 @@
  * -----------------------------------------------------------------------------
  * API KEY CONFIGURATION
  * -----------------------------------------------------------------------------
- * This application is pre-configured with a default development Gemini API key
- * for immediate testing purposes.
+ * This application obtains the Gemini API key from the execution environment.
+ * The `process.env.API_KEY` environment variable must be set for the
+ * application to function correctly.
  *
- * IMPORTANT: This key is for demonstration and may be rate-limited.
- * For a stable experience, it's recommended to replace it with your own key from:
+ * For more information on acquiring a key, visit:
  * https://aistudio.google.com/app/apikey
  * -----------------------------------------------------------------------------
  */
-const DEFAULT_API_KEY = "INSERT_YOUR_API_KEY_HERE";
 
+// The API key is read from the environment variables once when the module is loaded.
+// This makes the access resilient to potential issues with environment variable
+// availability during the app's lifecycle (e.g., after an OAuth redirect).
+// FIX: Adhering to guidelines to exclusively use process.env.API_KEY. This also resolves the TypeScript error on 'import.meta.env'.
+const GEMINI_API_KEY = process.env.API_KEY as string;
 
 /**
- * Retrieves the currently active API key.
+ * Retrieves the cached Gemini API key from environment variables.
  * @returns {string} The resolved API key.
  */
 export const getApiKey = (): string => {
-    return DEFAULT_API_KEY;
-};
-
-/**
- * Checks if the default Gemini API key has been properly set by the developer.
- * This is now pre-configured to always return true for a seamless setup.
- * @returns {boolean} - True.
- */
-export const isDefaultApiKeySet = (): boolean => {
-    return true;
+    if (!GEMINI_API_KEY) {
+      // This log is helpful for developers during setup.
+      // FIX: Updated error message to reflect exclusive use of process.env.API_KEY.
+      console.error("Gemini API key is not configured. Please ensure the API_KEY environment variable is set.");
+    }
+    return GEMINI_API_KEY;
 };

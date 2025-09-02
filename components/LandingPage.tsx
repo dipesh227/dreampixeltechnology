@@ -2,6 +2,7 @@ import React from 'react';
 import { Tool, ToolType } from '../types';
 import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineShare, HiOutlineUserGroup } from 'react-icons/hi2';
 import SocialConnect from './SocialConnect';
+import PublicGallery from './PublicGallery';
 
 interface LandingPageProps {
   onSelectTool: (tool: ToolType) => void;
@@ -62,7 +63,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool }) => {
                     <ToolCard key={tool.id} tool={tool} onClick={() => onSelectTool(tool.id)} />
                 ))}
             </div>
-            <div className="mt-12">
+            <div className="mt-16">
+                <PublicGallery />
+            </div>
+            <div className="mt-16">
               <SocialConnect />
             </div>
         </div>

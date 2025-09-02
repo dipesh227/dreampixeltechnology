@@ -57,28 +57,22 @@ npm install
 
 ### 4. Set Up Your Gemini API Key (Required)
 
-This application requires a Google Gemini API key to function. You must configure this key for the application to work.
+This application requires a Google Gemini API key to function, provided via an environment variable.
 
 1.  **Get your API Key**:
     -   Go to [**Google AI Studio**](https://aistudio.google.com/app/apikey).
     -   Click **"Create API key in new project"**.
     -   Copy your newly generated API key.
 
-2.  **Add the key to the application**:
-    -   Open the file: `src/services/apiConfigService.ts`.
-    -   Find the constant named `DEFAULT_API_KEY`.
-    -   Replace the placeholder string `"INSERT_YOUR_API_KEY_HERE"` with your actual API key.
+2.  **Set the environment variable**:
+    -   The application is configured to read the key from an environment variable named `process.env.API_KEY`.
+    -   You must set this variable in the environment where you run the application. For local development with Vite, you can create a `.env.local` file in the project root:
 
-    ```typescript
-    // src/services/apiConfigService.ts
-
-    // ... (other code)
-
-    // IMPORTANT: Replace the placeholder with your actual key
-    const DEFAULT_API_KEY = "YOUR_SECRET_GEMINI_API_KEY"; // 👈 PASTE YOUR KEY HERE
-
-    // ... (other code)
     ```
+    # .env.local
+    VITE_API_KEY=YOUR_SECRET_GEMINI_API_KEY
+    ```
+    - The application code will automatically handle the `VITE_` prefix for client-side access.
 
 > **Note on Supabase Credentials**: The Supabase URL and anonymous key are pre-configured in `src/services/supabaseClient.ts` to ensure a stable connection for development. No action is needed for this part.
 
@@ -142,25 +136,29 @@ CREATE TABLE public.creations (
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
   prompt BYTEA, -- Encrypted prompt
   image_url TEXT NOT NULL,
+  is_public BOOLEAN DEFAULT false NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 -- Enable RLS and set policies
 ALTER TABLE public.creations ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can manage their own creations." ON public.creations
   FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Public creations are viewable by everyone." ON public.creations
+  FOR SELECT USING (is_public = TRUE);
 
 -- RPC to create an encrypted creation
-CREATE OR REPLACE FUNCTION create_encrypted_creation(p_prompt TEXT, p_image_url TEXT, p_user_id UUID)
+CREATE OR REPLACE FUNCTION create_encrypted_creation(p_prompt TEXT, p_image_url TEXT, p_user_id UUID, p_is_public BOOLEAN DEFAULT false)
 RETURNS void AS $$
 DECLARE
   key_id UUID;
 BEGIN
   SELECT id INTO key_id FROM pgsodium.key WHERE name = 'dreampixel_encryption_key';
-  INSERT INTO public.creations (user_id, prompt, image_url)
+  INSERT INTO public.creations (user_id, prompt, image_url, is_public)
   VALUES (
     p_user_id,
     pgsodium.crypto_aead_det_encrypt(p_prompt::bytea, 'dreampixel'::bytea, key_id),
-    p_image_url
+    p_image_url,
+    p_is_public
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -346,6 +344,7 @@ CREATE TABLE public.creations (
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   prompt BYTEA, -- Storing encrypted data as bytes
   image_url TEXT NOT NULL,
+  is_public BOOLEAN DEFAULT false NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 ```

@@ -1,12 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { CreatorStyle, AspectRatio, UploadedFile, GeneratedConcept } from '../types';
+import { CreatorStyle, AspectRatio, UploadedFile, GeneratedConcept, TemplatePrefillData } from '../types';
 import { generatePrompts, generateThumbnail } from '../services/aiService';
 import { CREATOR_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
-import { HiArrowLeft, HiCheck, HiComputerDesktop, HiDevicePhoneMobile, HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineDocumentText, HiOutlineChatBubbleLeftRight, HiOutlineTag, HiOutlineDocumentDuplicate, HiOutlineArrowPath, HiOutlineLightBulb } from 'react-icons/hi2';
+import { HiArrowLeft, HiCheck, HiComputerDesktop, HiDevicePhoneMobile, HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineDocumentText, HiOutlineChatBubbleLeftRight, HiOutlineTag, HiOutlineDocumentDuplicate, HiOutlineArrowPath, HiOutlineLightBulb, HiOutlineQueueList } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
+import TemplateBrowser from './TemplateBrowser';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -34,6 +35,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
     const [loadingMessage, setLoadingMessage] = useState('');
     const [isSaved, setIsSaved] = useState(false);
     const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
+    const [isTemplateBrowserOpen, setIsTemplateBrowserOpen] = useState(false);
 
     useEffect(() => {
         onGenerating(isLoading);
@@ -163,6 +165,9 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
 
     const handleSaveCreation = async () => {
         if (generatedThumbnail && !isSaved && session) {
+            const isPublic = window.confirm(
+                "Your creation has been saved to your 'Liked Creations'!\n\nWould you like to feature it in our public gallery for others to see?"
+            );
             const newEntry = {
                 id: '',
                 prompt: finalPrompt,
@@ -170,11 +175,26 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                 timestamp: Date.now()
             };
             try {
-                await historyService.saveCreation(newEntry, session.user.id);
+                await historyService.saveCreation(newEntry, session.user.id, isPublic);
                 setIsSaved(true);
                 onThumbnailGenerated();
             } catch (error) {
                 setError("Failed to save creation. Please try again.");
+            }
+        }
+    };
+    
+    const handleSelectTemplate = (prefill: TemplatePrefillData) => {
+        if (prefill.styleId) setSelectedStyleId(prefill.styleId);
+        if (prefill.aspectRatio) setAspectRatio(prefill.aspectRatio);
+        if (prefill.description) setDescription(prefill.description);
+        if (prefill.thumbnailText) setThumbnailText(prefill.thumbnailText);
+
+        // Find the category of the selected style to update the UI
+        for (const category in CREATOR_STYLES) {
+            if (CREATOR_STYLES[category].some(style => style.id === prefill.styleId)) {
+                setActiveCategory(category);
+                break;
             }
         }
     };
@@ -218,6 +238,16 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
 
     const renderInputStep = () => (
         <div className="space-y-8">
+            <div className="flex justify-end">
+                <button
+                    onClick={() => setIsTemplateBrowserOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors icon-hover-effect-blue"
+                >
+                    <HiOutlineQueueList className="w-5 h-5 text-sky-400" />
+                    Browse Templates
+                </button>
+            </div>
+        
             <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
               <h2 className="text-xl font-bold text-white mb-1">1. Powered by Google Gemini</h2>
               <p className="text-sm text-slate-400 mb-4">Using state-of-the-art models for the best results. The default API key is used for all generations.</p>
@@ -435,6 +465,13 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
 
     return (
         <div className="animate-fade-in">
+            {isTemplateBrowserOpen && (
+                <TemplateBrowser
+                    tool="thumbnail"
+                    onClose={() => setIsTemplateBrowserOpen(false)}
+                    onSelect={handleSelectTemplate}
+                />
+            )}
             <ErrorMessage error={error} />
             
             {step === 'input' && renderInputStep()}
