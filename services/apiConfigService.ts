@@ -33,7 +33,7 @@ export const saveConfig = (config: ApiConfig): void => {
 
 /**
  * Retrieves the appropriate API key based on the user's selected provider.
- * - For 'default', it uses the VITE_API_KEY from environment variables.
+ * - For 'default', it uses the API_KEY from environment variables.
  * - For custom providers, it uses the key saved in localStorage.
  * @returns {string} The resolved API key.
  */
@@ -52,9 +52,9 @@ export const getApiKey = (): string => {
             return config.openaiApiKey || '';
         case 'default':
         default:
-            // For the 'Default' provider, use the key from environment variables.
+            // For the 'Default' provider, use the key from the standard environment variable.
             // This is the primary API key for the application's default setup.
-            // The user should set this in a .env file (e.g., VITE_API_KEY="...")
-            return (process.env.VITE_API_KEY as string) || '';
+            // It must be named API_KEY as per the guidelines.
+            return (process.env.API_KEY as string) || '';
     }
 };
