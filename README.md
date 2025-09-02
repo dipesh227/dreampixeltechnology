@@ -58,9 +58,10 @@ cd <repository_directory>
 npm install
 ```
 
-### 4. Set Up Environment Variables
+### 4. Set Up Environment Variables & API Keys
 
-This application **requires** a `.env` file for Supabase and Google AI credentials to function. The application will not start without the Supabase keys.
+#### Step 4a: Supabase Credentials (Required)
+This application **requires** a `.env` file for Supabase credentials to function. The application will not start without these keys.
 
 1.  Create a file named `.env` in the root of the project.
 2.  Copy the following content into it:
@@ -69,24 +70,23 @@ This application **requires** a `.env` file for Supabase and Google AI credentia
     # Supabase Credentials (CRITICAL - App will not start without these)
     VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
     VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
-
-    # Default Production Gemini API Key (Required for 'Default' provider)
-    VITE_API_KEY="YOUR_GEMINI_API_KEY"
     ```
-
-#### Supabase Credentials
 
 -   Navigate to your Supabase project dashboard.
 -   Go to **Project Settings > API**.
 -   Copy the **Project URL** and the **`anon` public key** and paste them into the corresponding `VITE_` variables in your `.env` file.
 
-#### Default Production Gemini API Key
+#### Step 4b: Default Gemini API Key (Required)
+To ensure the application works correctly in all development environments, the default API key is set directly in the code.
 
-This is the primary API key for the application's core functionality when using the "Default" provider.
-
--   Go to the [Google AI Studio](https://aistudio.google.com/app/apikey).
--   Click **"Create API key"** to get a new key.
--   Copy the generated key and paste it into the `VITE_API_KEY` variable in your `.env` file.
+1.  Open the file `services/apiConfigService.ts`.
+2.  Find the constant `DEFAULT_GEMINI_API_KEY` at the top of the file.
+3.  Paste your Google Gemini API key as the value for this constant:
+    ```typescript
+    const DEFAULT_GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // <-- PASTE YOUR KEY HERE
+    ```
+-   You can get a key from the [Google AI Studio](https://aistudio.google.com/app/apikey).
+-   This key is used when the **"Default"** provider is selected in the app's settings.
 
 
 ### 5. Set Up Supabase Database

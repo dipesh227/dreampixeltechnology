@@ -2,6 +2,19 @@ import { ApiConfig, ApiProvider } from '../types';
 
 const API_CONFIG_KEY = 'dreamPixelApiConfig';
 
+// ====================================================================================
+// !! IMPORTANT DEVELOPMENT SETUP !!
+// ====================================================================================
+// To fix persistent issues with environment variables not loading correctly,
+// the default Gemini API key is now managed directly in this file.
+//
+// ---> PASTE YOUR GOOGLE GEMINI API KEY IN THE LINE BELOW <---
+//
+// This key is required for the "Default" provider to work.
+const DEFAULT_GEMINI_API_KEY = ""; // <-- PASTE YOUR KEY HERE
+// ====================================================================================
+
+
 /**
  * Retrieves the current API configuration from localStorage.
  * Defaults to the 'default' provider if no config is found.
@@ -33,8 +46,6 @@ export const saveConfig = (config: ApiConfig): void => {
 
 /**
  * Retrieves the appropriate API key based on the user's selected provider.
- * - For 'default', it uses the VITE_API_KEY from environment variables.
- * - For custom providers, it uses the key saved in localStorage.
  * @returns {string} The resolved API key.
  */
 export const getApiKey = (): string => {
@@ -52,8 +63,10 @@ export const getApiKey = (): string => {
             return config.openaiApiKey || '';
         case 'default':
         default:
-            // For the 'Default' provider, use the key from the standard environment variable,
-            // prefixed with VITE_ for client-side browser access in Vite projects.
-            return (import.meta.env.VITE_API_KEY as string) || '';
+            // For the 'Default' provider, use the hardcoded key from the top of this file.
+            if (!DEFAULT_GEMINI_API_KEY) {
+                console.error("Default Gemini API Key is not set. Please add it to `services/apiConfigService.ts`.");
+            }
+            return DEFAULT_GEMINI_API_KEY;
     }
 };
