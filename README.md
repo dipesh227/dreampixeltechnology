@@ -58,10 +58,27 @@ cd <repository_directory>
 npm install
 ```
 
-### 4. Set Up Environment Variables & API Keys
+### 4. Set Up API Keys & Credentials
 
-#### Step 4a: Supabase Credentials (Required)
-This application **requires** a `.env` file for Supabase credentials to function. The application will not start without these keys.
+#### Step 4a: Default Gemini API Key (CRITICAL)
+For a stable development experience, the default API key is managed directly within the application code.
+
+1.  Open the file: `services/apiConfigService.ts`
+2.  Find the constant named `DEFAULT_GEMINI_API_KEY` near the top of the file.
+3.  **Replace the placeholder string** with your actual Google Gemini API key.
+
+    ```typescript
+    // Before:
+    const DEFAULT_GEMINI_API_KEY = "INSERT_YOUR_GOOGLE_GEMINI_API_KEY_HERE";
+    
+    // After:
+    const DEFAULT_GEMINI_API_KEY = "AIzaSy...your...actual...key..."; 
+    ```
+-   You can get a free key from the [Google AI Studio](https://aistudio.google.com/app/apikey).
+-   **The application will not function without this key.**
+
+#### Step 4b: Supabase Credentials (CRITICAL)
+This application **requires** a `.env` file for Supabase credentials. The application will not start without these keys.
 
 1.  Create a file named `.env` in the root of the project.
 2.  Copy the following content into it:
@@ -75,19 +92,6 @@ This application **requires** a `.env` file for Supabase credentials to function
 -   Navigate to your Supabase project dashboard.
 -   Go to **Project Settings > API**.
 -   Copy the **Project URL** and the **`anon` public key** and paste them into the corresponding `VITE_` variables in your `.env` file.
-
-#### Step 4b: Default Gemini API Key (Required)
-To ensure the application works correctly in all development environments, the default API key is set directly in the code.
-
-1.  Open the file `services/apiConfigService.ts`.
-2.  Find the constant `DEFAULT_GEMINI_API_KEY` at the top of the file.
-3.  Paste your Google Gemini API key as the value for this constant:
-    ```typescript
-    const DEFAULT_GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // <-- PASTE YOUR KEY HERE
-    ```
--   You can get a key from the [Google AI Studio](https://aistudio.google.com/app/apikey).
--   This key is used when the **"Default"** provider is selected in the app's settings.
-
 
 ### 5. Set Up Supabase Database
 
@@ -311,7 +315,7 @@ To enable users to sign in with Google, you need to connect your Supabase projec
 
 ### 7. Run the Application
 
-Now you can start the development server. Make sure you have saved your `.env` file first.
+Now you can start the development server. Make sure you have saved your `.env` file and updated the API key first.
 
 ```bash
 npm run dev

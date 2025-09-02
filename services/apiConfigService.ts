@@ -5,13 +5,14 @@ const API_CONFIG_KEY = 'dreamPixelApiConfig';
 // ====================================================================================
 // !! IMPORTANT DEVELOPMENT SETUP !!
 // ====================================================================================
-// To fix persistent issues with environment variables not loading correctly,
-// the default Gemini API key is now managed directly in this file.
+// To provide a seamless development experience without environment variable issues,
+// the default API key for local testing is managed directly in this file.
 //
-// ---> PASTE YOUR GOOGLE GEMINI API KEY IN THE LINE BELOW <---
+// ---> REPLACE THE PLACEHOLDER BELOW WITH YOUR GOOGLE GEMINI API KEY <---
 //
-// This key is required for the "Default" provider to work.
-const DEFAULT_GEMINI_API_KEY = ""; // <-- PASTE YOUR KEY HERE
+// You can get a free key from Google AI Studio. This is required for the
+// "Default" provider to work.
+const DEFAULT_GEMINI_API_KEY = "INSERT_YOUR_GOOGLE_GEMINI_API_KEY_HERE";
 // ====================================================================================
 
 
@@ -64,8 +65,9 @@ export const getApiKey = (): string => {
         case 'default':
         default:
             // For the 'Default' provider, use the hardcoded key from the top of this file.
-            if (!DEFAULT_GEMINI_API_KEY) {
-                console.error("Default Gemini API Key is not set. Please add it to `services/apiConfigService.ts`.");
+            if (!DEFAULT_GEMINI_API_KEY || DEFAULT_GEMINI_API_KEY === "INSERT_YOUR_GOOGLE_GEMINI_API_KEY_HERE") {
+                console.error("CRITICAL SETUP REQUIRED: The default Gemini API Key is missing. Please open `services/apiConfigService.ts` and replace the placeholder value with your actual key from Google AI Studio.");
+                return ""; // Return empty string to ensure API calls fail clearly.
             }
             return DEFAULT_GEMINI_API_KEY;
     }

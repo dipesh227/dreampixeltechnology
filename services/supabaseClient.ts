@@ -4,8 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 
 // --- Supabase Configuration ---
 // Hardcoded credentials to resolve environment variable loading issues.
-const supabaseUrl = "https://jbhpnyawcbdihobcekis.supabase.co";
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpiaHBueWF3Y2JkaWhvYmNla2lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0OTMwNDEsImV4cCI6MjA2NjA2OTA0MX0.LYXzc_hP_zZ17TS05V3N9WFU3Vn_Pj3ibm7loLnyjnk";
+const supabaseUrl = "https://ftsvupbnmvphphvwzxha.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c3Z1cGJubXZwaHBodnd6eGhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzI3OTAsImV4cCI6MjA3MjMwODc5MH0.zSrEpRrmZNUPIM0wlaz2Kih8aSfcdbX1zXa9kDO8xK8";
 
 
 /**
