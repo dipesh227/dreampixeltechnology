@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dreampixel-cache-v2';
+const CACHE_NAME = 'dreampixel-cache-v3'; // Bump version for update
 const urlsToCache = [
   '/',
   '/index.html',
@@ -11,7 +11,6 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        // console.log('Opened cache and caching essential assets');
         return cache.addAll(urlsToCache);
       })
   );
@@ -26,7 +25,6 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
-            // console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -36,35 +34,60 @@ self.addEventListener('activate', (event) => {
   return self.clients.claim();
 });
 
-// Implement the stale-while-revalidate strategy for fetch requests
+// Implement fetch handling with SPA fallback for 404s
 self.addEventListener('fetch', (event) => {
-  // We only want to cache GET requests.
+  // We only handle GET requests.
   if (event.request.method !== 'GET') {
     return;
   }
 
-  // For requests to external domains (like CDNs, APIs), use network first.
-  if (!event.request.url.startsWith(self.location.origin)) {
-    event.respondWith(fetch(event.request));
+  // For navigation requests (e.g., loading a page), use a network-first strategy
+  // that falls back to the main app shell (`/index.html`) on failure or 404.
+  // This is the standard pattern for Single Page Applications (SPAs).
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      (async () => {
+        try {
+          const networkResponse = await fetch(event.request);
+          // A 2xx response is a success. A 404 for navigation is a failure.
+          if (networkResponse.ok) {
+            return networkResponse;
+          }
+
+          // Non-ok response (e.g., 404), serve the app shell.
+          console.log(`[SW] Serving app shell for failed navigation: ${event.request.url}`);
+          const cache = await caches.open(CACHE_NAME);
+          const cachedResponse = await cache.match('/index.html');
+          return cachedResponse;
+
+        } catch (error) {
+          // Network error (offline), serve the app shell from cache.
+          console.log(`[SW] Network error during navigation, serving app shell from cache for: ${event.request.url}`);
+          const cache = await caches.open(CACHE_NAME);
+          const cachedResponse = await cache.match('/index.html');
+          return cachedResponse;
+        }
+      })()
+    );
     return;
   }
 
-  event.respondWith(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.match(event.request).then((cachedResponse) => {
-        const fetchPromise = fetch(event.request).then((networkResponse) => {
-          // If the fetch is successful, update the cache.
-          if (networkResponse.ok) {
-            cache.put(event.request, networkResponse.clone());
-          }
-          return networkResponse;
+  // For all other requests (assets like JS, CSS, images), use the
+  // "stale-while-revalidate" strategy for speed and offline capability.
+  // We exclude cross-origin requests from caching.
+  if (event.request.url.startsWith(self.location.origin)) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.match(event.request).then((cachedResponse) => {
+          const fetchPromise = fetch(event.request).then((networkResponse) => {
+            if (networkResponse.ok) {
+              cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+          });
+          return cachedResponse || fetchPromise;
         });
-
-        // Return the cached response immediately if it exists,
-        // otherwise wait for the network response.
-        // The fetch is happening in the background to update the cache.
-        return cachedResponse || fetchPromise;
-      });
-    })
-  );
+      })
+    );
+  }
 });

@@ -1,13 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
 // --- Supabase Configuration ---
-// As a senior engineer, these values are loaded from environment variables
-// for security and flexibility in deployment environments. Ensure you have a .env
-// file with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY set.
-// FIX: Cast import.meta to any to resolve TypeScript error about missing 'env' property.
-export const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL as string;
-// FIX: Cast import.meta to any to resolve TypeScript error about missing 'env' property.
-const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY as string;
+// Hardcoded credentials as per user request to ensure connection.
+export const supabaseUrl = "https://jbhpnyawcbdihobcekis.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpiaHBueWF3Y2JkaWhvYmNla2lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0OTMwNDEsImV4cCI6MjA2NjA2OTA0MX0.LYXzc_hP_zZ17TS05V3N9WFU3Vn_Pj3ibm7loLnyjnk";
 
 
 /**
@@ -15,15 +11,10 @@ const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY as strin
  * @returns {boolean} - True if both URL and Key are present, false otherwise.
  */
 export const areSupabaseKeysSet = (): boolean => {
+    // With hardcoded values, this will always be true.
     return !!supabaseUrl && !!supabaseAnonKey;
 };
 
-
-if (!areSupabaseKeysSet()) {
-    // This provides a clear error in the developer console if the .env file is missing or misconfigured.
-    // The UI will handle showing a message to the user.
-    console.error('Supabase environment variables not found. Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.');
-}
 
 // Initialize and export the Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
