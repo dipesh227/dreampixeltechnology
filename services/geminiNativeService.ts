@@ -1,28 +1,33 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import { UploadedFile, AspectRatio } from '../types';
 import * as apiConfigService from './apiConfigService';
-import { RateLimitError, RetriableError } from "./errors";
+import { RateLimitError, RetriableError, QuotaExceededError } from "./errors";
 
 const getAiClient = (apiKeyOverride?: string) => {
     const apiKey = apiKeyOverride || apiConfigService.getApiKey();
     if (!apiKey) {
-        throw new Error("API key is not configured. Please ensure the environment variable is set.");
+        throw new Error("API key is not configured. Please add a key in the settings.");
     }
     return new GoogleGenAI({ apiKey });
 };
 
 const handleGeminiError = (error: unknown): Error => {
     if (error instanceof Error) {
-        if (error.message.includes('API key not valid')) {
-            return new Error("The provided Gemini API key is invalid. Please ensure the 'process.env.API_KEY' environment variable is set correctly.");
+        const errorMessage = error.message.toLowerCase();
+        
+        if (errorMessage.includes('quota exceeded') || errorMessage.includes('daily limit')) {
+            return new QuotaExceededError("You have exceeded your daily Gemini API quota. Your free usage will reset tomorrow. For higher limits, you can upgrade your Google AI account to a paid plan.");
         }
-        if (error.message.includes('429') || error.message.includes('RESOURCE_EXHAUSTED')) {
+        if (errorMessage.includes('api key not valid')) {
+            return new Error("The provided Gemini API key is invalid. Please check your API key in the settings.");
+        }
+        if (errorMessage.includes('429') || errorMessage.includes('resource_exhausted')) {
             return new RateLimitError("Rate limit exceeded. You've made too many requests to the Gemini API recently. Please wait a minute and try again.");
         }
-        if (error.message.includes('SAFETY')) {
+        if (errorMessage.includes('safety')) {
             return new Error("The request was blocked due to safety policies. Please adjust your prompt or images and try again.");
         }
-        if (error.message.includes('fetch failed') || error.message.includes('NetworkError')) {
+        if (errorMessage.includes('fetch failed') || errorMessage.includes('networkerror')) {
              return new RetriableError("A network error occurred. Please check your internet connection and try again.");
         }
         return new Error(`An error occurred with the Gemini API: ${error.message}`);
@@ -134,7 +139,7 @@ export const generateImageFromText = async (prompt: string, aspectRatio: AspectR
 };
 
 export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean, error?: string }> => {
-    if (!apiKey) return { isValid: false, error: "Gemini API key is not configured. Please ensure the 'process.env.API_KEY' environment variable is set." };
+    if (!apiKey) return { isValid: false, error: "API key cannot be empty. Please enter a valid key." };
     try {
         const ai = getAiClient(apiKey);
         // Use a very simple, fast model and request to validate the key

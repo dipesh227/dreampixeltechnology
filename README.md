@@ -74,6 +74,8 @@ This application requires a Google Gemini API key to function, provided via an e
     ```
     - The application code will automatically handle the `VITE_` prefix for client-side access.
 
+> **A Note on API Usage and Limits**: The standard Google Gemini API key comes with a generous free tier suitable for development and testing. However, this tier has rate limits and a daily quota. If you see an error about "quota exceeded," it means you have used all your free requests for the day. Your quota will reset automatically (usually the next day, PST). For higher usage, you can upgrade your Google Cloud project to a paid plan.
+
 > **Note on Supabase Credentials**: The Supabase URL and anonymous key are pre-configured in `src/services/supabaseClient.ts` to ensure a stable connection for development. No action is needed for this part.
 
 ### 5. Set Up Supabase Database

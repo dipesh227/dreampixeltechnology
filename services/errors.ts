@@ -20,3 +20,14 @@ export class RateLimitError extends RetriableError {
         this.name = 'RateLimitError';
     }
 }
+
+/**
+ * Custom error for daily quota exceeded issues.
+ * This is not a retriable error in the short term.
+ */
+export class QuotaExceededError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'QuotaExceededError';
+    }
+}

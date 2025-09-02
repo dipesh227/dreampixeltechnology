@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DreamLogo } from './icons/DreamLogo';
-import { HiOutlineKey, HiOutlineChatBubbleLeftEllipsis, HiOutlineArrowRightOnRectangle, HiOutlineUserCircle } from 'react-icons/hi2';
+import { HiOutlineKey, HiOutlineChatBubbleLeftEllipsis, HiOutlineArrowRightOnRectangle, HiOutlineUserCircle, HiBars3, HiOutlineXMark, HiOutlineCog6Tooth } from 'react-icons/hi2';
 import { ValidationStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { Session } from '@supabase/supabase-js';
 
 interface HeaderProps {
     onNavigateHome: () => void;
@@ -10,6 +11,7 @@ interface HeaderProps {
     apiKeyStatus: ValidationStatus;
     apiKeyError: string | null;
     onLogin: () => void;
+    onOpenSettings: () => void;
 }
 
 const UserMenu: React.FC = () => {
@@ -52,8 +54,75 @@ const UserMenu: React.FC = () => {
     );
 };
 
-const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenFeedback, apiKeyStatus, apiKeyError, onLogin }) => {
+interface MobileMenuProps extends Omit<HeaderProps, 'onNavigateHome' | 'apiKeyError'> {
+    session: Session | null;
+}
+
+const MobileMenu: React.FC<MobileMenuProps> = ({ onOpenFeedback, apiKeyStatus, onLogin, onOpenSettings, session }) => {
+    const { logout, isLoggingOut } = useAuth();
+    
+    return (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-xl z-50 animate-fade-in p-4 flex flex-col">
+            <div className="flex justify-between items-center mb-10">
+                <h2 className="text-lg font-bold text-white">Menu</h2>
+            </div>
+
+            <div className="flex flex-col gap-4 flex-grow">
+                {session ? (
+                     <div className="flex items-center gap-3 p-4 bg-slate-800/50 border border-slate-700 rounded-lg">
+                        <img src={session.user.user_metadata.avatar_url} alt={session.user.user_metadata.full_name} className="w-10 h-10 rounded-full" />
+                        <div>
+                            <p className="font-semibold text-white">{session.user.user_metadata.full_name}</p>
+                            <p className="text-sm text-slate-400">{session.user.email}</p>
+                        </div>
+                    </div>
+                ) : (
+                    <button onClick={onLogin} className="w-full flex items-center gap-3 p-4 text-left bg-slate-800/50 border border-slate-700 rounded-lg hover:bg-slate-800 transition-colors">
+                        <HiOutlineUserCircle className="w-6 h-6 text-sky-400" />
+                        <span className="font-semibold text-white">Login / Sign Up</span>
+                    </button>
+                )}
+                
+                <button onClick={onOpenSettings} className="w-full flex items-center gap-3 p-4 text-left bg-slate-800/50 border border-slate-700 rounded-lg hover:bg-slate-800 transition-colors">
+                    <HiOutlineKey className="w-6 h-6 text-yellow-400" />
+                    <div>
+                        <span className="font-semibold text-white">API Key Settings</span>
+                        <p className="text-sm text-slate-400">{apiKeyStatus === 'valid' ? 'Connected' : 'Action Required'}</p>
+                    </div>
+                </button>
+                
+                <button onClick={onOpenFeedback} className="w-full flex items-center gap-3 p-4 text-left bg-slate-800/50 border border-slate-700 rounded-lg hover:bg-slate-800 transition-colors">
+                    <HiOutlineChatBubbleLeftEllipsis className="w-6 h-6 text-pink-400" />
+                    <span className="font-semibold text-white">Send Feedback</span>
+                </button>
+            </div>
+
+            {session && (
+                <button 
+                    onClick={() => logout()} 
+                    disabled={isLoggingOut}
+                    className="w-full flex items-center justify-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect disabled:opacity-70 disabled:cursor-wait">
+                    {isLoggingOut ? (
+                        <>
+                            <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+                            Signing Out...
+                        </>
+                    ) : (
+                        <>
+                            <HiOutlineArrowRightOnRectangle className="w-5 h-5"/>
+                            Sign Out
+                        </>
+                    )}
+                </button>
+            )}
+        </div>
+    );
+};
+
+
+const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenFeedback, apiKeyStatus, apiKeyError, onLogin, onOpenSettings }) => {
   const { session } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const getStatusInfo = () => {
     switch (apiKeyStatus) {
@@ -69,24 +138,37 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenFeedback, apiKeyS
   };
 
   const { className: statusIconClassName, title: statusIconTitle } = getStatusInfo();
+  
+  useEffect(() => {
+    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : 'auto';
+    return () => { document.body.style.overflow = 'auto'; };
+  }, [isMobileMenuOpen]);
 
   return (
     <header className="py-4 px-4 md:px-8 bg-slate-950/50 backdrop-blur-lg border-b border-slate-700/50 sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
-        {/* Left Side: API Status */}
         <div className="flex-1 flex justify-start items-center">
-           <div 
-                className="flex items-center gap-2 text-sm rounded-lg text-slate-300 lg:p-2 lg:border lg:border-slate-700 lg:bg-slate-800/80"
-                title={statusIconTitle}
-            >
-                <div className="p-2.5 lg:p-1 bg-slate-800 border border-slate-700 rounded-lg lg:rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-                   <HiOutlineKey className={`w-5 h-5 transition-all duration-300 ${statusIconClassName}`} />
+           <div className="hidden lg:flex items-center gap-2 p-2 border border-slate-700 bg-slate-800/80 rounded-lg">
+                <div 
+                    className="flex items-center gap-2 text-sm text-slate-300 pr-2"
+                    title={statusIconTitle}
+                >
+                    <div className="p-1.5 bg-slate-800 border border-slate-700 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                       <HiOutlineKey className={`w-5 h-5 transition-all duration-300 ${statusIconClassName}`} />
+                    </div>
+                    <span>API Status</span>
                 </div>
-                <span className="hidden lg:inline">API Status</span>
-            </div>
+                <div className="h-6 border-l border-slate-700"></div>
+                <button 
+                    onClick={onOpenSettings}
+                    className="pl-2 text-slate-400 hover:text-white"
+                    title="API Key Settings"
+                >
+                    <HiOutlineCog6Tooth className="w-5 h-5 icon-hover-effect" />
+                </button>
+           </div>
         </div>
 
-        {/* Center Logo */}
         <div className="flex-shrink-0">
           <div 
             className="flex flex-col items-center justify-center cursor-pointer logo-container"
@@ -96,58 +178,42 @@ const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenFeedback, apiKeyS
           </div>
         </div>
 
-        {/* Right Side */}
-        <div className="flex-1 flex items-center gap-4 justify-end">
-            <button onClick={onOpenFeedback} className="hidden lg:flex items-center gap-2 p-2 text-sm rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-800 transition-colors group">
+        <div className="flex-1 hidden lg:flex items-center gap-4 justify-end">
+            <button onClick={onOpenFeedback} className="flex items-center gap-2 p-2 text-sm rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-800 transition-colors group">
                 <div className="p-1 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-500/40 group-hover:to-pink-500/40 transition-all">
                   <HiOutlineChatBubbleLeftEllipsis className="w-5 h-5 text-pink-300 icon-hover-effect" />
                 </div>
-                <span className="hidden md:inline">Feedback</span>
+                <span>Feedback</span>
             </button>
             
-            <div className="hidden lg:flex">
-              {session ? (
-                  <UserMenu />
-              ) : (
-                  <button 
-                    onClick={onLogin} 
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-primary-gradient text-white hover:opacity-90 transition-opacity">
-                      <HiOutlineUserCircle className="w-5 h-5" />
-                      Login
-                  </button>
-              )}
-            </div>
-            
-            {/* Mobile Menu */}
-            <div className="lg:hidden flex items-center gap-2">
-                {session ? (
-                    <UserMenu />
-                ) : (
-                    <button 
-                        onClick={onLogin} 
-                        className="p-2 rounded-md text-slate-300 hover:bg-slate-800 icon-hover-effect"
-                        aria-label="Login"
-                    >
-                        <HiOutlineUserCircle className="w-6 h-6" />
-                    </button>
-                )}
-                 <div 
-                    className="p-2 rounded-md"
-                    aria-label="API Status"
-                    title={statusIconTitle}
-                >
-                    <HiOutlineKey className={`w-6 h-6 transition-all duration-300 ${statusIconClassName}`} />
-                </div>
+            {session ? (
+                <UserMenu />
+            ) : (
                 <button 
-                    onClick={onOpenFeedback} 
-                    className="p-2 rounded-md text-slate-300 hover:bg-slate-800"
-                    aria-label="Send Feedback"
-                >
-                    <HiOutlineChatBubbleLeftEllipsis className="w-6 h-6 text-pink-300 icon-hover-effect" />
+                  onClick={onLogin} 
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-primary-gradient text-white hover:opacity-90 transition-opacity">
+                    <HiOutlineUserCircle className="w-5 h-5" />
+                    Login
                 </button>
-            </div>
+            )}
+        </div>
+            
+        <div className="lg:hidden flex-1 flex justify-end">
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 rounded-md text-slate-300 hover:bg-slate-800 z-50">
+                {isMobileMenuOpen ? <HiOutlineXMark className="w-7 h-7" /> : <HiBars3 className="w-7 h-7" />}
+            </button>
         </div>
       </div>
+      
+      {isMobileMenuOpen && (
+        <MobileMenu 
+            onOpenFeedback={() => { onOpenFeedback(); setIsMobileMenuOpen(false); }} 
+            apiKeyStatus={apiKeyStatus} 
+            onLogin={() => { onLogin(); setIsMobileMenuOpen(false); }}
+            onOpenSettings={() => { onOpenSettings(); setIsMobileMenuOpen(false); }}
+            session={session}
+        />
+      )}
     </header>
   );
 };

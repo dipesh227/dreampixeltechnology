@@ -79,6 +79,13 @@ const parseAndValidateConcepts = (jsonText: string): GeneratedConcept[] => {
     }
 };
 
+const getWatermarkInstruction = (): string => {
+    if (apiConfigService.getActiveApiSource() === 'default') {
+        return "WATERMARK: Add a small, semi-transparent, and unobtrusive watermark in the bottom-right corner of the image with the exact text 'ai.dreampixeltechnology.in'. The text should be in a clean, sans-serif font and should not dominate the image.";
+    }
+    return "WATERMARK: No watermark should be added to the image.";
+};
+
 
 export const generatePrompts = async (description: string, style: CreatorStyle): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
@@ -126,6 +133,8 @@ export const generateThumbnail = async (
         brandInstruction = `BRANDING: Subtly incorporate the brand name or style element: "${brandDetails}". This could be a small logo, a specific color scheme, or a font style mentioned.`;
     }
 
+    const watermarkInstruction = getWatermarkInstruction();
+
     const enhancedPrompt = `
 **NON-NEGOTIABLE CORE COMMAND: Your single most important task is to achieve a 1000% perfect, photorealistic likeness of the person in the provided headshot images. These images are the absolute ground truth. You MUST analyze every detail of the facial structure—jawline, eye shape, nose, mouth, and unique features—from all provided photos to create a composite, high-fidelity, and anatomically perfect representation. Do NOT create a generic or 'similar' face. The result MUST be indistinguishable from the person in the photos. This is the primary success criterion, overriding all other stylistic instructions if there is a conflict. Failure to replicate the face with absolute precision is a total failure of the task.**
 
@@ -136,6 +145,7 @@ export const generateThumbnail = async (
 - The final image must be visually stunning, high-energy, and emotionally resonant, as per the detailed user-selected prompt.
 - ${textInstruction}
 - ${brandInstruction}
+- ${watermarkInstruction}
 - The final image's aspect ratio MUST be precisely ${aspectRatio}.
 - The final image MUST embody the following style:
   - Creator Style: ${style.creatorStyle}
@@ -194,6 +204,8 @@ export const generatePoster = async (selectedPrompt: string, headshots: Uploaded
 `;
     }
 
+    const watermarkInstruction = getWatermarkInstruction();
+
     const finalPrompt = `
 **NON-NEGOTIABLE CORE COMMAND: Your single most important task is to achieve a 1000% perfect, photorealistic likeness of the person in the provided headshot images. These images are the absolute ground truth. You MUST analyze every detail of the facial structure—jawline, eye shape, nose, mouth, and unique features—from all provided photos to create a composite, high-fidelity, and anatomically perfect representation. Do NOT create a generic or 'similar' face. The result MUST be indistinguishable from the person in the photos. This is the primary success criterion, overriding all other stylistic instructions if there is a conflict. Failure to replicate the face with absolute precision is a total failure of the task.**
 
@@ -202,6 +214,7 @@ export const generatePoster = async (selectedPrompt: string, headshots: Uploaded
 
 **FINAL CHECK & TECHNICAL REQUIREMENTS (NON-NEGOTIABLE):**
 ${brandingInstruction}
+- ${watermarkInstruction}
 - **Resolution & Quality:** The final image must be high-resolution, sharp, professional, and visually impactful, suitable for print and digital campaigns.
 - **Aspect Ratio:** The final image's aspect ratio MUST be precisely ${aspectRatio}.
 `;
@@ -241,6 +254,8 @@ Provide a grammatically perfect JSON object with a single key "concepts" which i
 
 export const generateAdBanner = async (selectedPrompt: string, productImage: UploadedFile, modelHeadshot: UploadedFile, headline: string, brandDetails: string, aspectRatio: AspectRatio): Promise<string | null> => {
     const allImages = [productImage, modelHeadshot];
+    const watermarkInstruction = getWatermarkInstruction();
+
     const finalPrompt = `
 **NON-NEGOTIABLE CORE COMMAND: Your single most important task is to achieve a 1000% perfect, photorealistic likeness of the person in the provided model headshot. This image is the absolute ground truth. You MUST analyze every detail of the facial structure—jawline, eye shape, nose, mouth, and unique features—to create a high-fidelity, and anatomically perfect representation. Do NOT create a generic or 'similar' face. The result MUST be indistinguishable from the person in the photo. This is the primary success criterion, overriding all other stylistic instructions if there is a conflict. Failure to replicate the face with absolute precision is a total failure of the task.**
 
@@ -252,7 +267,8 @@ export const generateAdBanner = async (selectedPrompt: string, productImage: Upl
 2.  **Product as Hero:** The product from the user's image must be the "hero" of the advertisement. It must be featured clearly, attractively, and seamlessly integrated into the scene as described in the creative brief.
 3.  **Headline Integration:** The headline "${headline}" must be masterfully incorporated into the design. It must be legible, stylishly typeset, and placed for maximum impact without overwhelming the visual.
 4.  **Branding Details:** You must flawlessly execute the branding instructions. Subtly and professionally incorporate the brand details: "${brandDetails}".
-5.  **Technical Specs:** The final image MUST be high-resolution, professional-grade, and rendered at a precise aspect ratio of ${aspectRatio}.
+5.  **${watermarkInstruction}**
+6.  **Technical Specs:** The final image MUST be high-resolution, professional-grade, and rendered at a precise aspect ratio of ${aspectRatio}.
 
 Execute this brief with the skill of an award-winning digital artist.
 `;
@@ -299,13 +315,15 @@ Provide a grammatically perfect JSON object with a key "concepts" containing an 
 };
 
 export const generateSocialPost = async (selectedPrompt: string, aspectRatio: AspectRatio): Promise<string | null> => {
-    // This is a pure text-to-image prompt.
+    const watermarkInstruction = getWatermarkInstruction();
+    
     const finalPrompt = `
 **Creative Brief to Execute:**
 "${selectedPrompt}"
 
 **Technical Requirements:**
 - The final image must be high-resolution, visually stunning, and follow the creative brief precisely.
+- ${watermarkInstruction}
 - The aspect ratio MUST be exactly ${aspectRatio}.
 `;
     
@@ -316,7 +334,7 @@ export const checkCurrentApiStatus = async () => {
     const apiKey = apiConfigService.getApiKey();
     
     if (!apiKey) {
-        const errorMsg = 'Gemini API key is not configured. The `process.env.API_KEY` environment variable must be set.';
+        const errorMsg = 'Gemini API key is not configured. Please configure a key in the API settings.';
         return { status: 'invalid' as ValidationStatus, error: errorMsg };
     }
     
