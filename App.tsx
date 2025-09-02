@@ -23,33 +23,51 @@ const App: React.FC = () => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [apiKeyStatus, setApiKeyStatus] = useState<ValidationStatus>('validating');
+  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [dbStatus, setDbStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
+  const [dbError, setDbError] = useState<string | null>(null);
 
   const { session } = useAuth();
 
   useEffect(() => {
-    const checkStatus = async () => {
-        setApiKeyStatus('validating'); // Set to validating before starting async check
+    const checkAllConnections = async () => {
+        // Reset states before checking
+        setApiKeyStatus('validating');
+        setApiKeyError(null);
+        setDbStatus('connecting');
+        setDbError(null);
+
+        // Check API Status
         try {
-            const status = await aiService.checkCurrentApiStatus();
-            setApiKeyStatus(status);
-        } catch (error) {
+            const apiResult = await aiService.checkCurrentApiStatus();
+            setApiKeyStatus(apiResult.status);
+            // An error can exist even if valid (e.g., rate limit on validation)
+            if (apiResult.error) {
+                setApiKeyError(apiResult.error);
+            }
+        } catch (error: any) {
             console.error("Failed to check API status:", error);
             setApiKeyStatus('invalid');
+            setApiKeyError(error.message || 'An unknown error occurred during API validation.');
+        }
+
+        // Check Database Connection
+        try {
+            const dbResult = await checkDatabaseConnection();
+            setDbStatus(dbResult.isConnected ? 'connected' : 'error');
+             if (dbResult.error) {
+                setDbError(dbResult.error);
+            }
+        } catch (error: any) {
+             console.error("Failed to check DB status:", error);
+             setDbStatus('error');
+             setDbError(error.message || 'An unknown error occurred during DB connection check.');
         }
     };
-    checkStatus();
-  }, [session]);
 
-  useEffect(() => {
-    const verifyConnection = async () => {
-        const isConnected = await checkDatabaseConnection();
-        setDbStatus(isConnected ? 'connected' : 'error');
-    };
-    const timer = setTimeout(verifyConnection, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    checkAllConnections();
+  }, [session]);
   
   useEffect(() => {
     const baseTitle = "DreamPixel Technology";
@@ -100,6 +118,7 @@ const App: React.FC = () => {
         onNavigateHome={handleNavigateHome} 
         onOpenFeedback={handleOpenFeedback} 
         apiKeyStatus={apiKeyStatus} 
+        apiKeyError={apiKeyError}
         onLogin={handleOpenAuthModal}
       />
       <main className="container mx-auto px-4 py-8">
@@ -121,7 +140,7 @@ const App: React.FC = () => {
           </>
         )}
       </main>
-      <Footer dbStatus={dbStatus} />
+      <Footer dbStatus={dbStatus} dbError={dbError} />
       {isFeedbackOpen && <FeedbackModal onClose={handleCloseFeedback} />}
       {isAuthModalOpen && <AuthModal onClose={handleCloseAuthModal} />}
     </div>

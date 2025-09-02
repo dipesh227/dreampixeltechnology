@@ -8,6 +8,7 @@ interface HeaderProps {
     onNavigateHome: () => void;
     onOpenFeedback: () => void;
     apiKeyStatus: ValidationStatus;
+    apiKeyError: string | null;
     onLogin: () => void;
 }
 
@@ -51,15 +52,15 @@ const UserMenu: React.FC = () => {
     );
 };
 
-const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenFeedback, apiKeyStatus, onLogin }) => {
+const Header: React.FC<HeaderProps> = ({ onNavigateHome, onOpenFeedback, apiKeyStatus, apiKeyError, onLogin }) => {
   const { session } = useAuth();
 
   const getKeyIconInfo = () => {
     switch (apiKeyStatus) {
         case 'valid':
-            return { className: 'text-green-400 neon-green', title: 'Default API Key is valid and connected.' };
+            return { className: 'text-green-400 neon-green', title: apiKeyError || 'Default API Key is valid and connected.' };
         case 'invalid':
-            return { className: 'text-red-400 neon-red', title: 'Default API Key is missing or invalid. Please check your .env file.' };
+            return { className: 'text-red-400 neon-red', title: apiKeyError || 'Default API Key is missing or invalid. Please check your .env file.' };
         case 'validating':
             return { className: 'text-yellow-400 neon-yellow-pulse', title: 'Validating API Key...' };
         default:

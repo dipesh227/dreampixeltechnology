@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
 // --- Supabase Configuration ---
-// Read Supabase credentials from Vite's environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Hardcoded credentials to resolve environment variable loading issues.
+const supabaseUrl = 'https://ftsvupbnmvphphvwzxha.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c3Z1cGJubXZwaHBodnd6eGhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzI3OTAsImV4cCI6MjA3MjMwODc5MH0.zSrEpRrmZNUPIM0wlaz2Kih8aSfcdbX1zXa9kDO8xK8';
 
 /**
  * Checks if the Supabase environment variables are set.
@@ -15,18 +15,17 @@ export const areSupabaseKeysSet = (): boolean => {
 };
 
 // Initialize and export the Supabase client
-// Throw an error if the keys are missing, which should be caught by the initial check in index.tsx
 if (!areSupabaseKeysSet()) {
-    console.error("Supabase environment variables not found. Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.");
+    console.error("Supabase credentials are not set. Please check the hardcoded values in supabaseClient.ts.");
 }
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 
 /**
  * Checks the connection to the Supabase database by performing a lightweight query.
- * @returns {Promise<boolean>} - True if the connection is successful, false otherwise.
+ * @returns {Promise<{ isConnected: boolean, error?: string }>} - An object with the connection status and an optional error message.
  */
-export const checkDatabaseConnection = async (): Promise<boolean> => {
+export const checkDatabaseConnection = async () => {
     try {
         // This is a very lightweight query. It asks for the count of a table
         // but with `head: true`, it doesn't return any data, just the status
@@ -38,11 +37,13 @@ export const checkDatabaseConnection = async (): Promise<boolean> => {
 
         if (error) {
             console.error("Supabase connection check failed:", error.message);
-            return false;
+            const userError = `Database connection failed: ${error.message}. Please check your Supabase URL/Key and database setup.`;
+            return { isConnected: false, error: userError };
         }
-        return true;
-    } catch (e) {
+        return { isConnected: true };
+    } catch (e: any) {
         console.error("Supabase client error during connection check:", e);
-        return false;
+        const userError = `A client-side error occurred while connecting to the database. Ensure your Supabase credentials are correct. Details: ${e.message}`;
+        return { isConnected: false, error: userError };
     }
 };

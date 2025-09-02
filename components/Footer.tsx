@@ -2,13 +2,14 @@ import React from 'react';
 
 interface FooterProps {
     dbStatus: 'connecting' | 'connected' | 'error';
+    dbError: string | null;
 }
 
-const Footer: React.FC<FooterProps> = ({ dbStatus }) => {
+const Footer: React.FC<FooterProps> = ({ dbStatus, dbError }) => {
     const statusInfo = {
         connecting: { color: 'bg-yellow-500 animate-pulse', text: 'Connecting to database...' },
         connected: { color: 'bg-green-500', text: 'Database connection stable' },
-        error: { color: 'bg-red-500', text: 'Database connection failed' }
+        error: { color: 'bg-red-500', text: dbError || 'Database connection failed' }
     };
 
     return (

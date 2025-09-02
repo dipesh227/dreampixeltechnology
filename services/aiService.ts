@@ -312,11 +312,15 @@ export const generateSocialPost = async (selectedPrompt: string, aspectRatio: As
     return geminiNativeService.generateImageFromText(finalPrompt, aspectRatio);
 };
 
-export const checkCurrentApiStatus = async (): Promise<ValidationStatus> => {
+export const checkCurrentApiStatus = async () => {
     const apiKey = apiConfigService.getApiKey();
     if (!apiKey) {
-        return 'invalid';
+        return { status: 'invalid' as ValidationStatus, error: 'VITE_API_KEY is not set in the .env file.' };
     }
     const result = await geminiNativeService.validateApiKey(apiKey);
-    return result.isValid ? 'valid' : 'invalid';
+    if (result.isValid) {
+        // For rate-limited validation, we can still show a more informative message.
+        return { status: 'valid' as ValidationStatus, error: result.error || null };
+    }
+    return { status: 'invalid' as ValidationStatus, error: result.error || 'The provided API key is invalid.' };
 };
