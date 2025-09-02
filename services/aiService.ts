@@ -80,9 +80,8 @@ const parseAndValidateConcepts = (jsonText: string): GeneratedConcept[] => {
 };
 
 const getWatermarkInstruction = (): string => {
-    if (apiConfigService.getActiveApiSource() === 'default') {
-        return "WATERMARK: Add a small, semi-transparent, and unobtrusive watermark in the bottom-right corner of the image with the exact text 'ai.dreampixeltechnology.in'. The text should be in a clean, sans-serif font and should not dominate the image.";
-    }
+    // Watermarking logic can be re-enabled here if needed in the future.
+    // For now, it's disabled as part of the simplification.
     return "WATERMARK: No watermark should be added to the image.";
 };
 
@@ -334,7 +333,8 @@ export const checkCurrentApiStatus = async () => {
     const apiKey = apiConfigService.getApiKey();
     
     if (!apiKey) {
-        const errorMsg = 'Gemini API key is not configured. Please configure a key in the API settings.';
+        // FIX: Updated error message to refer to the standard API_KEY environment variable.
+        const errorMsg = 'Gemini API key is not configured. Please ensure the API_KEY environment variable is set.';
         return { status: 'invalid' as ValidationStatus, error: errorMsg };
     }
     
@@ -344,6 +344,6 @@ export const checkCurrentApiStatus = async () => {
         return { status: 'valid' as ValidationStatus, error: result.error || null };
     }
 
-    const errorMsg = result.error || 'The configured API key is invalid.';
+    const errorMsg = result.error || 'The configured API key is invalid or missing.';
     return { status: 'invalid' as ValidationStatus, error: errorMsg };
 };

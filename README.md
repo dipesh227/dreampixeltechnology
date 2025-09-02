@@ -16,7 +16,6 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
 -   **Secure Google Authentication**: Sign in to save and manage your creations securely.
 -   **Database Encryption**: User-submitted prompts and feedback are encrypted at rest in the database using `pgsodium` for enhanced privacy.
 -   **Focused on Google Gemini**: Built to exclusively use Google's powerful Gemini AI models for the best results.
--   **Live API Status**: An indicator in the header shows if the default API key is configured correctly and is operational.
 -   **Interactive & Modern UI**: A vibrant, colorful UI with a neon mouse trail, glowing hover effects, and an animated background that synchronizes with AI generation tasks.
 -   **Personalized History**: Like and save your favorite creations, stored securely and tied to your user account.
 
@@ -57,22 +56,21 @@ npm install
 
 ### 4. Set Up Your Gemini API Key (Required)
 
-This application requires a Google Gemini API key to function, provided via an environment variable.
+This application requires a Google Gemini API key to function.
 
 1.  **Get your API Key**:
     -   Go to [**Google AI Studio**](https://aistudio.google.com/app/apikey).
     -   Click **"Create API key in new project"**.
     -   Copy your newly generated API key.
 
-2.  **Set the environment variable**:
-    -   The application is configured to read the key from an environment variable named `process.env.API_KEY`.
-    -   You must set this variable in the environment where you run the application. For local development with Vite, you can create a `.env.local` file in the project root:
+2.  **Create a `.env.local` file**:
+    -   In the root directory of the project, create a new file named `.env.local`.
+    -   Add the following line to this file, replacing `YOUR_SECRET_GEMINI_API_KEY` with the key you copied.
 
     ```
     # .env.local
     VITE_API_KEY=YOUR_SECRET_GEMINI_API_KEY
     ```
-    - The application code will automatically handle the `VITE_` prefix for client-side access.
 
 > **A Note on API Usage and Limits**: The standard Google Gemini API key comes with a generous free tier suitable for development and testing. However, this tier has rate limits and a daily quota. If you see an error about "quota exceeded," it means you have used all your free requests for the day. Your quota will reset automatically (usually the next day, PST). For higher usage, you can upgrade your Google Cloud project to a paid plan.
 

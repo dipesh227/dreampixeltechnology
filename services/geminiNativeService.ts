@@ -6,7 +6,8 @@ import { RateLimitError, RetriableError, QuotaExceededError } from "./errors";
 const getAiClient = (apiKeyOverride?: string) => {
     const apiKey = apiKeyOverride || apiConfigService.getApiKey();
     if (!apiKey) {
-        throw new Error("API key is not configured. Please add a key in the settings.");
+        // FIX: Updated error message to refer to the standard API_KEY environment variable.
+        throw new Error("API key is not configured. Please ensure the API_KEY environment variable is set.");
     }
     return new GoogleGenAI({ apiKey });
 };
@@ -19,7 +20,8 @@ const handleGeminiError = (error: unknown): Error => {
             return new QuotaExceededError("You have exceeded your daily Gemini API quota. Your free usage will reset tomorrow. For higher limits, you can upgrade your Google AI account to a paid plan.");
         }
         if (errorMessage.includes('api key not valid')) {
-            return new Error("The provided Gemini API key is invalid. Please check your API key in the settings.");
+            // FIX: Updated error message to refer to the standard API_KEY environment variable.
+            return new Error("The provided Gemini API key is invalid. Please check your API_KEY environment variable.");
         }
         if (errorMessage.includes('429') || errorMessage.includes('resource_exhausted')) {
             return new RateLimitError("Rate limit exceeded. You've made too many requests to the Gemini API recently. Please wait a minute and try again.");
@@ -139,7 +141,8 @@ export const generateImageFromText = async (prompt: string, aspectRatio: AspectR
 };
 
 export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean, error?: string }> => {
-    if (!apiKey) return { isValid: false, error: "API key cannot be empty. Please enter a valid key." };
+    // FIX: Updated error message to refer to the standard API_KEY environment variable.
+    if (!apiKey) return { isValid: false, error: "API key cannot be empty. Please ensure the API_KEY environment variable is set." };
     try {
         const ai = getAiClient(apiKey);
         // Use a very simple, fast model and request to validate the key
