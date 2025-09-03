@@ -1,6 +1,7 @@
 
 
-export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo';
+
+export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster';
 
 export interface Tool {
   id: ToolType;
@@ -75,7 +76,21 @@ export interface PassportPhotoSize {
     description: string;
 }
 
-export type AspectRatio = '16:9' | '9:16' | '1:1' | '4:5' | '1.91:1';
+export interface VisitingCardStyle {
+    id: string;
+    name: string;
+    tags: string;
+    stylePrompt: string;
+}
+
+export interface EventPosterStyle {
+    id: string;
+    name: string;
+    tags: string;
+    stylePrompt: string;
+}
+
+export type AspectRatio = '16:9' | '9:16' | '1:1' | '4:5' | '1.91:1' | '3.5:2';
 
 export interface UploadedFile {
     base64: string;
@@ -127,6 +142,14 @@ export interface TemplatePrefillData {
     slogan?: string;
     // Headshot Maker
     headshotDescription?: string;
+    // Visiting Card
+    vcName?: string;
+    vcTitle?: string;
+    vcCompanyName?: string;
+    vcContact?: string;
+    // Event Poster
+    epHeadline?: string;
+    epBranding?: string;
 }
 
 export interface Template {

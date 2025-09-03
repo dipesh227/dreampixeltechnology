@@ -229,3 +229,55 @@ export const savePassportPhotoJob = async (data: PassportPhotoJobData): Promise<
         console.error("Failed to save passport photo job", error);
     }
 };
+
+// Visiting Card Job
+interface VisitingCardJobData {
+    userId: string;
+    companyName: string;
+    personName: string;
+    title: string;
+    contactInfo: string;
+    styleId: string;
+    logoFilename: string | null;
+}
+
+export const saveVisitingCardJob = async (data: VisitingCardJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('visiting_card_jobs').insert({
+            user_id: data.userId,
+            company_name: data.companyName,
+            person_name: data.personName,
+            title: data.title,
+            contact_info: data.contactInfo,
+            style_id: data.styleId,
+            logo_filename: data.logoFilename,
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save visiting card job", error);
+    }
+};
+
+// Event Poster Job
+interface EventPosterJobData {
+    userId: string;
+    headline: string;
+    branding: string;
+    styleId: string;
+    originalImageFilename: string;
+}
+
+export const saveEventPosterJob = async (data: EventPosterJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('event_poster_jobs').insert({
+            user_id: data.userId,
+            headline: data.headline,
+            branding: data.branding,
+            style_id: data.styleId,
+            original_image_filename: data.originalImageFilename,
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save event poster job", error);
+    }
+};

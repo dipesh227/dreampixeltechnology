@@ -1,5 +1,5 @@
 import { Type } from "@google/genai";
-import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle } from '../types';
+import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle } from '../types';
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
 import { RateLimitError } from "./errors";
@@ -324,7 +324,6 @@ Your entire response MUST be only the raw JSON object, without any markdown form
 };
 
 export const generateSocialPost = async (selectedPrompt: string, aspectRatio: AspectRatio): Promise<string | null> => {
-    // This is a pure text-to-image prompt.
     const finalPrompt = `
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
@@ -571,6 +570,73 @@ Your primary, non-negotiable, and most critical task is to achieve a perfect, 10
 3.  **Change Outfit:** Replace the person's current clothing from the shoulders down with ${outfitPrompt}. The new outfit must look professional and natural.
 4.  **Create New Background:** Create a new, perfectly smooth, solid-colored background using the hex color code ${backgroundColorHex}. There should be no shadows, gradients, or textures.
 5.  **Final Composition:** The result should be a high-resolution, studio-quality headshot (shoulders-up) of the person with the new outfit and new solid background. The person should be centered and facing forward with a neutral expression.
+`;
+    return geminiNativeService.generateImage(prompt, [image]);
+};
+
+export const generateVisitingCardPrompts = async (companyName: string, personName: string, title: string, contactInfo: string, style: VisitingCardStyle, hasLogo: boolean): Promise<GeneratedConcept[]> => {
+    const logoInstruction = hasLogo
+        ? 'The design MUST incorporate a placeholder for a company logo, which will be provided as an image.'
+        : 'The design should NOT include a logo, relying on typography and layout alone.';
+
+    const fullPrompt = `
+You are a professional graphic designer specializing in corporate identity. Your task is to generate three distinct, professional visiting card concepts. You must follow the specified JSON output format.
+
+**1. Card Details:**
+   - **Company Name:** "${companyName}"
+   - **Person's Name:** "${personName}"
+   - **Title/Designation:** "${title}"
+   - **Contact Information:** "${contactInfo}"
+   - **Logo Requirement:** ${logoInstruction}
+   - **Target Style:** '${style.name}' (${style.stylePrompt})
+
+**CRITICAL TASK & INSTRUCTIONS:**
+Generate three unique visiting card concepts. For each, create a detailed prompt for an AI image generator. The prompt must guide the AI to create a clean, vector-style graphic on a solid background, NOT a photorealistic scene. The card's aspect ratio must be 3.5:2.
+
+Your generated prompts MUST explicitly define:
+- **Layout & Composition:** Describe the arrangement of text elements (name, title, contact info) and the logo placeholder. (e.g., "Left-aligned text with logo in the top right corner").
+- **Typography:** Specify font styles for the company name, person's name, and other text (e.g., "Company name in bold sans-serif, person's name in a lighter weight, contact info in small print").
+- **Color Palette:** Define a primary and secondary color based on the style.
+- **Key Style Command:** Each prompt must start with: "visiting card design, business card, professional, vector graphic, simple," to set the correct mode.
+
+You will return a single JSON object with a key "concepts", an array of three concept objects.
+Each object must have "prompt", "reason", and "isRecommended" keys.
+Your entire response MUST be only the raw JSON object.
+`;
+    const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
+    return parseAndValidateConcepts(jsonText);
+};
+
+export const generateVisitingCard = async (selectedPrompt: string, logo: UploadedFile | null): Promise<string | null> => {
+    const images = logo ? [logo] : [];
+    const finalPrompt = `
+**CREATIVE BRIEF TO EXECUTE:**
+"${selectedPrompt}"
+
+**FINAL EXECUTION CHECKLIST:**
+- **Style:** The output MUST be a clean, professional visiting card. It should look like a vector graphic. Do NOT create a photorealistic scene.
+- **Logo Integration (If applicable):** If a logo is mentioned in the brief, seamlessly integrate the provided image into the design.
+- **Text:** The brief contains text elements (name, title, etc.). This text MUST be rendered clearly, legibly, and with perfect spelling. This is a critical requirement.
+- **Aspect Ratio:** The final image's aspect ratio MUST be exactly 3.5:2.
+- **Overall Quality:** The design must be high-resolution, professional, and well-balanced.
+`;
+    return images.length > 0
+        ? geminiNativeService.generateImage(finalPrompt, images)
+        : geminiNativeService.generateImageFromText(finalPrompt, '3.5:2');
+};
+
+export const editEventPoster = async (image: UploadedFile, headline: string, branding: string, style: EventPosterStyle): Promise<string | null> => {
+    const prompt = `
+You are a professional event promotion designer. Your task is to take the provided event photograph and turn it into a high-impact promotional poster.
+
+**CRITICAL INSTRUCTIONS - EXECUTE WITH CREATIVITY AND PRECISION:**
+1.  **Analyze and Enhance:** First, analyze the provided photo. Subtly enhance its colors and lighting to make it more vibrant and eye-catching, fitting for a promotional piece.
+2.  **Add Headline Text:** Masterfully overlay the following headline text onto the image: "${headline}".
+3.  **Apply Typographic Style:** The style of the text must adhere to the following art direction: **${style.stylePrompt}**. The text must be highly legible, aesthetically pleasing, and placed in a compositionally strong location on the poster.
+4.  **Incorporate Branding:** Add the following branding element in a subtle but professional way (e.g., bottom corner): "${branding}".
+5.  **Maintain Integrity:** Do NOT change the core subject or composition of the original photograph. Your job is to add to it, not replace it. The final output must retain the original aspect ratio.
+
+The final result should be a professional, compelling event poster that is ready for social media.
 `;
     return geminiNativeService.generateImage(prompt, [image]);
 };

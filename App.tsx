@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import LandingPage from './components/LandingPage';
 import Header from './components/Header';
@@ -21,6 +22,8 @@ import LogoGenerator from './components/LogoGenerator';
 import ImageEnhancer from './components/ImageEnhancer';
 import HeadshotMaker from './components/HeadshotMaker';
 import PassportPhotoMaker from './components/PassportPhotoMaker';
+import VisitingCardMaker from './components/VisitingCardMaker';
+import EventPosterMaker from './components/EventPosterMaker';
 
 const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');
@@ -104,6 +107,12 @@ const App: React.FC = () => {
       case 'passport-photo':
         document.title = `Passport Photo Maker | ${baseTitle}`;
         break;
+      case 'visiting-card':
+        document.title = `Visiting Card Maker | ${baseTitle}`;
+        break;
+      case 'event-poster':
+        document.title = `Event Poster Maker | ${baseTitle}`;
+        break;
       default:
         document.title = `AI Content Creation Suite | ${baseTitle}`;
     }
@@ -174,6 +183,8 @@ const App: React.FC = () => {
             {activeTool === 'image-enhancer' && <ImageEnhancer onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
             {activeTool === 'headshot-maker' && <HeadshotMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
             {activeTool === 'passport-photo' && <PassportPhotoMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'visiting-card' && <VisitingCardMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'event-poster' && <EventPosterMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
           </>
         )}
       </main>

@@ -1,6 +1,7 @@
 
 
-import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, PassportPhotoSize } from '../types';
+
+import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, PassportPhotoSize, VisitingCardStyle, EventPosterStyle } from '../types';
 
 type CreatorStyles = {
     [key: string]: CreatorStyle[];
@@ -597,4 +598,18 @@ export const PASSPORT_PHOTO_STYLES: PassportPhotoStyle[] = [
     { id: 'female-kurti-white', name: 'Woman: White Kurti', outfitPrompt: 'a woman wearing a simple and professional white formal kurti.' },
     { id: 'female-kurti-blue', name: 'Woman: Light Blue Kurti', outfitPrompt: 'a woman wearing a simple and professional light blue formal kurti.' },
     { id: 'female-formal-blouse', name: 'Woman: Formal Blouse', outfitPrompt: 'a woman wearing a professional, high-necked formal blouse in a solid, neutral color.' },
+];
+
+export const VISITING_CARD_STYLES: VisitingCardStyle[] = [
+    { id: 'vc-minimalist', name: 'Minimalist', tags: 'Clean, Modern', stylePrompt: 'A clean, minimalist design with lots of white space. Uses a modern sans-serif font like Helvetica or Inter. The layout is simple and balanced. The color palette is monochrome or uses one subtle accent color.' },
+    { id: 'vc-corporate', name: 'Corporate', tags: 'Professional, Trustworthy', stylePrompt: 'A professional and traditional corporate design. Uses a classic serif or sans-serif font like Times New Roman or Arial. The layout is structured and grid-based. The color palette is typically blue, grey, and white, conveying stability.' },
+    { id: 'vc-creative', name: 'Creative', tags: 'Bold, Artistic', stylePrompt: 'A bold, artistic, and unconventional design. Uses unique typography, possibly a script or display font. The layout is asymmetrical and dynamic. The color palette is vibrant and uses bold color combinations.' },
+    { id: 'vc-luxury', name: 'Luxury', tags: 'Elegant, Premium', stylePrompt: 'An elegant and luxurious design. Uses a sophisticated serif font and may incorporate a monogram. The design might feature high-quality textures like marble or linen. The color palette includes rich colors like black, gold, silver, or deep jewel tones.' },
+];
+
+export const EVENT_POSTER_STYLES: EventPosterStyle[] = [
+    { id: 'ep-modern', name: 'Modern & Clean', tags: 'Sleek, Minimal', stylePrompt: 'Use a clean, bold sans-serif font. The text should be placed with a clear hierarchy and generous spacing. The overall effect should be modern, sleek, and highly legible.' },
+    { id: 'ep-grunge', name: 'Grunge & Edgy', tags: 'Urban, Textured', stylePrompt: 'Use a distressed, textured, or stencil font. The text can be overlaid with a gritty texture. The colors should be high-contrast and slightly desaturated. The layout can be chaotic and energetic.' },
+    { id: 'ep-corporate', name: 'Corporate & Formal', tags: 'Professional, Elegant', stylePrompt: 'Use a classic serif or a clean sans-serif font. The text layout should be structured and professional. The color palette should be conservative, such as blues, greys, and whites. Add a subtle drop shadow for readability.' },
+    { id: 'ep-festive', name: 'Festive & Fun', tags: 'Playful, Colorful', stylePrompt: 'Use a playful, rounded, or script font. The text should be vibrant and can have a slight glow or outline. The layout should be fun and dynamic, possibly with text at an angle. Use bright, cheerful colors.' },
 ];
