@@ -104,6 +104,12 @@ Your generated prompts MUST explicitly define:
 - **Color Grading & Palette:** (e.g., Hyper-saturated and vibrant, desaturated cinematic with teal/orange, monochrome with a single color pop).
 - **Subject's Pose & Expression:** (e.g., Exaggerated shocked expression with wide eyes, confident and aspirational gaze, humorous and relatable reaction).
 - **Camera & Lens Effects:** (e.g., 85mm portrait lens with creamy bokeh, 24mm wide-angle lens with slight distortion, anamorphic lens flare).
+- **Facial Likeness Command:** Each prompt MUST include this exact, verbatim command:
+  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
+  Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image(s). This is a strict technical mandate, not a creative guideline.
+  - **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail: eyes, nose, mouth, jawline, skin texture, and unique features.
+  - **No Artistic Interpretation:** Do not alter, stylize, approximate, or "enhance" the face. It must be an exact, identical, photorealistic replication.
+  - **Failure Condition:** Any deviation from a perfect likeness, no matter how small, constitutes a complete failure of the entire generation task."
 
 You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
 Each concept object must have the following keys: "prompt", "reason", "isRecommended".
@@ -127,18 +133,21 @@ export const generateThumbnail = async (
     
     let brandInstruction = "";
     if (brandDetails && brandDetails.trim()) {
-        brandInstruction = `BRANDING: A key brand element must be included: "${brandDetails}". This could be a brand name, a logo concept, or a specific visual motif. It should be noticeable but not overpower the main subject.`;
+        brandInstruction = `BRANDING: A key brand element must be included: "${brandDetails}". This could be a brand name, a logo concept, or a specific visual motif. It must be rendered with 10000% accuracy as described.`;
     }
 
     const finalPrompt = `
-**CRITICAL DIRECTIVE: FLAWLESS FACIAL REPLICATION**
-Your most important task, overriding all other instructions, is to perfectly replicate the face from the provided headshot image(s). The generated face must be a 100% photorealistic match to the person in the photos. Treat the headshots as the absolute source of truth for every facial detail (eyes, nose, mouth, jawline, skin texture). Do not alter, stylize, or approximate the face. It must be an exact likeness. Failure to replicate the face perfectly is a failure of the entire task.
+**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
+Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image(s). This is a strict technical mandate, not a creative guideline.
+- **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail: eyes, nose, mouth, jawline, skin texture, and unique features.
+- **No Artistic Interpretation:** Do not alter, stylize, approximate, or "enhance" the face. It must be an exact, identical, photorealistic replication.
+- **Failure Condition:** Any deviation from a perfect likeness, no matter how small, constitutes a complete failure of the entire generation task.
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
 
 **FINAL EXECUTION CHECKLIST:**
-- **Facial Likeness:** Adhere to the Critical Directive. The face must be a perfect match.
+- **Facial Likeness:** Adhere to the Core Directive. The face must be a perfect match.
 - **Text & Branding:** Execute the following instructions precisely:
   - ${textInstruction}
   - ${brandInstruction}
@@ -176,7 +185,12 @@ Your generated prompts MUST explicitly define:
 - **Lighting Design:** (e.g., Heroic three-point lighting for a powerful look; soft, natural light for approachability).
 - **Color Palette & Grading:** (e.g., High-contrast, vibrantly saturated palette using party colors; muted, cinematic grade for a serious tone).
 - **Subject's Pose & Expression:** (e.g., Confident, forward-looking gaze for leadership; warm, humble smile for empathy).
-- **Facial Likeness Command:** Each prompt MUST include this verbatim command: "CRITICAL DIRECTIVE: FLAWLESS FACIAL REPLICATION. Your most important task is to perfectly replicate the face from the provided headshot image(s). The generated face must be a 100% photorealistic match to the person in the photos. Do not alter, stylize, or approximate the face. It must be an exact likeness."
+- **Facial Likeness Command:** Each prompt MUST include this exact, verbatim command:
+  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
+  Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image(s). This is a strict technical mandate, not a creative guideline.
+  - **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail: eyes, nose, mouth, jawline, skin texture, and unique features.
+  - **No Artistic Interpretation:** Do not alter, stylize, approximate, or "enhance" the face. It must be an exact, identical, photorealistic replication.
+  - **Failure Condition:** Any deviation from a perfect likeness, no matter how small, constitutes a complete failure of the entire generation task."
 
 You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
 Each concept object must have the following keys: "prompt", "reason", "isRecommended".
@@ -192,15 +206,18 @@ Your entire response MUST be only the raw JSON object, without any markdown form
 
 export const generatePoster = async (selectedPrompt: string, headshots: UploadedFile[], aspectRatio: AspectRatio, party: PoliticalParty | undefined): Promise<string | null> => {
     const finalPrompt = `
-**CRITICAL DIRECTIVE: FLAWLESS FACIAL REPLICATION**
-Your most important task, overriding all other instructions, is to perfectly replicate the face from the provided headshot image(s). The generated face must be a 100% photorealistic match to the person in the photos. Treat the headshots as the absolute source of truth for every facial detail (eyes, nose, mouth, jawline, skin texture). Do not alter, stylize, or approximate the face. It must be an exact likeness. Failure to replicate the face perfectly is a failure of the entire task.
+**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
+Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image(s). This is a strict technical mandate, not a creative guideline.
+- **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
+- **No Artistic Interpretation:** Do not alter, stylize, or approximate the face.
+- **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task.
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
 
 **FINAL EXECUTION CHECKLIST:**
-- **Facial Likeness:** Adhere to the Critical Directive. The face must be a perfect match.
-- **Branding Integrity:** The prompt contains specific branding instructions (party name, logo, colors). You MUST execute these with 100% accuracy.
+- **Facial Likeness:** Adhere to the Core Directive. The face must be a perfect match.
+- **Branding Integrity:** The prompt contains specific branding instructions (party name, logo, colors). You MUST execute these with 10000% accuracy. The logo and colors are non-negotiable.
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 - **Overall Quality:** The image must be high-resolution, professional-grade, and suitable for a political campaign, fully realizing the creative brief.
 `;
@@ -226,7 +243,12 @@ Your generated prompts MUST explicitly define:
 - **Model & Product Interaction:** How does the person interact with the product? (e.g., "Model confidently holds the product, presenting it to the viewer.").
 - **Composition & Lighting:** Define camera angle, composition, lighting scheme (e.g., "dramatic three-point studio lighting with a soft key light"), and color grading.
 - **Model's Pose & Expression:** Detail the exact pose and emotion the model should convey to connect with the target audience.
-- **Facial Likeness Command:** Each prompt MUST include this verbatim command: "CRITICAL DIRECTIVE: FLAWLESS FACIAL REPLICATION. Your most important task is to perfectly replicate the face from the provided headshot image. The generated face must be a 100% photorealistic match to the person in the photo. Do not alter, stylize, or approximate the face. It must be an exact likeness."
+- **Facial Likeness Command:** Each prompt MUST include this exact, verbatim command:
+  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
+  Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image. This is a strict technical mandate, not a creative guideline.
+  - **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
+  - **No Artistic Interpretation:** Do not alter, stylize, or approximate the face.
+  - **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task."
 - **Product Integration Command:** Each prompt MUST include a command to seamlessly integrate the provided product image into the scene, making it the hero.
 
 You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
@@ -245,16 +267,19 @@ export const generateAdBanner = async (selectedPrompt: string, productImage: Upl
     const finalPrompt = `
 You will be provided with two images. Image 1 is the PRODUCT. Image 2 is the MODEL HEADSHOT.
 
-**CRITICAL DIRECTIVE: FLAWLESS FACIAL REPLICATION**
-Your most important task, overriding all other instructions, is to perfectly replicate the face from the provided MODEL HEADSHOT (Image 2). The generated face must be a 100% photorealistic match to the person in the photo. Treat the headshot as the absolute source of truth for every facial detail. Do not alter, stylize, or approximate the face. It must be an exact likeness. Failure to replicate the face perfectly is a failure of the entire task.
+**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
+Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face from the provided MODEL HEADSHOT (Image 2). This is a strict technical mandate, not a creative guideline.
+- **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
+- **No Artistic Interpretation:** Do not alter, stylize, or approximate the face.
+- **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task.
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
 
 **FINAL EXECUTION CHECKLIST:**
-- **Facial Likeness:** Adhere to the Critical Directive. The face must be a perfect match to the MODEL HEADSHOT (Image 2).
+- **Facial Likeness:** Adhere to the Core Directive. The face must be a perfect match to the MODEL HEADSHOT (Image 2).
 - **Product Integration:** The PRODUCT (Image 1) must be the "hero" of the ad, featured clearly and attractively as described in the brief.
-- **Headline & Branding:** The headline "${headline}" and brand details "${brandDetails}" must be masterfully incorporated into the design. They must be legible, stylishly typeset, and placed for maximum impact.
+- **Headline & Branding:** The headline "${headline}" and brand details "${brandDetails}" must be masterfully incorporated into the design. They must be legible, stylishly typeset, and placed for maximum impact with 10000% accuracy.
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 - **Overall Quality:** The image must be high-resolution, professional-grade ad creative that fully realizes the brief.
 `;
@@ -329,7 +354,12 @@ Your generated prompts MUST explicitly define:
 - **Background:** Describe the background in detail (e.g., solid neutral color, softly blurred office, vibrant abstract pattern).
 - **Attire & Appearance:** Suggest appropriate clothing that fits the style (e.g., professional business suit, casual knit sweater).
 - **Mood & Expression:** (e.g., Confident and approachable, creative and intense, friendly and warm).
-- **Facial Likeness Command:** Each prompt MUST include this verbatim command: "CRITICAL DIRECTIVE: FLAWLESS FACIAL REPLICATION. Your most important task is to perfectly replicate the face from the provided headshot image. The generated face must be a 100% photorealistic match to the person in the photo. Do not alter, stylize, or approximate the face."
+- **Facial Likeness Command:** Each prompt MUST include this exact, verbatim command:
+  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
+  Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image. This is a strict technical mandate, not a creative guideline.
+  - **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
+  - **No Artistic Interpretation:** Do not alter, stylize, or approximate the face.
+  - **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task."
 
 You will return a single JSON object with a key "concepts", an array of three concept objects.
 Each object must have "prompt", "reason", and "isRecommended" keys.
@@ -344,14 +374,17 @@ Your entire response MUST be only the raw JSON object.
 
 export const generateProfilePicture = async (selectedPrompt: string, headshot: UploadedFile): Promise<string | null> => {
     const finalPrompt = `
-**CRITICAL DIRECTIVE: FLAWLESS FACIAL REPLICATION**
-Your most important task, overriding all other instructions, is to perfectly replicate the face from the provided headshot image. The generated face must be a 100% photorealistic match to the person in the photo. Treat the headshot as the absolute source of truth for every facial detail. Do not alter, stylize, or approximate the face. It must be an exact likeness.
+**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
+Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image. This is a strict technical mandate, not a creative guideline.
+- **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
+- **No Artistic Interpretation:** Do not alter, stylize, or approximate the face.
+- **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task.
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
 
 **FINAL EXECUTION CHECKLIST:**
-- **Facial Likeness:** Adhere to the Critical Directive. The face must be a perfect match.
+- **Facial Likeness:** Adhere to the Core Directive. The face must be a perfect match.
 - **Composition:** This is a profile picture. The final image must be a head-and-shoulders portrait.
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly 1:1 (a perfect square).
 - **Overall Quality:** The image must be high-resolution and professional.
@@ -361,7 +394,12 @@ Your most important task, overriding all other instructions, is to perfectly rep
 
 export const generateLogoPrompts = async (companyName: string, description: string, style: LogoStyle, slogan?: string, hasMascot?: boolean): Promise<GeneratedConcept[]> => {
     const mascotInstruction = hasMascot
-        ? `This is a MASCOT LOGO. The concepts must incorporate a character based on the provided headshot. The prompt MUST include the command: "CRITICAL DIRECTIVE: FLAWLESS FACIAL REPLICATION. Your task is to create a stylized character/mascot that is clearly and recognizably based on the face from the provided headshot. It should capture their likeness in a simplified, vector-art style, not photorealistic."`
+        ? `This is a MASCOT LOGO. The concepts must incorporate a character based on the provided headshot. The prompt MUST include this exact, verbatim command:
+        "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% LIKENESS IN MASCOT FORM.**
+        Your primary, non-negotiable, and most critical task is to create a stylized character/mascot that is clearly and unmistakably based on the face from the provided headshot.
+        - **Capture Likeness:** It must perfectly capture the subject's likeness (key facial features, expression, structure).
+        - **Translate Style:** You MUST translate this likeness into a clean, simple, flat-color vector graphic style suitable for a logo. The final output must be a vector-style illustration, NOT a photorealistic image.
+        - **Failure Condition:** A mascot that does not perfectly resemble the person in the headshot is a complete failure of the task."`
         : 'This is a brand mark logo (e.g., abstract, lettermark, emblem). Do NOT include any human faces.';
 
     const fullPrompt = `
@@ -403,7 +441,7 @@ export const generateLogo = async (selectedPrompt: string, headshot: UploadedFil
 
 **FINAL EXECUTION CHECKLIST:**
 - **Style:** The output MUST be a clean, simple logo suitable for a brand identity. It should look like a vector graphic on a solid white background. Do NOT create a photorealistic scene.
-- **Facial Likeness (If Mascot):** If the brief mentions a mascot or character based on an image, adhere to the likeness instructions in the brief.
+- **Facial Likeness (If Mascot):** If the brief mentions a mascot or character based on an image, adhere to the likeness instructions in the brief with 10000% accuracy.
 - **Text:** If the brief includes a company name or slogan, it must be rendered clearly and legibly in the specified font style. The spelling must be perfect.
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly 1:1 (a perfect square).
 - **Overall Quality:** The logo must be high-resolution, professional, and well-balanced.
@@ -444,7 +482,12 @@ Your generated prompts MUST explicitly define:
 - **Background:** Describe a professional background in detail (e.g., "A solid, neutral-colored studio backdrop in a medium gray tone," "A modern, softly out-of-focus office interior.").
 - **Attire:** Suggest appropriate professional or smart-casual clothing that fits the style.
 - **Mood & Expression:** Describe the desired expression (e.g., "A confident and approachable smile, looking directly at the camera," "A thoughtful and professional expression.").
-- **Facial Likeness Command:** Each prompt MUST include this verbatim command: "CRITICAL DIRECTIVE: ABSOLUTE FACIAL FIDELITY. Your primary, non-negotiable, top-priority objective is to perfectly replicate the face from the provided photograph. The generated face must be a 1000% photorealistic match, treating the source photo as the absolute ground truth for every facial detail, including unique features, skin texture, and micro-expressions. Do not alter, stylize, or approximate the face in any way. It must be an exact, identical likeness. This is a technical requirement, not a creative guideline."
+- **Facial Likeness Command:** Each prompt MUST include this exact, verbatim command:
+  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
+  Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image. This is a strict technical mandate, not a creative guideline.
+  - **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
+  - **No Artistic Interpretation:** Do not alter, stylize, or approximate the face.
+  - **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task."
 
 You will return a single JSON object with a key "concepts", an array of three concept objects.
 Each object must have "prompt", "reason", and "isRecommended" keys.
@@ -471,8 +514,11 @@ export const generateHeadshot = async (
 
     const generationPromises = angles.map(angleInfo => {
         const finalPrompt = `
-**CRITICAL DIRECTIVE: ABSOLUTE FACIAL FIDELITY**
-Your primary, non-negotiable, top-priority objective is to perfectly replicate the face from the provided enhanced photograph. The generated face must be a 1000% photorealistic match, treating the source photo as the absolute ground truth for every facial detail, including unique features, skin texture, and micro-expressions. Do not alter, stylize, or approximate the face in any way. It must be an exact, identical likeness. This is a technical requirement, not a creative guideline. Failure to achieve this will render the output useless.
+**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
+Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided enhanced photograph. This is a strict technical mandate, not a creative guideline.
+- **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
+- **No Artistic Interpretation:** Do not alter, stylize, or approximate the face.
+- **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task.
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
@@ -481,7 +527,7 @@ Your primary, non-negotiable, top-priority objective is to perfectly replicate t
 The subject's pose must be adjusted to be **${angleInfo.suffix}**
 
 **FINAL EXECUTION CHECKLIST:**
-- **Facial Likeness:** Adhere to the Critical Directive. The face must be a perfect match.
+- **Facial Likeness:** Adhere to the Core Directive. The face must be a perfect match.
 - **Composition:** This is a headshot. The final image must be a shoulders-up portrait.
 - **Pose:** The pose MUST match the modification: ${angleInfo.suffix}.
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly 1:1 (a perfect square).
