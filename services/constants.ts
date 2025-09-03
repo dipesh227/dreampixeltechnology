@@ -422,5 +422,20 @@ export const AD_STYLES: AdStyles = {
     travelAndLeisure: [
         { id: 'luxury-travel', name: "Exotic & Luxurious", tags: 'Aspirational & Rich', stylePrompt: 'A rich, luxurious, and aspirational travel style. Use stunning, high-resolution landscape or resort photography. Colors are deep and saturated, lighting is golden and warm. The mood is exclusive, relaxing, and high-end.' },
         { id: 'adventure-travel', name: "Budget & Adventure", tags: 'Authentic & Exciting', stylePrompt: 'An authentic, adventurous, and exciting style. Use candid-style photography of real travel experiences, not just posed shots. Imagery is vibrant and full of life. The mood is adventurous, accessible, and fun.' }
+    ],
+    financeAndCorporate: [
+        { id: 'corporate-trust', name: "Corporate Trust Blue", tags: 'Stable & Professional', stylePrompt: 'A classic, trustworthy corporate style. Use a clean layout with a blue and white color palette. Lighting should be professional and even. The mood is one of stability, security, and professionalism. Ideal for banks and insurance.' },
+        { id: 'fintech-innovative', name: "Fintech Dark Mode", tags: 'Modern & Data-Driven', stylePrompt: 'A sleek, modern dark-mode aesthetic. Use glowing data visualizations, neon accents, and a sense of innovation. The design should feel cutting-edge, intelligent, and forward-thinking. Perfect for trading apps and tech startups.' },
+        { id: 'wealth-luxury', name: "Wealth Management Gold", tags: 'Elegant & Exclusive', stylePrompt: 'An elegant and luxurious style. Use a sophisticated color palette with gold, black, and cream. Imagery should evoke exclusivity and success. The mood is aspirational, premium, and refined. Suitable for investment firms.' }
+    ],
+    educationAndELearning: [
+        { id: 'academic-clean', name: "Academic & Clean", tags: 'Informative & Trustworthy', stylePrompt: 'A clean, informative, and academic style. Use bright, even lighting, a structured layout, and a professional color palette. The mood is trustworthy, knowledgeable, and credible. Great for universities or formal courses.' },
+        { id: 'masterclass-cinematic', name: "MasterClass Cinematic", tags: 'Aspirational & Moody', stylePrompt: 'A highly cinematic and aspirational style. Use dramatic, moody lighting to create a premium feel. The instructor is presented as an expert. The overall mood is high-production, exclusive, and inspiring.' },
+        { id: 'elearning-playful', name: "E-learning Playful", tags: 'Bright & Engaging', stylePrompt: 'A bright, colorful, and engaging style for modern e-learning. Use playful illustrations, vibrant colors, and a friendly tone. The design should feel accessible, fun, and motivational. Ideal for language apps or skill platforms.' }
+    ],
+    realEstateAndProperty: [
+        { id: 'realestate-luxury', name: "Luxury Real Estate", tags: 'Bright & Aspirational', stylePrompt: 'A bright, airy, and luxurious style for high-end properties. Use clean lines, minimalist decor, and abundant natural light. The mood is aspirational, elegant, and exclusive.' },
+        { id: 'realestate-family', name: "Family Home Comfort", tags: 'Warm & Inviting', stylePrompt: 'A warm, cozy, and family-oriented style. Use soft, warm lighting and showcase happy, candid family moments. The mood is inviting, trustworthy, and emotional. Perfect for suburban homes.' },
+        { id: 'realestate-urban', name: "Urban Living", tags: 'Modern & Trendy', stylePrompt: 'A modern, trendy style for urban properties. Feature city views, contemporary design, and a dynamic, energetic vibe. The mood is cool, sophisticated, and connected.' }
     ]
 };
