@@ -197,7 +197,7 @@ const ImageEnhancer: React.FC<ImageEnhancerProps> = ({ onNavigateHome, onCreatio
 
                 {!enhancedImage && !isLoading && (
                     <div className="max-w-2xl mx-auto">
-                        <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
+                        <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center" data-tooltip="Upload any JPG or PNG image. The AI will upscale, clean, and relight it for a professional look.">
                              <input type="file" id="file-upload" className="hidden" accept="image/png, image/jpeg" onChange={handleFileChange} />
                              <label htmlFor="file-upload" className="cursor-pointer">
                                 <HiArrowUpTray className="w-8 h-8 mx-auto text-slate-500 mb-2"/>
@@ -242,6 +242,7 @@ const ImageEnhancer: React.FC<ImageEnhancerProps> = ({ onNavigateHome, onCreatio
                             className="relative w-full max-w-3xl mx-auto select-none overflow-hidden rounded-xl border-2 border-slate-700/50"
                             onMouseMove={(e) => handleSliderMove(e.clientX)}
                             onMouseUp={handleMouseUp}
+                            data-tooltip="Drag the slider to compare the 'Before' and 'After' versions of the image."
                         >
                             {/* Enhanced Image (Bottom Layer) */}
                             <img src={`data:image/png;base64,${enhancedImage}`} alt="Enhanced" className="block w-full h-auto" />
@@ -270,9 +271,11 @@ const ImageEnhancer: React.FC<ImageEnhancerProps> = ({ onNavigateHome, onCreatio
                              <button onClick={handleReset} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect">
                                 <HiArrowLeft className="w-5 h-5 text-slate-300"/> Start Over
                              </button>
-                             <button onClick={handleEnhanceMore} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-blue">
-                                <HiOutlineArrowPath className="w-5 h-5 text-sky-400"/> Enhance More
-                             </button>
+                             <div data-tooltip="Run the enhancement process again on the current 'After' image for even more quality improvements.">
+                                <button onClick={handleEnhanceMore} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-blue">
+                                    <HiOutlineArrowPath className="w-5 h-5 text-sky-400"/> Enhance More
+                                </button>
+                             </div>
                              <div className="relative group" title={!session ? 'Please sign in to save creations' : ''}>
                                 <button onClick={handleSaveCreation} disabled={isSaved || !session} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-pink">
                                     <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save'}

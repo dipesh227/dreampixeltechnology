@@ -216,7 +216,7 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
                 </button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Upload any photo of yourself. The AI will first enhance it and then use it to create a professional headshot.">
                     <h2 className="text-xl font-bold text-white mb-1">1. Upload a Photo</h2>
                     <p className="text-sm text-slate-400 mb-4">Provide one clear, forward-facing photo.</p>
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
@@ -238,7 +238,7 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
                         </div>
                     }
                 </div>
-                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
+                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4" data-tooltip="Tell the AI what this headshot is for. This context helps it generate more appropriate concepts. (e.g., 'For my company's 'About Us' page.')">
                     <div className="flex items-start gap-3">
                         <HiOutlineDocumentText className="w-6 h-6 mt-1 text-purple-400"/>
                         <div>
@@ -249,7 +249,7 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
                     <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., 'A professional and confident headshot for my company's leadership page.'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={6}></textarea>
                 </div>
             </div>
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Select a style to define the lighting, background, and overall mood of your headshot.">
                  <h2 className="text-xl font-bold text-white mb-4">3. Choose a Headshot Style</h2>
                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     {HEADSHOT_STYLES.map((style: HeadshotStyle) => (

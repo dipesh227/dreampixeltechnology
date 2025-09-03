@@ -1,5 +1,5 @@
 import { Type } from "@google/genai";
-import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle } from '../types';
+import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle } from '../types';
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
 import { RateLimitError } from "./errors";
@@ -557,6 +557,23 @@ The subject's pose must be adjusted to be **${angleInfo.suffix}**
     return orderedResult;
 };
 
+export const generatePassportPhoto = async (image: UploadedFile, outfitPrompt: string, backgroundColorHex: string): Promise<string | null> => {
+    const prompt = `
+**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
+Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided photo. This is a strict technical mandate.
+- **Source of Truth:** The source photo is the absolute ground truth for all facial features.
+- **No Artistic Interpretation:** Do not alter, stylize, or approximate the face. Replicate it exactly.
+- **Failure Condition:** Any deviation from a perfect likeness is a complete failure.
+
+**TASK: CREATE A PROFESSIONAL PASSPORT/VISA PHOTOGRAPH.**
+1.  **Enhance Quality:** First, subtly enhance the original photo quality to make it sharp and clear, as if taken in a professional studio.
+2.  **Remove Background:** Perfectly and cleanly remove the entire original background, leaving only the person. Pay close attention to hair details.
+3.  **Change Outfit:** Replace the person's current clothing from the shoulders down with ${outfitPrompt}. The new outfit must look professional and natural.
+4.  **Create New Background:** Create a new, perfectly smooth, solid-colored background using the hex color code ${backgroundColorHex}. There should be no shadows, gradients, or textures.
+5.  **Final Composition:** The result should be a high-resolution, studio-quality headshot (shoulders-up) of the person with the new outfit and new solid background. The person should be centered and facing forward with a neutral expression.
+`;
+    return geminiNativeService.generateImage(prompt, [image]);
+};
 
 export const checkCurrentApiStatus = async () => {
     try {

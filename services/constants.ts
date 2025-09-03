@@ -1,6 +1,6 @@
 
 
-import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle } from '../types';
+import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, PassportPhotoSize } from '../types';
 
 type CreatorStyles = {
     [key: string]: CreatorStyle[];
@@ -565,4 +565,36 @@ export const HEADSHOT_STYLES: HeadshotStyle[] = [
     { id: 'headshot-casual', name: 'Outdoor/Casual', tags: 'Social Media, Friendly', stylePrompt: 'A candid, natural-light portrait outdoors. The subject is dressed in stylish, casual clothing. The background is a scenic park with beautiful bokeh. Lighting is warm, golden-hour sunlight for a friendly and authentic feel.' },
     { id: 'headshot-minimalist', name: 'Minimalist', tags: 'Modern, Clean', stylePrompt: 'A sophisticated and minimalist portrait. The background is a solid, neutral color like light gray or beige. The lighting is soft and even. The overall mood is calm, confident, and high-end. Clothing is simple and elegant.' },
     { id: 'headshot-dramatic', name: 'Dramatic', tags: 'Actor, Performer', stylePrompt: 'A high-contrast, black and white headshot. The lighting is dramatic, creating strong shadows that define facial features. The expression is intense and captivating. The background is solid black.' },
+];
+
+export const PASSPORT_PHOTO_SIZES: PassportPhotoSize[] = [
+    { id: 'in-passport', name: 'Indian Passport', widthMM: 35, heightMM: 45, description: '3.5 x 4.5 cm' },
+    { id: 'in-visa', name: 'Indian Visa', widthMM: 51, heightMM: 51, description: '2 x 2 inch' },
+    { id: 'upsc', name: 'UPSC Exam', widthMM: 35, heightMM: 45, description: '3.5 x 4.5 cm' },
+    { id: 'ssc', name: 'SSC Exam', widthMM: 35, heightMM: 45, description: '3.5 x 4.5 cm' },
+];
+
+export const PASSPORT_PHOTO_STYLES: PassportPhotoStyle[] = [
+    // Male Styles
+    { id: 'male-black-suit', name: 'Man: Black Suit', outfitPrompt: 'a man wearing a professional black business suit, white dress shirt, and a simple dark tie.' },
+    { id: 'male-navy-suit', name: 'Man: Navy Suit', outfitPrompt: 'a man wearing a professional navy blue business suit, white dress shirt, and a simple blue tie.' },
+    { id: 'male-grey-suit', name: 'Man: Grey Suit', outfitPrompt: 'a man wearing a professional charcoal grey business suit, white dress shirt, and a simple grey tie.' },
+    { id: 'male-black-blazer', name: 'Man: Black Blazer', outfitPrompt: 'a man wearing a smart black blazer over a light blue dress shirt, no tie.' },
+    { id: 'male-navy-blazer', name: 'Man: Navy Blazer', outfitPrompt: 'a man wearing a smart navy blue blazer over a white dress shirt, no tie.' },
+    { id: 'male-formal-shirt-blue', name: 'Man: Blue Formal Shirt', outfitPrompt: 'a man wearing a crisp, light blue formal dress shirt, buttoned to the collar.' },
+    { id: 'male-formal-shirt-white', name: 'Man: White Formal Shirt', outfitPrompt: 'a man wearing a crisp, white formal dress shirt, buttoned to the collar.' },
+    { id: 'male-kurta-white', name: 'Man: White Kurta', outfitPrompt: 'a man wearing a simple and elegant white formal kurta.' },
+    { id: 'male-kurta-blue', name: 'Man: Light Blue Kurta', outfitPrompt: 'a man wearing a simple and elegant light blue formal kurta.' },
+    { id: 'male-nehru-jacket', name: 'Man: Nehru Jacket', outfitPrompt: 'a man wearing a dark Nehru jacket over a light-colored formal shirt.' },
+    // Female Styles
+    { id: 'female-black-suit', name: 'Woman: Black Suit', outfitPrompt: 'a woman wearing a professional black business suit jacket over a simple white blouse.' },
+    { id: 'female-navy-suit', name: 'Woman: Navy Suit', outfitPrompt: 'a woman wearing a professional navy blue business suit jacket over a simple cream blouse.' },
+    { id: 'female-grey-suit', name: 'Woman: Grey Suit', outfitPrompt: 'a woman wearing a professional charcoal grey business suit jacket over a simple white blouse.' },
+    { id: 'female-black-blazer', name: 'Woman: Black Blazer', outfitPrompt: 'a woman wearing a smart black blazer over a professional, non-distracting top.' },
+    { id: 'female-navy-blazer', name: 'Woman: Navy Blazer', outfitPrompt: 'a woman wearing a smart navy blue blazer over a professional, non-distracting top.' },
+    { id: 'female-saree-formal', name: 'Woman: Formal Saree', outfitPrompt: 'a woman wearing a simple and elegant formal saree in a solid, neutral color like beige or light grey.' },
+    { id: 'female-saree-blue', name: 'Woman: Blue Saree', outfitPrompt: 'a woman wearing a simple and elegant formal saree in a solid, professional blue color.' },
+    { id: 'female-kurti-white', name: 'Woman: White Kurti', outfitPrompt: 'a woman wearing a simple and professional white formal kurti.' },
+    { id: 'female-kurti-blue', name: 'Woman: Light Blue Kurti', outfitPrompt: 'a woman wearing a simple and professional light blue formal kurti.' },
+    { id: 'female-formal-blouse', name: 'Woman: Formal Blouse', outfitPrompt: 'a woman wearing a professional, high-necked formal blouse in a solid, neutral color.' },
 ];

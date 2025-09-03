@@ -17,6 +17,7 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
     -   AI Logo Generator
     -   AI Image Enhancer
     -   HQ Headshot Maker
+    -   Passport Photo Maker
 -   **Secure Google Authentication**: Sign in to save and manage your creations securely.
 -   **Database Encryption**: User-submitted prompts and feedback are encrypted at rest in the database using `pgsodium` for enhanced privacy.
 -   **Focused on Google Gemini**: Built to exclusively use Google's powerful Gemini AI models for the best results.
@@ -319,6 +320,19 @@ CREATE TABLE public.headshot_maker_jobs (
 ALTER TABLE public.headshot_maker_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own headshot maker jobs" ON public.headshot_maker_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+CREATE TABLE public.passport_photo_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  style_id TEXT,
+  size_id TEXT,
+  background_color TEXT,
+  photo_count INTEGER,
+  original_image_filename TEXT
+);
+ALTER TABLE public.passport_photo_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own passport photo jobs" ON public.passport_photo_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+
 ```
 </details>
 
@@ -540,6 +554,23 @@ CREATE TABLE public.headshot_maker_jobs (
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
   description TEXT,
   style_id TEXT,
+  original_image_filename TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>passport_photo_jobs</strong> - Logs inputs for passport photo generation.</summary>
+
+```sql
+CREATE TABLE public.passport_photo_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  style_id TEXT,
+  size_id TEXT,
+  background_color TEXT,
+  photo_count INTEGER,
   original_image_filename TEXT
 );
 ```

@@ -228,7 +228,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
             </div>
         
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Upload 1-5 photos of the politician. High-quality, forward-facing images produce the best results for face replication.">
                     <h2 className="text-xl font-bold text-white mb-1">1. Upload Headshots</h2>
                     <p className="text-sm text-slate-400 mb-4">Provide 1-5 images for the best face accuracy.</p>
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
@@ -253,44 +253,49 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
                     }
                 </div>
                  <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
-                    <div className="flex items-start gap-3">
-                        <HiOutlineFlag className="w-6 h-6 mt-1 text-orange-400"/>
-                        <div>
-                           <h3 className="text-md font-bold text-white">2. Select Political Party</h3>
-                           <p className="text-sm text-slate-400 mb-2">This determines the branding and color scheme.</p>
+                    <div data-tooltip="The party choice determines the logo, color scheme, and overall ideological tone of the poster concepts.">
+                        <div className="flex items-start gap-3">
+                            <HiOutlineFlag className="w-6 h-6 mt-1 text-orange-400"/>
+                            <div>
+                               <h3 className="text-md font-bold text-white">2. Select Political Party</h3>
+                               <p className="text-sm text-slate-400 mb-2">This determines the branding and color scheme.</p>
+                            </div>
                         </div>
+                        <select value={selectedPartyId} onChange={(e) => setSelectedPartyId(e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm">
+                            {POLITICAL_PARTIES.map(party => <option key={party.id} value={party.id}>{party.name}</option>)}
+                        </select>
                     </div>
-                    <select value={selectedPartyId} onChange={(e) => setSelectedPartyId(e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm">
-                        {POLITICAL_PARTIES.map(party => <option key={party.id} value={party.id}>{party.name}</option>)}
-                    </select>
                     
-                     <div className="flex items-start gap-3">
-                        <HiOutlineCalendarDays className="w-6 h-6 mt-1 text-sky-400"/>
-                        <div>
-                           <h3 className="text-md font-bold text-white">3. Occasion / Theme</h3>
-                           <p className="text-sm text-slate-400 mb-2">Choose a theme for the poster.</p>
+                    <div data-tooltip="Choose a preset theme or specify a custom one to tailor the poster's message to a specific event or announcement.">
+                         <div className="flex items-start gap-3">
+                            <HiOutlineCalendarDays className="w-6 h-6 mt-1 text-sky-400"/>
+                            <div>
+                               <h3 className="text-md font-bold text-white">3. Occasion / Theme</h3>
+                               <p className="text-sm text-slate-400 mb-2">Choose a theme for the poster.</p>
+                            </div>
                         </div>
+                        <select value={selectedEvent} onChange={e => setSelectedEvent(e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm">
+                            {POSTER_THEMES.map(theme => <option key={theme} value={theme}>{theme}</option>)}
+                            <option value="other">Other (Please specify)</option>
+                        </select>
+                        {selectedEvent === 'other' && (
+                            <input type="text" value={customEventTheme} onChange={e => setCustomEventTheme(e.target.value)} placeholder="Enter your custom theme" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm mt-2" />
+                        )}
                     </div>
-                    <select value={selectedEvent} onChange={e => setSelectedEvent(e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm">
-                        {POSTER_THEMES.map(theme => <option key={theme} value={theme}>{theme}</option>)}
-                        <option value="other">Other (Please specify)</option>
-                    </select>
-                    {selectedEvent === 'other' && (
-                        <input type="text" value={customEventTheme} onChange={e => setCustomEventTheme(e.target.value)} placeholder="Enter your custom theme" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm mt-2" />
-                    )}
-                     <div className="flex items-start gap-3">
-                        <HiOutlineDocumentText className="w-6 h-6 mt-1 text-emerald-400"/>
-                        <div>
-                           <h3 className="text-md font-bold text-white">4. Custom Text / Slogan <span className="text-slate-400 font-normal">(Optional)</span></h3>
-                           <p className="text-sm text-slate-400 mb-2">Add a specific message to the poster.</p>
+                    <div data-tooltip="Add your main slogan or message here. The AI will make this the central text element of the poster.">
+                         <div className="flex items-start gap-3">
+                            <HiOutlineDocumentText className="w-6 h-6 mt-1 text-emerald-400"/>
+                            <div>
+                               <h3 className="text-md font-bold text-white">4. Custom Text / Slogan <span className="text-slate-400 font-normal">(Optional)</span></h3>
+                               <p className="text-sm text-slate-400 mb-2">Add a specific message to the poster.</p>
+                            </div>
                         </div>
+                        <input type="text" value={customText} onChange={e => setCustomText(e.target.value)} placeholder="e.g., 'Vote for Progress'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
                     </div>
-                    <input type="text" value={customText} onChange={e => setCustomText(e.target.value)} placeholder="e.g., 'Vote for Progress'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
-
                 </div>
             </div>
 
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Select a visual style to set the overall mood and design direction of your poster. Each style provides a different artistic feel.">
                  <h2 className="text-xl font-bold text-white mb-4">5. Choose a Poster Style</h2>
                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
                     {POSTER_STYLES.map(style => (
@@ -302,7 +307,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
                  </div>
             </div>
             
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Choose the final poster shape. 4:5 is ideal for most social media feeds, while 9:16 is for stories (e.g., Instagram, WhatsApp).">
                 <h2 className="text-xl font-bold text-white mb-4">6. Choose Aspect Ratio</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button onClick={() => setAspectRatio('4:5')} className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors duration-200 ${aspectRatio === '4:5' ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>

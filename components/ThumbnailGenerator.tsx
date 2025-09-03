@@ -258,7 +258,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Upload 1-5 high-quality images of the person to be featured. The AI will use these to ensure the face in the thumbnail is a perfect match.">
                     <h2 className="text-xl font-bold text-white mb-1">2. Upload Headshots</h2>
                     <p className="text-sm text-slate-400 mb-4">Provide 1-5 images for the best face accuracy.</p>
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
@@ -283,36 +283,42 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                     }
                 </div>
                  <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
-                    <div className="flex items-start gap-3">
-                        <HiOutlineDocumentText className="w-6 h-6 mt-1 text-purple-400"/>
-                        <div>
-                           <h3 className="text-md font-bold text-white">2. Describe Your Video</h3>
-                           <p className="text-sm text-slate-400 mb-2">The more detail, the better the thumbnail concepts.</p>
+                    <div data-tooltip="Describe your video in detail. The AI uses this to brainstorm concepts that match your content and attract viewers.">
+                        <div className="flex items-start gap-3">
+                            <HiOutlineDocumentText className="w-6 h-6 mt-1 text-purple-400"/>
+                            <div>
+                               <h3 className="text-md font-bold text-white">2. Describe Your Video</h3>
+                               <p className="text-sm text-slate-400 mb-2">The more detail, the better the thumbnail concepts.</p>
+                            </div>
                         </div>
+                        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., 'A video essay exploring the rise of AI in creative industries, and whether it will replace human artists...'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" rows={4}></textarea>
                     </div>
-                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., 'A video essay exploring the rise of AI in creative industries, and whether it will replace human artists...'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" rows={4}></textarea>
                     
-                     <div className="flex items-start gap-3">
-                        <HiOutlineChatBubbleLeftRight className="w-6 h-6 mt-1 text-pink-400"/>
-                        <div>
-                           <h3 className="text-md font-bold text-white">Text on Thumbnail <span className="text-slate-400 font-normal">(Optional)</span></h3>
-                           <p className="text-sm text-slate-400 mb-2">Add compelling text to grab attention. Keep it short!</p>
+                    <div data-tooltip="Add short, punchy text that grabs attention. This text will be a prominent part of your thumbnail. Keep it under 5-6 words for maximum impact.">
+                         <div className="flex items-start gap-3">
+                            <HiOutlineChatBubbleLeftRight className="w-6 h-6 mt-1 text-pink-400"/>
+                            <div>
+                               <h3 className="text-md font-bold text-white">Text on Thumbnail <span className="text-slate-400 font-normal">(Optional)</span></h3>
+                               <p className="text-sm text-slate-400 mb-2">Add compelling text to grab attention. Keep it short!</p>
+                            </div>
                         </div>
+                        <input type="text" value={thumbnailText} onChange={e => setThumbnailText(e.target.value)} placeholder="e.g., 'AI TAKEOVER?!' or 'My BIGGEST Secret'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
                     </div>
-                    <input type="text" value={thumbnailText} onChange={e => setThumbnailText(e.target.value)} placeholder="e.g., 'AI TAKEOVER?!' or 'My BIGGEST Secret'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
 
-                    <div className="flex items-start gap-3">
-                        <HiOutlineTag className="w-6 h-6 mt-1 text-sky-400"/>
-                        <div>
-                           <h3 className="text-md font-bold text-white">Brand Details <span className="text-slate-400 font-normal">(Optional)</span></h3>
-                           <p className="text-sm text-slate-400 mb-2">Add a brand name or style notes (e.g., 'Use our font "Poppins"').</p>
+                    <div data-tooltip="Include your brand name, a specific font you use, or other branding notes. The AI will try to incorporate these elements into the design.">
+                        <div className="flex items-start gap-3">
+                            <HiOutlineTag className="w-6 h-6 mt-1 text-sky-400"/>
+                            <div>
+                               <h3 className="text-md font-bold text-white">Brand Details <span className="text-slate-400 font-normal">(Optional)</span></h3>
+                               <p className="text-sm text-slate-400 mb-2">Add a brand name or style notes (e.g., 'Use our font "Poppins"').</p>
+                            </div>
                         </div>
+                        <input type="text" value={brandDetails} onChange={e => setBrandDetails(e.target.value)} placeholder="e.g., 'DreamPixel Tech'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
                     </div>
-                    <input type="text" value={brandDetails} onChange={e => setBrandDetails(e.target.value)} placeholder="e.g., 'DreamPixel Tech'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
                 </div>
             </div>
 
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Select a creator whose style you admire. This choice heavily influences the mood, color, and composition of the generated thumbnail concepts.">
                  <h2 className="text-xl font-bold text-white mb-4">3. Choose a Creator Style</h2>
                  <div className="flex flex-wrap gap-2 mb-4 border-b border-slate-800 pb-4">
                      {Object.keys(CREATOR_STYLES).map(category => (
@@ -331,7 +337,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                  </div>
             </div>
             
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Choose the final shape of your thumbnail. 16:9 is standard for YouTube videos, while 9:16 is for Shorts, Reels, and TikTok.">
                 <h2 className="text-xl font-bold text-white mb-4">4. Choose Aspect Ratio</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button onClick={() => setAspectRatio('16:9')} className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors duration-200 ${aspectRatio === '16:9' ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>

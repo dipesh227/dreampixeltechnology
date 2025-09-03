@@ -47,7 +47,7 @@ const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, onCreatio
             let index = 0;
             setLoadingMessage(messages[index]);
             interval = setInterval(() => { index = (index + 1) % messages.length; setLoadingMessage(messages[index]); }, 2000);
-        } else if (step === 'generating') {
+        } else if (isLoading && step === 'generating') {
             const messages = ['Initializing design vectors...', 'Rendering logo variations...', 'Applying color palettes...', 'Finalizing brand mark...'];
             let index = 0;
             setLoadingMessage(messages[index]);
@@ -169,7 +169,7 @@ const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, onCreatio
                 </button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4" data-tooltip="Provide the core details about your brand. The more context you give the AI, the more relevant your logo concepts will be.">
                     <div className="flex items-start gap-3">
                         <HiOutlineBuildingOffice2 className="w-6 h-6 mt-1 text-purple-400"/>
                         <div>
@@ -181,7 +181,7 @@ const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, onCreatio
                     <input value={slogan} onChange={(e) => setSlogan(e.target.value)} placeholder="Slogan (Optional)" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                     <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your company and what it does... e.g., 'A modern coffee shop for young professionals.'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={4}></textarea>
                 </div>
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Want a logo featuring a character or mascot? Upload a headshot, and the AI will create a stylized mascot that looks just like the person in the photo.">
                     <div className="flex items-start gap-3">
                         <HiOutlineUserCircle className="w-6 h-6 mt-1 text-pink-400"/>
                         <div>
@@ -208,7 +208,7 @@ const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, onCreatio
                     }
                 </div>
             </div>
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Select a style to define the visual direction of your logo. This is the most important choice for the final design.">
                  <h2 className="text-xl font-bold text-white mb-4">3. Choose a Logo Style</h2>
                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     {LOGO_STYLES.general.map((style: LogoStyle) => (

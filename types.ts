@@ -1,6 +1,6 @@
 
 
-export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker';
+export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo';
 
 export interface Tool {
   id: ToolType;
@@ -59,6 +59,20 @@ export interface HeadshotStyle {
     name: string;
     tags: string;
     stylePrompt: string;
+}
+
+export interface PassportPhotoStyle {
+    id: string;
+    name: string;
+    outfitPrompt: string;
+}
+
+export interface PassportPhotoSize {
+    id: string;
+    name: string;
+    widthMM: number;
+    heightMM: number;
+    description: string;
 }
 
 export type AspectRatio = '16:9' | '9:16' | '1:1' | '4:5' | '1.91:1';

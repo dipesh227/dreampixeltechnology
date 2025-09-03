@@ -239,7 +239,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                      </div>
                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Product Image Upload */}
-                        <div className="text-center">
+                        <div className="text-center" data-tooltip="Upload a clear image of your product, preferably on a clean background. This will be the 'hero' of the ad.">
                              <div className="p-4 border-2 border-dashed border-slate-700 rounded-xl bg-slate-800/50 hover:border-slate-600 transition h-40 flex flex-col justify-center">
                                  <input type="file" id="product-upload" className="hidden" accept="image/png, image/jpeg" onChange={(e) => handleFileChange(e, 'product')} />
                                  <label htmlFor="product-upload" className="cursor-pointer">
@@ -253,7 +253,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                              </div>}
                         </div>
                         {/* Model Headshot Upload */}
-                         <div className="text-center">
+                         <div className="text-center" data-tooltip="Upload a high-quality headshot of the person to feature in the ad. The AI will ensure their face is accurately represented.">
                              <div className="p-4 border-2 border-dashed border-slate-700 rounded-xl bg-slate-800/50 hover:border-slate-600 transition h-40 flex flex-col justify-center">
                                  <input type="file" id="model-upload" className="hidden" accept="image/png, image/jpeg" onChange={(e) => handleFileChange(e, 'model')} />
                                  <label htmlFor="model-upload" className="cursor-pointer">
@@ -270,36 +270,42 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                 </div>
                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
                     <h2 className="text-xl font-bold text-white mb-1">2. Describe Your Campaign</h2>
-                    <div className="flex items-start gap-3">
-                        <HiOutlineDocumentText className="w-6 h-6 mt-1 text-purple-400"/>
-                        <div>
-                           <h3 className="text-md font-bold text-white">Product Description</h3>
-                           <p className="text-sm text-slate-400 mb-2">Describe the product, audience, and goals.</p>
+                    <div data-tooltip="Describe your product, its benefits, and who you're selling to. This context helps the AI generate more relevant ad concepts.">
+                        <div className="flex items-start gap-3">
+                            <HiOutlineDocumentText className="w-6 h-6 mt-1 text-purple-400"/>
+                            <div>
+                               <h3 className="text-md font-bold text-white">Product Description</h3>
+                               <p className="text-sm text-slate-400 mb-2">Describe the product, audience, and goals.</p>
+                            </div>
                         </div>
+                        <textarea value={productDescription} onChange={(e) => setProductDescription(e.target.value)} placeholder="e.g., 'A new line of eco-friendly sneakers for young, urban professionals...'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" rows={2}></textarea>
                     </div>
-                    <textarea value={productDescription} onChange={(e) => setProductDescription(e.target.value)} placeholder="e.g., 'A new line of eco-friendly sneakers for young, urban professionals...'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" rows={2}></textarea>
                     
-                     <div className="flex items-start gap-3">
-                        <HiOutlineChatBubbleLeftRight className="w-6 h-6 mt-1 text-pink-400"/>
-                        <div>
-                           <h3 className="text-md font-bold text-white">Headline</h3>
-                           <p className="text-sm text-slate-400 mb-2">The main text for the ad. Keep it punchy!</p>
+                    <div data-tooltip="This is the main, attention-grabbing text on your ad. Keep it short, powerful, and to the point.">
+                         <div className="flex items-start gap-3">
+                            <HiOutlineChatBubbleLeftRight className="w-6 h-6 mt-1 text-pink-400"/>
+                            <div>
+                               <h3 className="text-md font-bold text-white">Headline</h3>
+                               <p className="text-sm text-slate-400 mb-2">The main text for the ad. Keep it punchy!</p>
+                            </div>
                         </div>
+                        <input type="text" value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g., 'Step Into the Future'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
                     </div>
-                    <input type="text" value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g., 'Step Into the Future'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
 
-                    <div className="flex items-start gap-3">
-                        <HiOutlineTag className="w-6 h-6 mt-1 text-sky-400"/>
-                        <div>
-                           <h3 className="text-md font-bold text-white">Brand Name <span className="text-slate-400 font-normal">(Optional)</span></h3>
-                           <p className="text-sm text-slate-400 mb-2">The brand name to feature in the ad.</p>
+                    <div data-tooltip="Enter your brand or company name here. It will be incorporated into the ad design.">
+                        <div className="flex items-start gap-3">
+                            <HiOutlineTag className="w-6 h-6 mt-1 text-sky-400"/>
+                            <div>
+                               <h3 className="text-md font-bold text-white">Brand Name <span className="text-slate-400 font-normal">(Optional)</span></h3>
+                               <p className="text-sm text-slate-400 mb-2">The brand name to feature in the ad.</p>
+                            </div>
                         </div>
+                        <input type="text" value={brandDetails} onChange={e => setBrandDetails(e.target.value)} placeholder="e.g., 'EcoStride'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
                     </div>
-                    <input type="text" value={brandDetails} onChange={e => setBrandDetails(e.target.value)} placeholder="e.g., 'EcoStride'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
                 </div>
             </div>
 
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Select an industry and style to guide the AI's design. This determines the overall look, feel, and mood of your ad banner.">
                  <h2 className="text-xl font-bold text-white mb-4">3. Choose an Ad Style</h2>
                  <div className="flex flex-wrap gap-2 mb-4 border-b border-slate-800 pb-4">
                      {Object.keys(AD_STYLES).map(category => (
@@ -318,7 +324,7 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                  </div>
             </div>
 
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Choose the final shape of your ad. Select the ratio that matches the ad placement you are targeting (e.g., Instagram post, Facebook ad).">
                 <h2 className="text-xl font-bold text-white mb-4">4. Choose Aspect Ratio</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <button onClick={() => setAspectRatio('1:1')} className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-colors duration-200 ${aspectRatio === '1:1' ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tool, ToolType, ConnectedAccount } from '../types';
 // FIX: Replaced non-existent HiOutlineColorSwatch with HiOutlineSwatch.
-import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineShare, HiOutlineUserGroup, HiOutlineUserCircle, HiOutlineSwatch, HiOutlineSparkles, HiOutlineIdentification } from 'react-icons/hi2';
+import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineShare, HiOutlineUserGroup, HiOutlineUserCircle, HiOutlineSwatch, HiOutlineSparkles, HiOutlineIdentification, HiOutlineCreditCard } from 'react-icons/hi2';
 import SocialConnect from './SocialConnect';
 
 interface LandingPageProps {
@@ -20,6 +20,7 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ to
         logo: { icon: HiOutlineSwatch, gradient: 'from-fuchsia-500 to-purple-500' },
         'image-enhancer': { icon: HiOutlineSparkles, gradient: 'from-yellow-400 to-amber-500' },
         'headshot-maker': { icon: HiOutlineIdentification, gradient: 'from-cyan-400 to-sky-500' },
+        'passport-photo': { icon: HiOutlineCreditCard, gradient: 'from-blue-500 to-indigo-600' },
     };
     const { icon: Icon, gradient } = icons[tool.id];
 
@@ -60,6 +61,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccoun
         { id: 'logo', title: "AI Logo Generator", description: "Generate unique logos for your brand, with or without a mascot from a headshot.", enabled: true },
         { id: 'image-enhancer', title: "AI Image Enhancer", description: "Automatically improve image quality, lighting, and clarity with a single click. Upscale and refine.", enabled: true },
         { id: 'headshot-maker', title: "HQ Headshot Maker", description: "Turn any photo into a professional, studio-quality 1:1 headshot, perfect for any profile.", enabled: true },
+        { id: 'passport-photo', title: "Passport Photo Maker", description: "Create official, compliant passport-size photos with background and outfit changes.", enabled: true },
     ];
 
     return (

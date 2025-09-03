@@ -200,29 +200,29 @@ const SocialMediaPostGenerator: React.FC<SocialMediaPostGeneratorProps> = ({ onN
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
                     <h2 className="text-xl font-bold text-white">1. Post Details</h2>
-                    <div>
+                    <div data-tooltip="Describe the core message or announcement for your post. The AI will generate both a visual and a caption based on this.">
                         <label className="font-semibold text-slate-300">Topic / Content Idea</label>
                         <p className="text-sm text-slate-400 mb-2">What is this post about? Be descriptive.</p>
                         <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g., Announcing a new line of sustainable coffee beans..." className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={3}></textarea>
                     </div>
-                    <div>
+                    <div data-tooltip="Select the social media platform you're targeting. This automatically sets the correct image aspect ratio.">
                         <label className="font-semibold text-slate-300">Target Platform</label>
                         <select value={platform} onChange={e => setPlatform(e.target.value as Platform)} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm">
                             {Object.keys(platforms).map(p => <option key={p} value={p}>{p}</option>)}
                         </select>
                     </div>
-                     <div>
+                     <div data-tooltip="Choose the tone of voice for the written caption. This helps the AI match your brand's personality.">
                         <label className="font-semibold text-slate-300">Desired Tone</label>
                         <div className="grid grid-cols-3 gap-2 mt-2">
                              {tones.map(t => <button key={t} type="button" onClick={() => setTone(t)} className={`p-2 text-sm rounded-md transition-colors ${tone === t ? 'bg-purple-600 text-white font-semibold' : 'bg-slate-800 hover:bg-slate-700'}`}>{t}</button>)}
                         </div>
                     </div>
-                    <div>
+                    <div data-tooltip="Add a call to action to encourage engagement, like asking a question or directing users to a link.">
                         <label className="font-semibold text-slate-300">Call to Action (Optional)</label>
                         <input type="text" value={callToAction} onChange={e => setCallToAction(e.target.value)} placeholder="e.g., 'Shop now!' or 'Link in bio'" className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                     </div>
                 </div>
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Select a visual style for the image part of your post. This sets the artistic direction for the AI image generator.">
                      <h2 className="text-xl font-bold text-white mb-4">2. Choose a Visual Style</h2>
                      <div className="flex flex-wrap gap-2 mb-4 border-b border-slate-800 pb-4">
                          {Object.keys(AD_STYLES).map(category => (

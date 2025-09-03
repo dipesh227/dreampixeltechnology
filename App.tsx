@@ -20,6 +20,7 @@ import ProfileImageGenerator from './components/ProfileImageGenerator';
 import LogoGenerator from './components/LogoGenerator';
 import ImageEnhancer from './components/ImageEnhancer';
 import HeadshotMaker from './components/HeadshotMaker';
+import PassportPhotoMaker from './components/PassportPhotoMaker';
 
 const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');
@@ -100,6 +101,9 @@ const App: React.FC = () => {
       case 'headshot-maker':
         document.title = `HQ Headshot Maker | ${baseTitle}`;
         break;
+      case 'passport-photo':
+        document.title = `Passport Photo Maker | ${baseTitle}`;
+        break;
       default:
         document.title = `AI Content Creation Suite | ${baseTitle}`;
     }
@@ -169,6 +173,7 @@ const App: React.FC = () => {
             {activeTool === 'logo' && <LogoGenerator onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
             {activeTool === 'image-enhancer' && <ImageEnhancer onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
             {activeTool === 'headshot-maker' && <HeadshotMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'passport-photo' && <PassportPhotoMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
           </>
         )}
       </main>

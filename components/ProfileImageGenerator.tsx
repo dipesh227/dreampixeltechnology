@@ -46,7 +46,7 @@ const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ onNavigat
             let index = 0;
             setLoadingMessage(messages[index]);
             interval = setInterval(() => { index = (index + 1) % messages.length; setLoadingMessage(messages[index]); }, 2000);
-        } else if (step === 'generating') {
+        } else if (isLoading && step === 'generating') {
             const messages = ['Preparing digital canvas...', 'Replicating facial features...', 'Applying lighting & textures...', 'Rendering final portrait...'];
             let index = 0;
             setLoadingMessage(messages[index]);
@@ -188,7 +188,7 @@ const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ onNavigat
                 </button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Upload a single, high-quality photo of your face, looking directly at the camera. Good lighting is key for the best results.">
                     <h2 className="text-xl font-bold text-white mb-1">1. Upload Headshot</h2>
                     <p className="text-sm text-slate-400 mb-4">Provide one clear, forward-facing headshot.</p>
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
@@ -210,7 +210,7 @@ const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ onNavigat
                         </div>
                     }
                 </div>
-                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
+                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4" data-tooltip="Describe the purpose and vibe of your desired profile picture. For example, 'A professional and friendly headshot for LinkedIn' or 'A cool, vibrant avatar for my gaming profile'.">
                     <div className="flex items-start gap-3">
                         <HiOutlineDocumentText className="w-6 h-6 mt-1 text-purple-400"/>
                         <div>
@@ -221,7 +221,7 @@ const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ onNavigat
                     <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., 'A professional and friendly headshot for my LinkedIn profile. I'm a marketing manager.'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" rows={6}></textarea>
                 </div>
             </div>
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Choose a style to set the overall mood, lighting, and background for your profile picture.">
                  <h2 className="text-xl font-bold text-white mb-4">3. Choose a Style</h2>
                  <div className="flex flex-wrap gap-2 mb-4 border-b border-slate-800 pb-4">
                      {Object.keys(PROFILE_PICTURE_STYLES).map(category => (

@@ -203,3 +203,29 @@ export const saveHeadshotMakerJob = async (data: HeadshotMakerJobData): Promise<
         console.error("Failed to save headshot maker job", error);
     }
 };
+
+// Passport Photo Job
+interface PassportPhotoJobData {
+    userId: string;
+    styleId: string;
+    sizeId: string;
+    backgroundColor: string;
+    photoCount: number;
+    originalImageFilename: string;
+}
+
+export const savePassportPhotoJob = async (data: PassportPhotoJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('passport_photo_jobs').insert({
+            user_id: data.userId,
+            style_id: data.styleId,
+            size_id: data.sizeId,
+            background_color: data.backgroundColor,
+            photo_count: data.photoCount,
+            original_image_filename: data.originalImageFilename,
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save passport photo job", error);
+    }
+};
