@@ -82,31 +82,34 @@ const parseAndValidateConcepts = (jsonText: string): GeneratedConcept[] => {
 
 export const generatePrompts = async (description: string, style: CreatorStyle): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are a PhD-level viral content strategist and a world-class YouTube thumbnail designer. Your primary mission is to generate three strategically distinct and compelling thumbnail concepts that will maximize the click-through rate (CTR) for a given video.
+You are a world-class viral content strategist for YouTube. Your task is to generate three distinct, high-CTR thumbnail concepts based on a video description, a target creator's brand, and a specific visual style. You MUST follow the JSON output format.
 
-**Primary Goal:** Generate three concepts engineered for maximum virality and viewer engagement.
+**1. Video Analysis:**
+   - **Content:** "${description}"
 
-**Video Description:**
-"${description}"
+**2. Creator Profile:**
+   - **Name:** ${style.name}
+   - **Brand Identity & Core Style:** ${style.creatorStyle}
 
-**Target Creator Style Analysis:**
-- **Creator:** ${style.name}
-- **Core Style:** ${style.creatorStyle}
-- **Target Mood:** ${style.mood}
-- **Visual Aesthetic:** ${style.imageStyle}
+**3. Visual Style Brief:**
+   - **Target Mood:** ${style.mood}
+   - **Core Aesthetic & Technical Details:** ${style.imageStyle}
 
-**CRITICAL TASK:**
-You must create three unique thumbnail concepts that perfectly embody the specified creator's brand. Your core task is to translate the abstract 'Mood' and 'Visual Aesthetic' into concrete, actionable instructions for an AI image generator. Be explicit. For example, instead of just 'dramatic,' specify 'dramatic, high-contrast rim lighting from the side, casting deep shadows.' Instead of 'cinematic,' specify 'desaturated cinematic color grading with a teal and orange palette, shallow depth of field, and a 2.35:1 aspect ratio composition.' Your instructions must cover:
-- **Composition:** (e.g., rule of thirds, centered subject, dynamic Dutch angle)
-- **Lighting:** (e.g., soft natural light, harsh top-down light, neon backlighting)
-- **Color Grading:** (e.g., hyper-saturated vibrant palette, moody desaturated tones)
-- **Camera Effects:** (e.g., shallow depth of field, wide-angle lens distortion, motion blur)
-- **Subject's Expression and Pose:** (e.g., shocked open-mouthed expression, confident power pose)
+**CRITICAL TASK & INSTRUCTIONS:**
+Your primary goal is to generate three unique thumbnail concepts. For each concept, create a detailed, expert-level prompt for an AI image generator. This prompt must translate the abstract "Visual Style Brief" into concrete, actionable instructions.
 
-For each of the three concepts, you must provide a grammatically perfect JSON object with the following keys:
-1.  **"prompt"**: A concise, expertly crafted, and highly descriptive prompt for the AI image generator.
-2.  **"reason"**: A brief, professional explanation of the marketing psychology behind the concept and why it strategically aligns with the creator's brand to maximize clicks.
-3.  **"isRecommended"**: A boolean value. Mark ONLY ONE concept as 'true'. This must be the concept you, as an expert, believe has the absolute highest potential for virality.
+Your generated prompts MUST explicitly define:
+- **Composition & Framing:** (e.g., Extreme close-up on face, rule-of-thirds with negative space, dynamic dutch angle).
+- **Lighting Design:** (e.g., Dramatic high-contrast rim lighting, soft and even beauty lighting, neon colored gels).
+- **Color Grading & Palette:** (e.g., Hyper-saturated and vibrant, desaturated cinematic with teal/orange, monochrome with a single color pop).
+- **Subject's Pose & Expression:** (e.g., Exaggerated shocked expression with wide eyes, confident and aspirational gaze, humorous and relatable reaction).
+- **Camera & Lens Effects:** (e.g., 85mm portrait lens with creamy bokeh, 24mm wide-angle lens with slight distortion, anamorphic lens flare).
+
+You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
+Each concept object must have the following keys: "prompt", "reason", "isRecommended".
+- **"prompt"**: The detailed, expertly crafted prompt for the AI image generator.
+- **"reason"**: A brief, strategic explanation of why this concept will maximize clicks for this specific creator and video.
+- **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
 `;
 
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
@@ -116,31 +119,30 @@ For each of the three concepts, you must provide a grammatically perfect JSON ob
 export const generateThumbnail = async (
     selectedPrompt: string, headshots: UploadedFile[], style: CreatorStyle, aspectRatio: AspectRatio, thumbnailText?: string, brandDetails?: string
 ): Promise<string | null> => {
-    let textInstruction = "CRITICAL: Do NOT include any text, letters, or numbers in the image unless explicitly told to. The image must be purely visual.";
+    let textInstruction = "CRITICAL: Do NOT add any text, words, or logos to the image unless the creative brief explicitly asks for it. The image should be purely visual.";
     if (thumbnailText && thumbnailText.trim()) {
-        textInstruction = `CRITICAL: Incorporate the following text prominently and stylistically on the thumbnail: "${thumbnailText}". Choose a bold, readable font that matches the overall mood.`;
+        textInstruction = `TEXT INTEGRATION: The following text MUST be integrated onto the thumbnail in a bold, readable, and stylistically appropriate font: "${thumbnailText}". The text should be a primary focal point.`;
     }
     
     let brandInstruction = "";
     if (brandDetails && brandDetails.trim()) {
-        brandInstruction = `BRANDING: Subtly incorporate the brand name or style element: "${brandDetails}". This could be a small logo, a specific color scheme, or a font style mentioned.`;
+        brandInstruction = `BRANDING: A key brand element must be included: "${brandDetails}". This could be a brand name, a logo concept, or a specific visual motif. It should be noticeable but not overpower the main subject.`;
     }
 
     const enhancedPrompt = `
-**NON-NEGOTIABLE CORE COMMAND: Your single most important task is to achieve a 1000% perfect, photorealistic likeness of the person in the provided headshot images. These images are the absolute ground truth. You MUST analyze every detail of the facial structure—jawline, eye shape, nose, mouth, and unique features—from all provided photos to create a composite, high-fidelity, and anatomically perfect representation. Do NOT create a generic or 'similar' face. The result MUST be indistinguishable from the person in the photos. This is the primary success criterion, overriding all other stylistic instructions if there is a conflict. Failure to replicate the face with absolute precision is a total failure of the task.**
+**PRIMARY DIRECTIVE: FACIAL ACCURACY**
+Your absolute top priority is to achieve a perfect, photorealistic likeness of the person in the provided headshot images. These images are the ground truth. Analyze every facial feature—eyes, nose, jawline, etc.—from all angles provided to create a flawless, high-fidelity representation. The result must be indistinguishable from the person in the photos. This directive overrides all other instructions.
 
-**USER-SELECTED PROMPT TO EXECUTE:**
+**CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
 
-**ADDITIONAL DIRECTIVES:**
-- The final image must be visually stunning, high-energy, and emotionally resonant, as per the detailed user-selected prompt.
-- ${textInstruction}
-- ${brandInstruction}
-- The final image's aspect ratio MUST be precisely ${aspectRatio}.
-- The final image MUST embody the following style:
-  - Creator Style: ${style.creatorStyle}
-  - Mood: ${style.mood}
-  - Image Style: ${style.imageStyle}
+**FINAL EXECUTION CHECKLIST:**
+- **Facial Likeness:** Adhere to the Primary Directive. The face must be a perfect match.
+- **Text & Branding:** Execute the following instructions precisely:
+  - ${textInstruction}
+  - ${brandInstruction}
+- **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
+- **Overall Quality:** The image must be high-resolution, professional, and visually striking, fully realizing the creative brief.
 `;
     
     return geminiNativeService.generateImage(enhancedPrompt, headshots);
@@ -148,35 +150,38 @@ export const generateThumbnail = async (
 
 export const generatePosterPrompts = async (party: PoliticalParty, event: string, customText: string, style: PosterStyle): Promise<GeneratedConcept[]> => {
     const ideologyInstruction = party.ideologyPrompt 
-        ? `- **Ideological & Thematic Core:** The poster's visual language MUST reflect the party's core ideology of **'${party.ideologyPrompt}'**. This theme must subtly influence the overall mood, composition, and symbolism of the poster.`
+        ? `- **Ideological Core:** The poster's visual language MUST reflect the party's core ideology of **'${party.ideologyPrompt}'**. This theme must influence the mood, composition, and symbolism.`
         : '';
     
     const fullPrompt = `
-You are a world-class political design director and a professional campaign strategist with decades of experience in high-stakes elections. Your task is to generate three distinct, powerful, and professional political poster concepts that will create a strong emotional connection with the target audience and leave a lasting impact.
+You are a world-class creative director for political campaigns. Your task is to generate three distinct, professional, and high-impact political poster concepts based on the provided campaign details. You must follow the specified JSON output format.
 
-**Campaign Brief Analysis:**
-- **Political Party:** ${party.name}
-- **Occasion / Theme:** '${event}'
-- **Core Message / Slogan:** "${customText}"
-- **Requested Artistic Style:** '${style.name}' (${style.stylePrompt})
+**1. Campaign Brief:**
+   - **Party:** ${party.name}
+   - **Occasion/Theme:** '${event}'
+   - **Key Slogan/Text:** "${customText}"
+   - **Target Style:** '${style.name}' (${style.stylePrompt})
 
-**NON-NEGOTIABLE Branding Mandate:**
-- **Party Logo Elements:** ${party.logoPrompt}
-- **Official Party Color Scheme:** ${party.colorScheme}
-${ideologyInstruction}
-- **CRITICAL INSTRUCTION:** The party's branding is not merely an add-on; it is the foundational visual identity of the poster. The official logo elements and color scheme must be integrated prominently, accurately, and powerfully into the overall design. The branding should be instantly recognizable and feel integral to the composition.
+**2. Brand Mandates (Non-Negotiable):**
+   - **Logo Elements:** The design must prominently feature the party's logo, described as: **${party.logoPrompt}**.
+   - **Color Scheme:** The official party colors, **${party.colorScheme}**, must be central to the design.
+   ${ideologyInstruction}
 
-**Your Critical Creative Task:**
-Your primary function is to translate the abstract 'Requested Artistic Style' into a concrete, masterful art direction. For each of the three concepts, your generated prompt for the image AI must explicitly and in detail define the following visual components:
-- **Composition & Framing:** (e.g., A formal, symmetrical composition to convey stability and order; a dynamic, asymmetrical layout with leading lines to suggest forward progress and action).
-- **Lighting Design:** (e.g., A heroic three-point lighting setup with a strong key light to create a powerful, sculpted look; a soft, natural window light to appear approachable and trustworthy).
-- **Color Palette & Grading:** (e.g., A high-contrast, vibrantly saturated palette, dominated by the party's official colors to create energy; a muted, cinematic color grade for a serious and contemplative tone).
-- **Subject's Pose, Expression, & Demeanor:** (e.g., A confident, forward-looking gaze with a determined expression, projecting leadership; a warm, humble smile to appear relatable and empathetic).
+**CRITICAL TASK & INSTRUCTIONS:**
+Your main goal is to generate three unique poster concepts. For each concept, create a detailed prompt for an AI image generator that translates the abstract 'Target Style' into a concrete art direction.
 
-For each of the three concepts, you must provide a grammatically perfect and meticulously structured JSON object with the following keys:
-1.  **"prompt"**: A detailed, direct-instruction prompt for an advanced AI image generator. This prompt must synthesize all the creative direction (composition, lighting, style) AND explicitly command the AI to integrate the specific party branding. It MUST state that the poster is for the **'${party.name}'** party, must include **'${party.logoPrompt}'**, and must use the color scheme **'${party.colorScheme}'**. This prompt must also contain the following NON-NEGOTIABLE command for facial likeness: "Your single most important task is to achieve a 1000% perfect, photorealistic likeness of the person in the provided headshot images. These images are the absolute ground truth. You MUST analyze every detail of their facial structure from all provided photos to create a composite, high-fidelity, and anatomically perfect representation. Failure to replicate the face with absolute precision is a total failure of the task."
-2.  **"reason"**: A brief, expert analysis of the political communication strategy behind the concept. Explain why its specific visual language (composition, lighting, etc.) is effective for this particular campaign and target audience.
-3.  **"isRecommended"**: A boolean value. You must mark ONLY ONE concept as 'true'. This should be the concept that you, as a seasoned expert, believe is the most strategically brilliant, visually compelling, and professionally executed.
+Your generated prompts MUST explicitly define:
+- **Composition & Framing:** (e.g., Formal, symmetrical composition for stability; dynamic, asymmetrical layout for progress).
+- **Lighting Design:** (e.g., Heroic three-point lighting for a powerful look; soft, natural light for approachability).
+- **Color Palette & Grading:** (e.g., High-contrast, vibrantly saturated palette using party colors; muted, cinematic grade for a serious tone).
+- **Subject's Pose & Expression:** (e.g., Confident, forward-looking gaze for leadership; warm, humble smile for empathy).
+- **Facial Likeness Command:** Each prompt MUST include this verbatim command: "PRIMARY DIRECTIVE: FACIAL ACCURACY. Your absolute top priority is to achieve a perfect, photorealistic likeness of the person in the provided headshot images. These images are the ground truth. Analyze every facial feature to create a flawless, high-fidelity representation. This directive overrides all other instructions."
+
+You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
+Each concept object must have the following keys: "prompt", "reason", "isRecommended".
+- **"prompt"**: The detailed, expertly crafted prompt for the AI image generator, including all branding and facial likeness commands.
+- **"reason"**: A brief, strategic analysis of why this concept is effective for this campaign.
+- **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
 `;
 
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
@@ -184,26 +189,18 @@ For each of the three concepts, you must provide a grammatically perfect and met
 };
 
 export const generatePoster = async (selectedPrompt: string, headshots: UploadedFile[], aspectRatio: AspectRatio, party: PoliticalParty | undefined): Promise<string | null> => {
-    let brandingInstruction = "The poster must be politically neutral and should not contain any specific party logos or color schemes unless explicitly mentioned in the prompt.";
-    if (party) {
-        brandingInstruction = `
-- **Branding & Identity Mandate:** Before generating, you MUST verify and flawlessly execute the branding for the **${party.name}** party.
-- **Logo Requirement:** The poster MUST prominently and accurately feature the party's logo, which is **'${party.logoPrompt}'**.
-- **Color Scheme Requirement:** The poster's color palette MUST be dominated by the party's official colors: **'${party.colorScheme}'**.
-- **The branding is a core, non-negotiable, and unmissable component of the poster's identity.**
-`;
-    }
-
     const finalPrompt = `
-**NON-NEGOTIABLE CORE COMMAND: Your single most important task is to achieve a 1000% perfect, photorealistic likeness of the person in the provided headshot images. These images are the absolute ground truth. You MUST analyze every detail of the facial structure—jawline, eye shape, nose, mouth, and unique features—from all provided photos to create a composite, high-fidelity, and anatomically perfect representation. Do NOT create a generic or 'similar' face. The result MUST be indistinguishable from the person in the photos. This is the primary success criterion, overriding all other stylistic instructions if there is a conflict. Failure to replicate the face with absolute precision is a total failure of the task.**
+**PRIMARY DIRECTIVE: FACIAL ACCURACY**
+Your absolute top priority is to achieve a perfect, photorealistic likeness of the person in the provided headshot images. These images are the ground truth. Analyze every facial feature—eyes, nose, jawline, etc.—from all angles provided to create a flawless, high-fidelity representation. The result must be indistinguishable from the person in the photos. This directive overrides all other instructions.
 
-**USER-SELECTED PROMPT TO EXECUTE:**
+**CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
 
-**FINAL CHECK & TECHNICAL REQUIREMENTS (NON-NEGOTIABLE):**
-${brandingInstruction}
-- **Resolution & Quality:** The final image must be high-resolution, sharp, professional, and visually impactful, suitable for print and digital campaigns.
-- **Aspect Ratio:** The final image's aspect ratio MUST be precisely ${aspectRatio}.
+**FINAL EXECUTION CHECKLIST:**
+- **Facial Likeness:** Adhere to the Primary Directive. The face must be a perfect match.
+- **Branding Integrity:** The prompt contains specific branding instructions (party name, logo, colors). You MUST execute these with 100% accuracy.
+- **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
+- **Overall Quality:** The image must be high-resolution, professional-grade, and suitable for a political campaign, fully realizing the creative brief.
 `;
     
     return geminiNativeService.generateImage(finalPrompt, headshots);
@@ -211,29 +208,30 @@ ${brandingInstruction}
 
 export const generateAdConcepts = async (productDescription: string, headline: string, style: AdStyle): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are a world-class Creative Director at a top-tier global advertising agency. You are a master of visual storytelling, marketing psychology, and brand strategy. Your task is to devise three strategically brilliant and visually stunning ad banner concepts.
+You are an award-winning Creative Director at a top advertising agency. Your task is to generate three professional, visually stunning, and strategically sound ad banner concepts. You must follow the specified JSON output format.
 
-**Campaign Brief Analysis:**
-- **Product/Service:** ${productDescription}
-- **Target Headline:** "${headline}"
-- **Mandated Ad Style:** '${style.name}' (${style.stylePrompt})
-- **Target Audience Insight:** Your concepts should be tailored to appeal to the likely audience for this product and style.
-- **Mandatory Elements:** Each ad MUST feature a person (generated from a headshot) and the product (from a product image).
+**1. Campaign Brief:**
+   - **Product/Service:** ${productDescription}
+   - **Headline:** "${headline}"
+   - **Target Ad Style:** '${style.name}' (${style.stylePrompt})
+   - **Mandatory Elements:** The ad must feature a person (from a headshot) and the product (from a product image).
 
-**Your Critical Creative Task & Directives:**
-For each of the three concepts, you must generate a complete art direction plan. This plan must be so detailed that a junior designer could execute it flawlessly. You must translate the abstract 'Mandated Ad Style' into a concrete, masterful set of instructions. Each concept's prompt for the final AI image generator must explicitly define:
+**CRITICAL TASK & INSTRUCTIONS:**
+Your goal is to generate three unique ad concepts. For each, create a detailed prompt for an AI image generator that provides a complete art direction.
 
-1.  **Core Narrative:** A one-sentence story for the ad (e.g., "The moment of joyful discovery when the product solves a key problem.").
-2.  **Model & Product Interaction:** How does the person interact with or relate to the product? (e.g., "The model is confidently holding the product, presenting it to the viewer," or "The model is actively using the product in a dynamic environment.").
-3.  **Specific Composition & Lighting:** Define the camera angle, composition rules (e.g., rule of thirds), specific lighting scheme (e.g., "dramatic three-point studio lighting with a soft key light and a colored rim light"), and color grading (e.g., "a cinematic teal and orange palette").
-4.  **Model's Pose & Demeanor:** Detail the exact pose, expression, and emotion the model should convey to connect with the audience.
-5.  **Headline & Branding Placement:** A clear plan for where the headline and brand details will be integrated into the composition for maximum impact and readability.
+Your generated prompts MUST explicitly define:
+- **Core Concept & Narrative:** A one-sentence story for the ad (e.g., "The moment of joyful discovery as the product solves a key problem.").
+- **Model & Product Interaction:** How does the person interact with the product? (e.g., "Model confidently holds the product, presenting it to the viewer.").
+- **Composition & Lighting:** Define camera angle, composition, lighting scheme (e.g., "dramatic three-point studio lighting with a soft key light"), and color grading.
+- **Model's Pose & Expression:** Detail the exact pose and emotion the model should convey to connect with the target audience.
+- **Facial Likeness Command:** Each prompt MUST include this verbatim command: "PRIMARY DIRECTIVE: FACIAL ACCURACY. Your absolute top priority is to achieve a perfect, photorealistic likeness of the person in the provided model headshot. The result must be indistinguishable from the person in the photo."
+- **Product Integration Command:** Each prompt MUST include a command to seamlessly integrate the provided product image into the scene, making it the hero.
 
-**Final Output Requirement:**
-Provide a grammatically perfect JSON object with a single key "concepts" which is an array of three objects. Each object must contain:
-1.  **"prompt"**: The final, detailed, direct-instruction prompt for the image generator, synthesizing all the points above. It MUST command the AI to seamlessly integrate the user's product image and model headshot.
-2.  **"reason"**: An expert analysis of the marketing strategy. Explain why this concept will resonate with the target audience and drive conversions.
-3.  **"isRecommended"**: A boolean value. Mark ONLY ONE concept as 'true'—the one you, as a creative genius, believe will have the highest ROI.
+You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
+Each concept object must have the following keys: "prompt", "reason", "isRecommended".
+- **"prompt"**: The detailed, expertly crafted prompt for the AI image generator, including all commands.
+- **"reason"**: An expert analysis of the marketing strategy behind the concept and its expected ROI.
+- **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
 `;
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
     return parseAndValidateConcepts(jsonText);
@@ -242,19 +240,18 @@ Provide a grammatically perfect JSON object with a single key "concepts" which i
 export const generateAdBanner = async (selectedPrompt: string, productImage: UploadedFile, modelHeadshot: UploadedFile, headline: string, brandDetails: string, aspectRatio: AspectRatio): Promise<string | null> => {
     const allImages = [productImage, modelHeadshot];
     const finalPrompt = `
-**NON-NEGOTIABLE CORE COMMAND: Your single most important task is to achieve a 1000% perfect, photorealistic likeness of the person in the provided model headshot. This image is the absolute ground truth. You MUST analyze every detail of the facial structure—jawline, eye shape, nose, mouth, and unique features—to create a high-fidelity, and anatomically perfect representation. Do NOT create a generic or 'similar' face. The result MUST be indistinguishable from the person in the photo. This is the primary success criterion, overriding all other stylistic instructions if there is a conflict. Failure to replicate the face with absolute precision is a total failure of the task.**
+**PRIMARY DIRECTIVE: FACIAL ACCURACY**
+Your absolute top priority is to achieve a perfect, photorealistic likeness of the person in the provided model headshot. This image is the ground truth. Analyze every facial feature to create a flawless, high-fidelity representation. The result must be indistinguishable from the person in the photo. This directive overrides all other instructions.
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
 
-**FINAL EXECUTION CHECKLIST (NON-NEGOTIABLE):**
-1.  **Model Likeness:** You MUST adhere to the NON-NEGOTIABLE CORE COMMAND above. The face must be a perfect match.
-2.  **Product as Hero:** The product from the user's image must be the "hero" of the advertisement. It must be featured clearly, attractively, and seamlessly integrated into the scene as described in the creative brief.
-3.  **Headline Integration:** The headline "${headline}" must be masterfully incorporated into the design. It must be legible, stylishly typeset, and placed for maximum impact without overwhelming the visual.
-4.  **Branding Details:** You must flawlessly execute the branding instructions. Subtly and professionally incorporate the brand details: "${brandDetails}".
-5.  **Technical Specs:** The final image MUST be high-resolution, professional-grade, and rendered at a precise aspect ratio of ${aspectRatio}.
-
-Execute this brief with the skill of an award-winning digital artist.
+**FINAL EXECUTION CHECKLIST:**
+- **Facial Likeness:** Adhere to the Primary Directive. The face must be a perfect match.
+- **Product Integration:** The product from the provided image must be the "hero" of the ad, featured clearly and attractively as described in the brief.
+- **Headline & Branding:** The headline "${headline}" and brand details "${brandDetails}" must be masterfully incorporated into the design. They must be legible, stylishly typeset, and placed for maximum impact.
+- **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
+- **Overall Quality:** The image must be high-resolution, professional-grade ad creative that fully realizes the brief.
 `;
     
     return geminiNativeService.generateImage(finalPrompt, allImages);
@@ -262,37 +259,34 @@ Execute this brief with the skill of an award-winning digital artist.
 
 export const generateSocialPostConcepts = async (topic: string, platform: string, tone: string, style: AdStyle, callToAction?: string): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are an expert social media manager and content strategist for a top global brand. Your task is to generate three complete, distinct, and engaging social media post concepts based on a user's topic. Each concept must include both a visual element and a text caption.
+You are an expert social media content strategist. Your task is to generate three complete, distinct, and engaging social media post concepts (visual + caption) based on the user's brief. You must follow the specified JSON output format.
 
-**Social Media Post Brief:**
-- **Core Topic:** "${topic}"
-- **Target Platform:** ${platform} (tailor caption length, style, and hashtags accordingly)
-- **Desired Tone:** ${tone}
-- **Visual Style:** '${style.name}' (${style.stylePrompt})
-- **Call to Action (Optional):** "${callToAction || 'None'}"
+**1. Post Brief:**
+   - **Core Topic:** "${topic}"
+   - **Target Platform:** ${platform}
+   - **Desired Tone:** ${tone}
+   - **Visual Style:** '${style.name}' (${style.stylePrompt})
+   - **Call to Action (Optional):** "${callToAction || 'None specified'}"
 
-**Your Critical Creative Task:**
-For each of the three concepts, you must develop a complete package: a compelling visual and an engaging caption that work together.
+**CRITICAL TASK & INSTRUCTIONS:**
+For each of the three concepts, develop a complete package: a compelling visual idea and an engaging caption.
 
-**For the Visual:**
-Translate the requested 'Visual Style' into a detailed art direction. Your prompt for the AI image generator must specify:
-- **Composition & Subject:** What is the main focus of the image? How is it framed?
-- **Lighting & Color:** What is the mood of the lighting? What is the color palette?
-- **Overall Vibe:** How does it align with the '${style.name}' aesthetic?
+**Visual Idea (for the "prompt" field):**
+- Translate the 'Visual Style' into a detailed art direction for an AI image generator.
+- Specify composition, subject, lighting, color, and overall vibe. The prompt should be creative and generate an eye-catching image.
 
-**For the Caption:**
-Write a compelling, platform-aware caption that embodies the '${tone}' tone. It must:
-- Be well-written, engaging, and grammatically perfect.
-- Seamlessly integrate the 'Core Topic'.
-- Include the 'Call to Action' if one was provided.
+**Caption (for the "caption" field):**
+- Write a compelling, platform-aware caption that embodies the '${tone}' tone.
+- It must be well-written, engaging, and grammatically perfect.
+- Seamlessly integrate the 'Core Topic' and the 'Call to Action' (if provided).
 - Include 3-5 relevant and popular hashtags for the '${platform}' platform.
 
-**Final Output Requirement:**
-Provide a grammatically perfect JSON object with a key "concepts" containing an array of three objects. Each object must have:
-1.  **"prompt"**: A detailed, direct-instruction prompt for an AI image generator to create the visual.
-2.  **"caption"**: The complete, ready-to-post text caption.
-3.  **"reason"**: A brief, expert analysis of why this combination of visual and caption is a strong strategy for this platform and topic.
-4.  **"isRecommended"**: A boolean value. Mark ONLY ONE concept as 'true'—the one you believe will perform best.
+You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
+Each concept object must have the following keys: "prompt", "caption", "reason", "isRecommended".
+- **"prompt"**: The detailed prompt for the AI image generator.
+- **"caption"**: The complete, ready-to-post text caption.
+- **"reason"**: A brief, expert analysis of why this visual/caption combo is a strong strategy for this platform.
+- **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
 `;
     const jsonText = await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA);
     return parseAndValidateConcepts(jsonText);
@@ -301,10 +295,10 @@ Provide a grammatically perfect JSON object with a key "concepts" containing an 
 export const generateSocialPost = async (selectedPrompt: string, aspectRatio: AspectRatio): Promise<string | null> => {
     // This is a pure text-to-image prompt.
     const finalPrompt = `
-**Creative Brief to Execute:**
+**CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
 
-**Technical Requirements:**
+**TECHNICAL MANDATES:**
 - The final image must be high-resolution, visually stunning, and follow the creative brief precisely.
 - The aspect ratio MUST be exactly ${aspectRatio}.
 `;
