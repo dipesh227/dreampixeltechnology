@@ -1,6 +1,6 @@
 
 
-import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle } from '../types';
+import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle } from '../types';
 
 type CreatorStyles = {
     [key: string]: CreatorStyle[];
@@ -8,6 +8,14 @@ type CreatorStyles = {
 
 type AdStyles = {
     [key: string]: AdStyle[];
+};
+
+type ProfilePictureStyles = {
+    [key: string]: ProfilePictureStyle[];
+}
+
+type LogoStyles = {
+    [key: string]: LogoStyle[];
 }
 
 export const CREATOR_STYLES: CreatorStyles = {
@@ -91,6 +99,30 @@ export const CREATOR_STYLES: CreatorStyles = {
         creatorStyle: 'Epic-scale sports and action shots featuring incredible trick shots. Wide-angle views, high-speed photography, and a sense of camaraderie and fun. Bright, clean, and family-friendly.',
         mood: 'Epic, Fun, Action-Packed, Unbelievable',
         imageStyle: 'Ultra-realistic action photo, captured with a very high shutter speed to freeze the moment. Lighting is bright, sunny outdoor light. Colors are vibrant and clean. The composition is dynamic, often using a low angle to make the action feel larger than life.'
+    },
+    {
+      id: 'ninja',
+      name: 'Ninja',
+      tags: 'Gaming & Vibrant',
+      creatorStyle: 'High-energy, fast-paced gaming content, particularly from the world of Fortnite. Thumbnails are extremely vibrant, colorful, and action-packed, often featuring in-game skins, dynamic poses, and bold text.',
+      mood: 'Energetic, Competitive, Intense, Colorful',
+      imageStyle: 'A hyper-realistic digital art style, resembling a high-quality game splash screen. Lighting is vibrant and saturated, with strong neon blues and pinks. The character pose is dynamic and action-oriented. The background is a chaotic, motion-blurred scene from a video game. Extremely sharp details.'
+    },
+    {
+      id: 'unbox-therapy',
+      name: 'Unbox Therapy',
+      tags: 'Tech & Unboxing',
+      creatorStyle: 'Focuses on the unboxing experience with a sense of mystery and curiosity. Often features close-ups of packaging, the product partially revealed, and a clean, studio setting. The host, Lewis Hilsenteger, has an iconic seated pose.',
+      mood: 'Intriguing, Minimalist, Curious, Satisfying',
+      imageStyle: 'Ultra-realistic product photo. Shot from a top-down or slight angle, often showing hands interacting with the box. Lighting is soft and even, from a large overhead source. The background is a clean, textured surface like wood or a simple studio backdrop. Extremely shallow depth of field (bokeh) to focus on the product.'
+    },
+    {
+      id: 'tom-scott',
+      name: 'Tom Scott',
+      tags: 'Educational & Direct',
+      creatorStyle: 'Clear, direct, and informative. Thumbnails usually feature him on location, pointing at or interacting with the subject of the video. The visual style is clean and professional, almost like a modern documentary. His red shirt is iconic.',
+      mood: 'Informative, Fascinating, Clear, Adventurous',
+      imageStyle: 'A clean, realistic photograph, like a still from a high-quality documentary. Lighting is bright, natural daylight. Color grading is true-to-life with good contrast. The composition is simple and centered, clearly showing the subject of interest. He is often seen wearing a red t-shirt.'
     }
   ],
   internationalFemale: [
@@ -173,6 +205,22 @@ export const CREATOR_STYLES: CreatorStyles = {
       creatorStyle: 'Fast-paced, pun-filled, physical comedy. Thumbnails are extremely expressive and often use a wide-angle lens for comedic distortion. Bright, saturated, and chaotic.',
       mood: 'Goofy, Hyper-energetic, Hilarious, Chaotic',
       imageStyle: 'Bright, slightly overexposed photo with high-key lighting. Colors are hyper-saturated. A wide-angle lens (e.g., 16mm) is used up close to create comedic distortion. Her facial expression is exaggerated and goofy, and the pose is highly dynamic.'
+    },
+    {
+      id: 'nikkietutorials',
+      name: 'NikkieTutorials',
+      tags: 'Makeup & Glam',
+      creatorStyle: 'Ultra-glamorous, high-production beauty content. Thumbnails are flawless close-ups showcasing intricate makeup looks. The style is polished, vibrant, and aspirational, with a focus on perfection.',
+      mood: 'Glamorous, Flawless, Artistic, Confident',
+      imageStyle: 'A perfect, high-fashion beauty shot, 8k resolution. Lighting is from a ring light or beauty dish, creating a shadowless, flawless look on the skin. The focus is a macro shot on the eyes or lips to showcase the makeup detail. Colors are hyper-saturated and vibrant. The background is often a simple, clean color to make the makeup pop.'
+    },
+    {
+      id: 'joanna-ceddia',
+      name: 'Joanna Ceddia',
+      tags: 'DIY & Quirky',
+      creatorStyle: 'Quirky, low-fi, and comedic DIY/vlog content. The aesthetic feels very homemade and authentic, often using intentionally "bad" graphics, chaotic collages, and a very bright, saturated look.',
+      mood: 'Chaotic, Humorous, Authentic, Low-fi',
+      imageStyle: 'A slightly overexposed, high-saturation photo that looks like it was taken with a webcam or phone camera with the flash on. The composition is often a messy, chaotic collage of multiple images and hand-drawn elements. The lighting is harsh and direct. The overall vibe is intentionally amateurish and fun.'
     }
   ],
    indianMale: [
@@ -255,6 +303,46 @@ export const CREATOR_STYLES: CreatorStyles = {
       creatorStyle: 'Character-driven comedy sketches about school/college life, friendships, and family. Thumbnails depict funny, relatable situations with exaggerated yet authentic expressions.',
       mood: 'Humorous, Relatable, "Desi", Youthful',
       imageStyle: 'Naturalistic photo that looks like a scene from the video. The lighting matches the environment (e.g., classroom, home). The color is true-to-life. The main focus is on the funny, exaggerated interactions and expressions of the characters.'
+    },
+    {
+      id: 'mumbiker-nikhil',
+      name: 'Mumbiker Nikhil',
+      tags: 'Vlogging & Travel',
+      creatorStyle: 'Cinematic daily vlogging and travel content, often featuring superbikes and drones. Thumbnails are adventurous, aspirational, and showcase beautiful locations with a personal, story-driven feel.',
+      mood: 'Adventurous, Aspirational, Cinematic, Heartfelt',
+      imageStyle: 'A cinematic, wide-angle photo, often a drone shot or a low-angle shot of a bike. Lighting is typically golden hour (warm, soft sunlight). Color grading is cinematic with warm tones and high contrast. The composition is epic and highlights the scale of the location. Lens flare is a common element.'
+    },
+    {
+      id: 'mortal',
+      name: 'MortaL',
+      tags: 'Gaming & Intense',
+      creatorStyle: 'Intense and competitive mobile gaming (BGMI/PUBG). Thumbnails are dark, gritty, and action-packed, often featuring his focused expression alongside dramatic in-game characters and effects like fire or electricity.',
+      mood: 'Intense, Focused, Competitive, Gritty',
+      imageStyle: 'A dark, high-contrast composite image. The lighting is moody and dramatic, with strong rim lighting in cool colors (blue, purple). His expression is serious and focused. The background is a gritty, cinematic scene from the game, with added particle effects. The overall look is polished and intense.'
+    },
+    {
+      id: 'geekyranjit',
+      name: 'Geekyranjit',
+      tags: 'Tech & Unbiased',
+      creatorStyle: 'Clear, unbiased, and in-depth tech reviews. The style is very clean, professional, and direct. Thumbnails often show him holding the device against a clean, plain background, with clear text overlays.',
+      mood: 'Trustworthy, Informative, No-Nonsense, Professional',
+      imageStyle: 'A clean, professional studio photo. Lighting is bright, even, and shadowless (high-key). The background is a solid, neutral color (often white or gray). He has a neutral, trustworthy expression and holds the product clearly. The image is sharp and true-to-life in color.'
+    },
+    {
+      id: 'gaur-gopal-das',
+      name: 'Gaur Gopal Das',
+      tags: 'Motivational & Spiritual',
+      creatorStyle: 'Calm, wise, and spiritual motivational talks. Thumbnails are serene and feature him in his monk attire, often with a gentle smile. The visuals are clean, with soft colors and often include a powerful quote.',
+      mood: 'Serene, Wise, Calm, Inspirational',
+      imageStyle: 'A professional portrait with soft, gentle lighting. The background is simple and uncluttered, often a soft gradient or a peaceful, out-of-focus natural setting. The color palette is warm and inviting. His expression is calm, wise, and approachable.'
+    },
+    {
+      id: 'mr-indian-hacker',
+      name: 'Mr. Indian Hacker',
+      tags: 'Science & Experiments',
+      creatorStyle: 'Large-scale science experiments and "life hack" videos with a very high-energy, almost explosive feel. Thumbnails are extremely colorful and action-packed, showing the peak moment of an experiment.',
+      mood: 'Exciting, Epic, Curious, Explosive',
+      imageStyle: 'An action-packed, high-speed photograph, freezing a moment of explosion or reaction. Colors are hyper-saturated and vibrant. Lighting is often harsh, bright daylight. The composition is chaotic and dynamic, designed to create maximum curiosity and impact. Often uses a wide-angle lens.'
     }
   ],
   indianFemale: [
@@ -439,3 +527,42 @@ export const AD_STYLES: AdStyles = {
         { id: 'realestate-urban', name: "Urban Living", tags: 'Modern & Trendy', stylePrompt: 'A modern, trendy style for urban properties. Feature city views, contemporary design, and a dynamic, energetic vibe. The mood is cool, sophisticated, and connected.' }
     ]
 };
+
+export const PROFILE_PICTURE_STYLES: ProfilePictureStyles = {
+    male: [
+        { id: 'male-corporate-headshot', name: 'Corporate Headshot', tags: 'LinkedIn, Professional', stylePrompt: 'A classic, professional corporate headshot. The man is wearing a sharp, dark business suit with a light-colored dress shirt. He has a confident, approachable smile. The background is a modern, softly blurred office interior. Lighting is a clean, three-point studio setup that is flattering and professional.' },
+        { id: 'male-outdoor-candid', name: 'Outdoor Candid', tags: 'Casual, Natural', stylePrompt: 'A candid, natural-light portrait of a man outdoors. He is dressed in casual, stylish clothing like a sweater or jacket. The background is a scenic park or urban street with beautiful bokeh. The lighting is warm, golden-hour sunlight, creating a friendly and authentic feel.' },
+        { id: 'male-tech-startup', name: 'Tech Startup', tags: 'Modern, Confident', stylePrompt: 'A modern and confident headshot suitable for a tech entrepreneur. The man is wearing a smart-casual outfit (e.g., a high-quality t-shirt under a blazer). The background is a clean, minimalist setting, perhaps against a concrete or brick wall. Lighting is high-contrast and slightly dramatic.' },
+        { id: 'male-creative-studio', name: 'Creative Studio', tags: 'Artistic, Moody', stylePrompt: 'An artistic, moody portrait of a creative professional. He might be a photographer, designer, or artist. The lighting is low-key and dramatic, with strong shadows. The background is a dark, textured studio environment. His expression is thoughtful and intense.' },
+        { id: 'male-vibrant-avatar', name: 'Vibrant Avatar', tags: 'Gaming, Social', stylePrompt: 'A hyper-vibrant, stylized avatar. The portrait has a colorful, graphic background with neon or abstract elements. The lighting on the man is high-energy, possibly with colored gels. His expression is energetic and engaging, perfect for a gaming or social media profile.' }
+    ],
+    female: [
+        { id: 'female-corporate-headshot', name: 'Corporate Headshot', tags: 'LinkedIn, Professional', stylePrompt: 'A classic, professional corporate headshot. The woman is wearing a tailored blazer and professional attire. She has a confident, warm smile. The background is a bright, softly blurred modern office. Lighting is soft and flattering, often from a large softbox to create a clean, approachable look.' },
+        { id: 'female-lifestyle-blogger', name: 'Lifestyle Blogger', tags: 'Warm, Authentic', stylePrompt: 'A warm and authentic lifestyle portrait. The woman is dressed in fashionable, casual clothing. The setting could be a chic cafe or a beautifully decorated home interior, with a shallow depth of field. The lighting is soft, natural window light, creating a bright and airy feel.' },
+        { id: 'female-elegant-minimalist', name: 'Elegant Minimalist', tags: 'Clean, Sophisticated', stylePrompt: 'A sophisticated and minimalist portrait. The woman has a simple, elegant look. The background is a solid, neutral color like light gray or beige. The lighting is soft and even. The overall mood is calm, confident, and high-end.' },
+        { id: 'female-creative-bold', name: 'Creative & Bold', tags: 'Artistic, Colorful', stylePrompt: 'A bold and creative portrait. The woman wears unique, artistic fashion and might have bold makeup. The background is vibrant and colorful, possibly a solid bright color or an interesting texture. Lighting is high-contrast and fashion-oriented.' },
+        { id: 'female-cozy-natural', name: 'Cozy & Natural', tags: 'Casual, Relatable', stylePrompt: 'A cozy and natural portrait. The woman is wearing comfortable clothing like a knit sweater. The background is a warm, inviting indoor space. The lighting is soft and warm, perhaps from a nearby lamp or window, creating a relatable and down-to-earth feeling.' }
+    ]
+};
+
+export const LOGO_STYLES: LogoStyles = {
+    general: [
+        { id: 'logo-minimalist-geometric', name: 'Geometric Minimalist', tags: 'Modern, Clean, Abstract', stylePrompt: 'A clean, minimalist logo using basic geometric shapes (circles, squares, triangles). The design is abstract and symmetrical, conveying balance and modernity. Use a limited color palette of 2-3 colors on a solid white background. Flat vector graphic style.' },
+        { id: 'logo-vintage-emblem', name: 'Vintage Emblem', tags: 'Classic, Badge, Detailed', stylePrompt: 'A classic emblem or badge logo with a vintage, handcrafted feel. Often circular, it incorporates the company name in an elegant serif or script font. May include subtle line art illustrations like wreaths or banners. The style is detailed but clean. Monochrome or two-tone color scheme. Vector graphic on a solid background.' },
+        { id: 'logo-modern-lettermark', name: 'Modern Lettermark', tags: 'Monogram, Typography, Sleek', stylePrompt: 'A strong, modern lettermark (monogram) logo focusing on the company initials. The typography is custom, bold, and clean (sans-serif). The letters might be cleverly interconnected or have unique negative space elements. Single color on a solid white background. Vector graphic style.' },
+        { id: 'logo-playful-mascot', name: 'Playful Mascot', tags: 'Character, Fun, Friendly', stylePrompt: 'A friendly and playful character mascot logo. The character should be simple, memorable, and expressive. The style is a clean, modern cartoon with bold outlines and flat colors. The company name is integrated below or beside the mascot in a fun, rounded font. Vector illustration on a solid background.' },
+        { id: 'logo-organic-hand-drawn', name: 'Organic Hand-Drawn', tags: 'Natural, Rustic, Boutique', stylePrompt: 'An organic, hand-drawn logo that feels rustic and authentic. Features natural elements like leaves, branches, or imperfect, flowing lines. The typography is a script or a soft serif font that looks hand-lettered. Perfect for natural products or boutique brands. Single color on a solid background. Vector graphic.' },
+        { id: 'logo-tech-gradient', name: 'Tech Gradient', tags: 'SaaS, Digital, Vibrant', stylePrompt: 'A vibrant, modern logo for a tech company or app. It features an abstract shape or a stylized initial created with a smooth, bright color gradient (e.g., blue to purple, pink to orange). The font for the company name is a clean, geometric sans-serif. Vector graphic on a dark or white background.' },
+        { id: 'logo-luxury-serif', name: 'Luxury Serif', tags: 'Elegant, Fashion, High-End', stylePrompt: 'An elegant and luxurious wordmark logo. The entire focus is on the company name, typeset in a beautiful, high-contrast serif font with perfect kerning. The style is timeless and sophisticated. Typically black, white, or a metallic color like gold. Vector graphic on a solid background.' },
+        { id: 'logo-abstract-mark', name: 'Abstract Mark', tags: 'Conceptual, Unique, Versatile', stylePrompt: 'A unique and memorable abstract logo mark. The shape is non-representational but is designed to conceptually represent the brand\'s values (e.g., movement, connection, growth). The design is simple enough to be recognizable at any size. Paired with a clean sans-serif wordmark. Vector graphic on a solid background.' },
+        { id: 'logo-negative-space', name: 'Negative Space', tags: 'Clever, Smart, Minimalist', stylePrompt: 'A clever logo that uses negative space to create a dual image or reveal a hidden symbol. The design is minimalist and intelligent. For example, a letterform that contains the silhouette of an object in its counter-space. Typically single color to emphasize the effect. Flat vector graphic on a solid background.' }
+    ]
+};
+
+export const HEADSHOT_STYLES: HeadshotStyle[] = [
+    { id: 'headshot-corporate', name: 'Corporate', tags: 'LinkedIn, Business', stylePrompt: 'A professional corporate headshot. The subject wears a sharp business suit. The background is a modern, softly blurred office interior. Lighting is a clean three-point studio setup, creating a confident and approachable look.' },
+    { id: 'headshot-creative', name: 'Creative', tags: 'Portfolio, Arts', stylePrompt: 'An artistic, moody portrait. The lighting is dramatic and low-key (Rembrandt lighting). The background is a dark, textured studio environment. The expression is thoughtful and intense. Clothing is stylish and creative.' },
+    { id: 'headshot-casual', name: 'Outdoor/Casual', tags: 'Social Media, Friendly', stylePrompt: 'A candid, natural-light portrait outdoors. The subject is dressed in stylish, casual clothing. The background is a scenic park with beautiful bokeh. Lighting is warm, golden-hour sunlight for a friendly and authentic feel.' },
+    { id: 'headshot-minimalist', name: 'Minimalist', tags: 'Modern, Clean', stylePrompt: 'A sophisticated and minimalist portrait. The background is a solid, neutral color like light gray or beige. The lighting is soft and even. The overall mood is calm, confident, and high-end. Clothing is simple and elegant.' },
+    { id: 'headshot-dramatic', name: 'Dramatic', tags: 'Actor, Performer', stylePrompt: 'A high-contrast, black and white headshot. The lighting is dramatic, creating strong shadows that define facial features. The expression is intense and captivating. The background is solid black.' },
+];

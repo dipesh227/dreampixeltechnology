@@ -115,3 +115,91 @@ export const saveSocialPostJob = async (data: SocialPostJobData): Promise<void> 
         console.error("Failed to save social media post job", error);
     }
 };
+
+// Profile Image Job
+interface ProfileImageJobData {
+    userId: string;
+    description: string;
+    styleId: string;
+    headshot: UploadedFile;
+}
+
+export const saveProfileImageJob = async (data: ProfileImageJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('profile_image_generation_jobs').insert({
+            user_id: data.userId,
+            description: data.description,
+            style_id: data.styleId,
+            headshot_filenames: [data.headshot.name] // Stored as an array for consistency
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save profile image generation job", error);
+    }
+};
+
+// Logo Job
+interface LogoJobData {
+    userId: string;
+    companyName: string;
+    slogan: string;
+    description: string;
+    styleId: string;
+    headshot: UploadedFile | null;
+}
+
+export const saveLogoJob = async (data: LogoJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('logo_generation_jobs').insert({
+            user_id: data.userId,
+            company_name: data.companyName,
+            slogan: data.slogan,
+            description: data.description,
+            style_id: data.styleId,
+            headshot_filename: data.headshot?.name || null
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save logo generation job", error);
+    }
+};
+
+// Image Enhancer Job
+interface ImageEnhancerJobData {
+    userId: string;
+    originalImageFilename: string;
+}
+
+export const saveImageEnhancerJob = async (data: ImageEnhancerJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('image_enhancer_jobs').insert({
+            user_id: data.userId,
+            original_image_filename: data.originalImageFilename,
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save image enhancer job", error);
+    }
+};
+
+// Headshot Maker Job
+interface HeadshotMakerJobData {
+    userId: string;
+    description: string;
+    styleId: string;
+    originalImageFilename: string;
+}
+
+export const saveHeadshotMakerJob = async (data: HeadshotMakerJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('headshot_maker_jobs').insert({
+            user_id: data.userId,
+            description: data.description,
+            style_id: data.styleId,
+            original_image_filename: data.originalImageFilename,
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save headshot maker job", error);
+    }
+};

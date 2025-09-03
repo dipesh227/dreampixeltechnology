@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tool, ToolType, ConnectedAccount } from '../types';
-import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineShare, HiOutlineUserGroup } from 'react-icons/hi2';
+// FIX: Replaced non-existent HiOutlineColorSwatch with HiOutlineSwatch.
+import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineShare, HiOutlineUserGroup, HiOutlineUserCircle, HiOutlineSwatch, HiOutlineSparkles, HiOutlineIdentification } from 'react-icons/hi2';
 import SocialConnect from './SocialConnect';
 
 interface LandingPageProps {
@@ -14,7 +15,11 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ to
         thumbnail: { icon: HiOutlinePhoto, gradient: 'from-purple-500 to-indigo-500' },
         advertisement: { icon: HiOutlineMegaphone, gradient: 'from-pink-500 to-rose-500' },
         social: { icon: HiOutlineShare, gradient: 'from-sky-500 to-cyan-500' },
-        political: { icon: HiOutlineUserGroup, gradient: 'from-amber-500 to-orange-500' }
+        political: { icon: HiOutlineUserGroup, gradient: 'from-amber-500 to-orange-500' },
+        profile: { icon: HiOutlineUserCircle, gradient: 'from-teal-500 to-emerald-500' },
+        logo: { icon: HiOutlineSwatch, gradient: 'from-fuchsia-500 to-purple-500' },
+        'image-enhancer': { icon: HiOutlineSparkles, gradient: 'from-yellow-400 to-amber-500' },
+        'headshot-maker': { icon: HiOutlineIdentification, gradient: 'from-cyan-400 to-sky-500' },
     };
     const { icon: Icon, gradient } = icons[tool.id];
 
@@ -51,6 +56,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccoun
         { id: 'advertisement', title: "Ad Banner Generator", description: "Instantly produce professional advertisement banners for your marketing campaigns and social media.", enabled: true },
         { id: 'social', title: "Social Media Post Generator", description: "Design engaging posts with both an image and a caption, tailored for platforms like Instagram, Facebook, and X.", enabled: true },
         { id: 'political', title: "Politician's Poster Maker", description: "Generate timely and impactful posters for political campaigns based on current events and topics.", enabled: true },
+        { id: 'profile', title: "Profile Picture Generator", description: "Craft the perfect profile picture for LinkedIn, Instagram, or any platform using your headshot.", enabled: true },
+        { id: 'logo', title: "AI Logo Generator", description: "Generate unique logos for your brand, with or without a mascot from a headshot.", enabled: true },
+        { id: 'image-enhancer', title: "AI Image Enhancer", description: "Automatically improve image quality, lighting, and clarity with a single click. Upscale and refine.", enabled: true },
+        { id: 'headshot-maker', title: "HQ Headshot Maker", description: "Turn any photo into a professional, studio-quality 1:1 headshot, perfect for any profile.", enabled: true },
     ];
 
     return (
@@ -59,7 +68,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccoun
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-3">The AI Content Creation Suite</h2>
                 <p className="text-base md:text-lg text-slate-400 max-w-3xl">One platform for all your creative needs. Generate stunning visuals for your brand, channel, or campaign in seconds.</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {tools.map((tool) => (
                     <ToolCard key={tool.id} tool={tool} onClick={() => onSelectTool(tool.id)} />
                 ))}

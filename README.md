@@ -13,6 +13,10 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
     -   Ad Banner Generator
     -   Social Media Post Generator
     -   Politician's Poster Maker
+    -   Social Media Profile Picture Generator
+    -   AI Logo Generator
+    -   AI Image Enhancer
+    -   HQ Headshot Maker
 -   **Secure Google Authentication**: Sign in to save and manage your creations securely.
 -   **Database Encryption**: User-submitted prompts and feedback are encrypted at rest in the database using `pgsodium` for enhanced privacy.
 -   **Focused on Google Gemini**: Built to exclusively use Google's powerful Gemini AI models for the best results.
@@ -270,6 +274,51 @@ CREATE TABLE public.social_media_post_jobs (
 );
 ALTER TABLE public.social_media_post_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own social post jobs" ON public.social_media_post_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE TABLE public.profile_image_generation_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  description TEXT,
+  style_id TEXT,
+  headshot_filenames TEXT[]
+);
+ALTER TABLE public.profile_image_generation_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own profile image jobs" ON public.profile_image_generation_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE TABLE public.logo_generation_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  company_name TEXT,
+  slogan TEXT,
+  description TEXT,
+  style_id TEXT,
+  headshot_filename TEXT
+);
+ALTER TABLE public.logo_generation_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own logo jobs" ON public.logo_generation_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE TABLE public.image_enhancer_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  original_image_filename TEXT
+);
+ALTER TABLE public.image_enhancer_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own image enhancer jobs" ON public.image_enhancer_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE TABLE public.headshot_maker_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  description TEXT,
+  style_id TEXT,
+  original_image_filename TEXT
+);
+ALTER TABLE public.headshot_maker_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own headshot maker jobs" ON public.headshot_maker_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+
 ```
 </details>
 
@@ -432,6 +481,66 @@ CREATE TABLE public.social_media_post_jobs (
   call_to_action TEXT,
   style_id TEXT,
   aspect_ratio TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>profile_image_generation_jobs</strong> - Logs inputs for profile image generation.</summary>
+
+```sql
+CREATE TABLE public.profile_image_generation_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  description TEXT,
+  style_id TEXT,
+  headshot_filenames TEXT[]
+);
+```
+</details>
+
+<details>
+<summary><strong>logo_generation_jobs</strong> - Logs inputs for logo generation.</summary>
+
+```sql
+CREATE TABLE public.logo_generation_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  company_name TEXT,
+  slogan TEXT,
+  description TEXT,
+  style_id TEXT,
+  headshot_filename TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>image_enhancer_jobs</strong> - Logs inputs for image enhancement.</summary>
+
+```sql
+CREATE TABLE public.image_enhancer_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  original_image_filename TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>headshot_maker_jobs</strong> - Logs inputs for headshot generation.</summary>
+
+```sql
+CREATE TABLE public.headshot_maker_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  description TEXT,
+  style_id TEXT,
+  original_image_filename TEXT
 );
 ```
 </details>

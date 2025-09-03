@@ -161,4 +161,66 @@ export const TEMPLATES: Template[] = [
             callToAction: 'Tag a coworker who needs this!',
         },
     },
+    // Profile Picture Templates
+    {
+        id: 'profile-linkedin',
+        name: 'Professional Headshot',
+        tool: 'profile',
+        imageUrl: 'https://placehold.co/400x400/1e40af/ffffff?text=Pro',
+        prefill: {
+            styleId: 'male-corporate-headshot',
+            aspectRatio: '1:1',
+            profileDescription: 'A professional headshot for my LinkedIn profile. I am a software engineer.',
+        },
+    },
+    {
+        id: 'profile-creative',
+        name: 'Creative Portrait',
+        tool: 'profile',
+        imageUrl: 'https://placehold.co/400x400/be185d/ffffff?text=Art',
+        prefill: {
+            styleId: 'female-creative-bold',
+            aspectRatio: '1:1',
+            profileDescription: 'An artistic and creative profile picture for my Instagram page where I share my design work.',
+        },
+    },
+    // Logo Templates
+    {
+        id: 'logo-tech',
+        name: 'Modern Tech Logo',
+        tool: 'logo',
+        imageUrl: 'https://placehold.co/400x400/4f46e5/ffffff?text=NEXUS',
+        prefill: {
+            styleId: 'logo-tech-gradient',
+            aspectRatio: '1:1',
+            companyName: 'Nexus',
+            slogan: 'Connecting Worlds',
+            logoDescription: 'A modern SaaS company focused on data integration.',
+        },
+    },
+    {
+        id: 'logo-cafe',
+        name: 'Cozy Cafe Logo',
+        tool: 'logo',
+        imageUrl: 'https://placehold.co/400x400/78350f/ffffff?text=The+Bean',
+        prefill: {
+            styleId: 'logo-organic-hand-drawn',
+            aspectRatio: '1:1',
+            companyName: 'The Daily Bean',
+            slogan: 'Your Perfect Cup',
+            logoDescription: 'A cozy, local coffee shop with a focus on organic, hand-roasted beans.',
+        },
+    },
+    // Headshot Maker Templates
+    {
+        id: 'headshot-linkedin-corp',
+        name: 'LinkedIn Corporate',
+        tool: 'headshot-maker',
+        imageUrl: 'https://placehold.co/400x400/1e3a8a/ffffff?text=Corporate',
+        prefill: {
+            styleId: 'headshot-corporate',
+            aspectRatio: '1:1', // Not strictly needed for user but good for consistency
+            headshotDescription: 'I need a highly professional headshot for my LinkedIn profile. I work in finance, so it should look trustworthy and confident.',
+        },
+    },
 ];

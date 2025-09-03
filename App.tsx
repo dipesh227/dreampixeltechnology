@@ -16,6 +16,10 @@ import ThumbnailGenerator from './components/ThumbnailGenerator';
 import PoliticiansPosterMaker from './components/PoliticiansPosterMaker';
 import AdBannerGenerator from './components/AdBannerGenerator';
 import SocialMediaPostGenerator from './components/SocialMediaPostGenerator';
+import ProfileImageGenerator from './components/ProfileImageGenerator';
+import LogoGenerator from './components/LogoGenerator';
+import ImageEnhancer from './components/ImageEnhancer';
+import HeadshotMaker from './components/HeadshotMaker';
 
 const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');
@@ -84,6 +88,18 @@ const App: React.FC = () => {
       case 'social':
         document.title = `Social Post Generator | ${baseTitle}`;
         break;
+      case 'profile':
+        document.title = `Profile Picture Generator | ${baseTitle}`;
+        break;
+      case 'logo':
+        document.title = `Logo Generator | ${baseTitle}`;
+        break;
+      case 'image-enhancer':
+        document.title = `Image Enhancer | ${baseTitle}`;
+        break;
+      case 'headshot-maker':
+        document.title = `HQ Headshot Maker | ${baseTitle}`;
+        break;
       default:
         document.title = `AI Content Creation Suite | ${baseTitle}`;
     }
@@ -149,6 +165,10 @@ const App: React.FC = () => {
             {activeTool === 'political' && <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
             {activeTool === 'advertisement' && <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
             {activeTool === 'social' && <SocialMediaPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'profile' && <ProfileImageGenerator onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'logo' && <LogoGenerator onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'image-enhancer' && <ImageEnhancer onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'headshot-maker' && <HeadshotMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
           </>
         )}
       </main>

@@ -1,6 +1,6 @@
 
 
-export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political';
+export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker';
 
 export interface Tool {
   id: ToolType;
@@ -34,6 +34,27 @@ export interface PosterStyle {
 }
 
 export interface AdStyle {
+    id: string;
+    name: string;
+    tags: string;
+    stylePrompt: string;
+}
+
+export interface ProfilePictureStyle {
+    id: string;
+    name: string;
+    tags: string;
+    stylePrompt: string;
+}
+
+export interface LogoStyle {
+    id: string;
+    name: string;
+    tags: string;
+    stylePrompt: string;
+}
+
+export interface HeadshotStyle {
     id: string;
     name: string;
     tags: string;
@@ -84,6 +105,14 @@ export interface TemplatePrefillData {
     platform?: string;
     tone?: string;
     callToAction?: string;
+    // Profile Picture
+    profileDescription?: string;
+    // Logo
+    logoDescription?: string;
+    companyName?: string;
+    slogan?: string;
+    // Headshot Maker
+    headshotDescription?: string;
 }
 
 export interface Template {
