@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { HiOutlineChatBubbleLeftEllipsis, HiOutlineXMark } from 'react-icons/hi2';
 import * as feedbackService from '../services/feedbackService';
@@ -36,7 +37,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
         const trimmedFeedback = feedback.trim();
 
         if (trimmedFeedback.length < 10) {
-            setValidationError('Please provide at least 10 characters of feedback.');
+            setValidationError("Please provide at least 10 characters of feedback.");
             return;
         }
 

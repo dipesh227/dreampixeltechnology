@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { DreamLogo } from './icons/DreamLogo';
 import { HiOutlineKey, HiOutlineChatBubbleLeftEllipsis, HiOutlineArrowRightOnRectangle, HiOutlineUserCircle, HiBars3, HiXMark } from 'react-icons/hi2';
@@ -84,7 +85,7 @@ const UserMenu: React.FC<{ inMobileMenu?: boolean }> = ({ inMobileMenu = false }
 
 const MobileMenu: React.FC<HeaderProps & { onClose: () => void }> = ({ onLogin, onOpenFeedback, apiKeyStatus, apiKeyError, onClose }) => {
     const { session } = useAuth();
-    const { className: statusIconClassName, title: statusIconTitle } = getStatusInfo(apiKeyStatus, apiKeyError);
+    const { className: statusIconClassName, title: statusIconTitle } = getStatusInfo(apiKeyStatus);
 
     return (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-lg z-50 flex flex-col animate-fade-in">
@@ -125,7 +126,7 @@ const MobileMenu: React.FC<HeaderProps & { onClose: () => void }> = ({ onLogin, 
     );
 };
 
-const getStatusInfo = (apiKeyStatus: ValidationStatus, apiKeyError: string | null) => {
+const getStatusInfo = (apiKeyStatus: ValidationStatus) => {
     switch (apiKeyStatus) {
         case 'valid':
             return { className: 'text-green-400 neon-green', title: 'Stable' };
@@ -143,7 +144,7 @@ const Header: React.FC<HeaderProps> = (props) => {
   const { session } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const { className: statusIconClassName, title: statusIconTitle } = getStatusInfo(apiKeyStatus, apiKeyError);
+  const { className: statusIconClassName, title: statusIconTitle } = getStatusInfo(apiKeyStatus);
 
   const fullStatusMessage = apiKeyStatus === 'valid' 
     ? 'API Key is valid and connected.'
@@ -183,7 +184,7 @@ const Header: React.FC<HeaderProps> = (props) => {
                   <div className="p-1 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-500/40 group-hover:to-pink-500/40 transition-all">
                     <HiOutlineChatBubbleLeftEllipsis className="w-5 h-5 text-pink-300 icon-hover-effect" />
                   </div>
-                  <span className="hidden md:inline">Feedback</span>
+                  <span className="hidden md:inline">Share Feedback</span>
               </button>
               
               <div className="hidden lg:flex">

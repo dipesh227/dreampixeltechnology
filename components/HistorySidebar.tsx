@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import * as historyService from '../services/historyService';
 import { HistoryEntry } from '../types';
@@ -106,7 +107,7 @@ const HistorySidebar: React.FC = () => {
             ) : (
                 <div className="text-center py-8 flex-grow flex items-center justify-center">
                     <p className="text-sm text-slate-500">
-                        {creations.length > 0 ? 'No matching creations found.' : 'Your liked creations will appear here.'}
+                        {creations.length > 0 ? "No matching creations found." : "Your liked creations will appear here."}
                     </p>
                 </div>
             )}

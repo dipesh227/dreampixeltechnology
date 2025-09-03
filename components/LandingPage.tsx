@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Tool, ToolType, ConnectedAccount } from '../types';
 // FIX: Replaced non-existent HiOutlineColorSwatch with HiOutlineSwatch.
@@ -53,7 +54,6 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ to
 });
 
 const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccounts, onToggleConnect }) => {
-
     const tools: Tool[] = [
         { id: 'thumbnail', title: "YouTube Thumbnail Generator", description: "Create high-impact, click-worthy thumbnails by providing a headshot and a video description.", enabled: true },
         { id: 'advertisement', title: "Ad Banner Generator", description: "Instantly produce professional advertisement banners for your marketing campaigns and social media.", enabled: true },

@@ -1,0 +1,8 @@
+
+[
+    { "id": "headshot-corporate", "name": "Corporate", "tags": "LinkedIn, Business", "stylePrompt": "A professional corporate headshot. The subject wears a sharp business suit. The background is a modern, softly blurred office interior. Lighting is a clean three-point studio setup, creating a confident and approachable look." },
+    { "id": "headshot-creative", "name": "Creative", "tags": "Portfolio, Arts", "stylePrompt": "An artistic, moody portrait. The lighting is dramatic and low-key (Rembrandt lighting). The background is a dark, textured studio environment. The expression is thoughtful and intense. Clothing is stylish and creative." },
+    { "id": "headshot-casual", "name": "Outdoor/Casual", "tags": "Social Media, Friendly", "stylePrompt": "A candid, natural-light portrait outdoors. The subject is dressed in stylish, casual clothing. The background is a scenic park with beautiful bokeh. Lighting is warm, golden-hour sunlight for a friendly and authentic feel." },
+    { "id": "headshot-minimalist", "name": "Minimalist", "tags": "Modern, Clean", "stylePrompt": "A sophisticated and minimalist portrait. The background is a solid, neutral color like light gray or beige. The lighting is soft and even. The overall mood is calm, confident, and high-end. Clothing is simple and elegant." },
+    { "id": "headshot-dramatic", "name": "Dramatic", "tags": "Actor, Performer", "stylePrompt": "A high-contrast, black and white headshot. The lighting is dramatic, creating strong shadows that define facial features. The expression is intense and captivating. The background is solid black." }
+]

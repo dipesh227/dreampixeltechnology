@@ -79,43 +79,23 @@ const App: React.FC = () => {
   
   useEffect(() => {
     const baseTitle = "DreamPixel Technology";
-    switch(activeTool) {
-      case 'thumbnail':
-        document.title = `Thumbnail Generator | ${baseTitle}`;
-        break;
-      case 'political':
-        document.title = `Political Poster Maker | ${baseTitle}`;
-        break;
-      case 'advertisement':
-        document.title = `Ad Banner Generator | ${baseTitle}`;
-        break;
-      case 'social':
-        document.title = `Social Post Generator | ${baseTitle}`;
-        break;
-      case 'profile':
-        document.title = `Profile Picture Generator | ${baseTitle}`;
-        break;
-      case 'logo':
-        document.title = `Logo Generator | ${baseTitle}`;
-        break;
-      case 'image-enhancer':
-        document.title = `Image Enhancer | ${baseTitle}`;
-        break;
-      case 'headshot-maker':
-        document.title = `HQ Headshot Maker | ${baseTitle}`;
-        break;
-      case 'passport-photo':
-        document.title = `Passport Photo Maker | ${baseTitle}`;
-        break;
-      case 'visiting-card':
-        document.title = `Visiting Card Maker | ${baseTitle}`;
-        break;
-      case 'event-poster':
-        document.title = `Event Poster Maker | ${baseTitle}`;
-        break;
-      default:
-        document.title = `AI Content Creation Suite | ${baseTitle}`;
-    }
+    const toolTitles: { [key: string]: string } = {
+        'thumbnail': "YouTube Thumbnail Generator",
+        'advertisement': "Ad Banner Generator",
+        'social': "Social Media Post Generator",
+        'political': "Politician's Poster Maker",
+        'profile': "Profile Picture Generator",
+        'logo': "AI Logo Generator",
+        'image-enhancer': "AI Image Enhancer",
+        'headshot-maker': "HQ Headshot Maker",
+        'passport-photo': "Passport Photo Maker",
+        'visiting-card': "AI Visiting Card Maker",
+        'event-poster': "AI Event Poster Maker",
+    };
+
+    const toolTitle = activeTool === 'landing' ? "AI Content Creation Suite" : toolTitles[activeTool] || "Generator";
+    
+    document.title = `${toolTitle} | ${baseTitle}`;
   }, [activeTool]);
 
   const handleSelectTool = useCallback((tool: ToolType) => {

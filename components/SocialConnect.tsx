@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaXTwitter } from 'react-icons/fa6';
 import { HiCheck } from 'react-icons/hi2';
@@ -21,12 +22,12 @@ const SocialConnect: React.FC<SocialConnectProps> = ({ connectedAccounts, onTogg
     return (
         <div className="p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl text-center">
             <h3 className="text-xl font-bold text-white mb-2">
-                {hasConnections ? `You're Connected!` : 'Connect Your Social Accounts'}
+                {hasConnections ? "You're Connected!" : "Connect Your Social Accounts"}
             </h3>
             <p className="text-slate-400 mb-6 max-w-md mx-auto">
                 {hasConnections 
                     ? `You have connected ${connectedAccounts.length} account(s). You can now leverage one-click posting in the Social Media Post Generator.`
-                    : 'Enable one-click posting by connecting your social media profiles. Secure and easy to set up.'
+                    : "Enable one-click posting by connecting your social media profiles. Secure and easy to set up."
                 }
             </p>
             <div className="flex flex-wrap justify-center items-center gap-4">

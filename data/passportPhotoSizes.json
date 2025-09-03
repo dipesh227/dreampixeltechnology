@@ -1,0 +1,7 @@
+
+[
+    { "id": "in-passport", "name": "Indian Passport", "widthMM": 35, "heightMM": 45, "description": "3.5 x 4.5 cm" },
+    { "id": "in-visa", "name": "Indian Visa", "widthMM": 51, "heightMM": 51, "description": "2 x 2 inch" },
+    { "id": "upsc", "name": "UPSC Exam", "widthMM": 35, "heightMM": 45, "description": "3.5 x 4.5 cm" },
+    { "id": "ssc", "name": "SSC Exam", "widthMM": 35, "heightMM": 45, "description": "3.5 x 4.5 cm" }
+]

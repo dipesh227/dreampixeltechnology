@@ -1,0 +1,7 @@
+
+[
+    { "id": "ep-modern", "name": "Modern & Clean", "tags": "Sleek, Minimal", "stylePrompt": "Use a clean, bold sans-serif font. The text should be placed with a clear hierarchy and generous spacing. The overall effect should be modern, sleek, and highly legible." },
+    { "id": "ep-grunge", "name": "Grunge & Edgy", "tags": "Urban, Textured", "stylePrompt": "Use a distressed, textured, or stencil font. The text can be overlaid with a gritty texture. The colors should be high-contrast and slightly desaturated. The layout can be chaotic and energetic." },
+    { "id": "ep-corporate", "name": "Corporate & Formal", "tags": "Professional, Elegant", "stylePrompt": "Use a classic serif or a clean sans-serif font. The text layout should be structured and professional. The color palette should be conservative, such as blues, greys, and whites. Add a subtle drop shadow for readability." },
+    { "id": "ep-festive", "name": "Festive & Fun", "tags": "Playful, Colorful", "stylePrompt": "Use a playful, rounded, or script font. The text should be vibrant and can have a slight glow or outline. The layout should be fun and dynamic, possibly with text at an angle. Use bright, cheerful colors." }
+]
