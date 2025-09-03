@@ -93,3 +93,7 @@ export interface Template {
   imageUrl: string;
   prefill: TemplatePrefillData;
 }
+
+export interface ConnectedAccount {
+  platform: string;
+}

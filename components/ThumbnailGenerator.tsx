@@ -8,7 +8,6 @@ import { HiArrowLeft, HiCheck, HiComputerDesktop, HiDevicePhoneMobile, HiArrowDo
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
-import ImageCropper from './ImageCropper';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -37,41 +36,10 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
     const [isSaved, setIsSaved] = useState(false);
     const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
     const [isTemplateBrowserOpen, setIsTemplateBrowserOpen] = useState(false);
-    const [filesToCrop, setFilesToCrop] = useState<File[]>([]);
-    const [cropModalInfo, setCropModalInfo] = useState<{ src: string, file: File } | null>(null);
 
     useEffect(() => {
         onGenerating(isLoading);
     }, [isLoading, onGenerating]);
-
-    useEffect(() => {
-        if (filesToCrop.length > 0 && !cropModalInfo) {
-            const file = filesToCrop[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                setCropModalInfo({ src: reader.result as string, file });
-            };
-            reader.readAsDataURL(file);
-        }
-    }, [filesToCrop, cropModalInfo]);
-
-    const handleCropComplete = (croppedBase64: string) => {
-        if (cropModalInfo) {
-            const newHeadshot: UploadedFile = {
-                base64: croppedBase64,
-                mimeType: 'image/png',
-                name: cropModalInfo.file.name,
-            };
-            setHeadshots(prev => [...prev, newHeadshot].slice(0, 5));
-            setFilesToCrop(prev => prev.slice(1));
-            setCropModalInfo(null);
-        }
-    };
-    
-    const handleCropCancel = () => {
-        setFilesToCrop(prev => prev.slice(1));
-        setCropModalInfo(null);
-    };
 
     const resetState = useCallback(() => {
         setStep('input');
@@ -103,9 +71,21 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const files = Array.from(event.target.files).slice(0, 5 - headshots.length);
-            if (files.length > 0) {
-                setFilesToCrop(prev => [...prev, ...files]);
-            }
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64 = (reader.result as string).split(',')[1];
+                    const newHeadshot: UploadedFile = {
+                        base64,
+                        mimeType: file.type,
+                        name: file.name,
+                    };
+                    setHeadshots(prev => [...prev, newHeadshot].slice(0, 5));
+                };
+                reader.readAsDataURL(file);
+            });
+            // Reset file input to allow re-uploading the same file
+            event.target.value = '';
         }
     };
     
@@ -484,14 +464,6 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                     tool="thumbnail"
                     onClose={() => setIsTemplateBrowserOpen(false)}
                     onSelect={handleSelectTemplate}
-                />
-            )}
-            {cropModalInfo && (
-                <ImageCropper
-                    imageSrc={cropModalInfo.src}
-                    onCropComplete={handleCropComplete}
-                    onCancel={handleCropCancel}
-                    aspect={1}
                 />
             )}
             <ErrorMessage error={error} />

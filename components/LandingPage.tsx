@@ -1,10 +1,12 @@
 import React from 'react';
-import { Tool, ToolType } from '../types';
+import { Tool, ToolType, ConnectedAccount } from '../types';
 import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineShare, HiOutlineUserGroup } from 'react-icons/hi2';
 import SocialConnect from './SocialConnect';
 
 interface LandingPageProps {
   onSelectTool: (tool: ToolType) => void;
+  connectedAccounts: ConnectedAccount[];
+  onToggleConnect: (platform: string) => void;
 }
 
 const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ tool, onClick }) => {
@@ -42,7 +44,7 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ to
     );
 });
 
-const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccounts, onToggleConnect }) => {
 
     const tools: Tool[] = [
         { id: 'thumbnail', title: "YouTube Thumbnail Generator", description: "Create high-impact, click-worthy thumbnails by providing a headshot and a video description.", enabled: true },
@@ -63,7 +65,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool }) => {
                 ))}
             </div>
             <div className="mt-16">
-              <SocialConnect />
+              <SocialConnect connectedAccounts={connectedAccounts} onToggleConnect={onToggleConnect} />
             </div>
         </div>
     );

@@ -8,7 +8,6 @@ import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXM
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
-import ImageCropper from './ImageCropper';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -39,32 +38,10 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
     const [isSaved, setIsSaved] = useState(false);
     const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
     const [isTemplateBrowserOpen, setIsTemplateBrowserOpen] = useState(false);
-    const [croppingState, setCroppingState] = useState<{ open: boolean; imageSrc: string | null; fileType: 'product' | 'model' | null; file: File | null }>({ open: false, imageSrc: null, fileType: null, file: null });
 
     useEffect(() => {
         onGenerating(isLoading);
     }, [isLoading, onGenerating]);
-
-    const handleCropComplete = (croppedBase64: string) => {
-        if (croppingState.file) {
-            const uploadedFile: UploadedFile = {
-                base64: croppedBase64,
-                mimeType: 'image/png',
-                name: croppingState.file.name,
-            };
-
-            if (croppingState.fileType === 'product') {
-                setProductImage(uploadedFile);
-            } else if (croppingState.fileType === 'model') {
-                setModelHeadshot(uploadedFile);
-            }
-        }
-        setCroppingState({ open: false, imageSrc: null, fileType: null, file: null });
-    };
-
-    const handleCropCancel = () => {
-        setCroppingState({ open: false, imageSrc: null, fileType: null, file: null });
-    };
 
     useEffect(() => {
         let interval: ReturnType<typeof setInterval>;
@@ -115,15 +92,20 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
             const file = event.target.files[0];
             const reader = new FileReader();
             reader.onload = () => {
-                 setCroppingState({
-                    open: true,
-                    imageSrc: reader.result as string,
-                    fileType: fileType,
-                    file: file
-                });
+                const base64 = (reader.result as string).split(',')[1];
+                const uploadedFile: UploadedFile = {
+                    base64,
+                    mimeType: file.type,
+                    name: file.name,
+                };
+                if (fileType === 'product') {
+                    setProductImage(uploadedFile);
+                } else if (fileType === 'model') {
+                    setModelHeadshot(uploadedFile);
+                }
             };
-            reader.onerror = error => setError("There was an error reading your file.");
             reader.readAsDataURL(file);
+            event.target.value = '';
         }
     };
 
@@ -427,14 +409,6 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                     tool="advertisement"
                     onClose={() => setIsTemplateBrowserOpen(false)}
                     onSelect={handleSelectTemplate}
-                />
-            )}
-            {croppingState.open && croppingState.imageSrc && (
-                 <ImageCropper
-                    imageSrc={croppingState.imageSrc}
-                    onCropComplete={handleCropComplete}
-                    onCancel={handleCropCancel}
-                    aspect={1}
                 />
             )}
             <ErrorMessage error={error} />

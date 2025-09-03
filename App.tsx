@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import LandingPage from './components/LandingPage';
 import Header from './components/Header';
-import { ToolType, ValidationStatus } from './types';
+import { ToolType, ValidationStatus, ConnectedAccount } from './types';
 import HistorySidebar from './components/HistorySidebar';
 import Footer from './components/Footer';
 import FeedbackModal from './components/FeedbackModal';
@@ -27,6 +27,7 @@ const App: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [dbStatus, setDbStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
   const [dbError, setDbError] = useState<string | null>(null);
+  const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([]);
 
   const { session } = useAuth();
 
@@ -110,6 +111,18 @@ const App: React.FC = () => {
     setIsGenerating(status);
   }, []);
 
+  const handleToggleConnect = useCallback((platform: string) => {
+    setConnectedAccounts(prev => {
+      const isConnected = prev.some(acc => acc.platform === platform);
+      if (isConnected) {
+        return prev.filter(acc => acc.platform !== platform);
+      } else {
+        // Storing the platform name fulfills the placeholder requirement.
+        return [...prev, { platform }];
+      }
+    });
+  }, []);
+
   return (
     <div className={`min-h-screen animated-bg ${isGenerating ? 'generating-active' : ''}`}>
       <MouseTrail />
@@ -124,7 +137,7 @@ const App: React.FC = () => {
         {activeTool === 'landing' ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8">
             <div className="lg:col-span-2">
-              <LandingPage onSelectTool={handleSelectTool} />
+              <LandingPage onSelectTool={handleSelectTool} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />
             </div>
             <div className="mt-8 lg:mt-0">
               <HistorySidebar key={historyUpdated} />

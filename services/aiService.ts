@@ -110,6 +110,7 @@ Each concept object must have the following keys: "prompt", "reason", "isRecomme
 - **"prompt"**: The detailed, expertly crafted prompt for the AI image generator.
 - **"reason"**: A brief, strategic explanation of why this concept will maximize clicks for this specific creator and video.
 - **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
+Your entire response must be a single, valid JSON object, without any markdown formatting, comments, or other text outside of the JSON structure itself.
 `;
 
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
@@ -182,6 +183,7 @@ Each concept object must have the following keys: "prompt", "reason", "isRecomme
 - **"prompt"**: The detailed, expertly crafted prompt for the AI image generator, including all branding and facial likeness commands.
 - **"reason"**: A brief, strategic analysis of why this concept is effective for this campaign.
 - **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
+Your entire response must be a single, valid JSON object, without any markdown formatting, comments, or other text outside of the JSON structure itself.
 `;
 
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
@@ -232,6 +234,7 @@ Each concept object must have the following keys: "prompt", "reason", "isRecomme
 - **"prompt"**: The detailed, expertly crafted prompt for the AI image generator, including all commands.
 - **"reason"**: An expert analysis of the marketing strategy behind the concept and its expected ROI.
 - **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
+Your entire response must be a single, valid JSON object, without any markdown formatting, comments, or other text outside of the JSON structure itself.
 `;
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
     return parseAndValidateConcepts(jsonText);
@@ -287,6 +290,7 @@ Each concept object must have the following keys: "prompt", "caption", "reason",
 - **"caption"**: The complete, ready-to-post text caption.
 - **"reason"**: A brief, expert analysis of why this visual/caption combo is a strong strategy for this platform.
 - **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
+Your entire response must be a single, valid JSON object, without any markdown formatting, comments, or other text outside of the JSON structure itself.
 `;
     const jsonText = await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA);
     return parseAndValidateConcepts(jsonText);
