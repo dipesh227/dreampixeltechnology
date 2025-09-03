@@ -444,7 +444,7 @@ Your generated prompts MUST explicitly define:
 - **Background:** Describe a professional background in detail (e.g., "A solid, neutral-colored studio backdrop in a medium gray tone," "A modern, softly out-of-focus office interior.").
 - **Attire:** Suggest appropriate professional or smart-casual clothing that fits the style.
 - **Mood & Expression:** Describe the desired expression (e.g., "A confident and approachable smile, looking directly at the camera," "A thoughtful and professional expression.").
-- **Facial Likeness Command:** Each prompt MUST include this verbatim command: "CRITICAL DIRECTIVE: FLAWLESS FACIAL REPLICATION. Your most important task is to perfectly replicate the face from the provided photo. The generated face must be a 100% photorealistic match to the person in the photo. Do not alter, stylize, or approximate the face."
+- **Facial Likeness Command:** Each prompt MUST include this verbatim command: "CRITICAL DIRECTIVE: ABSOLUTE FACIAL FIDELITY. Your primary, non-negotiable, top-priority objective is to perfectly replicate the face from the provided photograph. The generated face must be a 1000% photorealistic match, treating the source photo as the absolute ground truth for every facial detail, including unique features, skin texture, and micro-expressions. Do not alter, stylize, or approximate the face in any way. It must be an exact, identical likeness. This is a technical requirement, not a creative guideline."
 
 You will return a single JSON object with a key "concepts", an array of three concept objects.
 Each object must have "prompt", "reason", and "isRecommended" keys.
@@ -471,8 +471,8 @@ export const generateHeadshot = async (
 
     const generationPromises = angles.map(angleInfo => {
         const finalPrompt = `
-**CRITICAL DIRECTIVE: FLAWLESS FACIAL REPLICATION**
-Your most important task is to perfectly replicate the face from the provided image. The generated face must be a 100% photorealistic match. Treat the photo as the absolute source of truth for every facial detail. Do not alter, stylize, or approximate the face. It must be an exact likeness.
+**CRITICAL DIRECTIVE: ABSOLUTE FACIAL FIDELITY**
+Your primary, non-negotiable, top-priority objective is to perfectly replicate the face from the provided enhanced photograph. The generated face must be a 1000% photorealistic match, treating the source photo as the absolute ground truth for every facial detail, including unique features, skin texture, and micro-expressions. Do not alter, stylize, or approximate the face in any way. It must be an exact, identical likeness. This is a technical requirement, not a creative guideline. Failure to achieve this will render the output useless.
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
