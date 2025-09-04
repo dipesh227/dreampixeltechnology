@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import LandingPage from './components/LandingPage';
 import Header from './components/Header';
@@ -11,6 +10,7 @@ import * as aiService from './services/aiService';
 import MouseTrail from './components/MouseTrail';
 import { useAuth } from './context/AuthContext';
 import { checkDatabaseConnection } from './services/supabaseClient';
+import { useLocalization } from './hooks/useLocalization';
 
 // Eager load components to fix potential module resolution issues with lazy loading.
 import ThumbnailGenerator from './components/ThumbnailGenerator';
@@ -40,6 +40,7 @@ const App: React.FC = () => {
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([]);
 
   const { session } = useAuth();
+  const { t, locale } = useLocalization();
 
   // This effect runs ONLY ONCE when the app first loads to check static connections.
   useEffect(() => {
@@ -81,26 +82,12 @@ const App: React.FC = () => {
   
   useEffect(() => {
     const baseTitle = "DreamPixel Technology";
-    const toolTitles: { [key in ToolType]?: string } = {
-        'thumbnail': "YouTube Thumbnail Generator",
-        'advertisement': "Ad Banner Generator",
-        'social': "Social Media Post Generator",
-        'political': "Politician's Poster Maker",
-        'profile': "Profile Picture Generator",
-        'logo': "AI Logo Generator",
-        'image-enhancer': "AI Image Enhancer",
-        'headshot-maker': "HQ Headshot Maker",
-        'passport-photo': "Passport Photo Maker",
-        'visiting-card': "AI Visiting Card Maker",
-        'event-poster': "AI Event Poster Maker",
-        'trend-post': "AI Trend-Based Post Generator",
-        'social-campaign': "AI Social Media Content Factory",
-    };
-
-    const toolTitle = activeTool === 'landing' ? "AI Content Creation Suite" : toolTitles[activeTool] || "Generator";
+    const toolTitle = activeTool === 'landing' 
+        ? t('landing.docTitle') 
+        : t(`tools.${activeTool.replace(/-/g, '_')}.title`);
     
     document.title = `${toolTitle} | ${baseTitle}`;
-  }, [activeTool]);
+  }, [activeTool, t, locale]);
 
   const handleSelectTool = useCallback((tool: ToolType) => {
     setActiveTool(tool);

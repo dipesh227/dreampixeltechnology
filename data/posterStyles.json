@@ -1,4 +1,44 @@
-
 [
-    { "id": "vikas", "name": "Vikas", "tags": "Development & Progress", "stylePrompt": "A clean, modern, and optimistic style. Use bright lighting, images of infrastructure and development, and a hopeful tone. The design should be professional and forward-looking." },
-    { "id": "jan-andolan", "name": "Jan Andolan", "tags": "Movement & Protest", "stylePrompt": "A gritty
+    { 
+        "id": "vikas", 
+        "name": "Vikas", 
+        "tags": "Development & Progress", 
+        "stylePrompt": "A clean, modern, and optimistic style. Use bright lighting, images of infrastructure and development, and a hopeful tone. The design should be professional and forward-looking." 
+    },
+    { 
+        "id": "jan-andolan", 
+        "name": "Jan Andolan", 
+        "tags": "Movement & Protest", 
+        "stylePrompt": "A gritty, high-contrast, and impactful style. Use imagery of crowds and activism. The typography should be bold and stencil-like. The mood is urgent and revolutionary." 
+    },
+    { 
+        "id": "yuva-shakti", 
+        "name": "Yuva Shakti", 
+        "tags": "Youth & Energy", 
+        "stylePrompt": "A vibrant, energetic, and modern style targeting the youth. Use dynamic layouts, bright colors, and images of young, aspirational people. The typography is trendy and bold." 
+    },
+    { 
+        "id": "parivartan", 
+        "name": "Parivartan", 
+        "tags": "Change & Hope", 
+        "stylePrompt": "A hopeful and emotional style focused on change. Use imagery of sunrises, open hands, and diverse groups of people. The color palette is often light and optimistic. The typography is clean and inspiring." 
+    },
+    { 
+        "id": "garib-kalyan", 
+        "name": "Garib Kalyan", 
+        "tags": "Welfare & Empathy", 
+        "stylePrompt": "An empathetic and grounded style focused on social welfare. Use authentic, emotional portraits of common people. The color palette is earthy and warm. The mood is one of care, support, and empathy." 
+    },
+    { 
+        "id": "raksha", 
+        "name": "Raksha", 
+        "tags": "Security & Strength", 
+        "stylePrompt": "A strong, patriotic, and bold style focused on national security. Use imagery of the military, national symbols, and strong leaders. The colors are often derived from the national flag. The typography is bold and authoritative." 
+    },
+    { 
+        "id": "classic-propaganda", 
+        "name": "Classic Propaganda", 
+        "tags": "Vintage & Bold", 
+        "stylePrompt": "A vintage propaganda poster style, reminiscent of old political art. Use bold, graphic illustrations, limited color palettes (e.g., red, black, beige), and strong, commanding typography. The mood is powerful and nostalgic." 
+    }
+]
