@@ -80,7 +80,7 @@ This application requires a Google Gemini API key to function.
 3.  **Add Your API Key**:
     -   Open the `.env.local` file and add the following line, replacing `your_api_key_here` with the key you just copied:
     ```
-    GEMINI_API_KEY=your_api_key_here
+    API_KEY=your_api_key_here
     ```
     -   The application will automatically load this key. If the key is missing or invalid, an error will be shown in the header's API Status indicator.
 

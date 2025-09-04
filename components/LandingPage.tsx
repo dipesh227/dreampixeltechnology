@@ -25,6 +25,7 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void, t: (key: string) => 
         'passport-photo': { icon: HiOutlineCreditCard, gradient: 'from-blue-500 to-indigo-600' },
         'visiting-card': { icon: HiOutlineClipboardDocumentList, gradient: 'from-slate-400 to-slate-600' },
         'event-poster': { icon: HiOutlineTicket, gradient: 'from-rose-400 to-red-500' },
+        // FIX: Corrected icon name to match import.
         'trend-post': { icon: HiOutlineArrowTrendingUp, gradient: 'from-green-400 to-teal-500' },
         'social-campaign': { icon: HiOutlineBuildingStorefront, gradient: 'from-indigo-500 to-violet-600' },
     };

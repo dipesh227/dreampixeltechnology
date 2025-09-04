@@ -6,7 +6,7 @@ import { RateLimitError } from "./errors";
 const getAiClient = (apiKeyOverride?: string) => {
     const apiKey = apiKeyOverride || apiConfigService.getApiKey();
     if (!apiKey) {
-        throw new Error("API key is not configured. Please ensure the GEMINI_API_KEY environment variable is set.");
+        throw new Error("API key is not configured. Please ensure the API_KEY environment variable is set.");
     }
     return new GoogleGenAI({ apiKey });
 };
@@ -14,7 +14,7 @@ const getAiClient = (apiKeyOverride?: string) => {
 const handleGeminiError = (error: unknown): Error => {
     if (error instanceof Error) {
         if (error.message.includes('API key not valid')) {
-            return new Error("Invalid Gemini API Key. Please ensure the GEMINI_API_KEY environment variable is set correctly.");
+            return new Error("Invalid Gemini API Key. Please ensure the API_KEY environment variable is set correctly.");
         }
         if (error.message.includes('429') || error.message.includes('RESOURCE_EXHAUSTED')) {
             return new RateLimitError("Rate limit exceeded. You've made too many requests to the Gemini API recently. Please wait a minute and try again.");
@@ -103,27 +103,31 @@ export const generateImageFromText = async (prompt: string, aspectRatio: AspectR
     return withRetries(async () => {
         const ai = getAiClient();
         
-        const promptWithAspectRatio = `${prompt}\n\nCRITICAL: The final image's aspect ratio MUST be precisely ${aspectRatio}.`;
+        // The imagen model supports a specific set of aspect ratios. We map the app's ratios to the closest supported one.
+        const validAspectRatios: { [key in AspectRatio]?: "1:1" | "3:4" | "4:3" | "9:16" | "16:9" } = {
+            '1:1': '1:1',
+            '16:9': '16:9',
+            '9:16': '9:16',
+            '4:5': '3:4',      // Map 4:5 (0.8) to closest supported value 3:4 (0.75)
+            '1.91:1': '16:9', // Map 1.91:1 (~1.77) to 16:9 (1.77)
+            '3.5:2': '16:9',  // Map 3.5:2 (1.75) to closest supported value 16:9 (1.77)
+        };
+        const supportedAspectRatio = validAspectRatios[aspectRatio] || '1:1';
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image-preview',
-            contents: {
-                parts: [
-                    { text: promptWithAspectRatio }
-                ]
-            },
+        const response = await ai.models.generateImages({
+            model: 'imagen-4.0-generate-001',
+            prompt: prompt,
             config: {
-                responseModalities: [Modality.IMAGE, Modality.TEXT]
-            }
+              numberOfImages: 1,
+              aspectRatio: supportedAspectRatio,
+            },
         });
 
-        for (const part of response.candidates[0].content.parts) {
-            if (part.inlineData && part.inlineData.data) {
-                return part.inlineData.data;
-            }
+        if (response.generatedImages && response.generatedImages.length > 0) {
+            return response.generatedImages[0].image.imageBytes;
         }
         
-        console.warn("Gemini model did not return an image for the text-only prompt.");
+        console.warn("Imagen model did not return an image for the text-only prompt.");
         return null;
     });
 };
