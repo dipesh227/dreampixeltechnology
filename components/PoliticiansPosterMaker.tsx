@@ -8,6 +8,7 @@ import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXM
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
+import StyleSelector from './StyleSelector';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -295,17 +296,13 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
                 </div>
             </div>
 
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Select a visual style to set the overall mood and design direction of your poster. Each style provides a different artistic feel.">
-                 <h2 className="text-xl font-bold text-white mb-4">5. Choose a Poster Style</h2>
-                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                    {POSTER_STYLES.map(style => (
-                        <button key={style.id} onClick={() => setSelectedStyleId(style.id)} className={`p-4 rounded-lg border-2 text-left transition-colors duration-200 text-sm ${selectedStyleId === style.id ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>
-                            <p className="font-bold text-white">{style.name}</p>
-                            <p className="text-xs text-slate-400">{style.tags}</p>
-                        </button>
-                    ))}
-                 </div>
-            </div>
+            <StyleSelector
+                title="5. Choose a Poster Style"
+                tooltip="Select a visual style to set the overall mood and design direction of your poster. Each style provides a different artistic feel."
+                stylesData={POSTER_STYLES}
+                selectedStyleId={selectedStyleId}
+                onStyleSelect={setSelectedStyleId}
+            />
             
             <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Choose the final poster shape. 4:5 is ideal for most social media feeds, while 9:16 is for stories (e.g., Instagram, WhatsApp).">
                 <h2 className="text-xl font-bold text-white mb-4">6. Choose Aspect Ratio</h2>

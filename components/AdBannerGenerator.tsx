@@ -8,6 +8,7 @@ import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXM
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
+import StyleSelector from './StyleSelector';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -25,7 +26,6 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
     const [productDescription, setProductDescription] = useState('');
     const [headline, setHeadline] = useState('');
     const [brandDetails, setBrandDetails] = useState('');
-    const [activeCategory, setActiveCategory] = useState(Object.keys(AD_STYLES)[0]);
     const [selectedStyleId, setSelectedStyleId] = useState<string>(AD_STYLES[Object.keys(AD_STYLES)[0]][0].id);
     const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1');
     
@@ -205,13 +205,6 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
         if (prefill.productDescription) setProductDescription(prefill.productDescription);
         if (prefill.headline) setHeadline(prefill.headline);
         if (prefill.brandDetails) setBrandDetails(prefill.brandDetails);
-
-        for (const category in AD_STYLES) {
-            if (AD_STYLES[category].some(style => style.id === prefill.styleId)) {
-                setActiveCategory(category);
-                break;
-            }
-        }
     };
 
     const handleCopyPrompt = (prompt: string) => {
@@ -305,24 +298,13 @@ const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, o
                 </div>
             </div>
 
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Select an industry and style to guide the AI's design. This determines the overall look, feel, and mood of your ad banner.">
-                 <h2 className="text-xl font-bold text-white mb-4">3. Choose an Ad Style</h2>
-                 <div className="flex flex-wrap gap-2 mb-4 border-b border-slate-800 pb-4">
-                     {Object.keys(AD_STYLES).map(category => (
-                        <button key={category} onClick={() => setActiveCategory(category)} className={`px-4 py-1.5 text-sm rounded-full transition-colors duration-200 ${activeCategory === category ? 'bg-primary-gradient text-white font-semibold' : 'bg-slate-800 hover:bg-slate-700'}`}>
-                           {category.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                        </button>
-                     ))}
-                 </div>
-                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    {AD_STYLES[activeCategory].map(style => (
-                        <button key={style.id} onClick={() => setSelectedStyleId(style.id)} className={`p-4 rounded-lg border-2 text-left transition-colors duration-200 text-sm ${selectedStyleId === style.id ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>
-                            <p className="font-bold text-white">{style.name}</p>
-                            <p className="text-xs text-slate-400">{style.tags}</p>
-                        </button>
-                    ))}
-                 </div>
-            </div>
+            <StyleSelector
+                title="3. Choose an Ad Style"
+                tooltip="Select an industry and style to guide the AI's design. This determines the overall look, feel, and mood of your ad banner."
+                stylesData={AD_STYLES as any}
+                selectedStyleId={selectedStyleId}
+                onStyleSelect={setSelectedStyleId}
+            />
 
             <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Choose the final shape of your ad. Select the ratio that matches the ad placement you are targeting (e.g., Instagram post, Facebook ad).">
                 <h2 className="text-xl font-bold text-white mb-4">4. Choose Aspect Ratio</h2>

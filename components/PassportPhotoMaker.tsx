@@ -244,7 +244,10 @@ const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNavigateHome,
                  <h3 className="text-xl font-bold text-white mb-4">3. Choose Outfit Style</h3>
                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {PASSPORT_PHOTO_STYLES.map((style: PassportPhotoStyle) => (
-                        <button key={style.id} onClick={() => setSelectedStyleId(style.id)} className={`p-4 rounded-lg border-2 text-center transition-colors duration-200 text-sm ${selectedStyleId === style.id ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>
+                        <button 
+                            key={style.id} 
+                            onClick={() => setSelectedStyleId(style.id)} 
+                            className={`p-4 rounded-lg border-2 text-center transition-all duration-200 text-sm h-full flex items-center justify-center ${selectedStyleId === style.id ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700 hover:-translate-y-1'}`}>
                             <p className="font-bold text-white">{style.name}</p>
                         </button>
                     ))}

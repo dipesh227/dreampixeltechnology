@@ -23,7 +23,8 @@ import HeadshotMaker from './components/HeadshotMaker';
 import PassportPhotoMaker from './components/PassportPhotoMaker';
 import VisitingCardMaker from './components/VisitingCardMaker';
 import EventPosterMaker from './components/EventPosterMaker';
-import SocialMediaCampaignFactory from './components/SocialMediaCampaignFactory';
+// FIX: Changed to a named import as SocialMediaCampaignFactory is a named export.
+import { SocialMediaCampaignFactory } from './components/SocialMediaCampaignFactory';
 
 const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');

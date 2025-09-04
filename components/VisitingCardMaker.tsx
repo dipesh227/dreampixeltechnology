@@ -8,6 +8,7 @@ import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXM
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
+import StyleSelector from './StyleSelector';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -188,17 +189,13 @@ const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigateHome, o
                     }
                 </div>
             </div>
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Select a style to define the visual direction of your visiting card.">
-                 <h2 className="text-xl font-bold text-white mb-4">3. Choose a Design Style</h2>
-                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {VISITING_CARD_STYLES.map((style: VisitingCardStyle) => (
-                        <button key={style.id} onClick={() => setSelectedStyleId(style.id)} className={`p-4 rounded-lg border-2 text-left transition-colors duration-200 text-sm ${selectedStyleId === style.id ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>
-                            <p className="font-bold text-white">{style.name}</p>
-                            <p className="text-xs text-slate-400">{style.tags}</p>
-                        </button>
-                    ))}
-                 </div>
-            </div>
+            <StyleSelector
+                title="3. Choose a Design Style"
+                tooltip="Select a style to define the visual direction of your visiting card."
+                stylesData={VISITING_CARD_STYLES}
+                selectedStyleId={selectedStyleId}
+                onStyleSelect={setSelectedStyleId}
+            />
              <div className="flex justify-center pt-4">
                 <button onClick={handleGenerateConcepts} disabled={isLoading || !companyName.trim() || !personName.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}

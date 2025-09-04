@@ -8,6 +8,7 @@ import { HiArrowLeft, HiCheck, HiComputerDesktop, HiDevicePhoneMobile, HiArrowDo
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
+import StyleSelector from './StyleSelector';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -24,7 +25,6 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
     const [description, setDescription] = useState('');
     const [thumbnailText, setThumbnailText] = useState('');
     const [brandDetails, setBrandDetails] = useState('');
-    const [activeCategory, setActiveCategory] = useState(Object.keys(CREATOR_STYLES)[0]);
     const [selectedStyleId, setSelectedStyleId] = useState<string>(CREATOR_STYLES[Object.keys(CREATOR_STYLES)[0]][0].id);
     const [aspectRatio, setAspectRatio] = useState<AspectRatio>('16:9');
     const [generatedPrompts, setGeneratedPrompts] = useState<GeneratedConcept[]>([]);
@@ -47,7 +47,6 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
         setDescription('');
         setThumbnailText('');
         setBrandDetails('');
-        setActiveCategory(Object.keys(CREATOR_STYLES)[0]);
         setSelectedStyleId(CREATOR_STYLES[Object.keys(CREATOR_STYLES)[0]][0].id);
         setAspectRatio('16:9');
         setGeneratedPrompts([]);
@@ -183,14 +182,6 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
         if (prefill.aspectRatio) setAspectRatio(prefill.aspectRatio);
         if (prefill.description) setDescription(prefill.description);
         if (prefill.thumbnailText) setThumbnailText(prefill.thumbnailText);
-
-        // Find the category of the selected style to update the UI
-        for (const category in CREATOR_STYLES) {
-            if (CREATOR_STYLES[category].some(style => style.id === prefill.styleId)) {
-                setActiveCategory(category);
-                break;
-            }
-        }
     };
     
     useEffect(() => {
@@ -318,24 +309,13 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
                 </div>
             </div>
 
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Select a creator whose style you admire. This choice heavily influences the mood, color, and composition of the generated thumbnail concepts.">
-                 <h2 className="text-xl font-bold text-white mb-4">3. Choose a Creator Style</h2>
-                 <div className="flex flex-wrap gap-2 mb-4 border-b border-slate-800 pb-4">
-                     {Object.keys(CREATOR_STYLES).map(category => (
-                        <button key={category} onClick={() => setActiveCategory(category)} className={`px-4 py-1.5 text-sm rounded-full transition-colors duration-200 ${activeCategory === category ? 'bg-primary-gradient text-white font-semibold' : 'bg-slate-800 hover:bg-slate-700'}`}>
-                           {category.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                        </button>
-                     ))}
-                 </div>
-                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    {CREATOR_STYLES[activeCategory].map(style => (
-                        <button key={style.id} onClick={() => setSelectedStyleId(style.id)} className={`p-4 rounded-lg border-2 text-left transition-colors duration-200 text-sm ${selectedStyleId === style.id ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>
-                            <p className="font-bold text-white">{style.name}</p>
-                            <p className="text-xs text-slate-400">{style.tags}</p>
-                        </button>
-                    ))}
-                 </div>
-            </div>
+            <StyleSelector
+                title="3. Choose a Creator Style"
+                tooltip="Select a creator whose style you admire. This choice heavily influences the mood, color, and composition of the generated thumbnail concepts."
+                stylesData={CREATOR_STYLES as any}
+                selectedStyleId={selectedStyleId}
+                onStyleSelect={setSelectedStyleId}
+            />
             
             <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Choose the final shape of your thumbnail. 16:9 is standard for YouTube videos, while 9:16 is for Shorts, Reels, and TikTok.">
                 <h2 className="text-xl font-bold text-white mb-4">4. Choose Aspect Ratio</h2>
