@@ -1,10 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { SocialCampaign, PlatformPostConcept, UploadedFile, ConnectedAccount, AdStyle, AspectRatio, GeneratedConcept } from '../types';
-// FIX: Added 'generateSocialPostConcepts' to the import list to resolve the "Cannot find name" error.
 import { generateSocialMediaCampaign, generateSocialPost, generateSocialPostWithHeadshot, generateSocialVideo, getTrendingTopics, generateTrendPostConcepts, generateSocialPostConcepts } from '../services/aiService';
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
-import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowLeft, HiClipboardDocument, HiCheck, HiOutlinePhoto, HiOutlineUserCircle, HiArrowUpTray, HiOutlineLink, HiXMark, HiCheckCircle, HiOutlineVideoCamera, HiOutlinePencil, HiOutlineShare, HiBuildingStorefront, HiRectangleStack, HiOutlineArrowTrendingUp } from 'react-icons/hi2';
+import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowLeft, HiClipboardDocument, HiCheck, HiOutlinePhoto, HiOutlineUserCircle, HiArrowUpTray, HiOutlineLink, HiXMark, HiCheckCircle, HiOutlineVideoCamera, HiOutlinePencil, HiOutlineShare, HiBuildingStorefront, HiRectangleStack, HiOutlineArrowTrendingUp, HiOutlineLightBulb } from 'react-icons/hi2';
 import { FaLinkedin, FaInstagram, FaFacebook, FaTiktok, FaYoutube } from 'react-icons/fa6';
 import { FaTwitter, FaThreads } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
@@ -118,19 +118,20 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
             return;
         }
         if (session) {
-            // FIX: Changed 'headshot' to 'headshots' and wrapped it in an array to match the SocialCampaignJobData interface.
             jobService.saveSocialCampaignJob({ userId: session.user.id, topic, keywords, link, headshots: headshot ? [headshot] : [], sampleImage, postLink, language: locale, creatorName });
         }
         setIsLoading(true);
         setError(null);
         setStep('generating');
-        setLoadingMessage(t('socialCampaignFactory.generatingMessage'));
+        // FIX: Explicitly cast the result of `t` to a string to satisfy the state setter's type.
+        setLoadingMessage(String(t('socialCampaignFactory.generatingMessage')));
         try {
             const result = await generateSocialMediaCampaign(topic, keywords, link, headshot, sampleImage, postLink, locale, creatorName);
             setCampaignResult(result);
             setStep('result');
         } catch (err) {
-            setError(err instanceof Error ? err.message : t('socialCampaignFactory.errorCampaign'));
+            // FIX: Explicitly cast the result of `t` to a string to satisfy the state setter's type.
+            setError(err instanceof Error ? err.message : String(t('socialCampaignFactory.errorCampaign')));
             setStep('input');
         } finally {
             setIsLoading(false);
@@ -144,7 +145,7 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
         }
         setIsLoading(true);
         setError(null);
-        setLoadingMessage(t('socialCampaignFactory.findingTrends'));
+        setLoadingMessage(String(t('socialCampaignFactory.findingTrends')));
         try {
             const trends = await getTrendingTopics(baseKeyword);
             setFoundTrends(trends);
@@ -180,7 +181,7 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
         
         setIsLoading(true);
         setError(null);
-        setLoadingMessage(t('socialCampaignFactory.generatingConcepts'));
+        setLoadingMessage(String(t('toolShared.loading.crafting')));
         try {
             const concepts = mode === 'trend'
                 ? await generateTrendPostConcepts(selectedTrend, platform, selectedStyle)
@@ -189,7 +190,7 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
             setGeneratedConcepts(concepts);
             setStep('conceptSelection');
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to generate concepts.');
+            setError(err instanceof Error ? err.message : String(t('toolShared.errorConceptsFailed')));
         } finally {
             setIsLoading(false);
         }
@@ -208,7 +209,7 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
                 setFinalGeneratedPost(postResult);
                 setStep('result');
             } else {
-                throw new Error(t('toolShared.errorImageFailed'));
+                throw new Error(String(t('toolShared.errorImageFailed')));
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to generate post image.');
@@ -227,7 +228,7 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
             if (imageResult) {
                 setGeneratedImages(prev => ({ ...prev, [platform]: { loading: false, base64: imageResult, saved: false } }));
             } else {
-                throw new Error(t('toolShared.errorImageFailed'));
+                throw new Error(String(t('toolShared.errorImageFailed')));
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to generate image.');
@@ -235,7 +236,6 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
         }
     };
 
-    // FIX: Updated function signature to handle potentially undefined script/suggestion from the API response, which resolves downstream type errors.
     const handleOpenScriptModal = (platform: string, script: string | undefined, suggestion: string | undefined) => {
         setCurrentScriptData({ platform, script: script || '', suggestion: suggestion || '' });
         setIsScriptModalOpen(true);
@@ -245,10 +245,10 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
         if (!currentScriptData) return;
         const { platform, script, suggestion } = currentScriptData;
         setIsScriptModalOpen(false);
-        setGeneratedVideos(prev => ({ ...prev, [platform]: { loading: true, url: null, saved: false, loadingMessage: t('socialCampaignFactory.videoGenerating.status1') } }));
+        setGeneratedVideos(prev => ({ ...prev, [platform]: { loading: true, url: null, saved: false, loadingMessage: String(t('socialCampaignFactory.videoGenerating.status1')) } }));
         setError(null);
 
-        const messages = [t('socialCampaignFactory.videoGenerating.status2'), t('socialCampaignFactory.videoGenerating.status3'), t('socialCampaignFactory.videoGenerating.status4'), t('socialCampaignFactory.videoGenerating.status5')];
+        const messages = [String(t('socialCampaignFactory.videoGenerating.status2')), String(t('socialCampaignFactory.videoGenerating.status3')), String(t('socialCampaignFactory.videoGenerating.status4')), String(t('socialCampaignFactory.videoGenerating.status5'))];
         let messageIndex = 0;
         const intervalId = setInterval(() => {
             setGeneratedVideos(prev => {
@@ -320,10 +320,9 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
 
     const handleSelectTrend = (trend: string) => {
         setSelectedTrend(trend);
-        setStep('input'); // Go back to input step, but now it will show the style selection
+        setStep('input');
     };
     
-    // ... RENDER FUNCTIONS ...
     const renderCampaignInput = () => (
         <div className="space-y-4">
             <div data-tooltip="Describe the core message or announcement for your campaign. The AI will generate content for all platforms based on this.">
@@ -423,24 +422,27 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
                 </button>
             </div>
         </div>
-    )
+    );
 
     const renderInputStep = () => (
         <div className="max-w-3xl mx-auto">
-            <div className="grid grid-cols-3 gap-2 mb-8 p-1 bg-slate-800/50 rounded-lg border border-slate-700">
+            <h2 className="text-3xl font-bold text-center mb-2 text-white">{t('socialCampaignFactory.title')}</h2>
+            <p className="text-slate-400 text-center mb-10">{t('socialCampaignFactory.subtitle')}</p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-8 p-1 bg-slate-800/50 rounded-lg border border-slate-700">
                 {[
-                    { key: 'campaign', icon: HiBuildingStorefront, label: t('socialCampaignFactory.modeCampaign') },
-                    { key: 'single', icon: HiRectangleStack, label: t('socialCampaignFactory.modeSingle') },
-                    { key: 'trend', icon: HiOutlineArrowTrendingUp, label: t('socialCampaignFactory.modeTrend') },
-                ].map(({key, icon: Icon, label}) => (
-                    <button key={key} onClick={() => setMode(key as GenerationMode)} className={`flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-md transition-colors ${mode === key ? 'bg-primary-gradient text-white' : 'text-slate-300 hover:bg-slate-700'}`}>
-                       <Icon className="w-5 h-5" /> {label}
+                    { key: 'campaign', icon: HiBuildingStorefront, label: t('socialCampaignFactory.modeCampaign'), desc: t('socialCampaignFactory.modeCampaignDesc') },
+                    { key: 'single', icon: HiRectangleStack, label: t('socialCampaignFactory.modeSingle'), desc: t('socialCampaignFactory.modeSingleDesc') },
+                    { key: 'trend', icon: HiOutlineArrowTrendingUp, label: t('socialCampaignFactory.modeTrend'), desc: t('socialCampaignFactory.modeTrendDesc') },
+                ].map(({key, icon: Icon, label, desc}) => (
+                    <button key={key} onClick={() => { setMode(key as GenerationMode); setStep('input'); setSelectedTrend(''); }} className={`flex flex-col text-center items-center justify-center gap-1 p-3 text-sm font-semibold rounded-md transition-colors ${mode === key ? 'bg-primary-gradient text-white shadow-lg' : 'text-slate-300 hover:bg-slate-700'}`} data-tooltip={desc}>
+                       <Icon className="w-6 h-6 mb-1" /> {label}
                     </button>
                 ))}
             </div>
             <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
                 {mode === 'campaign' && renderCampaignInput()}
-                {mode === 'single' && renderSinglePostInput()}
+                {mode === 'single' && (selectedStyleId ? renderSinglePostInput() : renderStyleSelection())}
                 {mode === 'trend' && (selectedTrend ? renderStyleSelection() : renderTrendInput())}
             </div>
              {mode === 'campaign' && (
@@ -452,10 +454,10 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
                             <input value={creatorName} onChange={(e) => setCreatorName(e.target.value)} placeholder={t('socialCampaignFactory.creatorNamePlaceholder')} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                         </div>
                         <div>
-                             <label className="font-semibold text-slate-300">Headshot for Images</label>
+                             <label className="font-semibold text-slate-300">{t('socialCampaignFactory.headshotsLabel')}</label>
                              <div className={`mt-2 p-2 border-2 border-dashed rounded-xl text-center ${headshot ? 'border-green-500/50' : 'border-slate-700 hover:border-slate-600'}`}>
                                 <input type="file" id="headshot-upload" className="hidden" onChange={(e) => handleFileChange(e, 'headshot')} />
-                                <label htmlFor="headshot-upload" className="cursor-pointer text-xs">{headshot ? headshot.name : 'Upload Headshot'}</label>
+                                <label htmlFor="headshot-upload" className="cursor-pointer text-xs">{headshot ? headshot.name : t('socialCampaignFactory.uploadHeadshots')}</label>
                              </div>
                         </div>
                     </div>
@@ -464,12 +466,292 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
         </div>
     );
     
-    // ... other render steps for results etc.
-    // This will be a large component, but the logic is now centralized.
+    const renderGeneratingStep = () => (
+        <div className="text-center py-20 animate-fade-in">
+            <div className="relative w-24 h-24 mx-auto">
+                <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
+                <div className="absolute inset-0 border-4 border-t-purple-400 rounded-full animate-spin"></div>
+            </div>
+            <h2 className="text-3xl font-bold mt-8 text-white">{loadingMessage}</h2>
+            <p className="text-slate-400 mt-2">{t('common.generatingMessage')}</p>
+        </div>
+    );
+    
+    const renderTrendSelectionStep = () => (
+        <div className="max-w-2xl mx-auto animate-fade-in">
+            <h2 className="text-2xl font-bold text-center mb-2 text-white">{t('socialCampaignFactory.selectTrendLabel')}</h2>
+            <p className="text-slate-400 text-center mb-8">{t('socialCampaignFactory.selectTrendDesc')}</p>
+            {foundTrends.length > 0 ? (
+                <div className="space-y-4">
+                    {foundTrends.map((trend, index) => (
+                        <button 
+                            key={index} 
+                            onClick={() => handleSelectTrend(trend)}
+                            className="w-full p-4 text-left bg-slate-800/50 border border-slate-700 rounded-lg hover:bg-slate-700 hover:border-slate-600 transition-all duration-200">
+                            <p className="font-semibold text-white">{trend}</p>
+                        </button>
+                    ))}
+                </div>
+            ) : (
+                <p className="text-center text-slate-500">{t('socialCampaignFactory.noTrendsFound')}</p>
+            )}
+            <div className="flex justify-center mt-8">
+                <button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors">
+                    <HiArrowLeft className="w-5 h-5" /> {t('common.back')}
+                </button>
+            </div>
+        </div>
+    );
+    
+    const renderConceptSelectionStep = () => (
+        <div className="max-w-7xl mx-auto animate-fade-in">
+            <h2 className="text-3xl font-bold text-center mb-2 text-white">{t('common.chooseConceptTitle')}</h2>
+            <p className="text-slate-400 text-center mb-10">{t('common.chooseConceptSubtitle')}</p>
+            <div className="grid md:grid-cols-3 gap-6">
+                {generatedConcepts.map((concept, index) => (
+                    <div 
+                        key={index} 
+                        onClick={() => handleGenerateFinalPost(concept.prompt, concept.caption || '')}
+                        className={`relative p-6 rounded-xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between
+                            ${concept.isRecommended 
+                                ? 'border-amber-400 bg-slate-800/50' 
+                                : 'border-slate-800 bg-slate-900/70 hover:border-slate-700 hover:-translate-y-1'
+                            }`}
+                    >
+                        <div>
+                            {concept.isRecommended && (
+                                <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
+                                    <span className="px-3 py-1 text-xs font-semibold tracking-wider text-slate-900 uppercase bg-amber-400 rounded-full">{t('common.recommended')}</span>
+                                </div>
+                            )}
+                            <h3 className="font-bold text-white mb-3 mt-3">Concept {index + 1}</h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Visual Prompt</h4>
+                                    <p className="text-slate-300 text-sm">{concept.prompt}</p>
+                                </div>
+                                 <div>
+                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Caption</h4>
+                                    <p className="text-slate-300 text-sm whitespace-pre-wrap">{concept.caption}</p>
+                                </div>
+                            </div>
+                            {concept.reason && (
+                                 <div className="mt-4 pt-4 border-t border-slate-700/50">
+                                    <p className="text-xs text-amber-300/80 italic"><span className="font-bold not-italic">{t('common.reason')}:</span> {concept.reason}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="flex justify-center mt-10">
+                <button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
+                    <HiArrowLeft className="w-5 h-5" /> {t('common.back')}
+                </button>
+            </div>
+        </div>
+    );
+    
+    const renderSinglePostResult = () => (
+        <div className="max-w-4xl mx-auto text-center animate-fade-in">
+             <h2 className="text-3xl font-bold text-center mb-8 text-white">Your Post is Ready!</h2>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="text-left p-6 bg-slate-800/50 rounded-xl border border-slate-700">
+                    <h3 className="text-lg font-bold mb-4 text-white">Generated Caption</h3>
+                    <p className="text-slate-300 whitespace-pre-wrap mb-4">{finalCaption}</p>
+                    <button 
+                        onClick={() => { navigator.clipboard.writeText(finalCaption); setCopiedItem('caption'); setTimeout(() => setCopiedItem(null), 2000); }}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors">
+                        {copiedItem === 'caption' ? <HiCheck className="w-4 h-4 text-green-400" /> : <HiClipboardDocument className="w-4 h-4" />}
+                        {copiedItem === 'caption' ? t('common.copied') : t('common.copy')}
+                    </button>
+                </div>
+                {finalGeneratedPost && (
+                    <div className="text-left">
+                        <img src={`data:image/png;base64,${finalGeneratedPost}`} alt="Generated Post" className="rounded-xl shadow-2xl shadow-black/30 mb-4 border-2 border-slate-700/50" style={{ aspectRatio: aspectRatio.replace(':', ' / ') }} />
+                    </div>
+                )}
+             </div>
+             <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4 mt-8">
+                 <button onClick={() => { setStep('input'); setSelectedTrend(''); }} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700">
+                    <HiArrowLeft className="w-5 h-5"/> {t('common.backToSettings')}
+                 </button>
+                 <button onClick={() => setStep('conceptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700">
+                    <HiOutlineLightBulb className="w-5 h-5"/> {t('common.backToConcepts')}
+                 </button>
+                 <div className="relative group" title={!session ? 'Please sign in to save creations' : ''}>
+                    <button onClick={handleSaveFinalPost} disabled={isFinalPostSaved || !session} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed">
+                        <HiOutlineHeart className={`w-5 h-5 transition-colors ${isFinalPostSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isFinalPostSaved ? t('common.saved') : t('common.likeAndSave')}
+                    </button>
+                 </div>
+                 <a href={`data:image/png;base64,${finalGeneratedPost}`} download="dreampixel-post.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
+                    <HiArrowDownTray className="w-5 h-5"/> {t('common.download')}
+                 </a>
+             </div>
+        </div>
+    );
+
+    const renderCampaignResult = () => (
+        <div className="animate-fade-in">
+            <h2 className="text-3xl font-bold text-center mb-2 text-white">{t('socialCampaignFactory.resultsTitle')}</h2>
+            <p className="text-slate-400 text-center mb-10">{t('socialCampaignFactory.resultsSubtitle')}</p>
+            
+            <div className="space-y-6">
+                {campaignResult && Object.entries(campaignResult).map(([platform, content]) => {
+                    if (!content) return null;
+                    const PlatformIcon = platformIcons[platform];
+                    const platformName = platform.replace(/_/g, ' ');
+                    const imageData = generatedImages[platform];
+                    const videoData = generatedVideos[platform];
+                    const isConnected = connectedAccounts.some(acc => acc.platform.toLowerCase() === platformName.split('-')[0].toLowerCase());
+                    
+                    return (
+                        <div key={platform} className="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
+                            <div className="flex items-center gap-3 mb-4">
+                                {PlatformIcon && <PlatformIcon className="w-7 h-7 text-slate-300"/>}
+                                <h3 className="text-xl font-bold text-white">{platformName}</h3>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Left side: Text content */}
+                                <div className="space-y-4">
+                                    <p className="text-slate-300 whitespace-pre-wrap text-sm">
+                                        {content.title && <strong className="block mb-2">{content.title}</strong>}
+                                        {content.post || content.caption || content.text_post || content.description}
+                                    </p>
+                                    {content.hashtags && (
+                                        <div>
+                                            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{t('socialCampaignFactory.hashtags')}</h4>
+                                            <p className="text-sm text-purple-400">{content.hashtags.join(' ')}</p>
+                                        </div>
+                                    )}
+                                    {content.call_to_action && (
+                                         <div>
+                                            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{t('socialCampaignFactory.cta')}</h4>
+                                            <p className="text-sm text-sky-400">{content.call_to_action}</p>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center gap-2 pt-2">
+                                         <button onClick={() => handleCopyPost(platform, content)} className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors">
+                                            {copiedPlatform === platform ? <HiCheck className="w-4 h-4 text-green-400" /> : <HiClipboardDocument className="w-4 h-4" />}
+                                            {copiedPlatform === platform ? t('common.copied') : t('socialCampaignFactory.copyPost')}
+                                         </button>
+                                         {isConnected && (
+                                            <button disabled={postedPlatforms[platformName]} className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors disabled:opacity-50">
+                                                <HiOutlineShare className="w-4 h-4" />
+                                                {postedPlatforms[platformName] ? t('socialCampaignFactory.posted') : t('socialCampaignFactory.postToPlatform', { platform: platformName })}
+                                            </button>
+                                         )}
+                                    </div>
+                                </div>
+                                
+                                {/* Right side: Visuals */}
+                                <div className="p-4 bg-slate-900/50 rounded-lg border border-slate-700/50 flex flex-col justify-center items-center text-center min-h-[250px]">
+                                    {imageData?.base64 && (
+                                        <div className="w-full">
+                                            <img src={`data:image/png;base64,${imageData.base64}`} alt={`${platform} visual`} className="rounded-lg w-full mb-4"/>
+                                            <div className="flex items-center gap-2 justify-center">
+                                                <button onClick={() => handleSaveImage(platform, content.image_suggestion || '')} disabled={imageData.saved || !session} className="flex-1 flex items-center justify-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700 hover:bg-slate-600 disabled:opacity-60"><HiOutlineHeart className={`w-4 h-4 ${imageData.saved ? 'text-pink-500' : 'text-pink-400'}`}/>{imageData.saved ? t('common.saved') : t('socialCampaignFactory.saveCreation')}</button>
+                                                <a href={`data:image/png;base64,${imageData.base64}`} download={`${platform}-image.png`} className="flex-1 flex items-center justify-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700 hover:bg-slate-600"><HiArrowDownTray className="w-4 h-4"/>{t('common.download')}</a>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {videoData?.url && (
+                                        <div className="w-full">
+                                            <video src={videoData.url} controls className="rounded-lg w-full mb-4"></video>
+                                            <div className="flex items-center gap-2 justify-center">
+                                                <button onClick={() => handleSaveVideo(platform)} disabled={videoData.saved || !session} className="flex-1 flex items-center justify-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700 hover:bg-slate-600 disabled:opacity-60"><HiOutlineHeart className={`w-4 h-4 ${videoData.saved ? 'text-pink-500' : 'text-pink-400'}`}/>{videoData.saved ? t('common.saved') : t('socialCampaignFactory.saveVideo')}</button>
+                                                <a href={videoData.url} download={`${platform}-video.mp4`} className="flex-1 flex items-center justify-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700 hover:bg-slate-600"><HiArrowDownTray className="w-4 h-4"/>{t('socialCampaignFactory.downloadVideo')}</a>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {!imageData?.base64 && !videoData?.url && (
+                                         <div className="space-y-3">
+                                            {(imageData?.loading || videoData?.loading) ? (
+                                                <>
+                                                    <div className="w-8 h-8 mx-auto border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+                                                    <p className="text-sm text-slate-300">{videoData?.loadingMessage || t('common.generatingMessage')}</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {content.image_suggestion && (
+                                                        <div className="space-y-2">
+                                                            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('socialCampaignFactory.imageSuggestion')}</h4>
+                                                            <p className="text-sm text-slate-300 italic">"{content.image_suggestion}"</p>
+                                                            <button onClick={() => handleGenerateImage(platform, content.image_suggestion || '')} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700">
+                                                                <HiOutlinePhoto className="w-5 h-5"/>{t('socialCampaignFactory.generateImage')}
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                    {content.video_suggestion && content.video_suggestion !== 'N/A' && (
+                                                        <div className="space-y-2">
+                                                            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('socialCampaignFactory.videoSuggestion')}</h4>
+                                                            <p className="text-sm text-slate-300 italic">"{content.video_suggestion}"</p>
+                                                            <button onClick={() => handleOpenScriptModal(platform, content.video_script, content.video_suggestion)} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700">
+                                                                <HiOutlineVideoCamera className="w-5 h-5"/>{t('socialCampaignFactory.generateVideo')}
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+            <div className="flex justify-center mt-10">
+                <button onClick={() => { setStep('input'); setCampaignResult(null); setGeneratedImages({}); setGeneratedVideos({}); }} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
+                    <HiArrowLeft className="w-5 h-5" /> {t('common.back')}
+                </button>
+            </div>
+        </div>
+    );
+
+    const renderScriptModal = () => (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" onClick={() => setIsScriptModalOpen(false)}>
+            <div className="bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
+                <header className="flex items-center justify-between p-4 border-b border-slate-800">
+                    <h2 className="text-lg font-bold text-white">{t('socialCampaignFactory.editVideoScriptTitle')}</h2>
+                    <button onClick={() => setIsScriptModalOpen(false)} className="text-slate-500 hover:text-white"><HiXMark className="w-6 h-6"/></button>
+                </header>
+                <main className="p-6 space-y-4">
+                    <p className="text-sm text-slate-400">{t('socialCampaignFactory.editVideoScriptDesc')}</p>
+                    <div>
+                        <label htmlFor="script-textarea" className="font-semibold text-slate-300">{t('socialCampaignFactory.scriptLabel')}</label>
+                        <textarea
+                            id="script-textarea"
+                            value={currentScriptData?.script || ''}
+                            onChange={(e) => setCurrentScriptData(prev => prev ? { ...prev, script: e.target.value } : null)}
+                            className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm"
+                            rows={8}
+                        ></textarea>
+                    </div>
+                </main>
+                <footer className="flex justify-end p-4 bg-slate-950/30 border-t border-slate-800">
+                    <button onClick={handleGenerateVideoWithScript} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary-gradient text-white rounded-lg hover:opacity-90">
+                        <HiOutlineVideoCamera className="w-5 h-5"/>
+                        {t('socialCampaignFactory.generateWithScript')}
+                    </button>
+                </footer>
+            </div>
+        </div>
+    );
 
     return (
         <div className="animate-fade-in">
-            {/* The rest of the component will be implemented based on the new structure */}
+            <ErrorMessage error={error} />
+            {isScriptModalOpen && currentScriptData && renderScriptModal()}
+            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg min-h-[60vh]">
+                {step === 'generating' && renderGeneratingStep()}
+                {step === 'input' && renderInputStep()}
+                {step === 'trendSelection' && renderTrendSelectionStep()}
+                {step === 'conceptSelection' && renderConceptSelectionStep()}
+                {step === 'result' && mode === 'campaign' && renderCampaignResult()}
+                {step === 'result' && (mode === 'single' || mode === 'trend') && renderSinglePostResult()}
+            </div>
         </div>
     );
 };

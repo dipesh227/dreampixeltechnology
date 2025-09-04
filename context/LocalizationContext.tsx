@@ -473,8 +473,6 @@ interface LocalizationContextType {
 
 export const LocalizationContext = createContext<LocalizationContextType | undefined>(undefined);
 
-// FIX: Made the translation getter and `t` function more type-safe to prevent incorrect type inference.
-// This resolves downstream errors where string variables were being inferred as `string | number`.
 // Helper to access nested keys like 'header.title'
 const getNestedValue = (obj: any, key: string): any => {
     return key.split('.').reduce((acc, part) => acc && acc[part], obj);
@@ -488,16 +486,18 @@ export const LocalizationProvider: React.FC<{ children: ReactNode }> = ({ childr
         setTranslations(translationsData[locale] || translationsData.en);
     }, [locale]);
 
+    // FIX: Updated the `t` function to be more type-safe. The previous implementation had a logic path
+    // that could lead TypeScript to infer a `string | number` return type in some cases. This new
+    // implementation strictly checks if the retrieved translation value is a string before processing,
+    // ensuring the function always returns a string and resolving downstream type errors.
     const t = useCallback((key: string, replacements: { [key: string]: string | number } = {}): string => {
         const translation = getNestedValue(translations, key);
 
-        // Fallback for not found, null, or object-like translations
-        if (translation === undefined || translation === null || typeof translation === 'object') {
+        if (typeof translation !== 'string') {
             return key;
         }
-        
-        // Convert numbers/booleans to string before replacing
-        let processedTranslation = String(translation);
+
+        let processedTranslation = translation;
 
         Object.keys(replacements).forEach(placeholder => {
             const regex = new RegExp(`{{${placeholder}}}`, 'g');

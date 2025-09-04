@@ -1,5 +1,6 @@
 
 
+
 import { Type } from "@google/genai";
 // FIX: Added all required types for the new functions.
 import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle, SocialCampaign } from '../types';
@@ -310,7 +311,7 @@ Your generated prompts MUST explicitly define:
   - **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
   - **No Artistic Interpretation:** Do not alter, stylize, or approximate the face.
   - **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task."
-- **Product Integration Command:** Each prompt MUST include a command to seamlessly integrate the provided product image into the scene, making it the hero.
+- **Product Integration Command:** Each prompt MUST include a command to photorealistically composite the user's provided product image into the scene, treating it as an exact, unchangeable element.
 
 You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
 Each concept object must have the following keys: "prompt", "reason", "isRecommended".
@@ -328,18 +329,25 @@ export const generateAdBanner = async (selectedPrompt: string, productImage: Upl
     const finalPrompt = `
 You will be provided with two images. Image 1 is the PRODUCT. Image 2 is the MODEL HEADSHOT.
 
-**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face from the provided MODEL HEADSHOT (Image 2). This is a strict technical mandate, not a creative guideline.
-- **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
-- **No Artistic Interpretation:** Do not alter, stylize, or approximate the face.
+**ABSOLUTE COMMAND: 1000% PERFECT PRODUCT MATCH. NO EXCEPTIONS.**
+Your primary and most important task is to perfectly and exactly composite the provided PRODUCT image (Image 1) into the final scene.
+- **DO NOT REDRAW THE PRODUCT. DO NOT ALTER THE PRODUCT. DO NOT STYLIZE THE PRODUCT. DO NOT CHANGE THE PRODUCT IN ANY WAY.**
+- This is especially critical for handicraft items where the exact appearance is everything.
+- You must treat the product image as a fixed, unchangeable asset to be placed within the scene you generate.
+- The final product in the ad MUST be 1000% identical to the source image. This is a non-negotiable technical requirement. Any change is a failure.
+
+**ABSOLUTE COMMAND: 1000% PERFECT HEADSHOT MATCH. NO EXCEPTIONS.**
+Your second primary task is to achieve a perfect, 1000% photorealistic match to the face from the provided MODEL HEADSHOT (Image 2).
+- **Source of Truth:** The headshot is the absolute ground truth for all facial features.
+- **No Artistic Interpretation of the Face:** Do not alter, stylize, or approximate the face. It must be an exact, identical, photorealistic replication.
 - **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task.
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
 
 **FINAL EXECUTION CHECKLIST:**
-- **Facial Likeness:** Adhere to the Core Directive. The face must be a perfect match to the MODEL HEADSHOT (Image 2).
-- **Product Integration:** The PRODUCT (Image 1) must be the "hero" of the ad, featured clearly and attractively as described in the brief.
+- **Product Fidelity:** Adhere to the Product Directive. The PRODUCT (Image 1) must be perfectly composited, not redrawn. 1000% match.
+- **Facial Likeness:** Adhere to the Headshot Directive. The face must be a perfect match to the MODEL HEADSHOT (Image 2). 1000% match.
 - **Headline & Branding:** The headline "${headline}" and brand details "${brandDetails}" must be masterfully incorporated into the design. They must be legible, stylishly typeset, and placed for maximum impact with 10000% accuracy.
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 - **Overall Quality:** The image must be high-resolution, professional-grade ad creative that fully realizes the brief.
