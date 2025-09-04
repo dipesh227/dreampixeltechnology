@@ -24,6 +24,7 @@ import HeadshotMaker from './components/HeadshotMaker';
 import PassportPhotoMaker from './components/PassportPhotoMaker';
 import VisitingCardMaker from './components/VisitingCardMaker';
 import EventPosterMaker from './components/EventPosterMaker';
+import TrendPostGenerator from './components/TrendPostGenerator';
 
 const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');
@@ -91,6 +92,7 @@ const App: React.FC = () => {
         'passport-photo': "Passport Photo Maker",
         'visiting-card': "AI Visiting Card Maker",
         'event-poster': "AI Event Poster Maker",
+        'trend-post': "AI Trend-Based Post Generator",
     };
 
     const toolTitle = activeTool === 'landing' ? "AI Content Creation Suite" : toolTitles[activeTool] || "Generator";
@@ -165,6 +167,7 @@ const App: React.FC = () => {
             {activeTool === 'passport-photo' && <PassportPhotoMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
             {activeTool === 'visiting-card' && <VisitingCardMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
             {activeTool === 'event-poster' && <EventPosterMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
+            {activeTool === 'trend-post' && <TrendPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
           </>
         )}
       </main>

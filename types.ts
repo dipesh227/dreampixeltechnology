@@ -1,7 +1,7 @@
 
 
 
-export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster';
+export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'trend-post';
 
 export interface Tool {
   id: ToolType;

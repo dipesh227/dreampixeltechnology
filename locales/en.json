@@ -69,6 +69,10 @@
     "event-poster": {
       "title": "AI Event Poster Maker",
       "description": "Turn your event photos into promotional posters by adding stylish text and branding."
+    },
+    "trend-post": {
+      "title": "AI Trend-Based Post Generator",
+      "description": "Discover trending topics related to your industry and automatically generate engaging social media posts about them."
     }
   },
   "toolCard": {
@@ -158,6 +162,24 @@
       }
     }
   },
+  "trendPostGenerator": {
+    "title": "AI Trend-Based Post Generator",
+    "subtitle": "Leverage real-time trends to create relevant and timely content automatically.",
+    "step1Title": "1. Enter a Base Keyword",
+    "step1Desc": "Provide a broad keyword for your industry (e.g., 'Technology', 'Finance', 'Fashion'). The AI will find related trending topics.",
+    "keywordPlaceholder": "e.g., Artificial Intelligence",
+    "findTrendsButton": "Find Trending Topics",
+    "findingTrends": "Searching for trends...",
+    "step2Title": "2. Select a Trending Topic",
+    "step2Desc": "Choose one of the current trending topics below to create a post about.",
+    "noTrendsFound": "No relevant trends found. Please try a different keyword.",
+    "step3Title": "3. Choose a Visual Style",
+    "step3Desc": "Select a visual style for the image part of your post.",
+    "generateConceptsButton": "Generate Post Concepts",
+    "generatingConcepts": "Generating concepts...",
+    "chooseConceptTitle": "Choose Your Post Concept",
+    "chooseConceptSubtitle": "Select a concept to generate the final image and caption."
+  },
   "thumbnailGenerator": {
     "step1Title": "1. Powered by Google Gemini",
     "step1Desc": "Using state-of-the-art models for the best results. The default API key is used for all generations.",
@@ -165,4 +187,6 @@
     "thumbnailGen": "Thumbnail Generation",
     "step2UploadTitle": "2. Upload Headshots",
     "step2UploadDesc": "Provide 1-5 images for the best face accuracy.",
-    "step3Describe
+    "step3Describe": "2. Describe Your Video"
+  }
+}

@@ -1,3 +1,4 @@
+
 # DreamPixel Technology - AI Content Creation Suite
 
 ![DreamPixel Logo](https://ai.dreampixeltechnology.in/logo.svg)
@@ -12,14 +13,15 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
     -   YouTube Thumbnail Generator
     -   Ad Banner Generator
     -   Social Media Post Generator
+    -   AI Trend-Based Post Generator **(New!)**
     -   Politician's Poster Maker
     -   Social Media Profile Picture Generator
     -   AI Logo Generator
     -   AI Image Enhancer
     -   HQ Headshot Maker
     -   Passport Photo Maker
-    -   AI Visiting Card Maker **(New!)**
-    -   AI Event Poster Maker **(New!)**
+    -   AI Visiting Card Maker 
+    -   AI Event Poster Maker
 -   **Secure Google Authentication**: Sign in to save and manage your creations securely.
 -   **Database Encryption**: User-submitted prompts and feedback are encrypted at rest in the database using `pgsodium` for enhanced privacy.
 -   **Focused on Google Gemini**: Built to exclusively use Google's powerful Gemini AI models for the best results.
@@ -361,6 +363,18 @@ CREATE TABLE public.event_poster_jobs (
 ALTER TABLE public.event_poster_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own event poster jobs" ON public.event_poster_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+CREATE TABLE public.trend_post_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  base_keyword TEXT,
+  selected_trend TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT
+);
+ALTER TABLE public.trend_post_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own trend post jobs" ON public.trend_post_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+
 ```
 </details>
 
@@ -521,6 +535,22 @@ CREATE TABLE public.social_media_post_jobs (
   platform TEXT,
   tone TEXT,
   call_to_action TEXT,
+  style_id TEXT,
+  aspect_ratio TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>trend_post_jobs</strong> - Logs inputs for the trend-based post generator.</summary>
+
+```sql
+CREATE TABLE public.trend_post_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  base_keyword TEXT,
+  selected_trend TEXT,
   style_id TEXT,
   aspect_ratio TEXT
 );

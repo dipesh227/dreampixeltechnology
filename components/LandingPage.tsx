@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { Tool, ToolType, ConnectedAccount } from '../types';
-// FIX: Replaced non-existent HiOutlineColorSwatch with HiOutlineSwatch.
-import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineShare, HiOutlineUserGroup, HiOutlineUserCircle, HiOutlineSwatch, HiOutlineSparkles, HiOutlineIdentification, HiOutlineCreditCard, HiOutlineClipboardDocumentList, HiOutlineTicket } from 'react-icons/hi2';
+// FIX: Replaced HiOutlineTrendingUp with HiOutlineArrowTrendingUp as it is the correct icon name in react-icons/hi2.
+import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineShare, HiOutlineUserGroup, HiOutlineUserCircle, HiOutlineSwatch, HiOutlineSparkles, HiOutlineIdentification, HiOutlineCreditCard, HiOutlineClipboardDocumentList, HiOutlineTicket, HiOutlineArrowTrendingUp } from 'react-icons/hi2';
 import SocialConnect from './SocialConnect';
+import { useLocalization } from '../hooks/useLocalization';
 
 interface LandingPageProps {
   onSelectTool: (tool: ToolType) => void;
@@ -11,7 +12,7 @@ interface LandingPageProps {
   onToggleConnect: (platform: string) => void;
 }
 
-const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ tool, onClick }) => {
+const ToolCard: React.FC<{ tool: Tool; onClick: () => void, t: (key: string) => string }> = React.memo(({ tool, onClick, t }) => {
     const icons: { [key in ToolType]: { icon: React.ElementType, gradient: string } } = {
         thumbnail: { icon: HiOutlinePhoto, gradient: 'from-purple-500 to-indigo-500' },
         advertisement: { icon: HiOutlineMegaphone, gradient: 'from-pink-500 to-rose-500' },
@@ -24,6 +25,8 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ to
         'passport-photo': { icon: HiOutlineCreditCard, gradient: 'from-blue-500 to-indigo-600' },
         'visiting-card': { icon: HiOutlineClipboardDocumentList, gradient: 'from-slate-400 to-slate-600' },
         'event-poster': { icon: HiOutlineTicket, gradient: 'from-rose-400 to-red-500' },
+        // FIX: Replaced HiOutlineTrendingUp with HiOutlineArrowTrendingUp to match the corrected import.
+        'trend-post': { icon: HiOutlineArrowTrendingUp, gradient: 'from-green-400 to-teal-500' },
     };
     const { icon: Icon, gradient } = icons[tool.id];
 
@@ -47,36 +50,39 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ to
                 disabled={!tool.enabled}
                 className="w-full mt-4 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
             >
-                {tool.enabled ? 'Launch Tool' : 'Coming Soon'}
+                {tool.enabled ? t('toolCard.launch') : t('toolCard.soon')}
             </button>
         </div>
     );
 });
 
 const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccounts, onToggleConnect }) => {
+    const { t } = useLocalization();
+    
     const tools: Tool[] = [
-        { id: 'thumbnail', title: "YouTube Thumbnail Generator", description: "Create high-impact, click-worthy thumbnails by providing a headshot and a video description.", enabled: true },
-        { id: 'advertisement', title: "Ad Banner Generator", description: "Instantly produce professional advertisement banners for your marketing campaigns and social media.", enabled: true },
-        { id: 'social', title: "Social Media Post Generator", description: "Design engaging posts with both an image and a caption, tailored for platforms like Instagram, Facebook, and X.", enabled: true },
-        { id: 'political', title: "Politician's Poster Maker", description: "Generate timely and impactful posters for political campaigns based on current events and topics.", enabled: true },
-        { id: 'profile', title: "Profile Picture Generator", description: "Craft the perfect profile picture for LinkedIn, Instagram, or any platform using your headshot.", enabled: true },
-        { id: 'logo', title: "AI Logo Generator", description: "Generate unique logos for your brand, with or without a mascot from a headshot.", enabled: true },
-        { id: 'image-enhancer', title: "AI Image Enhancer", description: "Automatically improve image quality, lighting, and clarity with a single click. Upscale and refine.", enabled: true },
-        { id: 'headshot-maker', title: "HQ Headshot Maker", description: "Turn any photo into a professional, studio-quality 1:1 headshot, perfect for any profile.", enabled: true },
-        { id: 'passport-photo', title: "Passport Photo Maker", description: "Create official, compliant passport-size photos with background and outfit changes.", enabled: true },
-        { id: 'visiting-card', title: "AI Visiting Card Maker", description: "Design professional business cards with your name, title, contact details, and optional logo.", enabled: true },
-        { id: 'event-poster', title: "AI Event Poster Maker", description: "Turn your event photos into promotional posters by adding stylish text and branding.", enabled: true },
+        { id: 'thumbnail', title: t('tools.thumbnail.title'), description: t('tools.thumbnail.description'), enabled: true },
+        { id: 'advertisement', title: t('tools.advertisement.title'), description: t('tools.advertisement.description'), enabled: true },
+        { id: 'social', title: t('tools.social.title'), description: t('tools.social.description'), enabled: true },
+        { id: 'political', title: t('tools.political.title'), description: t('tools.political.description'), enabled: true },
+        { id: 'trend-post', title: t('tools.trend-post.title'), description: t('tools.trend-post.description'), enabled: true },
+        { id: 'profile', title: t('tools.profile.title'), description: t('tools.profile.description'), enabled: true },
+        { id: 'logo', title: t('tools.logo.title'), description: t('tools.logo.description'), enabled: true },
+        { id: 'image-enhancer', title: t('tools.image-enhancer.title'), description: t('tools.image-enhancer.description'), enabled: true },
+        { id: 'headshot-maker', title: t('tools.headshot-maker.title'), description: t('tools.headshot-maker.description'), enabled: true },
+        { id: 'passport-photo', title: t('tools.passport-photo.title'), description: t('tools.passport-photo.description'), enabled: true },
+        { id: 'visiting-card', title: t('tools.visiting-card.title'), description: t('tools.visiting-card.description'), enabled: true },
+        { id: 'event-poster', title: t('tools.event-poster.title'), description: t('tools.event-poster.description'), enabled: true },
     ];
 
     return (
         <div className="animate-fade-in-up">
             <div className="mb-12">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-3">The AI Content Creation Suite</h2>
-                <p className="text-base md:text-lg text-slate-400 max-w-3xl">One platform for all your creative needs. Generate stunning visuals for your brand, channel, or campaign in seconds.</p>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-3">{t('landing.title')}</h2>
+                <p className="text-base md:text-lg text-slate-400 max-w-3xl">{t('landing.subtitle')}</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {tools.map((tool) => (
-                    <ToolCard key={tool.id} tool={tool} onClick={() => onSelectTool(tool.id)} />
+                    <ToolCard key={tool.id} tool={tool} onClick={() => onSelectTool(tool.id)} t={t} />
                 ))}
             </div>
             <div className="mt-16">

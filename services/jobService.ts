@@ -1,3 +1,4 @@
+
 import { supabase } from './supabaseClient';
 import { AspectRatio, UploadedFile } from '../types';
 
@@ -115,6 +116,31 @@ export const saveSocialPostJob = async (data: SocialPostJobData): Promise<void> 
         console.error("Failed to save social media post job", error);
     }
 };
+
+// Trend Post Job
+interface TrendPostJobData {
+    userId: string;
+    baseKeyword: string;
+    selectedTrend: string;
+    styleId: string;
+    aspectRatio: AspectRatio;
+}
+
+export const saveTrendPostJob = async (data: TrendPostJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('trend_post_jobs').insert({
+            user_id: data.userId,
+            base_keyword: data.baseKeyword,
+            selected_trend: data.selectedTrend,
+            style_id: data.styleId,
+            aspect_ratio: data.aspectRatio,
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save trend post job", error);
+    }
+};
+
 
 // Profile Image Job
 interface ProfileImageJobData {

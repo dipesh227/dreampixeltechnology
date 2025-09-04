@@ -1,3 +1,4 @@
+
 import { Type } from "@google/genai";
 import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle } from '../types';
 import * as apiConfigService from './apiConfigService';
@@ -42,6 +43,21 @@ const SOCIAL_CONCEPTS_SCHEMA = {
     },
     required: ["concepts"],
 };
+
+const TRENDS_SCHEMA = {
+    type: Type.OBJECT,
+    properties: {
+        topics: {
+            type: Type.ARRAY,
+            items: {
+                type: Type.STRING,
+                description: "A single trending topic string."
+            }
+        }
+    },
+    required: ["topics"],
+};
+
 
 const parseAndValidateConcepts = (jsonText: string): GeneratedConcept[] => {
     try {
@@ -335,6 +351,65 @@ export const generateSocialPost = async (selectedPrompt: string, aspectRatio: As
     
     return geminiNativeService.generateImageFromText(finalPrompt, aspectRatio);
 };
+
+export const getTrendingTopics = async (baseKeyword: string): Promise<string[]> => {
+    const prompt = `
+You are a Google Trends and social media expert. Your task is to identify the top 3 most relevant, specific, and currently trending topics related to a base keyword.
+
+**Base Keyword:** "${baseKeyword}"
+
+**Instructions:**
+1.  Analyze recent search data, news headlines, and social media conversations related to the base keyword.
+2.  Identify three distinct, highly specific sub-topics that are currently experiencing a surge in interest.
+3.  Do NOT return broad or generic topics. Find niche, actionable trends. For example, if the keyword is "AI", good topics are "The release of the new Llama 3 model" or "AI's impact on the film industry", not "Artificial Intelligence".
+4.  Return the topics as a JSON object containing a key "topics" which is an array of three strings.
+
+Your entire response MUST be only the raw JSON object.
+`;
+
+    const jsonText = await geminiNativeService.generateText(prompt, TRENDS_SCHEMA);
+    try {
+        const cleanedJsonText = jsonText.replace(/^```(?:json)?\s*|```\s*$/g, '').trim();
+        const result = JSON.parse(cleanedJsonText);
+        if (result && result.topics && Array.isArray(result.topics)) {
+            return result.topics.slice(0, 3);
+        }
+        throw new Error("Invalid response format from AI for trends.");
+    } catch (e) {
+        console.error("Failed to parse trending topics response:", e);
+        throw new Error("Failed to get trending topics from the AI.");
+    }
+};
+
+export const generateTrendPostConcepts = async (topic: string, platform: string, style: AdStyle): Promise<GeneratedConcept[]> => {
+    const fullPrompt = `
+You are an expert social media content strategist specializing in viral, trend-based content. Your task is to generate three complete social media post concepts (visual + caption) based on a given trending topic.
+
+**1. Post Brief:**
+   - **Trending Topic to Cover:** "${topic}"
+   - **Target Platform:** ${platform}
+   - **Visual Style:** '${style.name}' (${style.stylePrompt})
+
+**CRITICAL TASK & INSTRUCTIONS:**
+For each of the three concepts, develop a complete package: a compelling visual idea and an engaging, insightful caption that leverages the trending nature of the topic.
+
+**Visual Idea (for the "prompt" field):**
+- Create a detailed prompt for an AI image generator that visually represents the core of the "${topic}".
+- The prompt must adhere to the specified '${style.name}' visual style.
+
+**Caption (for the "caption" field):**
+- Write an engaging, platform-aware caption that explains or comments on the "${topic}".
+- The caption must be well-written and provide value to the reader.
+- It should feel timely and relevant.
+- Include 3-5 relevant and popular hashtags, including one for the main topic.
+
+You will return a single JSON object with a key "concepts", an array of three concept objects, each with "prompt", "caption", "reason", and "isRecommended" keys.
+Your entire response MUST be only the raw JSON object.
+`;
+    const jsonText = await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA);
+    return parseAndValidateConcepts(jsonText);
+};
+
 
 export const generateProfilePicturePrompts = async (description: string, style: ProfilePictureStyle): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
