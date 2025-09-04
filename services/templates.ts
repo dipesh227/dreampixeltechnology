@@ -122,7 +122,8 @@ export const TEMPLATES: Template[] = [
     {
         id: 'social-inspirational-quote',
         name: 'Inspirational Quote',
-        tool: 'social',
+// FIX: Changed tool type from 'social' to 'social-campaign' to match the valid ToolType.
+        tool: 'social-campaign',
         imageUrl: 'https://placehold.co/1080x1080/8b5cf6/ffffff?text=Dream+Big',
         prefill: {
             styleId: 'calm-minimalist',
@@ -136,7 +137,8 @@ export const TEMPLATES: Template[] = [
     {
         id: 'social-product-launch',
         name: 'New Product Launch',
-        tool: 'social',
+// FIX: Changed tool type from 'social' to 'social-campaign' to match the valid ToolType.
+        tool: 'social-campaign',
         imageUrl: 'https://placehold.co/1080x1350/ec4899/111827?text=It\'s+Here!',
         prefill: {
             styleId: 'glossier-soft',
@@ -150,7 +152,8 @@ export const TEMPLATES: Template[] = [
     {
         id: 'social-funny-meme',
         name: 'Funny Meme Post',
-        tool: 'social',
+// FIX: Changed tool type from 'social' to 'social-campaign' to match the valid ToolType.
+        tool: 'social-campaign',
         imageUrl: 'https://placehold.co/1200x675/facc15/1e293b?text=That+Friday+Feeling',
         prefill: {
             styleId: 'mcdonalds-bold',

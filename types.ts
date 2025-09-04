@@ -1,13 +1,11 @@
-
-
-
-export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'trend-post' | 'social-campaign';
+// FIX: Removed 'social' from ToolType as it is not an implemented tool and was causing a type error. The 'social-campaign' tool handles all social media functionality.
+export type ToolType = 'thumbnail' | 'advertisement' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'social-campaign';
 
 export interface Tool {
   id: ToolType;
-  title: string;
   description: string;
   enabled: boolean;
+  title: string;
 }
 
 export interface CreatorStyle {
@@ -172,6 +170,7 @@ export interface PlatformPostConcept {
     call_to_action?: string;
     image_suggestion?: string;
     video_suggestion?: string;
+    video_script?: string;
     title?: string;
     description?: string;
     text_post?: string;

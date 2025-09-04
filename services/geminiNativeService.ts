@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Modality } from "@google/genai";
 import { UploadedFile, AspectRatio } from '../types';
 import * as apiConfigService from './apiConfigService';
@@ -70,6 +71,30 @@ export const generateText = async (prompt: string, jsonSchema: object): Promise<
     });
 };
 
+export const generateTextFromMultimodal = async (prompt: string, images: UploadedFile[], jsonSchema: object): Promise<string> => {
+    return withRetries(async () => {
+        const ai = getAiClient();
+        const imageParts = images.map(file => ({
+            inlineData: { data: file.base64, mimeType: file.mimeType }
+        }));
+
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: {
+                parts: [
+                    ...imageParts,
+                    { text: prompt }
+                ]
+            },
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: jsonSchema,
+            },
+        });
+        return response.text.trim();
+    });
+};
+
 export const generateImage = async (prompt: string, images: UploadedFile[]): Promise<string | null> => {
      return withRetries(async () => {
         const ai = getAiClient();
@@ -130,6 +155,53 @@ export const generateImageFromText = async (prompt: string, aspectRatio: AspectR
         console.warn("Imagen model did not return an image for the text-only prompt.");
         return null;
     });
+};
+
+export const generateVideo = async (prompt: string): Promise<string | null> => {
+    // This is a long-running operation, so we don't use the standard `withRetries` wrapper
+    try {
+        const ai = getAiClient();
+        let operation = await ai.models.generateVideos({
+            model: 'veo-2.0-generate-001',
+            prompt: prompt,
+            config: {
+                numberOfVideos: 1
+            }
+        });
+        
+        // Poll for completion, waiting 10 seconds between checks
+        while (!operation.done) {
+            await new Promise(resolve => setTimeout(resolve, 10000));
+            operation = await ai.operations.getVideosOperation({ operation: operation });
+        }
+
+        const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
+        if (!downloadLink) {
+            console.warn("Veo model did not return a video URI.");
+            return null;
+        }
+
+        return downloadLink;
+    } catch (error) {
+        throw handleGeminiError(error);
+    }
+};
+
+export const fetchVideoData = async (downloadLink: string): Promise<Blob | null> => {
+    try {
+        const apiKey = apiConfigService.getApiKey();
+        // The download link requires the API key to be appended for authentication
+        const response = await fetch(`${downloadLink}&key=${apiKey}`);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch video data: ${response.statusText}`);
+        }
+        
+        return await response.blob();
+    } catch (error) {
+        console.error("Error fetching video data:", error);
+        throw handleGeminiError(error);
+    }
 };
 
 export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean, error?: string }> => {

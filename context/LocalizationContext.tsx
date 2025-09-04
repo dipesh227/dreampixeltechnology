@@ -37,10 +37,6 @@ const enTranslations = {
       "title": "Ad Banner Generator",
       "description": "Instantly produce professional advertisement banners for your marketing campaigns and social media."
     },
-    "social": {
-      "title": "Social Media Post Generator",
-      "description": "Design engaging posts with both an image and a caption, tailored for platforms like Instagram, Facebook, and X."
-    },
     "political": {
       "title": "Politician's Poster Maker",
       "description": "Generate timely and impactful posters for political campaigns based on current events and topics."
@@ -73,13 +69,9 @@ const enTranslations = {
       "title": "AI Event Poster Maker",
       "description": "Turn your event photos into promotional posters by adding stylish text and branding."
     },
-    "trend-post": {
-      "title": "AI Trend-Based Post Generator",
-      "description": "Discover trending topics related to your industry and automatically generate engaging social media posts about them."
-    },
     "social-campaign": {
       "title": "AI Social Media Content Factory",
-      "description": "Turn a single topic into a complete, multi-platform social media campaign, generating text and images for all major networks."
+      "description": "Generate a full campaign, a single post, or content based on real-time trends, all from one powerful tool."
     }
   },
   "toolCard": {
@@ -169,24 +161,6 @@ const enTranslations = {
       }
     }
   },
-  "trendPostGenerator": {
-    "title": "AI Trend-Based Post Generator",
-    "subtitle": "Leverage real-time trends to create relevant and timely content automatically.",
-    "step1Title": "1. Enter a Base Keyword",
-    "step1Desc": "Provide a broad keyword for your industry (e.g., 'Technology', 'Finance', 'Fashion'). The AI will find related trending topics.",
-    "keywordPlaceholder": "e.g., Artificial Intelligence",
-    "findTrendsButton": "Find Trending Topics",
-    "findingTrends": "Searching for trends...",
-    "step2Title": "2. Select a Trending Topic",
-    "step2Desc": "Choose one of the current trending topics below to create a post about.",
-    "noTrendsFound": "No relevant trends found. Please try a different keyword.",
-    "step3Title": "3. Choose a Visual Style",
-    "step3Desc": "Select a visual style for the image part of your post.",
-    "generateConceptsButton": "Generate Post Concepts",
-    "generatingConcepts": "Generating concepts...",
-    "chooseConceptTitle": "Choose Your Post Concept",
-    "chooseConceptSubtitle": "Select a concept to generate the final image and caption."
-  },
   "thumbnailGenerator": {
     "step1Title": "1. Powered by Google Gemini",
     "step1Desc": "Using state-of-the-art models for the best results. The default API key is used for all generations.",
@@ -198,8 +172,15 @@ const enTranslations = {
   },
   "socialCampaignFactory": {
     "title": "AI Social Media Content Factory",
-    "subtitle": "Turn one idea into a full social media campaign for 7+ platforms in a single click.",
+    "subtitle": "Generate a full campaign, a single post, or content based on real-time trends.",
+    "modeCampaign": "Campaign Mode",
+    "modeSingle": "Single Post Mode",
+    "modeTrend": "Trend-Based Mode",
+    "modeCampaignDesc": "Generate a full campaign for 7+ platforms from a single topic.",
+    "modeSingleDesc": "Create a tailored image and caption for one specific social media platform.",
+    "modeTrendDesc": "Find trending topics based on a keyword and generate a relevant post.",
     "step1Title": "1. Define Your Core Message",
+    "step2Title": "2. Personalization & Style",
     "topicLabel": "Topic",
     "topicPlaceholder": "e.g., 'Launch of our new eco-friendly sneaker line'",
     "keywordsLabel": "Keywords",
@@ -207,17 +188,59 @@ const enTranslations = {
     "linkLabel": "Link",
     "linkPlaceholder": "e.g., 'https://yourstore.com/new-sneakers'",
     "generateButton": "Generate Social Campaign",
+    "generateConceptsButton": "Generate Post Concepts",
     "generatingMessage": "Building your multi-platform campaign...",
     "resultsTitle": "Your AI-Generated Social Media Campaign",
-    "resultsSubtitle": "Here is tailored content for each platform. Click 'Generate Image' to create visuals.",
+    "resultsSubtitle": "Here is tailored content for each platform. Click to generate visuals.",
     "imageSuggestion": "Image Suggestion",
     "videoSuggestion": "Video Suggestion",
     "generateImage": "Generate Image",
+    "generateVideo": "Generate Video",
     "hashtags": "Hashtags",
     "cta": "Call to Action",
     "copyPost": "Copy Post",
     "errorCampaign": "Failed to generate the social media campaign. The AI may have returned an invalid format.",
-    "saveCreation": "Like & Save Image"
+    "saveCreation": "Like & Save Image",
+    "saveVideo": "Like & Save Video",
+    "downloadVideo": "Download Video",
+    "videoGenerating": {
+        "title": "Generating your video...",
+        "message": "This can take a few minutes. Please keep this tab open.",
+        "status1": "Warming up the video creation engine...",
+        "status2": "Storyboarding the first few frames...",
+        "status3": "Rendering high-definition scenes...",
+        "status4": "Adding the final cinematic touches...",
+        "status5": "Almost ready, preparing the video file..."
+    },
+    "languageLabel": "Content Language",
+    "creatorNameLabel": "Name of Person/Leader",
+    "creatorNamePlaceholder": "e.g., 'Narendra Modi', 'Your Name'",
+    "editVideoScriptTitle": "Edit Video Script",
+    "editVideoScriptDesc": "Review and edit the AI-generated script before creating your video.",
+    "scriptLabel": "Video Script / Voiceover",
+    "generateWithScript": "Generate Video with this Script",
+    "postToPlatform": "Post to {{platform}}",
+    "posting": "Posting...",
+    "posted": "Posted!",
+    "platformLabel": "Target Platform",
+    "toneLabel": "Desired Tone",
+    "callToActionLabel": "Call to Action",
+    "baseKeywordLabel": "Enter a Base Keyword",
+    "baseKeywordDesc": "Provide a broad keyword for your industry (e.g., 'Technology', 'Finance', 'Fashion'). The AI will find related trending topics.",
+    "baseKeywordPlaceholder": "e.g., Artificial Intelligence",
+    "findTrendsButton": "Find Trending Topics",
+    "findingTrends": "Searching for trends...",
+    "selectTrendLabel": "Select a Trending Topic",
+    "selectTrendDesc": "Choose one of the current trending topics below to create a post about.",
+    "noTrendsFound": "No relevant trends found. Please try a different keyword.",
+    "chooseStyleLabel": "Choose a Visual Style",
+    "targetAreaLabel": "Target Area/Region",
+    "targetAreaPlaceholder": "e.g., 'Uttarakhand', 'Khatima'",
+    "dressStyleLabel": "Dress/Outfit Style",
+    "dressStylePlaceholder": "e.g., 'Traditional Kumaoni attire', 'formal business suit'",
+    "headshotsLabel": "Headshots for Images",
+    "uploadHeadshots": "Upload Headshots (up to 5)",
+    "styleReferenceLabel": "Style Reference"
   }
 };
 
@@ -256,10 +279,6 @@ const hiTranslations = {
       "title": "विज्ञापन बैनर जेनरेटर",
       "description": "अपने मार्केटिंग अभियानों और सोशल मीडिया के लिए तुरंत पेशेवर विज्ञापन बैनर बनाएं।"
     },
-    "social": {
-      "title": "सोशल मीडिया पोस्ट जेनरेटर",
-      "description": "इंस्टाग्राम, फेसबुक और एक्स जैसे प्लेटफार्मों के लिए छवि और कैप्शन दोनों के साथ आकर्षक पोस्ट डिज़ाइन करें।"
-    },
     "political": {
       "title": "राजनेता पोस्टर मेकर",
       "description": "वर्तमान घटनाओं और विषयों के आधार पर राजनीतिक अभियानों के लिए समय पर और प्रभावशाली पोस्टर बनाएं।"
@@ -292,13 +311,9 @@ const hiTranslations = {
       "title": "एआई इवेंट पोस्टर मेकर",
       "description": "स्टाइलिश टेक्स्ट और ब्रांडिंग जोड़कर अपने ईवेंट फ़ोटो को प्रचार पोस्टर में बदलें।"
     },
-    "trend-post": {
-      "title": "एआई ट्रेंड-आधारित पोस्ट जेनरेटर",
-      "description": "अपने उद्योग से संबंधित ट्रेंडिंग विषयों की खोज करें और स्वचालित रूप से उनके बारे में आकर्षक सोशल मीडिया पोस्ट बनाएं।"
-    },
     "social-campaign": {
       "title": "एआई सोशल मीडिया कंटेंट फैक्ट्री",
-      "description": "एक ही विषय को एक संपूर्ण, मल्टी-प्लेटफ़ॉर्म सोशल मीडिया अभियान में बदलें, सभी प्रमुख नेटवर्कों के लिए टेक्स्ट और छवियां उत्पन्न करें।"
+      "description": "एक पूर्ण अभियान, एक एकल पोस्ट, या रीयल-टाइम ट्रेंड के आधार पर सामग्री उत्पन्न करें, सब कुछ एक शक्तिशाली टूल से।"
     }
   },
   "toolCard": {
@@ -369,28 +384,17 @@ const hiTranslations = {
     "uploadLabel": "अपलोड करने के लिए क्लिक करें या खींचें और छोड़ें",
     "addMoreImages": "आप {{count}} और छवियाँ जोड़ सकते हैं।"
   },
-  "trendPostGenerator": {
-    "title": "एआई ट्रेंड-आधारित पोस्ट जेनरेटर",
-    "subtitle": "प्रासंगिक और समय पर सामग्री बनाने के लिए रीयल-टाइम ट्रेंड का लाभ उठाएं।",
-    "step1Title": "1. एक आधार कीवर्ड दर्ज करें",
-    "step1Desc": "अपने उद्योग के लिए एक व्यापक कीवर्ड प्रदान करें (जैसे, 'प्रौद्योगिकी', 'वित्त', 'फैशन')। एआई संबंधित ट्रेंडिंग विषय ढूंढेगा।",
-    "keywordPlaceholder": "जैसे, आर्टिफिशियल इंटेलिजेंस",
-    "findTrendsButton": "ट्रेंडिंग विषय खोजें",
-    "findingTrends": "ट्रेंड खोजा जा रहा है...",
-    "step2Title": "2. एक ट्रेंडिंग विषय चुनें",
-    "step2Desc": "पोस्ट बनाने के लिए नीचे दिए गए वर्तमान ट्रेंडिंग विषयों में से एक चुनें।",
-    "noTrendsFound": "कोई प्रासंगिक ट्रेंड नहीं मिला। कृपया कोई दूसरा कीवर्ड आज़माएँ।",
-    "step3Title": "3. एक विज़ुअल स्टाइल चुनें",
-    "step3Desc": "अपनी पोस्ट की छवि के लिए एक विज़ुअल स्टाइल चुनें।",
-    "generateConceptsButton": "पोस्ट अवधारणाएँ उत्पन्न करें",
-    "generatingConcepts": "अवधारणाएँ उत्पन्न हो रही हैं...",
-    "chooseConceptTitle": "अपनी पोस्ट अवधारणा चुनें",
-    "chooseConceptSubtitle": "अंतिम छवि और कैप्शन बनाने के लिए एक अवधारणा चुनें।"
-  },
   "socialCampaignFactory": {
     "title": "एआई सोशल मीडिया कंटेंट फैक्ट्री",
-    "subtitle": "एक विचार को एक क्लिक में 7+ प्लेटफार्मों के लिए पूर्ण सोशल मीडिया अभियान में बदलें।",
+    "subtitle": "एक पूर्ण अभियान, एक एकल पोस्ट, या रीयल-टाइम ट्रेंड के आधार पर सामग्री उत्पन्न करें।",
+    "modeCampaign": "अभियान मोड",
+    "modeSingle": "एकल पोस्ट मोड",
+    "modeTrend": "ट्रेंड-आधारित मोड",
+    "modeCampaignDesc": "एक ही विषय से 7+ प्लेटफार्मों के लिए एक पूर्ण अभियान उत्पन्न करें।",
+    "modeSingleDesc": "एक विशिष्ट सोशल मीडिया प्लेटफॉर्म के लिए एक अनुकूलित छवि और कैप्शन बनाएं।",
+    "modeTrendDesc": "एक कीवर्ड के आधार पर ट्रेंडिंग विषय खोजें और एक प्रासंगिक पोस्ट उत्पन्न करें।",
     "step1Title": "1. अपना मुख्य संदेश परिभाषित करें",
+    "step2Title": "2. वैयक्तिकरण और शैली",
     "topicLabel": "विषय",
     "topicPlaceholder": "जैसे, 'हमारी नई पर्यावरण-अनुकूल स्नीकर लाइन का लॉन्च'",
     "keywordsLabel": "कीवर्ड",
@@ -398,9 +402,10 @@ const hiTranslations = {
     "linkLabel": "लिंक",
     "linkPlaceholder": "जैसे, 'https://yourstore.com/new-sneakers'",
     "generateButton": "सोशल अभियान उत्पन्न करें",
+    "generateConceptsButton": "पोस्ट अवधारणाएँ उत्पन्न करें",
     "generatingMessage": "आपके मल्टी-प्लेटफ़ॉर्म अभियान का निर्माण हो रहा है...",
     "resultsTitle": "आपका एआई-जनित सोशल मीडिया अभियान",
-    "resultsSubtitle": "यहाँ प्रत्येक प्लेटफ़ॉर्म के लिए अनुकूलित सामग्री है। विज़ुअल बनाने के लिए 'छवि उत्पन्न करें' पर क्लिक करें।",
+    "resultsSubtitle": "यहाँ प्रत्येक प्लेटफ़ॉर्म के लिए अनुकूलित सामग्री है। विज़ुअल बनाने के लिए क्लिक करें।",
     "imageSuggestion": "छवि सुझाव",
     "videoSuggestion": "वीडियो सुझाव",
     "generateImage": "छवि उत्पन्न करें",
@@ -408,7 +413,48 @@ const hiTranslations = {
     "cta": "कॉल टू एक्शन",
     "copyPost": "पोस्ट कॉपी करें",
     "errorCampaign": "सोशल मीडिया अभियान उत्पन्न करने में विफल। एआई ने अमान्य प्रारूप लौटाया हो सकता है।",
-    "saveCreation": "छवि को पसंद करें और सहेजें"
+    "saveCreation": "छवि को पसंद करें और सहेजें",
+    "generateVideo": "वीडियो उत्पन्न करें",
+    "saveVideo": "वीडियो पसंद करें और सहेजें",
+    "downloadVideo": "वीडियो डाउनलोड करें",
+    "videoGenerating": {
+        "title": "आपका वीडियो बन रहा है...",
+        "message": "इसमें कुछ मिनट लग सकते हैं। कृपया यह टैब खुला रखें।",
+        "status1": "वीडियो निर्माण इंजन शुरू हो रहा है...",
+        "status2": "पहले कुछ फ्रेमों की स्टोरीबोर्डिंग हो रही है...",
+        "status3": "उच्च-परिभाषा दृश्यों को प्रस्तुत किया जा रहा है...",
+        "status4": "अंतिम सिनेमाई स्पर्श जोड़े जा रहे हैं...",
+        "status5": "लगभग तैयार है, वीडियो फ़ाइल तैयार की जा रही है..."
+    },
+    "languageLabel": "सामग्री भाषा",
+    "creatorNameLabel": "व्यक्ति/नेता का नाम",
+    "creatorNamePlaceholder": "जैसे, 'नरेंद्र मोदी', 'आपका नाम'",
+    "editVideoScriptTitle": "वीडियो स्क्रिप्ट संपादित करें",
+    "editVideoScriptDesc": "अपना वीडियो बनाने से पहले AI-जनित स्क्रिप्ट की समीक्षा करें और उसे संपादित करें।",
+    "scriptLabel": "वीडियो स्क्रिप्ट / वॉयसओवर",
+    "generateWithScript": "इस स्क्रिप्ट के साथ वीडियो बनाएं",
+    "postToPlatform": "{{platform}} पर पोस्ट करें",
+    "posting": "पोस्ट हो रहा है...",
+    "posted": "पोस्ट किया गया!",
+    "platformLabel": "लक्षित प्लेटफार्म",
+    "toneLabel": "वांछित टोन",
+    "callToActionLabel": "कॉल टू एक्शन",
+    "baseKeywordLabel": "एक आधार कीवर्ड दर्ज करें",
+    "baseKeywordDesc": "अपने उद्योग के लिए एक व्यापक कीवर्ड प्रदान करें (जैसे, 'प्रौद्योगिकी')। एआई संबंधित ट्रेंडिंग विषय ढूंढेगा।",
+    "baseKeywordPlaceholder": "जैसे, आर्टिफिशियल इंटेलिजेंस",
+    "findTrendsButton": "ट्रेंडिंग विषय खोजें",
+    "findingTrends": "ट्रेंड खोजा जा रहा है...",
+    "selectTrendLabel": "एक ट्रेंडिंग विषय चुनें",
+    "selectTrendDesc": "पोस्ट बनाने के लिए नीचे दिए गए वर्तमान ट्रेंडिंग विषयों में से एक चुनें।",
+    "noTrendsFound": "कोई प्रासंगिक ट्रेंड नहीं मिला। कृपया कोई दूसरा कीवर्ड आज़माएँ।",
+    "chooseStyleLabel": "एक विज़ुअल स्टाइल चुनें",
+    "targetAreaLabel": "लक्षित क्षेत्र/इलाका",
+    "targetAreaPlaceholder": "जैसे, 'उत्तराखंड', 'खटीमा'",
+    "dressStyleLabel": "पोशाक/आउटफिट शैली",
+    "dressStylePlaceholder": "जैसे, 'पारंपरिक कुमाऊंनी पोशाक', 'औपचारिक बिजनेस सूट'",
+    "headshotsLabel": "छवियों के लिए हेडशॉट",
+    "uploadHeadshots": "हेडशॉट अपलोड करें (5 तक)",
+    "styleReferenceLabel": "शैली संदर्भ"
   }
 };
 
@@ -427,9 +473,11 @@ interface LocalizationContextType {
 
 export const LocalizationContext = createContext<LocalizationContextType | undefined>(undefined);
 
+// FIX: Made the translation getter and `t` function more type-safe to prevent incorrect type inference.
+// This resolves downstream errors where string variables were being inferred as `string | number`.
 // Helper to access nested keys like 'header.title'
-const getNestedValue = (obj: any, key: string): string => {
-    return key.split('.').reduce((acc, part) => acc && acc[part], obj) || key;
+const getNestedValue = (obj: any, key: string): any => {
+    return key.split('.').reduce((acc, part) => acc && acc[part], obj);
 };
 
 export const LocalizationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -441,16 +489,22 @@ export const LocalizationProvider: React.FC<{ children: ReactNode }> = ({ childr
     }, [locale]);
 
     const t = useCallback((key: string, replacements: { [key: string]: string | number } = {}): string => {
-        let translation = getNestedValue(translations, key);
+        const translation = getNestedValue(translations, key);
 
-        if (typeof translation === 'string') {
-            Object.keys(replacements).forEach(placeholder => {
-                const regex = new RegExp(`{{${placeholder}}}`, 'g');
-                translation = translation.replace(regex, String(replacements[placeholder]));
-            });
+        // Fallback for not found, null, or object-like translations
+        if (translation === undefined || translation === null || typeof translation === 'object') {
+            return key;
         }
         
-        return translation || key;
+        // Convert numbers/booleans to string before replacing
+        let processedTranslation = String(translation);
+
+        Object.keys(replacements).forEach(placeholder => {
+            const regex = new RegExp(`{{${placeholder}}}`, 'g');
+            processedTranslation = processedTranslation.replace(regex, String(replacements[placeholder]));
+        });
+        
+        return processedTranslation;
     }, [translations]);
 
     return (

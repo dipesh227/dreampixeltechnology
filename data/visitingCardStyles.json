@@ -1,6 +1,0 @@
-[
-    { "id": "vc-minimalist", "name": "Minimalist", "tags": "Clean, Modern", "stylePrompt": "A clean, minimalist design with lots of white space. Uses a modern sans-serif font like Helvetica or Inter. The layout is simple and balanced. The color palette is monochrome or uses one subtle accent color." },
-    { "id": "vc-corporate", "name": "Corporate", "tags": "Professional, Trustworthy", "stylePrompt": "A professional and traditional corporate design. Uses a classic serif or sans-serif font like Times New Roman or Arial. The layout is structured and grid-based. The color palette is typically blue, grey, and white, conveying stability." },
-    { "id": "vc-creative", "name": "Creative", "tags": "Bold, Artistic", "stylePrompt": "A bold, artistic, and unconventional design. Uses unique typography, possibly a script or display font. The layout is asymmetrical and dynamic. The color palette is vibrant and uses bold color combinations." },
-    { "id": "vc-luxury", "name": "Luxury", "tags": "Elegant, Premium", "stylePrompt": "An elegant and luxurious design. Uses a sophisticated serif font and may incorporate a monogram. The design might feature high-quality textures like marble or linen. The color palette includes rich colors like black, gold, silver, or deep jewel tones." }
-]

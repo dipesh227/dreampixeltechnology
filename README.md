@@ -1,4 +1,3 @@
-
 # DreamPixel Technology - AI Content Creation Suite
 
 ![DreamPixel Logo](https://ai.dreampixeltechnology.in/logo.svg)
@@ -12,9 +11,7 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
 -   **Multiple Content Tools**:
     -   YouTube Thumbnail Generator
     -   Ad Banner Generator
-    -   Social Media Post Generator
-    -   AI Trend-Based Post Generator
-    -   AI Social Media Content Factory **(New!)**
+    -   AI Social Media Content Factory **(Now includes single post, trend-based, and full campaign generation!)**
     -   Politician's Poster Maker
     -   Social Media Profile Picture Generator
     -   AI Logo Generator
@@ -376,13 +373,24 @@ CREATE TABLE public.trend_post_jobs (
 ALTER TABLE public.trend_post_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own trend post jobs" ON public.trend_post_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+-- Drop the old social_campaign_jobs table if it exists
+DROP TABLE IF EXISTS public.social_campaign_jobs;
+
+-- Create the new social_campaign_jobs table with added language and creator_name columns
 CREATE TABLE public.social_campaign_jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
   topic TEXT,
   keywords TEXT,
-  link TEXT
+  link TEXT,
+  language TEXT,
+  creator_name TEXT,
+  target_area TEXT,
+  dress_style TEXT,
+  headshot_filenames TEXT[],
+  sample_image_filename TEXT,
+  post_link TEXT
 );
 ALTER TABLE public.social_campaign_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own social campaign jobs" ON public.social_campaign_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -579,7 +587,14 @@ CREATE TABLE public.social_campaign_jobs (
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
   topic TEXT,
   keywords TEXT,
-  link TEXT
+  link TEXT,
+  language TEXT,
+  creator_name TEXT,
+  target_area TEXT,
+  dress_style TEXT,
+  headshot_filenames TEXT[],
+  sample_image_filename TEXT,
+  post_link TEXT
 );
 ```
 </details>

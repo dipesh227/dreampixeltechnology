@@ -1,4 +1,5 @@
 
+
 import { Type } from "@google/genai";
 // FIX: Added all required types for the new functions.
 import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle, SocialCampaign } from '../types';
@@ -68,11 +69,12 @@ const PLATFORM_POST_CONCEPT_SCHEMA = {
         hashtags: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: "An array of 3-5 relevant hashtags, including the '#' prefix."
+            description: "An array of 3-5 relevant, SEO-friendly, and trending hashtags, including the '#' prefix."
         },
         call_to_action: { type: Type.STRING, description: "A clear call to action for the audience." },
         image_suggestion: { type: Type.STRING, description: "A detailed prompt for an AI image generator to create a visual for this post. This should be creative and descriptive." },
         video_suggestion: { type: Type.STRING, description: "A brief concept for a short-form video (Reel/Short/TikTok)." },
+        video_script: { type: Type.STRING, description: "A short, editable script or voiceover for the video suggestion." },
         title: { type: Type.STRING, description: "A title, typically for content like YouTube Shorts or LinkedIn articles." },
         description: { type: Type.STRING, description: "A longer description, for platforms like YouTube." },
         text_post: { type: Type.STRING, description: "A short, text-only post, suitable for platforms like Threads or X/Twitter." },
@@ -395,6 +397,30 @@ export const generateSocialPost = async (selectedPrompt: string, aspectRatio: As
     return geminiNativeService.generateImageFromText(finalPrompt, aspectRatio);
 };
 
+export const generateSocialPostWithHeadshot = async (prompt: string, headshot: UploadedFile, aspectRatio: AspectRatio): Promise<string | null> => {
+    const finalPrompt = `
+${prompt}
+
+**FINAL EXECUTION CHECKLIST:**
+- **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
+- **Overall Quality:** The image must be high-resolution, professional, and visually striking, fully realizing the creative brief.
+`;
+    return geminiNativeService.generateImage(finalPrompt, [headshot]);
+};
+
+export const generateSocialVideo = async (prompt: string): Promise<string | null> => {
+    const downloadLink = await geminiNativeService.generateVideo(prompt);
+    if (!downloadLink) {
+        return null;
+    }
+    const videoBlob = await geminiNativeService.fetchVideoData(downloadLink);
+    if (!videoBlob) {
+        return null;
+    }
+    // Create a local URL for the blob to be used in the <video> src
+    return URL.createObjectURL(videoBlob);
+};
+
 export const getTrendingTopics = async (baseKeyword: string): Promise<string[]> => {
     const prompt = `
 You are a Google Trends and social media expert. Your task is to identify the top 3 most relevant, specific, and currently trending topics related to a base keyword.
@@ -478,31 +504,61 @@ const parseAndValidateCampaign = (jsonText: string): SocialCampaign => {
 };
 
 // FIX: Implemented the missing function 'generateSocialMediaCampaign'.
-export const generateSocialMediaCampaign = async (topic: string, keywords: string, link: string): Promise<SocialCampaign> => {
+export const generateSocialMediaCampaign = async (topic: string, keywords: string, link: string, headshot: UploadedFile | null, sampleImage: UploadedFile | null, postLink: string, language: string, creatorName?: string): Promise<SocialCampaign> => {
+    const headshotInstruction = headshot ? `
+- **Headshot Provided (MAIN SUBJECT):** A headshot image has been provided. THIS IS THE MAIN SUBJECT. All generated 'image_suggestion' prompts MUST include the following verbatim command to ensure facial likeness of this person:
+  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.** Your primary task is to achieve a perfect, photorealistic match to the face in the provided headshot image. This is a strict technical mandate. Any deviation is a complete failure."
+` : '- **No Headshot Provided:** Generate images without a specific person.';
+
+    const styleInstruction = sampleImage || postLink.trim() ? `
+- **Style Reference Provided (STYLE ONLY):** A sample image and/or post link has been provided. This is FOR STYLE REFERENCE ONLY. DO NOT replicate the content of the sample. Your PRIMARY creative task is to analyze this reference and ensure your entire campaign output (tone, writing style, and especially the 'image_suggestion' prompts) emulates this sample's aesthetic.
+` : '- **No Style Reference Provided:** Use your best judgment to create a high-quality, engaging visual style.';
+    
+    const creatorNameInstruction = creatorName ? `
+- **Creator Name:** The name of the person or leader for this campaign is "${creatorName}". Incorporate this name naturally into the post content where appropriate for a personal touch.` : '';
+
     const fullPrompt = `
-You are a senior social media marketing manager. Your task is to generate a complete, multi-platform social media campaign based on a central topic. You must follow the specified JSON output format precisely.
+You are a senior social media marketing manager and an expert in SEO. Your task is to generate a complete, multi-platform social media campaign based on a central topic. You must follow the specified JSON output format precisely.
 
 **1. Campaign Brief:**
    - **Core Topic/Announcement:** "${topic}"
    - **Keywords to Include:** "${keywords}"
    - **Link to Promote (if any):** "${link}"
+   - **Post Link for Style Reference (if any):** "${postLink}"
+
+**2. CRITICAL DIRECTIVES:**
+   - **LANGUAGE:** All generated text content (posts, captions, hashtags, scripts, etc.) MUST be in **${language.toUpperCase()}**.
+   ${creatorNameInstruction}
+   ${headshotInstruction}
+   ${styleInstruction}
 
 **CRITICAL TASK & INSTRUCTIONS:**
-Create a tailored post for each of the following platforms: LinkedIn, Instagram, Facebook, X-Twitter, TikTok, Threads, and YouTube_Shorts.
-For each platform, you must generate a complete post concept within the JSON structure.
+Create a tailored post for each of the following platforms: LinkedIn, Instagram, Facebook, X-Twitter, TikTok, Threads, and YouTube_Shorts. The content must be SEO-friendly and use relevant, trending hashtags.
 
 **Required Elements for EACH Platform:**
-- **Content:** Create the main text for the post, adapted for the platform's style (e.g., professional for LinkedIn, conversational for Threads).
-- **Hashtags:** Provide 3-5 relevant and popular hashtags.
+- **Content:** Create the main text for the post, adapted for the platform's style.
+- **Hashtags:** Provide 3-5 relevant, SEO-friendly, and popular hashtags, including the '#' prefix.
 - **Call to Action:** Create a clear call to action, incorporating the provided link if available.
-- **Image Suggestion:** Write a detailed, creative prompt for an AI image generator to create a compelling visual for the post.
-- **Video Suggestion (Optional but encouraged):** For platforms like TikTok and YouTube Shorts, provide a brief video concept.
+- **Image Suggestion:** Write a detailed, creative prompt for an AI image generator. It MUST follow the headshot and style directives.
+- **Video Suggestion:** For video-centric platforms (TikTok, YouTube_Shorts), provide a brief, concise video concept (under 50 words). For all other platforms, this field MUST be "N/A". This is a strict rule.
+- **Video Script:** For video-centric platforms, also generate a short, editable 'video_script' containing the dialogue or voiceover text for the video. For all other platforms, this MUST be "N/A".
 
-You will return a single JSON object. The object must contain keys for each platform ("LinkedIn", "Instagram", etc.).
+You will return a single JSON object. The object must contain keys for each platform.
 The value for each key must be an object matching the platform post concept schema.
 Your entire response MUST be only the raw JSON object, without any markdown formatting.
 `;
-    const jsonText = await geminiNativeService.generateText(fullPrompt, SOCIAL_CAMPAIGN_SCHEMA);
+    
+    const imagesToAnalyze: UploadedFile[] = [];
+    if (sampleImage) {
+        imagesToAnalyze.push(sampleImage);
+    }
+    
+    let jsonText: string;
+    if (imagesToAnalyze.length > 0) {
+        jsonText = await geminiNativeService.generateTextFromMultimodal(fullPrompt, imagesToAnalyze, SOCIAL_CAMPAIGN_SCHEMA);
+    } else {
+        jsonText = await geminiNativeService.generateText(fullPrompt, SOCIAL_CAMPAIGN_SCHEMA);
+    }
     return parseAndValidateCampaign(jsonText);
 };
 

@@ -16,7 +16,6 @@ import { useLocalization } from './hooks/useLocalization';
 import ThumbnailGenerator from './components/ThumbnailGenerator';
 import PoliticiansPosterMaker from './components/PoliticiansPosterMaker';
 import AdBannerGenerator from './components/AdBannerGenerator';
-import SocialMediaPostGenerator from './components/SocialMediaPostGenerator';
 import ProfileImageGenerator from './components/ProfileImageGenerator';
 import LogoGenerator from './components/LogoGenerator';
 import ImageEnhancer from './components/ImageEnhancer';
@@ -24,7 +23,6 @@ import HeadshotMaker from './components/HeadshotMaker';
 import PassportPhotoMaker from './components/PassportPhotoMaker';
 import VisitingCardMaker from './components/VisitingCardMaker';
 import EventPosterMaker from './components/EventPosterMaker';
-import TrendPostGenerator from './components/TrendPostGenerator';
 import SocialMediaCampaignFactory from './components/SocialMediaCampaignFactory';
 
 const App: React.FC = () => {
@@ -139,7 +137,6 @@ const App: React.FC = () => {
         case 'thumbnail': return <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'political': return <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'advertisement': return <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
-        case 'social': return <SocialMediaPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'profile': return <ProfileImageGenerator onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'logo': return <LogoGenerator onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'image-enhancer': return <ImageEnhancer onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
@@ -147,8 +144,7 @@ const App: React.FC = () => {
         case 'passport-photo': return <PassportPhotoMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'visiting-card': return <VisitingCardMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'event-poster': return <EventPosterMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
-        case 'trend-post': return <TrendPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
-        case 'social-campaign': return <SocialMediaCampaignFactory onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'social-campaign': return <SocialMediaCampaignFactory onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
         default: return <LandingPage onSelectTool={handleSelectTool} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
     }
   }
@@ -166,7 +162,7 @@ const App: React.FC = () => {
       <main className="container mx-auto px-4 py-8">
         {renderActiveTool()}
       </main>
-      <Footer dbStatus={dbStatus} dbError={dbError} />
+      <Footer dbStatus={dbStatus} dbError={dbError} connectedAccounts={connectedAccounts} />
       {isFeedbackOpen && <FeedbackModal onClose={handleCloseFeedback} />}
       {isAuthModalOpen && <AuthModal onClose={handleCloseAuthModal} />}
     </div>

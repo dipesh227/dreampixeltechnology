@@ -1,4 +1,3 @@
-
 import { supabase } from './supabaseClient';
 import { AspectRatio, UploadedFile } from '../types';
 
@@ -147,6 +146,13 @@ interface SocialCampaignJobData {
     topic: string;
     keywords: string;
     link: string;
+    language: string;
+    creatorName?: string;
+    targetArea?: string;
+    dressStyle?: string;
+    headshots: UploadedFile[];
+    sampleImage: UploadedFile | null;
+    postLink: string;
 }
 
 export const saveSocialCampaignJob = async (data: SocialCampaignJobData): Promise<void> => {
@@ -156,6 +162,13 @@ export const saveSocialCampaignJob = async (data: SocialCampaignJobData): Promis
             topic: data.topic,
             keywords: data.keywords,
             link: data.link,
+            language: data.language,
+            creator_name: data.creatorName,
+            target_area: data.targetArea,
+            dress_style: data.dressStyle,
+            headshot_filenames: data.headshots.map(h => h.name),
+            sample_image_filename: data.sampleImage?.name || null,
+            post_link: data.postLink,
         });
         if (error) throw error;
     } catch (error) {
