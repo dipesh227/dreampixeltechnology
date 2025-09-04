@@ -486,10 +486,7 @@ export const LocalizationProvider: React.FC<{ children: ReactNode }> = ({ childr
         setTranslations(translationsData[locale] || translationsData.en);
     }, [locale]);
 
-    // FIX: Updated the `t` function to be more type-safe. The previous implementation had a logic path
-    // that could lead TypeScript to infer a `string | number` return type in some cases. This new
-    // implementation strictly checks if the retrieved translation value is a string before processing,
-    // ensuring the function always returns a string and resolving downstream type errors.
+    // FIX: Refactored the `t` function to guarantee a string return type, resolving a subtle type inference issue.
     const t = useCallback((key: string, replacements: { [key: string]: string | number } = {}): string => {
         const translation = getNestedValue(translations, key);
 
@@ -497,14 +494,11 @@ export const LocalizationProvider: React.FC<{ children: ReactNode }> = ({ childr
             return key;
         }
 
-        let processedTranslation = translation;
-
-        Object.keys(replacements).forEach(placeholder => {
+        // Use reduce for a more functional approach that ensures a string is returned.
+        return Object.entries(replacements).reduce((acc, [placeholder, value]) => {
             const regex = new RegExp(`{{${placeholder}}}`, 'g');
-            processedTranslation = processedTranslation.replace(regex, String(replacements[placeholder]));
-        });
-        
-        return processedTranslation;
+            return acc.replace(regex, String(value));
+        }, translation);
     }, [translations]);
 
     return (

@@ -4,7 +4,7 @@ import { generateHeadshotPrompts, generateHeadshot, enhanceImage } from '../serv
 import { HEADSHOT_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
-import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineDocumentText, HiOutlineArrowPath, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb, HiOutlineQueueList } from 'react-icons/hi2';
+import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineDocumentText, HiOutlineArrowPath, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb, HiOutlineQueueList, HiStar } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
@@ -25,7 +25,8 @@ interface HeadshotMakerProps {
 const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
-    const [originalImage, setOriginalImage] = useState<UploadedFile | null>(null);
+    const [originalImages, setOriginalImages] = useState<UploadedFile[]>([]);
+    const [primaryImageIndex, setPrimaryImageIndex] = useState<number>(0);
     const [description, setDescription] = useState('');
     const [selectedStyleId, setSelectedStyleId] = useState<string>(HEADSHOT_STYLES[0].id);
     
@@ -72,21 +73,34 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
     };
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files.length > 0) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                const base64 = (reader.result as string).split(',')[1];
-                setOriginalImage({ base64, mimeType: file.type, name: file.name });
-            };
-            reader.readAsDataURL(file);
+        if (event.target.files) {
+            const files = Array.from(event.target.files).slice(0, 5 - originalImages.length);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64 = (reader.result as string).split(',')[1];
+                    const newImage: UploadedFile = { base64, mimeType: file.type, name: file.name };
+                    setOriginalImages(prev => [...prev, newImage].slice(0, 5));
+                };
+                reader.readAsDataURL(file);
+            });
             event.target.value = '';
         }
     };
     
+    const removeImage = (indexToRemove: number) => {
+        setOriginalImages(prev => prev.filter((_, index) => index !== indexToRemove));
+        // Adjust primary index if the removed image was primary or before the primary
+        if (indexToRemove === primaryImageIndex) {
+            setPrimaryImageIndex(0); // Reset to first image
+        } else if (indexToRemove < primaryImageIndex) {
+            setPrimaryImageIndex(prev => prev - 1);
+        }
+    };
+    
     const handleGenerateConcepts = async () => {
-        if (!originalImage) {
-            setError('Please upload a photo.');
+        if (originalImages.length === 0) {
+            setError('Please upload at least one photo.');
             return;
         }
         if (!description.trim()) {
@@ -99,7 +113,7 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
                 userId: session.user.id,
                 description,
                 styleId: selectedStyleId,
-                originalImageFilename: originalImage.name,
+                originalImageFilename: originalImages[primaryImageIndex].name,
             });
         }
         
@@ -109,7 +123,7 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
             const selectedStyle = HEADSHOT_STYLES.find(s => s.id === selectedStyleId);
             if (!selectedStyle) throw new Error("A style must be selected.");
             
-            const prompts = await generateHeadshotPrompts(description, selectedStyle);
+            const prompts = await generateHeadshotPrompts(description, selectedStyle, originalImages.length);
             setGeneratedPrompts(prompts);
             setStep('promptSelection');
         } catch (err) {
@@ -120,7 +134,7 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
     };
 
     const handleGenerateImages = async (prompt: string) => {
-        if (!originalImage) {
+        if (originalImages.length === 0) {
             setError('Original photo not found. Please go back and upload an image.');
             setStep('input');
             return;
@@ -132,7 +146,10 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
         setIsSaved(false);
         try {
             setLoadingMessage('Enhancing source photo for best quality...');
-            const enhancedResult = await enhanceImage(originalImage);
+            const primaryImage = originalImages[primaryImageIndex];
+            const otherImages = originalImages.filter((_, i) => i !== primaryImageIndex);
+            
+            const enhancedResult = await enhanceImage(primaryImage);
 
             if (!enhancedResult) {
                 throw new Error('The initial image enhancement failed. Please try a different photo.');
@@ -141,11 +158,13 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
             const enhancedFile: UploadedFile = {
                 base64: enhancedResult,
                 mimeType: 'image/png',
-                name: `enhanced_${originalImage.name}`
+                name: `enhanced_${primaryImage.name}`
             };
 
+            const allImagesForGeneration = [enhancedFile, ...otherImages];
+
             setLoadingMessage('Generating 5 headshot variations...');
-            const imageResults = await generateHeadshot(prompt, enhancedFile);
+            const imageResults = await generateHeadshot(prompt, allImagesForGeneration);
 
             if (imageResults && imageResults.length > 0) {
                 setGeneratedImages(imageResults);
@@ -216,25 +235,32 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
                 </button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Upload any photo of yourself. The AI will first enhance it and then use it to create a professional headshot.">
-                    <h2 className="text-xl font-bold text-white mb-1">1. Upload a Photo</h2>
-                    <p className="text-sm text-slate-400 mb-4">Provide one clear, forward-facing photo.</p>
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Upload 1-5 photos of yourself. The AI will synthesize the best features from all photos for the most accurate result. Select one photo as the 'primary' for enhancement.">
+                    <h2 className="text-xl font-bold text-white mb-1">1. Upload Photos</h2>
+                    <p className="text-sm text-slate-400 mb-4">Provide 1-5 photos for the best result. Click one to mark as primary.</p>
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
-                         <input type="file" id="file-upload" className="hidden" accept="image/png, image/jpeg" onChange={handleFileChange} />
-                         <label htmlFor="file-upload" className="cursor-pointer">
+                         <input type="file" id="file-upload" className="hidden" multiple accept="image/png, image/jpeg" onChange={handleFileChange} disabled={originalImages.length >= 5} />
+                         <label htmlFor="file-upload" className={`cursor-pointer ${originalImages.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <HiArrowUpTray className="w-8 h-8 mx-auto text-slate-500 mb-2"/>
                             <p className="text-slate-300 font-semibold">Click to upload or drag & drop</p>
-                            <p className="text-xs text-slate-500">PNG or JPG</p>
+                            <p className="text-xs text-slate-500">You can add {5 - originalImages.length} more images.</p>
                          </label>
                     </div>
-                     {originalImage && 
-                        <div className="flex justify-center mt-4">
-                            <div className="relative group w-24 h-24">
-                                <img src={`data:${originalImage.mimeType};base64,${originalImage.base64}`} alt={originalImage.name} className="rounded-lg object-cover w-full h-full"/>
-                                <button onClick={() => setOriginalImage(null)} className="absolute top-1 right-1 bg-black/60 rounded-full p-1 text-white hover:bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    <HiXMark className="w-4 h-4 icon-hover-effect" />
-                                </button>
-                            </div>
+                     {originalImages.length > 0 && 
+                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-4 mt-4">
+                            {originalImages.map((file, index) => (
+                                <div key={index} className="relative group aspect-square cursor-pointer" onClick={() => setPrimaryImageIndex(index)}>
+                                    <img src={`data:${file.mimeType};base64,${file.base64}`} alt={file.name} className={`rounded-lg object-cover w-full h-full border-4 transition-all ${primaryImageIndex === index ? 'border-purple-500' : 'border-transparent group-hover:border-slate-600'}`}/>
+                                    {primaryImageIndex === index && (
+                                        <div className="absolute bottom-1 left-1 bg-purple-500 text-white p-1 rounded-full shadow-lg" title="Primary Image">
+                                            <HiStar className="w-3 h-3"/>
+                                        </div>
+                                    )}
+                                    <button onClick={(e) => { e.stopPropagation(); removeImage(index); }} className="absolute top-1 right-1 bg-black/60 rounded-full p-1 text-white hover:bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <HiXMark className="w-4 h-4 icon-hover-effect" />
+                                    </button>
+                                </div>
+                            ))}
                         </div>
                     }
                 </div>
@@ -261,7 +287,7 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
                  </div>
             </div>
              <div className="flex justify-center pt-4">
-                <button onClick={handleGenerateConcepts} disabled={isLoading || !description.trim() || !originalImage} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
+                <button onClick={handleGenerateConcepts} disabled={isLoading || !description.trim() || originalImages.length === 0} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
                     {isLoading ? loadingMessage : 'Generate Headshot Concepts'}
                 </button>

@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { SocialCampaign, PlatformPostConcept, UploadedFile, ConnectedAccount, AdStyle, AspectRatio, GeneratedConcept } from '../types';
 import { generateSocialMediaCampaign, generateSocialPost, generateSocialPostWithHeadshot, generateSocialVideo, getTrendingTopics, generateTrendPostConcepts, generateSocialPostConcepts } from '../services/aiService';
@@ -123,14 +124,14 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
         setIsLoading(true);
         setError(null);
         setStep('generating');
-        // FIX: Explicitly cast the result of `t` to a string to satisfy the state setter's type.
+        // FIX: Explicitly cast t() to String to resolve persistent type errors.
         setLoadingMessage(String(t('socialCampaignFactory.generatingMessage')));
         try {
             const result = await generateSocialMediaCampaign(topic, keywords, link, headshot, sampleImage, postLink, locale, creatorName);
             setCampaignResult(result);
             setStep('result');
         } catch (err) {
-            // FIX: Explicitly cast the result of `t` to a string to satisfy the state setter's type.
+            // FIX: Explicitly cast t() to String to resolve persistent type errors.
             setError(err instanceof Error ? err.message : String(t('socialCampaignFactory.errorCampaign')));
             setStep('input');
         } finally {
@@ -294,6 +295,8 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
         const videoData = generatedVideos[platform];
         if (videoData?.url && !videoData.saved && session) {
             try {
+                // For videos, we might save a thumbnail or just the prompt/URL
+                // For simplicity, we'll mark it saved without adding to visual history yet.
                 setGeneratedVideos(prev => ({ ...prev, [platform]: { ...videoData, saved: true } }));
                 onCreationGenerated();
             } catch (error) { setError("Failed to save creation. Please try again."); }
@@ -327,15 +330,15 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
         <div className="space-y-4">
             <div data-tooltip="Describe the core message or announcement for your campaign. The AI will generate content for all platforms based on this.">
                 <label className="font-semibold text-slate-300">{t('socialCampaignFactory.topicLabel')}</label>
-                <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder={t('socialCampaignFactory.topicPlaceholder')} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={3}></textarea>
+                <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder={t('socialCampaignFactory.topicPlaceholder') || ''} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={3}></textarea>
             </div>
              <div data-tooltip="Include any specific keywords you want the AI to focus on.">
                 <label className="font-semibold text-slate-300">{t('socialCampaignFactory.keywordsLabel')} <span className="text-slate-400 font-normal">{t('common.optional')}</span></label>
-                <input value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder={t('socialCampaignFactory.keywordsPlaceholder')} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                <input value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder={t('socialCampaignFactory.keywordsPlaceholder') || ''} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
             </div>
              <div data-tooltip="Add a call to action link to be included in the posts.">
                 <label className="font-semibold text-slate-300">{t('socialCampaignFactory.linkLabel')} <span className="text-slate-400 font-normal">{t('common.optional')}</span></label>
-                <input value={link} onChange={(e) => setLink(e.target.value)} placeholder={t('socialCampaignFactory.linkPlaceholder')} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                <input value={link} onChange={(e) => setLink(e.target.value)} placeholder={t('socialCampaignFactory.linkPlaceholder') || ''} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
             </div>
             <div className="flex justify-center pt-4">
                 <button onClick={handleGenerateCampaign} disabled={isLoading || !topic.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
@@ -350,7 +353,7 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
          <div className="space-y-4">
             <div data-tooltip="Describe the core message or announcement for your post.">
                 <label className="font-semibold text-slate-300">{t('socialCampaignFactory.topicLabel')}</label>
-                <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder={t('socialCampaignFactory.topicPlaceholder')} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={3}></textarea>
+                <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder={t('socialCampaignFactory.topicPlaceholder') || ''} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={3}></textarea>
             </div>
             <div data-tooltip="Select the social media platform you're targeting.">
                 <label className="font-semibold text-slate-300">{t('socialCampaignFactory.platformLabel')}</label>
@@ -381,7 +384,7 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
          <div className="space-y-4">
             <label className="font-semibold text-slate-300">{t('socialCampaignFactory.baseKeywordLabel')}</label>
             <p className="text-sm text-slate-400">{t('socialCampaignFactory.baseKeywordDesc')}</p>
-            <input value={baseKeyword} onChange={(e) => setBaseKeyword(e.target.value)} placeholder={t('socialCampaignFactory.baseKeywordPlaceholder')} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+            <input value={baseKeyword} onChange={(e) => setBaseKeyword(e.target.value)} placeholder={t('socialCampaignFactory.baseKeywordPlaceholder') || ''} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
             <div className="flex justify-center pt-4">
                 <button onClick={handleFindTrends} disabled={isLoading || !baseKeyword.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
@@ -431,11 +434,12 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-8 p-1 bg-slate-800/50 rounded-lg border border-slate-700">
                 {[
-                    { key: 'campaign', icon: HiBuildingStorefront, label: t('socialCampaignFactory.modeCampaign'), desc: t('socialCampaignFactory.modeCampaignDesc') },
-                    { key: 'single', icon: HiRectangleStack, label: t('socialCampaignFactory.modeSingle'), desc: t('socialCampaignFactory.modeSingleDesc') },
-                    { key: 'trend', icon: HiOutlineArrowTrendingUp, label: t('socialCampaignFactory.modeTrend'), desc: t('socialCampaignFactory.modeTrendDesc') },
+                    // FIX: Explicitly cast t() to String to resolve persistent type errors for data-tooltip.
+                    { key: 'campaign', icon: HiBuildingStorefront, label: t('socialCampaignFactory.modeCampaign'), desc: String(t('socialCampaignFactory.modeCampaignDesc')) },
+                    { key: 'single', icon: HiRectangleStack, label: t('socialCampaignFactory.modeSingle'), desc: String(t('socialCampaignFactory.modeSingleDesc')) },
+                    { key: 'trend', icon: HiOutlineArrowTrendingUp, label: t('socialCampaignFactory.modeTrend'), desc: String(t('socialCampaignFactory.modeTrendDesc')) },
                 ].map(({key, icon: Icon, label, desc}) => (
-                    <button key={key} onClick={() => { setMode(key as GenerationMode); setStep('input'); setSelectedTrend(''); }} className={`flex flex-col text-center items-center justify-center gap-1 p-3 text-sm font-semibold rounded-md transition-colors ${mode === key ? 'bg-primary-gradient text-white shadow-lg' : 'text-slate-300 hover:bg-slate-700'}`} data-tooltip={desc}>
+                    <button key={key} onClick={() => { setMode(key as GenerationMode); setStep('input'); setSelectedTrend(''); }} className={`flex flex-col text-center items-center justify-center gap-1 p-3 text-sm font-semibold rounded-md transition-colors ${mode === key ? 'bg-primary-gradient text-white shadow-lg' : 'text-slate-300 hover:bg-slate-700'}`} data-tooltip={desc || ''}>
                        <Icon className="w-6 h-6 mb-1" /> {label}
                     </button>
                 ))}
@@ -451,7 +455,7 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="font-semibold text-slate-300">{t('socialCampaignFactory.creatorNameLabel')}</label>
-                            <input value={creatorName} onChange={(e) => setCreatorName(e.target.value)} placeholder={t('socialCampaignFactory.creatorNamePlaceholder')} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                            <input value={creatorName} onChange={(e) => setCreatorName(e.target.value)} placeholder={t('socialCampaignFactory.creatorNamePlaceholder') || ''} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                         </div>
                         <div>
                              <label className="font-semibold text-slate-300">{t('socialCampaignFactory.headshotsLabel')}</label>
@@ -666,33 +670,26 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
                                         </div>
                                     )}
                                     {!imageData?.base64 && !videoData?.url && (
-                                         <div className="space-y-3">
-                                            {(imageData?.loading || videoData?.loading) ? (
-                                                <>
-                                                    <div className="w-8 h-8 mx-auto border-2 border-t-transparent border-white rounded-full animate-spin"></div>
-                                                    <p className="text-sm text-slate-300">{videoData?.loadingMessage || t('common.generatingMessage')}</p>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {content.image_suggestion && (
-                                                        <div className="space-y-2">
-                                                            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('socialCampaignFactory.imageSuggestion')}</h4>
-                                                            <p className="text-sm text-slate-300 italic">"{content.image_suggestion}"</p>
-                                                            <button onClick={() => handleGenerateImage(platform, content.image_suggestion || '')} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700">
-                                                                <HiOutlinePhoto className="w-5 h-5"/>{t('socialCampaignFactory.generateImage')}
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                    {content.video_suggestion && content.video_suggestion !== 'N/A' && (
-                                                        <div className="space-y-2">
-                                                            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('socialCampaignFactory.videoSuggestion')}</h4>
-                                                            <p className="text-sm text-slate-300 italic">"{content.video_suggestion}"</p>
-                                                            <button onClick={() => handleOpenScriptModal(platform, content.video_script, content.video_suggestion)} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700">
-                                                                <HiOutlineVideoCamera className="w-5 h-5"/>{t('socialCampaignFactory.generateVideo')}
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </>
+                                        <div className="space-y-4 w-full">
+                                            {content.image_suggestion && content.image_suggestion !== "N/A" && (
+                                                <div className="text-left">
+                                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{t('socialCampaignFactory.imageSuggestion')}</h4>
+                                                    <p className="text-sm text-slate-300 italic">"{content.image_suggestion}"</p>
+                                                    <button onClick={() => handleGenerateImage(platform, content.image_suggestion || '')} disabled={imageData?.loading} className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700 hover:bg-slate-600 text-slate-300 disabled:opacity-50">
+                                                        {imageData?.loading ? <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlinePhoto className="w-4 h-4" />}
+                                                        {imageData?.loading ? 'Generating...' : t('socialCampaignFactory.generateImage')}
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {content.video_suggestion && content.video_suggestion !== "N/A" && (
+                                                <div className="text-left">
+                                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{t('socialCampaignFactory.videoSuggestion')}</h4>
+                                                    <p className="text-sm text-slate-300 italic">"{content.video_suggestion}"</p>
+                                                    <button onClick={() => handleOpenScriptModal(platform, content.video_script, content.video_suggestion)} disabled={videoData?.loading} className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700 hover:bg-slate-600 text-slate-300 disabled:opacity-50">
+                                                        {videoData?.loading ? <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineVideoCamera className="w-4 h-4" />}
+                                                        {videoData?.loading ? videoData.loadingMessage : t('socialCampaignFactory.generateVideo')}
+                                                    </button>
+                                                </div>
                                             )}
                                         </div>
                                     )}
@@ -702,51 +699,55 @@ const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({
                     )
                 })}
             </div>
+
             <div className="flex justify-center mt-10">
-                <button onClick={() => { setStep('input'); setCampaignResult(null); setGeneratedImages({}); setGeneratedVideos({}); }} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
-                    <HiArrowLeft className="w-5 h-5" /> {t('common.back')}
+                <button onClick={() => { setStep('input'); setCampaignResult(null); }} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
+                    <HiArrowLeft className="w-5 h-5" /> {t('common.backToSettings')}
                 </button>
             </div>
         </div>
     );
 
-    const renderScriptModal = () => (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" onClick={() => setIsScriptModalOpen(false)}>
-            <div className="bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
-                <header className="flex items-center justify-between p-4 border-b border-slate-800">
-                    <h2 className="text-lg font-bold text-white">{t('socialCampaignFactory.editVideoScriptTitle')}</h2>
-                    <button onClick={() => setIsScriptModalOpen(false)} className="text-slate-500 hover:text-white"><HiXMark className="w-6 h-6"/></button>
-                </header>
-                <main className="p-6 space-y-4">
-                    <p className="text-sm text-slate-400">{t('socialCampaignFactory.editVideoScriptDesc')}</p>
-                    <div>
-                        <label htmlFor="script-textarea" className="font-semibold text-slate-300">{t('socialCampaignFactory.scriptLabel')}</label>
-                        <textarea
-                            id="script-textarea"
-                            value={currentScriptData?.script || ''}
-                            onChange={(e) => setCurrentScriptData(prev => prev ? { ...prev, script: e.target.value } : null)}
-                            className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm"
-                            rows={8}
-                        ></textarea>
-                    </div>
-                </main>
-                <footer className="flex justify-end p-4 bg-slate-950/30 border-t border-slate-800">
-                    <button onClick={handleGenerateVideoWithScript} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary-gradient text-white rounded-lg hover:opacity-90">
-                        <HiOutlineVideoCamera className="w-5 h-5"/>
-                        {t('socialCampaignFactory.generateWithScript')}
-                    </button>
-                </footer>
+    const renderScriptModal = () => {
+        if (!isScriptModalOpen || !currentScriptData) return null;
+        return (
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 animate-fade-in" onClick={() => setIsScriptModalOpen(false)}>
+                <div className="bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-2xl" onClick={e => e.stopPropagation()}>
+                    <header className="flex items-center justify-between p-4 border-b border-slate-800">
+                        <h2 className="text-lg font-bold text-white">{t('socialCampaignFactory.editVideoScriptTitle')}</h2>
+                        <button onClick={() => setIsScriptModalOpen(false)} className="text-slate-500 hover:text-white"><HiXMark className="w-6 h-6"/></button>
+                    </header>
+                    <main className="p-6">
+                        <p className="text-sm text-slate-400 mb-4">{t('socialCampaignFactory.editVideoScriptDesc')}</p>
+                        <div>
+                            <label htmlFor="video-script" className="font-semibold text-slate-300">{t('socialCampaignFactory.scriptLabel')}</label>
+                            <textarea
+                                id="video-script"
+                                value={currentScriptData.script}
+                                onChange={(e) => setCurrentScriptData(prev => prev ? { ...prev, script: e.target.value } : null)}
+                                className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm"
+                                rows={8}
+                            />
+                        </div>
+                    </main>
+                    <footer className="flex justify-end p-4 bg-slate-950/30 border-t border-slate-800 rounded-b-2xl">
+                        <button onClick={handleGenerateVideoWithScript} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary-gradient text-white rounded-lg hover:opacity-90 transition-opacity">
+                           <HiOutlineVideoCamera className="w-5 h-5"/> {t('socialCampaignFactory.generateWithScript')}
+                        </button>
+                    </footer>
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     return (
         <div className="animate-fade-in">
             <ErrorMessage error={error} />
-            {isScriptModalOpen && currentScriptData && renderScriptModal()}
-            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg min-h-[60vh]">
-                {step === 'generating' && renderGeneratingStep()}
+            {isScriptModalOpen && renderScriptModal()}
+
+            <div className={step === 'result' && mode === 'campaign' ? '' : 'p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg'}>
                 {step === 'input' && renderInputStep()}
+                {step === 'generating' && renderGeneratingStep()}
                 {step === 'trendSelection' && renderTrendSelectionStep()}
                 {step === 'conceptSelection' && renderConceptSelectionStep()}
                 {step === 'result' && mode === 'campaign' && renderCampaignResult()}

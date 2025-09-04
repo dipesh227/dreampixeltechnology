@@ -1,6 +1,9 @@
 
 
 
+
+
+
 import { Type } from "@google/genai";
 // FIX: Added all required types for the new functions.
 import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle, SocialCampaign } from '../types';
@@ -413,7 +416,7 @@ ${prompt}
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 - **Overall Quality:** The image must be high-resolution, professional, and visually striking, fully realizing the creative brief.
 `;
-    return geminiNativeService.generateImage(finalPrompt, [headshot]);
+    return geminiNativeService.generateImage(prompt, [headshot]);
 };
 
 export const generateSocialVideo = async (prompt: string): Promise<string | null> => {
@@ -698,13 +701,14 @@ Your task is to take the provided user image and perform a comprehensive, profes
 };
 
 // FIX: Implemented the missing function 'generateHeadshotPrompts'.
-export const generateHeadshotPrompts = async (description: string, style: HeadshotStyle): Promise<GeneratedConcept[]> => {
+export const generateHeadshotPrompts = async (description: string, style: HeadshotStyle, imageCount: number): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are an expert corporate and portrait photographer. Generate three distinct concepts for a professional headshot. You must follow the specified JSON output format.
+You are an expert corporate and portrait photographer. Generate three distinct concepts for a professional headshot. The final output will be a set of 5 headshots from different angles (Front, 3/4 Left, 3/4 Right, Left Profile, Right Profile). Your concepts should provide a strong, unified art direction suitable for this multi-angle output. You must follow the specified JSON output format.
 
 **1. User Request:**
    - **Purpose/Description:** "${description}"
    - **Target Style:** '${style.name}' (${style.stylePrompt})
+   - **User Assets:** The user has provided ${imageCount} reference photo(s).
 
 **CRITICAL TASK & INSTRUCTIONS:**
 Generate three unique concepts. For each, create a detailed prompt for an AI image generator.
@@ -713,11 +717,11 @@ Your prompts MUST explicitly define:
 - **Outfit:** Describe a suitable professional outfit.
 - **Lighting:** (e.g., "professional three-point studio lighting", "soft window light").
 - **Background:** (e.g., "out-of-focus modern office background", "solid, neutral-colored studio backdrop").
-- **Expression & Pose:** (e.g., "a confident, friendly smile, posed at a 3/4 angle", "a powerful and serious expression, looking directly at the camera").
+- **Expression & Mood:** (e.g., "a confident, friendly smile, posed at a 3/4 angle", "a powerful and serious expression, looking directly at the camera").
 - **Facial Likeness Command:** Each prompt MUST include this exact, verbatim command:
   "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-  Your primary task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image. This is not a creative guideline.
-  - **Source of Truth:** The provided photo is the absolute ground truth for all facial features.
+  Your primary task is to achieve a perfect, 10000% photorealistic match to the face by synthesizing the best features from ALL provided reference images. This is not a creative guideline.
+  - **Source of Truth:** The provided photos are the absolute ground truth for all facial features. Use the clearest details from across the entire set of images.
   - **No Artistic Interpretation:** Do not alter or stylize the face. It must be a perfect, photorealistic replication.
   - **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task."
 
@@ -731,12 +735,12 @@ Your response MUST be only the raw JSON object.
 
 // FIX: Implemented the missing function 'generateHeadshot'.
 const HEADSHOT_ANGLES = ["Front", "3/4 Left", "3/4 Right", "Left Profile", "Right Profile"];
-export const generateHeadshot = async (selectedPrompt: string, enhancedImage: UploadedFile): Promise<{ angle: string; image: string; }[]> => {
+export const generateHeadshot = async (selectedPrompt: string, images: UploadedFile[]): Promise<{ angle: string; image: string; }[]> => {
     const generationPromises = HEADSHOT_ANGLES.map(async (angle) => {
         const anglePrompt = `
 **NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image. This is a strict technical mandate.
-- **Source of Truth:** The provided photo is the absolute ground truth for all facial features.
+Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face by synthesizing information from ALL provided reference images. This is a strict technical mandate.
+- **Source of Truth:** You are provided with several reference photos. Use all of them to reconstruct the most accurate and high-fidelity facial likeness possible. The first image is the primary, enhanced reference, but you should use details from other images if they provide a clearer view of certain features (e.g., eyes, profile).
 - **No Artistic Interpretation of Face:** Do not alter or stylize the face. It must be a perfect, photorealistic replication.
 - **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task.
 
@@ -747,13 +751,13 @@ Your primary, non-negotiable, and most critical task is to achieve a perfect, 10
 - You MUST render the person from a **${angle} view**. The head and body should be turned appropriately for this angle.
 
 **FINAL EXECUTION CHECKLIST:**
-- **Facial Likeness:** Perfect match to the provided image.
+- **Facial Likeness:** Perfect match synthesized from ALL provided images.
 - **Angle:** Precisely render the **${angle}** pose.
 - **Aspect Ratio:** The final image MUST be a square (1:1 aspect ratio).
 - **Quality:** High-resolution, professional-grade headshot.
 `;
         try {
-            const image = await geminiNativeService.generateImage(anglePrompt, [enhancedImage]);
+            const image = await geminiNativeService.generateImage(anglePrompt, images);
             return image ? { angle, image } : null;
         } catch (error) {
             console.error(`Failed to generate headshot for angle ${angle}:`, error);
