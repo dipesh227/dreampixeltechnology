@@ -25,6 +25,7 @@ import PassportPhotoMaker from './components/PassportPhotoMaker';
 import VisitingCardMaker from './components/VisitingCardMaker';
 import EventPosterMaker from './components/EventPosterMaker';
 import TrendPostGenerator from './components/TrendPostGenerator';
+import SocialMediaCampaignFactory from './components/SocialMediaCampaignFactory';
 
 const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');
@@ -80,7 +81,7 @@ const App: React.FC = () => {
   
   useEffect(() => {
     const baseTitle = "DreamPixel Technology";
-    const toolTitles: { [key: string]: string } = {
+    const toolTitles: { [key in ToolType]?: string } = {
         'thumbnail': "YouTube Thumbnail Generator",
         'advertisement': "Ad Banner Generator",
         'social': "Social Media Post Generator",
@@ -93,6 +94,7 @@ const App: React.FC = () => {
         'visiting-card': "AI Visiting Card Maker",
         'event-poster': "AI Event Poster Maker",
         'trend-post': "AI Trend-Based Post Generator",
+        'social-campaign': "AI Social Media Content Factory",
     };
 
     const toolTitle = activeTool === 'landing' ? "AI Content Creation Suite" : toolTitles[activeTool] || "Generator";
@@ -134,6 +136,36 @@ const App: React.FC = () => {
     });
   }, []);
 
+  const renderActiveTool = () => {
+    switch(activeTool) {
+        case 'landing':
+            return (
+                <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8">
+                    <div className="lg:col-span-2">
+                    <LandingPage onSelectTool={handleSelectTool} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />
+                    </div>
+                    <div className="mt-8 lg:mt-0">
+                    <HistorySidebar key={historyUpdated} />
+                    </div>
+                </div>
+            );
+        case 'thumbnail': return <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'political': return <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'advertisement': return <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'social': return <SocialMediaPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'profile': return <ProfileImageGenerator onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'logo': return <LogoGenerator onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'image-enhancer': return <ImageEnhancer onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'headshot-maker': return <HeadshotMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'passport-photo': return <PassportPhotoMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'visiting-card': return <VisitingCardMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'event-poster': return <EventPosterMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'trend-post': return <TrendPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'social-campaign': return <SocialMediaCampaignFactory onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        default: return <LandingPage onSelectTool={handleSelectTool} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
+    }
+  }
+
   return (
     <div className={`min-h-screen animated-bg ${isGenerating ? 'generating-active' : ''}`}>
       <MouseTrail />
@@ -145,31 +177,7 @@ const App: React.FC = () => {
         onLogin={handleOpenAuthModal}
       />
       <main className="container mx-auto px-4 py-8">
-        {activeTool === 'landing' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8">
-            <div className="lg:col-span-2">
-              <LandingPage onSelectTool={handleSelectTool} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />
-            </div>
-            <div className="mt-8 lg:mt-0">
-              <HistorySidebar key={historyUpdated} />
-            </div>
-          </div>
-        ) : (
-          <>
-            {activeTool === 'thumbnail' && <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'political' && <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'advertisement' && <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'social' && <SocialMediaPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'profile' && <ProfileImageGenerator onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'logo' && <LogoGenerator onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'image-enhancer' && <ImageEnhancer onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'headshot-maker' && <HeadshotMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'passport-photo' && <PassportPhotoMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'visiting-card' && <VisitingCardMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'event-poster' && <EventPosterMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-            {activeTool === 'trend-post' && <TrendPostGenerator onNavigateHome={handleNavigateHome} onPostGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />}
-          </>
-        )}
+        {renderActiveTool()}
       </main>
       <Footer dbStatus={dbStatus} dbError={dbError} />
       {isFeedbackOpen && <FeedbackModal onClose={handleCloseFeedback} />}

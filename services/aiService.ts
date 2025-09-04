@@ -1,6 +1,7 @@
 
 import { Type } from "@google/genai";
-import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle } from '../types';
+// FIX: Added SocialCampaign to imports for the new function.
+import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle, SocialCampaign } from '../types';
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
 import { RateLimitError } from "./errors";
@@ -56,6 +57,40 @@ const TRENDS_SCHEMA = {
         }
     },
     required: ["topics"],
+};
+
+// FIX: Added schemas for the new social media campaign generation feature.
+const PLATFORM_POST_CONCEPT_SCHEMA = {
+    type: Type.OBJECT,
+    properties: {
+        post: { type: Type.STRING, description: "The main text content for the post (e.g., for LinkedIn, Facebook)." },
+        caption: { type: Type.STRING, description: "A shorter caption, typically for image-based posts like Instagram." },
+        hashtags: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING },
+            description: "An array of 3-5 relevant hashtags, including the '#' prefix."
+        },
+        call_to_action: { type: Type.STRING, description: "A clear call to action for the audience." },
+        image_suggestion: { type: Type.STRING, description: "A detailed prompt for an AI image generator to create a visual for this post. This should be creative and descriptive." },
+        video_suggestion: { type: Type.STRING, description: "A brief concept for a short-form video (Reel/Short/TikTok)." },
+        title: { type: Type.STRING, description: "A title, typically for content like YouTube Shorts or LinkedIn articles." },
+        description: { type: Type.STRING, description: "A longer description, for platforms like YouTube." },
+        text_post: { type: Type.STRING, description: "A short, text-only post, suitable for platforms like Threads or X/Twitter." },
+    },
+};
+
+const SOCIAL_CAMPAIGN_SCHEMA = {
+    type: Type.OBJECT,
+    properties: {
+        LinkedIn: { ...PLATFORM_POST_CONCEPT_SCHEMA, description: "A professional post for LinkedIn." },
+        Instagram: { ...PLATFORM_POST_CONCEPT_SCHEMA, description: "A visually-focused post for Instagram." },
+        Facebook: { ...PLATFORM_POST_CONCEPT_SCHEMA, description: "An engaging post for Facebook." },
+        'X-Twitter': { ...PLATFORM_POST_CONCEPT_SCHEMA, description: "A concise and punchy post for X (formerly Twitter)." },
+        TikTok: { ...PLATFORM_POST_CONCEPT_SCHEMA, description: "A viral video concept for TikTok." },
+        Threads: { ...PLATFORM_POST_CONCEPT_SCHEMA, description: "A conversational text-based post for Threads." },
+        YouTube_Shorts: { ...PLATFORM_POST_CONCEPT_SCHEMA, description: "A short-form video concept for YouTube Shorts." },
+    },
+    required: ["LinkedIn", "Instagram", "Facebook", "X-Twitter", "TikTok", "Threads", "YouTube_Shorts"],
 };
 
 
@@ -408,6 +443,51 @@ Your entire response MUST be only the raw JSON object.
 `;
     const jsonText = await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA);
     return parseAndValidateConcepts(jsonText);
+};
+
+// FIX: Added the missing generateSocialMediaCampaign function.
+export const generateSocialMediaCampaign = async (topic: string, keywords: string, link: string): Promise<SocialCampaign> => {
+    const fullPrompt = `
+You are a master social media campaign strategist. Your task is to generate a complete, multi-platform social media campaign based on a user's core topic. You must create tailored content for LinkedIn, Instagram, Facebook, X-Twitter, TikTok, Threads, and YouTube Shorts.
+
+**1. Campaign Brief:**
+   - **Core Topic/Announcement:** "${topic}"
+   - **Key Keywords to Include:** "${keywords || 'None provided'}"
+   - **Call to Action Link (if provided):** "${link || 'None provided'}"
+
+**CRITICAL TASK & INSTRUCTIONS:**
+For each platform, create a unique and optimized post concept. The content must be distinct and tailored to the platform's audience and format. Do not just copy and paste content between platforms.
+
+**Platform-Specific Content Requirements:**
+- **LinkedIn:** Professional, insightful post. Use a formal tone. Focus on business value or career insights.
+- **Instagram:** Visually-driven. Write a compelling caption and suggest a stunning visual (provide an AI image prompt for 'image_suggestion').
+- **Facebook:** Community-focused and engaging. Can be slightly more casual than LinkedIn. Ask a question to encourage comments.
+- **X-Twitter:** Short, punchy, and impactful. Use relevant hashtags.
+- **TikTok:** A creative, trend-aware short video concept. Describe the video scene, audio, and on-screen text for 'video_suggestion'.
+- **Threads:** Conversational and text-first. Start a discussion.
+- **YouTube Shorts:** A vertical video concept, similar to TikTok, but tailored for the YouTube audience. Describe the concept in 'video_suggestion'.
+
+**General Requirements:**
+- **Hashtags:** Include 3-5 highly relevant hashtags for each post.
+- **Call to Action:** If a link is provided, naturally integrate it as a call to action. If not, create a relevant CTA (e.g., "What are your thoughts?", "Follow for more").
+
+You will return a single JSON object. The object's keys must be the platform names (e.g., "LinkedIn", "Instagram") and the values must be the tailored post concept objects for that platform. Your entire response MUST be only the raw JSON object, without any markdown formatting.
+`;
+
+    const jsonText = await geminiNativeService.generateText(fullPrompt, SOCIAL_CAMPAIGN_SCHEMA);
+    try {
+        const cleanedJsonText = jsonText.replace(/^```(?:json)?\s*|```\s*$/g, '').trim();
+        const result: SocialCampaign = JSON.parse(cleanedJsonText);
+        // Basic validation
+        if (typeof result !== 'object' || result === null || !result.Instagram) {
+             throw new Error("Invalid response format from AI for social campaign.");
+        }
+        return result;
+    } catch (e) {
+        console.error("Failed to parse social campaign response:", e);
+        console.error("Raw text received from AI:", jsonText);
+        throw new Error("Failed to parse the AI's response for the social campaign.");
+    }
 };
 
 

@@ -13,7 +13,8 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
     -   YouTube Thumbnail Generator
     -   Ad Banner Generator
     -   Social Media Post Generator
-    -   AI Trend-Based Post Generator **(New!)**
+    -   AI Trend-Based Post Generator
+    -   AI Social Media Content Factory **(New!)**
     -   Politician's Poster Maker
     -   Social Media Profile Picture Generator
     -   AI Logo Generator
@@ -375,6 +376,17 @@ CREATE TABLE public.trend_post_jobs (
 ALTER TABLE public.trend_post_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own trend post jobs" ON public.trend_post_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+CREATE TABLE public.social_campaign_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  topic TEXT,
+  keywords TEXT,
+  link TEXT
+);
+ALTER TABLE public.social_campaign_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own social campaign jobs" ON public.social_campaign_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+
 ```
 </details>
 
@@ -553,6 +565,21 @@ CREATE TABLE public.trend_post_jobs (
   selected_trend TEXT,
   style_id TEXT,
   aspect_ratio TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>social_campaign_jobs</strong> - Logs inputs for the social media campaign factory.</summary>
+
+```sql
+CREATE TABLE public.social_campaign_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  topic TEXT,
+  keywords TEXT,
+  link TEXT
 );
 ```
 </details>

@@ -141,6 +141,28 @@ export const saveTrendPostJob = async (data: TrendPostJobData): Promise<void> =>
     }
 };
 
+// Social Campaign Job
+interface SocialCampaignJobData {
+    userId: string;
+    topic: string;
+    keywords: string;
+    link: string;
+}
+
+export const saveSocialCampaignJob = async (data: SocialCampaignJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('social_campaign_jobs').insert({
+            user_id: data.userId,
+            topic: data.topic,
+            keywords: data.keywords,
+            link: data.link,
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save social campaign job", error);
+    }
+};
+
 
 // Profile Image Job
 interface ProfileImageJobData {

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Tool, ToolType, ConnectedAccount } from '../types';
 // FIX: Replaced HiOutlineTrendingUp with HiOutlineArrowTrendingUp as it is the correct icon name in react-icons/hi2.
-import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineShare, HiOutlineUserGroup, HiOutlineUserCircle, HiOutlineSwatch, HiOutlineSparkles, HiOutlineIdentification, HiOutlineCreditCard, HiOutlineClipboardDocumentList, HiOutlineTicket, HiOutlineArrowTrendingUp } from 'react-icons/hi2';
+import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineShare, HiOutlineUserGroup, HiOutlineUserCircle, HiOutlineSwatch, HiOutlineSparkles, HiOutlineIdentification, HiOutlineCreditCard, HiOutlineClipboardDocumentList, HiOutlineTicket, HiOutlineArrowTrendingUp, HiOutlineBuildingStorefront } from 'react-icons/hi2';
 import SocialConnect from './SocialConnect';
 import { useLocalization } from '../hooks/useLocalization';
 
@@ -25,8 +25,8 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void, t: (key: string) => 
         'passport-photo': { icon: HiOutlineCreditCard, gradient: 'from-blue-500 to-indigo-600' },
         'visiting-card': { icon: HiOutlineClipboardDocumentList, gradient: 'from-slate-400 to-slate-600' },
         'event-poster': { icon: HiOutlineTicket, gradient: 'from-rose-400 to-red-500' },
-        // FIX: Replaced HiOutlineTrendingUp with HiOutlineArrowTrendingUp to match the corrected import.
         'trend-post': { icon: HiOutlineArrowTrendingUp, gradient: 'from-green-400 to-teal-500' },
+        'social-campaign': { icon: HiOutlineBuildingStorefront, gradient: 'from-indigo-500 to-violet-600' },
     };
     const { icon: Icon, gradient } = icons[tool.id];
 
@@ -65,6 +65,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccoun
         { id: 'social', title: t('tools.social.title'), description: t('tools.social.description'), enabled: true },
         { id: 'political', title: t('tools.political.title'), description: t('tools.political.description'), enabled: true },
         { id: 'trend-post', title: t('tools.trend-post.title'), description: t('tools.trend-post.description'), enabled: true },
+        { id: 'social-campaign', title: t('tools.social-campaign.title'), description: t('tools.social-campaign.description'), enabled: true },
         { id: 'profile', title: t('tools.profile.title'), description: t('tools.profile.description'), enabled: true },
         { id: 'logo', title: t('tools.logo.title'), description: t('tools.logo.description'), enabled: true },
         { id: 'image-enhancer', title: t('tools.image-enhancer.title'), description: t('tools.image-enhancer.description'), enabled: true },

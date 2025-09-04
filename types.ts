@@ -1,7 +1,7 @@
 
 
 
-export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'trend-post';
+export type ToolType = 'thumbnail' | 'advertisement' | 'social' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'trend-post' | 'social-campaign';
 
 export interface Tool {
   id: ToolType;
@@ -162,4 +162,27 @@ export interface Template {
 
 export interface ConnectedAccount {
   platform: string;
+}
+
+// For Social Media Campaign Factory
+export interface PlatformPostConcept {
+    post?: string;
+    caption?: string;
+    hashtags?: string[];
+    call_to_action?: string;
+    image_suggestion?: string;
+    video_suggestion?: string;
+    title?: string;
+    description?: string;
+    text_post?: string;
+}
+
+export interface SocialCampaign {
+    LinkedIn?: PlatformPostConcept;
+    Instagram?: PlatformPostConcept;
+    Facebook?: PlatformPostConcept;
+    'X-Twitter'?: PlatformPostConcept;
+    TikTok?: PlatformPostConcept;
+    Threads?: PlatformPostConcept;
+    YouTube_Shorts?: PlatformPostConcept;
 }

@@ -73,6 +73,10 @@
     "trend-post": {
       "title": "AI Trend-Based Post Generator",
       "description": "Discover trending topics related to your industry and automatically generate engaging social media posts about them."
+    },
+    "social-campaign": {
+      "title": "AI Social Media Content Factory",
+      "description": "Turn a single topic into a complete, multi-platform social media campaign, generating text and images for all major networks."
     }
   },
   "toolCard": {
@@ -188,5 +192,28 @@
     "step2UploadTitle": "2. Upload Headshots",
     "step2UploadDesc": "Provide 1-5 images for the best face accuracy.",
     "step3Describe": "2. Describe Your Video"
+  },
+  "socialCampaignFactory": {
+    "title": "AI Social Media Content Factory",
+    "subtitle": "Turn one idea into a full social media campaign for 7+ platforms in a single click.",
+    "step1Title": "1. Define Your Core Message",
+    "topicLabel": "Topic",
+    "topicPlaceholder": "e.g., 'Launch of our new eco-friendly sneaker line'",
+    "keywordsLabel": "Keywords",
+    "keywordsPlaceholder": "e.g., 'sustainable fashion, sneakers, eco-friendly'",
+    "linkLabel": "Link",
+    "linkPlaceholder": "e.g., 'https://yourstore.com/new-sneakers'",
+    "generateButton": "Generate Social Campaign",
+    "generatingMessage": "Building your multi-platform campaign...",
+    "resultsTitle": "Your AI-Generated Social Media Campaign",
+    "resultsSubtitle": "Here is tailored content for each platform. Click 'Generate Image' to create visuals.",
+    "imageSuggestion": "Image Suggestion",
+    "videoSuggestion": "Video Suggestion",
+    "generateImage": "Generate Image",
+    "hashtags": "Hashtags",
+    "cta": "Call to Action",
+    "copyPost": "Copy Post",
+    "errorCampaign": "Failed to generate the social media campaign. The AI may have returned an invalid format.",
+    "saveCreation": "Like & Save Image"
   }
 }
