@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Modality } from "@google/genai";
 import { UploadedFile, AspectRatio } from '../types';
 import * as apiConfigService from './apiConfigService';
@@ -226,4 +225,38 @@ export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean
         }
         return { isValid: false, error: handledError.message || 'Validation failed.' };
     }
+};
+
+export const editImage = async (base64Image: string, prompt: string): Promise<string | null> => {
+     return withRetries(async () => {
+        const ai = getAiClient();
+        const imagePart = {
+            inlineData: { data: base64Image, mimeType: 'image/png' }
+        };
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image-preview',
+            contents: {
+                parts: [
+                    imagePart,
+                    { text: prompt }
+                ]
+            },
+            config: {
+                responseModalities: [Modality.IMAGE, Modality.TEXT]
+            }
+        });
+
+        for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData && part.inlineData.data) {
+                return part.inlineData.data;
+            }
+        }
+        // If the model replies with text-only, that's an error in this context
+        const textResponse = response.text?.trim();
+        if (textResponse) {
+             throw new Error(`AI Edit Failed: ${textResponse}`);
+        }
+        return null;
+    });
 };

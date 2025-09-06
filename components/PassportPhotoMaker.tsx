@@ -7,6 +7,7 @@ import * as jobService from '../services/jobService';
 import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiArrowLeft, HiOutlinePrinter, HiOutlinePhoto } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
+import { resizeImage } from '../utils/cropImage';
 
 type Step = 'input' | 'generating' | 'result';
 
@@ -16,7 +17,7 @@ interface PassportPhotoMakerProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
-const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
+export const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [uploadedImage, setUploadedImage] = useState<UploadedFile | null>(null);
@@ -60,15 +61,16 @@ const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNavigateHome,
         setIsSaved(false);
     };
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
             const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                const base64 = (reader.result as string).split(',')[1];
-                setUploadedImage({ base64, mimeType: file.type, name: file.name });
-            };
-            reader.readAsDataURL(file);
+            try {
+                const resizedImage = await resizeImage(file, 1024);
+                setUploadedImage(resizedImage);
+            } catch (error) {
+                console.error("Error resizing image:", error);
+                setError("Failed to process image. Please try a different file.");
+            }
             event.target.value = '';
         }
     };
@@ -293,29 +295,32 @@ const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNavigateHome,
                         {generatedSinglePhoto && (
                            <img src={`data:image/png;base64,${generatedSinglePhoto}`} alt="Generated Passport Photo" className="rounded-lg shadow-lg border-2 border-slate-700" style={{width: `${photoWidthPx}px`, height: `${photoHeightPx}px`}} />
                         )}
-                        <a href={`data:image/png;base64,${generatedSinglePhoto}`} download={`dreampixel-passport-photo.png`} className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700">
-                           <HiOutlinePhoto className="w-5 h-5"/> Download Single Photo
-                        </a>
+                         <div className="w-full flex gap-2">
+                             <a href={`data:image/png;base64,${generatedSinglePhoto}`} download="dreampixel-passport-photo.png" className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700">
+                                <HiArrowDownTray className="w-5 h-5"/> Download Single
+                             </a>
+                             <div className="relative group" title={!session ? 'Please sign in to save creations' : ''}>
+                                <button onClick={handleSaveCreation} disabled={isSaved || !session} className="flex items-center justify-center gap-2 h-full px-4 py-2 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect-pink">
+                                    <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} />
+                                </button>
+                             </div>
+                         </div>
                     </div>
-                    <div className="flex flex-col items-center gap-4">
-                         <h3 className="font-bold text-xl text-white">Printable 4x6 Sheet</h3>
+                     <div className="flex flex-col items-center gap-4">
+                        <h3 className="font-bold text-xl text-white">Printable 4x6 Sheet ({photoCount} copies)</h3>
                          {generatedSheet && (
-                           <img src={`data:image/jpeg;base64,${generatedSheet}`} alt="Printable sheet" className="rounded-lg shadow-lg border-2 border-slate-700 w-full" style={{aspectRatio: '4 / 6'}} />
-                        )}
-                        <a href={`data:image/jpeg;base64,${generatedSheet}`} download={`dreampixel-passport-sheet.jpg`} className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700">
-                           <HiOutlinePrinter className="w-5 h-5"/> Download Print Sheet
-                        </a>
+                            <img src={`data:image/jpeg;base64,${generatedSheet}`} alt="Generated Print Sheet" className="rounded-lg shadow-lg border-2 border-slate-700 w-full" style={{aspectRatio: '4 / 6'}}/>
+                         )}
+                         <a href={`data:image/jpeg;base64,${generatedSheet}`} download="dreampixel-passport-sheet.jpg" className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300">
+                            <HiOutlinePrinter className="w-5 h-5"/> Download Sheet
+                         </a>
                     </div>
                  </div>
-                 <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4 mt-8">
+
+                 <div className="flex justify-center items-center gap-4 mt-12">
                      <button onClick={handleReset} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect">
-                        <HiArrowLeft className="w-5 h-5 text-slate-300"/> Start Over
+                        <HiArrowLeft className="w-5 h-5 text-slate-300"/> Create Another
                      </button>
-                     <div className="relative group" title={!session ? 'Please sign in to save creations' : ''}>
-                        <button onClick={handleSaveCreation} disabled={isSaved || !session} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-pink">
-                            <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save'}
-                        </button>
-                     </div>
                  </div>
             </div>
         );
@@ -332,5 +337,3 @@ const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNavigateHome,
         </div>
     );
 };
-
-export default PassportPhotoMaker;

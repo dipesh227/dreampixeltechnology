@@ -18,7 +18,7 @@ interface VisitingCardMakerProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
-const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
+export const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [logo, setLogo] = useState<UploadedFile | null>(null);
@@ -259,6 +259,13 @@ const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigateHome, o
 
     return (
         <div className="animate-fade-in">
+            {isTemplateBrowserOpen && (
+                <TemplateBrowser
+                    tool="visiting-card"
+                    onClose={() => setIsTemplateBrowserOpen(false)}
+                    onSelect={() => {}}
+                />
+            )}
             <ErrorMessage error={error} />
             <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
                 {step === 'input' && renderInputStep()}
@@ -269,5 +276,3 @@ const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigateHome, o
         </div>
     );
 };
-
-export default VisitingCardMaker;

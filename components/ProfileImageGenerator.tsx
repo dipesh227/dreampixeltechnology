@@ -18,7 +18,7 @@ interface ProfileImageGeneratorProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
-const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
+export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [headshot, setHeadshot] = useState<UploadedFile | null>(null);
@@ -217,7 +217,7 @@ const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ onNavigat
             <StyleSelector
                 title="3. Choose a Style"
                 tooltip="Choose a style to set the overall mood, lighting, and background for your profile picture."
-                stylesData={PROFILE_PICTURE_STYLES as any}
+                stylesData={PROFILE_PICTURE_STYLES}
                 selectedStyleId={selectedStyleId}
                 onStyleSelect={setSelectedStyleId}
             />
@@ -340,5 +340,3 @@ const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ onNavigat
         </div>
     );
 };
-
-export default ProfileImageGenerator;

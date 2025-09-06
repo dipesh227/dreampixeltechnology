@@ -8,6 +8,7 @@ import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXM
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import StyleSelector from './StyleSelector';
+import { resizeImage } from '../utils/cropImage';
 
 interface EventPosterMakerProps {
     onNavigateHome: () => void;
@@ -15,7 +16,7 @@ interface EventPosterMakerProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
-const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
+export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [originalImage, setOriginalImage] = useState<UploadedFile | null>(null);
     const [editedImage, setEditedImage] = useState<string | null>(null);
@@ -52,18 +53,19 @@ const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHome, onC
         return () => clearInterval(interval);
     }, [isLoading]);
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
             const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                const base64 = (reader.result as string).split(',')[1];
-                setOriginalImage({ base64, mimeType: file.type, name: file.name });
+            try {
+                const resizedImage = await resizeImage(file, 2048);
+                setOriginalImage(resizedImage);
                 setEditedImage(null);
                 setError(null);
                 setIsSaved(false);
-            };
-            reader.readAsDataURL(file);
+            } catch (error) {
+                console.error("Error resizing image:", error);
+                setError("Failed to process image. Please try a different file.");
+            }
             event.target.value = '';
         }
     };
@@ -248,5 +250,3 @@ const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHome, onC
         </div>
     );
 };
-
-export default EventPosterMaker;

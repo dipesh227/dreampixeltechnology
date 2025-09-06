@@ -3,7 +3,6 @@ import React, { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 import type { Point, Area } from 'react-easy-crop';
 import { createImage, getCroppedImg } from '../utils/cropImage';
-// FIX: Replaced non-existent icons HiOutlineZoomIn and HiOutlineZoomOut with correct ones for zoom functionality.
 import { HiOutlineScissors, HiOutlineXMark, HiOutlineMagnifyingGlassPlus, HiOutlineMagnifyingGlassMinus } from 'react-icons/hi2';
 
 interface ImageCropperProps {
@@ -69,7 +68,6 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCropComplete, o
                 
                 <div className="p-4 space-y-4 border-t border-slate-800 flex-shrink-0">
                      <div className="flex items-center gap-4">
-                        {/* FIX: Replaced non-existent HiOutlineZoomOut with HiOutlineMagnifyingGlassMinus */}
                         <HiOutlineMagnifyingGlassMinus className="w-6 h-6 text-slate-400"/>
                         <input
                             type="range"
@@ -81,7 +79,6 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCropComplete, o
                             onChange={(e) => setZoom(Number(e.target.value))}
                             className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
                         />
-                        {/* FIX: Replaced non-existent HiOutlineZoomIn with HiOutlineMagnifyingGlassPlus */}
                         <HiOutlineMagnifyingGlassPlus className="w-6 h-6 text-slate-400"/>
                     </div>
                 </div>

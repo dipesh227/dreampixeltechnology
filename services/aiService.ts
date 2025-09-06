@@ -1,9 +1,3 @@
-
-
-
-
-
-
 import { Type } from "@google/genai";
 // FIX: Added all required types for the new functions.
 import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle, SocialCampaign } from '../types';
@@ -99,24 +93,24 @@ const SOCIAL_CAMPAIGN_SCHEMA = {
     required: ["LinkedIn", "Instagram", "Facebook", "X-Twitter", "TikTok", "Threads", "YouTube_Shorts"],
 };
 
+// Explicit type for the AI's JSON response to ensure type safety.
+interface ConceptsResponse {
+    concepts: GeneratedConcept[];
+}
 
 const parseAndValidateConcepts = (jsonText: string): GeneratedConcept[] => {
     try {
         // Clean the response by removing markdown code block fences that some models add.
         const cleanedJsonText = jsonText.replace(/^```(?:json)?\s*|```\s*$/g, '').trim();
-        const result = JSON.parse(cleanedJsonText);
+        const result = JSON.parse(cleanedJsonText) as ConceptsResponse;
         
         if (result && result.concepts && Array.isArray(result.concepts)) {
             // Ensure only one is recommended, or just take the first one if multiple are.
             let recommendedFound = false;
 
-            const concepts: GeneratedConcept[] = result.concepts.map((c: any) => {
-                const newConcept: GeneratedConcept = {
-                    prompt: c.prompt,
-                    caption: c.caption,
-                    reason: c.reason,
-                    isRecommended: c.isRecommended,
-                };
+            const concepts: GeneratedConcept[] = result.concepts.map((c: GeneratedConcept) => {
+                // Create a copy to avoid mutating the original object from the parsed JSON.
+                const newConcept: GeneratedConcept = { ...c };
 
                 if (newConcept.isRecommended && !recommendedFound) {
                     recommendedFound = true;
@@ -272,8 +266,8 @@ Your entire response MUST be only the raw JSON object, without any markdown form
 export const generatePoster = async (selectedPrompt: string, headshots: UploadedFile[], aspectRatio: AspectRatio, party: PoliticalParty | undefined): Promise<string | null> => {
     const finalPrompt = `
 **NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image(s). This is a strict technical mandate, not a creative guideline.
-- **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
+Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image(s). This is a strict technical mandate.
+- **Source of Truth:** The source photograph is the absolute ground truth for every facial detail.
 - **No Artistic Interpretation:** Do not alter, stylize, or approximate the face.
 - **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task.
 
@@ -432,6 +426,11 @@ export const generateSocialVideo = async (prompt: string): Promise<string | null
     return URL.createObjectURL(videoBlob);
 };
 
+// Explicit type for the AI's JSON response to ensure type safety.
+interface TrendsResponse {
+    topics: string[];
+}
+
 export const getTrendingTopics = async (baseKeyword: string): Promise<string[]> => {
     const prompt = `
 You are a Google Trends and social media expert. Your task is to identify the top 3 most relevant, specific, and currently trending topics related to a base keyword.
@@ -450,9 +449,9 @@ Your entire response MUST be only the raw JSON object.
     const jsonText = await geminiNativeService.generateText(prompt, TRENDS_SCHEMA);
     try {
         const cleanedJsonText = jsonText.replace(/^```(?:json)?\s*|```\s*$/g, '').trim();
-        const result = JSON.parse(cleanedJsonText);
+        const result = JSON.parse(cleanedJsonText) as TrendsResponse;
         if (result && result.topics && Array.isArray(result.topics)) {
-            return result.topics.map((topic: any) => String(topic)).slice(0, 3);
+            return result.topics.slice(0, 3);
         }
         throw new Error("Invalid response format from AI for trends.");
     } catch (e) {
@@ -515,7 +514,7 @@ const parseAndValidateCampaign = (jsonText: string): SocialCampaign => {
 };
 
 // FIX: Implemented the missing function 'generateSocialMediaCampaign'.
-export const generateSocialMediaCampaign = async (topic: string, keywords: string, link: string, headshot: UploadedFile | null, sampleImage: UploadedFile | null, postLink: string, language: string, creatorName?: string): Promise<SocialCampaign> => {
+export const generateSocialMediaCampaign = async (topic: string, keywords: string, link: string, headshot: UploadedFile | null, sampleImage: UploadedFile | null, postLink: string, creatorName?: string): Promise<SocialCampaign> => {
     const headshotInstruction = headshot ? `
 - **Headshot Provided (MAIN SUBJECT):** A headshot image has been provided. THIS IS THE MAIN SUBJECT. All generated 'image_suggestion' prompts MUST include the following verbatim command to ensure facial likeness of this person:
   "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.** Your primary task is to achieve a perfect, photorealistic match to the face in the provided headshot image. This is a strict technical mandate. Any deviation is a complete failure."
@@ -538,7 +537,7 @@ You are a senior social media marketing manager and an expert in SEO. Your task 
    - **Post Link for Style Reference (if any):** "${postLink}"
 
 **2. CRITICAL DIRECTIVES:**
-   - **LANGUAGE:** All generated text content (posts, captions, hashtags, scripts, etc.) MUST be in **${language.toUpperCase()}**.
+   - **LANGUAGE:** All generated text content (posts, captions, hashtags, scripts, etc.) MUST be in **ENGLISH**.
    ${creatorNameInstruction}
    ${headshotInstruction}
    ${styleInstruction}
@@ -656,7 +655,7 @@ The prompts MUST include:
 - **Color Palette:** A specific color scheme.
 - **Text Integration:** Explicitly state that the logo must include the company name "${companyName}" and, if provided, the slogan "${slogan}".
 
-You will return a single JSON object with a key "concepts", an array of three objects.
+You will return a single JSON object with a "concepts" key, an array of three objects.
 Each object must have "prompt", "reason", and "isRecommended" keys.
 Your response MUST be only the raw JSON object.
 `;
@@ -874,4 +873,13 @@ export const checkCurrentApiStatus = async (): Promise<{ status: ValidationStatu
             error: error.message || 'API key is not configured.',
         };
     }
+};
+
+export const editImage = async (base64Image: string, prompt: string): Promise<string | null> => {
+    const fullPrompt = `
+    Perform an in-place edit on the provided image based on the user's request.
+    User Request: "${prompt}"
+    Your task is to return ONLY the edited image, without changing the overall composition or subject unless explicitly asked.
+    `;
+    return geminiNativeService.editImage(base64Image, fullPrompt);
 };

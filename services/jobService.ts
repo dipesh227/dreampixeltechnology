@@ -146,7 +146,6 @@ interface SocialCampaignJobData {
     topic: string;
     keywords: string;
     link: string;
-    language: string;
     creatorName?: string;
     targetArea?: string;
     dressStyle?: string;
@@ -162,7 +161,6 @@ export const saveSocialCampaignJob = async (data: SocialCampaignJobData): Promis
             topic: data.topic,
             keywords: data.keywords,
             link: data.link,
-            language: data.language,
             creator_name: data.creatorName,
             target_area: data.targetArea,
             dress_style: data.dressStyle,

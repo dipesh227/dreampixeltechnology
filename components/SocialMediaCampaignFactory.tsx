@@ -3,17 +3,18 @@ import { SocialCampaign, PlatformPostConcept, UploadedFile, ConnectedAccount, Ad
 import { generateSocialMediaCampaign, generateSocialPost, generateSocialPostWithHeadshot, generateSocialVideo, getTrendingTopics, generateTrendPostConcepts, generateSocialPostConcepts } from '../services/aiService';
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
+import * as facebookService from '../services/facebookService';
 import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowLeft, HiClipboardDocument, HiCheck, HiOutlinePhoto, HiOutlineUserCircle, HiArrowUpTray, HiOutlineLink, HiXMark, HiCheckCircle, HiOutlineVideoCamera, HiOutlinePencil, HiOutlineShare, HiBuildingStorefront, HiRectangleStack, HiOutlineArrowTrendingUp, HiOutlineLightBulb } from 'react-icons/hi2';
 import { FaLinkedin, FaInstagram, FaFacebook, FaTiktok, FaYoutube } from 'react-icons/fa6';
 import { FaTwitter, FaThreads } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
-import { useLocalization } from '../hooks/useLocalization';
 import { AD_STYLES } from '../services/constants';
 import StyleSelector from './StyleSelector';
 
 type GenerationMode = 'campaign' | 'single' | 'trend';
 type Step = 'input' | 'generating' | 'result' | 'trendSelection' | 'conceptSelection';
+type PostStatus = 'idle' | 'posting' | 'posted' | 'error';
 
 interface SocialMediaCampaignFactoryProps {
     onNavigateHome: () => void;
@@ -33,21 +34,19 @@ const platformIcons: { [key: string]: React.ElementType } = {
     YouTube_Shorts: FaYoutube,
 };
 
-const platforms: {[key: string]: AspectRatio} = {
+const platforms = {
     "Instagram": "1:1",
     "Facebook": "1.91:1",
     "X / Twitter": "16:9",
     "LinkedIn": "1.91:1",
     "Pinterest": "4:5",
     "Instagram Story": "9:16",
-};
+} as const;
 type Platform = keyof typeof platforms;
 const tones = ["Professional", "Casual", "Humorous", "Inspirational", "Informative"];
 
-// FIX: Added 'export' to the component definition and completed its implementation.
 export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProps> = ({ onNavigateHome, onCreationGenerated, onGenerating, connectedAccounts, onToggleConnect }) => {
     const { session } = useAuth();
-    const { t, locale, setLocale } = useLocalization();
     const [mode, setMode] = useState<GenerationMode>('campaign');
     const [step, setStep] = useState<Step>('input');
     
@@ -62,10 +61,12 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
     const [campaignResult, setCampaignResult] = useState<SocialCampaign | null>(null);
     const [generatedImages, setGeneratedImages] = useState<{ [platform: string]: { loading: boolean; base64: string | null; saved: boolean } }>({});
     const [generatedVideos, setGeneratedVideos] = useState<{ [platform: string]: { loading: boolean; url: string | null; saved: boolean; loadingMessage: string } }>({});
-    const [postedPlatforms, setPostedPlatforms] = useState<{ [key: string]: boolean }>({});
     const [isScriptModalOpen, setIsScriptModalOpen] = useState(false);
     const [currentScriptData, setCurrentScriptData] = useState<{ platform: string; script: string; suggestion: string } | null>(null);
     const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null);
+    const [facebookAccessToken, setFacebookAccessToken] = useState('');
+    const [facebookPageId, setFacebookPageId] = useState('');
+    const [platformPostStatus, setPlatformPostStatus] = useState<{ [key: string]: PostStatus }>({});
     
     // Single Post & Trend Mode State
     const [baseKeyword, setBaseKeyword] = useState('');
@@ -93,7 +94,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
     }, [isLoading, generatedImages, generatedVideos, onGenerating]);
 
     useEffect(() => {
-        setAspectRatio(platforms[platform] as AspectRatio);
+        setAspectRatio(platforms[platform]);
     }, [platform]);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, fileType: 'headshot' | 'sample') => {
@@ -118,20 +119,18 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
             return;
         }
         if (session) {
-            jobService.saveSocialCampaignJob({ userId: session.user.id, topic, keywords, link, headshots: headshot ? [headshot] : [], sampleImage, postLink, language: locale, creatorName });
+            jobService.saveSocialCampaignJob({ userId: session.user.id, topic, keywords, link, headshots: headshot ? [headshot] : [], sampleImage, postLink, creatorName });
         }
         setIsLoading(true);
         setError(null);
         setStep('generating');
-        // FIX: Explicitly cast t() to String to resolve persistent type errors.
-        setLoadingMessage(String(t('socialCampaignFactory.generatingMessage')));
+        setLoadingMessage("Building your multi-platform campaign...");
         try {
-            const result = await generateSocialMediaCampaign(topic, keywords, link, headshot, sampleImage, postLink, locale, creatorName);
+            const result = await generateSocialMediaCampaign(topic, keywords, link, headshot, sampleImage, postLink, creatorName);
             setCampaignResult(result);
             setStep('result');
         } catch (err) {
-            // FIX: Explicitly cast t() to String to resolve persistent type errors.
-            setError(err instanceof Error ? err.message : String(t('socialCampaignFactory.errorCampaign')));
+            setError(err instanceof Error ? err.message : "Failed to generate the social media campaign. The AI may have returned an invalid format.");
             setStep('input');
         } finally {
             setIsLoading(false);
@@ -145,7 +144,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         }
         setIsLoading(true);
         setError(null);
-        setLoadingMessage(String(t('socialCampaignFactory.findingTrends')));
+        setLoadingMessage("Searching for trends...");
         try {
             const trends = await getTrendingTopics(baseKeyword);
             setFoundTrends(trends);
@@ -173,7 +172,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         
         if(session) {
             if (mode === 'single') {
-                jobService.saveSocialPostJob({ userId: session.user.id, topic, platform, tone, callToAction, styleId: selectedStyleId, aspectRatio });
+                jobService.saveSocialPostJob({ userId: session.user.id, topic, platform: platform, tone, callToAction, styleId: selectedStyleId, aspectRatio });
             } else if (mode === 'trend') {
                 jobService.saveTrendPostJob({ userId: session.user.id, baseKeyword, selectedTrend, styleId: selectedStyleId, aspectRatio });
             }
@@ -181,7 +180,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         
         setIsLoading(true);
         setError(null);
-        setLoadingMessage(String(t('toolShared.loading.crafting')));
+        setLoadingMessage("Crafting concepts...");
         try {
             const concepts = mode === 'trend'
                 ? await generateTrendPostConcepts(selectedTrend, platform, selectedStyle)
@@ -190,7 +189,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
             setGeneratedConcepts(concepts);
             setStep('conceptSelection');
         } catch (err) {
-            setError(err instanceof Error ? err.message : String(t('toolShared.errorConceptsFailed')));
+            setError(err instanceof Error ? err.message : "Failed to generate concepts.");
         } finally {
             setIsLoading(false);
         }
@@ -209,7 +208,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                 setFinalGeneratedPost(postResult);
                 setStep('result');
             } else {
-                throw new Error(String(t('toolShared.errorImageFailed')));
+                throw new Error("The AI failed to generate an image. Please try another concept.");
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to generate post image.');
@@ -222,16 +221,16 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
     const handleGenerateImage = async (platform: string, imagePrompt: string) => {
         setGeneratedImages(prev => ({ ...prev, [platform]: { loading: true, base64: null, saved: false } }));
         setError(null);
-        const imageAspectRatio = platform.includes('Story') || platform === 'TikTok' || platform === 'YouTube_Shorts' ? '9:16' : '1:1';
+        const imageAspectRatio: AspectRatio = platform.includes('Story') || platform === 'TikTok' || platform === 'YouTube_Shorts' ? '9:16' : '1:1';
         try {
-            const imageResult = headshot ? await generateSocialPostWithHeadshot(imagePrompt, headshot, imageAspectRatio as any) : await generateSocialPost(imagePrompt, imageAspectRatio as any);
+            const imageResult = headshot ? await generateSocialPostWithHeadshot(imagePrompt, headshot, imageAspectRatio) : await generateSocialPost(imagePrompt, imageAspectRatio);
             if (imageResult) {
                 setGeneratedImages(prev => ({ ...prev, [platform]: { loading: false, base64: imageResult, saved: false } }));
             } else {
-                throw new Error(String(t('toolShared.errorImageFailed')));
+                throw new Error("The AI failed to generate an image. Please try another concept.");
             }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to generate image.');
+        } catch (err: any) {
+            setError(err?.message ? String(err.message) : 'Failed to generate image.');
             setGeneratedImages(prev => ({ ...prev, [platform]: { loading: false, base64: null, saved: false } }));
         }
     };
@@ -245,10 +244,10 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         if (!currentScriptData) return;
         const { platform, script, suggestion } = currentScriptData;
         setIsScriptModalOpen(false);
-        setGeneratedVideos(prev => ({ ...prev, [platform]: { loading: true, url: null, saved: false, loadingMessage: String(t('socialCampaignFactory.videoGenerating.status1')) } }));
+        setGeneratedVideos(prev => ({ ...prev, [platform]: { loading: true, url: null, saved: false, loadingMessage: "Warming up the video creation engine..." } }));
         setError(null);
 
-        const messages = [String(t('socialCampaignFactory.videoGenerating.status2')), String(t('socialCampaignFactory.videoGenerating.status3')), String(t('socialCampaignFactory.videoGenerating.status4')), String(t('socialCampaignFactory.videoGenerating.status5'))];
+        const messages = ["Storyboarding the first few frames...", "Rendering high-definition scenes...", "Adding the final cinematic touches...", "Almost ready, preparing the video file..."];
         let messageIndex = 0;
         const intervalId = setInterval(() => {
             setGeneratedVideos(prev => {
@@ -294,8 +293,6 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         const videoData = generatedVideos[platform];
         if (videoData?.url && !videoData.saved && session) {
             try {
-                // For videos, we might save a thumbnail or just the prompt/URL
-                // For simplicity, we'll mark it saved without adding to visual history yet.
                 setGeneratedVideos(prev => ({ ...prev, [platform]: { ...videoData, saved: true } }));
                 onCreationGenerated();
             } catch (error) { setError("Failed to save creation. Please try again."); }
@@ -325,24 +322,59 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         setStep('input');
     };
     
+    const handlePostToFacebook = async (platform: string, content: PlatformPostConcept) => {
+        if (!facebookPageId.trim() || !facebookAccessToken.trim()) {
+            setError('Please provide a Facebook Page ID and Access Token.');
+            return;
+        }
+        
+        const imageBase64 = generatedImages[platform]?.base64;
+        if (!imageBase64) {
+            setError('Please generate the image for Facebook before posting.');
+            return;
+        }
+
+        setPlatformPostStatus(prev => ({ ...prev, [platform]: 'posting' }));
+        setError(null);
+
+        try {
+            const fullMessage = [content.title, content.post, content.caption, content.text_post, content.hashtags?.join(' '), content.call_to_action].filter(Boolean).join('\n\n');
+            
+            await facebookService.postToFacebookPage(facebookAccessToken, facebookPageId, {
+                message: fullMessage,
+                imageBase64: imageBase64
+            });
+            
+            setPlatformPostStatus(prev => ({ ...prev, [platform]: 'posted' }));
+            
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred while posting to Facebook.';
+            setError(`Facebook Post Failed: ${errorMessage}. Please check your Page ID, Access Token and permissions.`);
+            setPlatformPostStatus(prev => ({ ...prev, [platform]: 'error' }));
+            setTimeout(() => {
+                setPlatformPostStatus(prev => ({ ...prev, [platform]: 'idle' }));
+            }, 5000);
+        }
+    };
+
     const renderCampaignInput = () => (
         <div className="space-y-4">
             <div data-tooltip="Describe the core message or announcement for your campaign. The AI will generate content for all platforms based on this.">
-                <label className="font-semibold text-slate-300">{t('socialCampaignFactory.topicLabel')}</label>
-                <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder={t('socialCampaignFactory.topicPlaceholder') || ''} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={3}></textarea>
+                <label className="font-semibold text-slate-300">Topic</label>
+                <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g., 'Launch of our new eco-friendly sneaker line'" className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={3}></textarea>
             </div>
              <div data-tooltip="Include any specific keywords you want the AI to focus on.">
-                <label className="font-semibold text-slate-300">{t('socialCampaignFactory.keywordsLabel')} <span className="text-slate-400 font-normal">{t('common.optional')}</span></label>
-                <input value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder={t('socialCampaignFactory.keywordsPlaceholder') || ''} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                <label className="font-semibold text-slate-300">Keywords <span className="text-slate-400 font-normal">(Optional)</span></label>
+                <input value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="e.g., 'sustainable fashion, sneakers, eco-friendly'" className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
             </div>
              <div data-tooltip="Add a call to action link to be included in the posts.">
-                <label className="font-semibold text-slate-300">{t('socialCampaignFactory.linkLabel')} <span className="text-slate-400 font-normal">{t('common.optional')}</span></label>
-                <input value={link} onChange={(e) => setLink(e.target.value)} placeholder={t('socialCampaignFactory.linkPlaceholder') || ''} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                <label className="font-semibold text-slate-300">Link <span className="text-slate-400 font-normal">(Optional)</span></label>
+                <input value={link} onChange={(e) => setLink(e.target.value)} placeholder="e.g., 'https://yourstore.com/new-sneakers'" className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
             </div>
             <div className="flex justify-center pt-4">
                 <button onClick={handleGenerateCampaign} disabled={isLoading || !topic.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
-                    {t('socialCampaignFactory.generateButton')}
+                    Generate Social Campaign
                 </button>
             </div>
         </div>
@@ -351,29 +383,29 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
     const renderSinglePostInput = () => (
          <div className="space-y-4">
             <div data-tooltip="Describe the core message or announcement for your post.">
-                <label className="font-semibold text-slate-300">{t('socialCampaignFactory.topicLabel')}</label>
-                <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder={t('socialCampaignFactory.topicPlaceholder') || ''} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={3}></textarea>
+                <label className="font-semibold text-slate-300">Topic</label>
+                <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g., 'Launch of our new eco-friendly sneaker line'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={3}></textarea>
             </div>
             <div data-tooltip="Select the social media platform you're targeting.">
-                <label className="font-semibold text-slate-300">{t('socialCampaignFactory.platformLabel')}</label>
+                <label className="font-semibold text-slate-300">Target Platform</label>
                 <select value={platform} onChange={e => setPlatform(e.target.value as Platform)} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm">
-                    {Object.keys(platforms).map(p => <option key={p} value={p}>{p}</option>)}
+                    {(Object.keys(platforms) as Platform[]).map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
             </div>
              <div data-tooltip="Choose the tone of voice for the written caption.">
-                <label className="font-semibold text-slate-300">{t('socialCampaignFactory.toneLabel')}</label>
+                <label className="font-semibold text-slate-300">Desired Tone</label>
                 <div className="grid grid-cols-3 gap-2 mt-2">
                      {tones.map(t_item => <button key={t_item} type="button" onClick={() => setTone(t_item)} className={`p-2 text-sm rounded-md transition-colors ${tone === t_item ? 'bg-purple-600 text-white font-semibold' : 'bg-slate-800 hover:bg-slate-700'}`}>{t_item}</button>)}
                 </div>
             </div>
             <div data-tooltip="Add a call to action to encourage engagement.">
-                <label className="font-semibold text-slate-300">{t('socialCampaignFactory.callToActionLabel')} <span className="text-slate-400 font-normal">{t('common.optional')}</span></label>
+                <label className="font-semibold text-slate-300">Call to Action <span className="text-slate-400 font-normal">(Optional)</span></label>
                 <input type="text" value={callToAction} onChange={e => setCallToAction(e.target.value)} placeholder="e.g., 'Shop now!' or 'Link in bio'" className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
             </div>
             <div className="flex justify-center pt-4">
                 <button onClick={handleGenerateConcepts} disabled={isLoading || !topic.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
-                    {t('socialCampaignFactory.generateConceptsButton')}
+                    Generate Post Concepts
                 </button>
             </div>
         </div>
@@ -381,13 +413,13 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
     
     const renderTrendInput = () => (
          <div className="space-y-4">
-            <label className="font-semibold text-slate-300">{t('socialCampaignFactory.baseKeywordLabel')}</label>
-            <p className="text-sm text-slate-400">{t('socialCampaignFactory.baseKeywordDesc')}</p>
-            <input value={baseKeyword} onChange={(e) => setBaseKeyword(e.target.value)} placeholder={t('socialCampaignFactory.baseKeywordPlaceholder') || ''} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+            <label className="font-semibold text-slate-300">Enter a Base Keyword</label>
+            <p className="text-sm text-slate-400">Provide a broad keyword for your industry (e.g., 'Technology', 'Finance', 'Fashion'). The AI will find related trending topics.</p>
+            <input value={baseKeyword} onChange={(e) => setBaseKeyword(e.target.value)} placeholder="e.g., Artificial Intelligence" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
             <div className="flex justify-center pt-4">
                 <button onClick={handleFindTrends} disabled={isLoading || !baseKeyword.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
-                    {isLoading ? loadingMessage : t('socialCampaignFactory.findTrendsButton')}
+                    {isLoading ? loadingMessage : "Find Trending Topics"}
                 </button>
             </div>
         </div>
@@ -396,21 +428,21 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
     const renderStyleSelection = () => (
          <div className="space-y-8">
             <div className="mb-4">
-                <label className="font-semibold text-slate-300">{t('socialCampaignFactory.platformLabel')}</label>
+                <label className="font-semibold text-slate-300">Target Platform</label>
                 <select value={platform} onChange={e => setPlatform(e.target.value as Platform)} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm">
-                    {Object.keys(platforms).map(p => <option key={p} value={p}>{p}</option>)}
+                    {(Object.keys(platforms) as Platform[]).map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
             </div>
             <StyleSelector
-                title={String(t('socialCampaignFactory.chooseStyleLabel'))}
-                stylesData={AD_STYLES as any}
+                title="Choose a Visual Style"
+                stylesData={AD_STYLES}
                 selectedStyleId={selectedStyleId}
                 onStyleSelect={setSelectedStyleId}
             />
              <div className="flex justify-center pt-4">
                 <button onClick={handleGenerateConcepts} disabled={isLoading} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
-                    {t('socialCampaignFactory.generateConceptsButton')}
+                    Generate Post Concepts
                 </button>
             </div>
         </div>
@@ -418,15 +450,14 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
 
     const renderInputStep = () => (
         <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-2 text-white">{t('socialCampaignFactory.title')}</h2>
-            <p className="text-slate-400 text-center mb-10">{t('socialCampaignFactory.subtitle')}</p>
+            <h2 className="text-3xl font-bold text-center mb-2 text-white">AI Social Media Content Factory</h2>
+            <p className="text-slate-400 text-center mb-10">Generate a full campaign, a single post, or content based on real-time trends.</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-8 p-1 bg-slate-800/50 rounded-lg border border-slate-700">
                 {[
-                    // FIX: Explicitly cast t() to String to resolve persistent type errors for data-tooltip.
-                    { key: 'campaign', icon: HiBuildingStorefront, label: t('socialCampaignFactory.modeCampaign'), desc: String(t('socialCampaignFactory.modeCampaignDesc')) },
-                    { key: 'single', icon: HiRectangleStack, label: t('socialCampaignFactory.modeSingle'), desc: String(t('socialCampaignFactory.modeSingleDesc')) },
-                    { key: 'trend', icon: HiOutlineArrowTrendingUp, label: t('socialCampaignFactory.modeTrend'), desc: String(t('socialCampaignFactory.modeTrendDesc')) },
+                    { key: 'campaign', icon: HiBuildingStorefront, label: "Campaign Mode", desc: "Generate a full campaign for 7+ platforms from a single topic." },
+                    { key: 'single', icon: HiRectangleStack, label: "Single Post Mode", desc: "Create a tailored image and caption for one specific social media platform." },
+                    { key: 'trend', icon: HiOutlineArrowTrendingUp, label: "Trend-Based Mode", desc: "Find trending topics based on a keyword and generate a relevant post." },
                 ].map(({key, icon: Icon, label, desc}) => (
                     <button key={key} onClick={() => { setMode(key as GenerationMode); setStep('input'); setSelectedTrend(''); }} className={`flex flex-col text-center items-center justify-center gap-1 p-3 text-sm font-semibold rounded-md transition-colors ${mode === key ? 'bg-primary-gradient text-white shadow-lg' : 'text-slate-300 hover:bg-slate-700'}`} data-tooltip={desc || ''}>
                        <Icon className="w-6 h-6 mb-1" /> {label}
@@ -443,14 +474,14 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                     <h3 className="text-xl font-bold text-white">2. Personalization & Style (Optional)</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="font-semibold text-slate-300">{t('socialCampaignFactory.creatorNameLabel')}</label>
-                            <input value={creatorName} onChange={(e) => setCreatorName(e.target.value)} placeholder={t('socialCampaignFactory.creatorNamePlaceholder') || ''} className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                            <label className="font-semibold text-slate-300">Name of Person/Leader</label>
+                            <input value={creatorName} onChange={(e) => setCreatorName(e.target.value)} placeholder="e.g., 'Narendra Modi', 'Your Name'" className="w-full mt-2 p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                         </div>
                         <div>
-                             <label className="font-semibold text-slate-300">{t('socialCampaignFactory.headshotsLabel')}</label>
+                             <label className="font-semibold text-slate-300">Headshots for Images</label>
                              <div className={`mt-2 p-2 border-2 border-dashed rounded-xl text-center ${headshot ? 'border-green-500/50' : 'border-slate-700 hover:border-slate-600'}`}>
                                 <input type="file" id="headshot-upload" className="hidden" onChange={(e) => handleFileChange(e, 'headshot')} />
-                                <label htmlFor="headshot-upload" className="cursor-pointer text-xs">{headshot ? headshot.name : t('socialCampaignFactory.uploadHeadshots')}</label>
+                                <label htmlFor="headshot-upload" className="cursor-pointer text-xs">{headshot ? headshot.name : "Upload Headshots (up to 5)"}</label>
                              </div>
                         </div>
                     </div>
@@ -466,14 +497,14 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                 <div className="absolute inset-0 border-4 border-t-purple-400 rounded-full animate-spin"></div>
             </div>
             <h2 className="text-3xl font-bold mt-8 text-white">{loadingMessage}</h2>
-            <p className="text-slate-400 mt-2">{t('common.generatingMessage')}</p>
+            <p className="text-slate-400 mt-2">This can take up to a minute. Please don't close the window.</p>
         </div>
     );
 
     const renderTrendSelectionStep = () => (
         <div className="max-w-3xl mx-auto animate-fade-in">
-            <h2 className="text-3xl font-bold text-center mb-2 text-white">{t('socialCampaignFactory.selectTrendLabel')}</h2>
-            <p className="text-slate-400 text-center mb-10">{t('socialCampaignFactory.selectTrendDesc')}</p>
+            <h2 className="text-3xl font-bold text-center mb-2 text-white">Select a Trending Topic</h2>
+            <p className="text-slate-400 text-center mb-10">Choose one of the current trending topics below to create a post about.</p>
             {foundTrends.length > 0 ? (
                 <div className="space-y-4">
                     {foundTrends.map((trend, index) => (
@@ -483,11 +514,11 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                     ))}
                 </div>
             ) : (
-                <p className="text-slate-500 text-center">{t('socialCampaignFactory.noTrendsFound')}</p>
+                <p className="text-slate-500 text-center">No relevant trends found. Please try a different keyword.</p>
             )}
             <div className="flex justify-center mt-10">
                 <button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
-                    <HiArrowLeft className="w-5 h-5" /> {t('common.back')}
+                    <HiArrowLeft className="w-5 h-5" /> Back
                 </button>
             </div>
         </div>
@@ -495,8 +526,8 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
 
     const renderConceptSelectionStep = () => (
         <div className="max-w-7xl mx-auto animate-fade-in">
-            <h2 className="text-3xl font-bold text-center mb-2 text-white">{t('common.chooseConceptTitle')}</h2>
-            <p className="text-slate-400 text-center mb-10">{t('common.chooseConceptSubtitle')}</p>
+            <h2 className="text-3xl font-bold text-center mb-2 text-white">Choose Your Concept</h2>
+            <p className="text-slate-400 text-center mb-10">Select a concept below to generate your final creation.</p>
             <div className="grid md:grid-cols-3 gap-6">
                 {generatedConcepts.map((concept, index) => (
                     <div 
@@ -505,18 +536,18 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                         className={`relative p-6 rounded-xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between ${concept.isRecommended ? 'border-amber-400 bg-slate-800/50' : 'border-slate-800 bg-slate-900/70 hover:border-slate-700 hover:-translate-y-1'}`}
                     >
                         <div>
-                            {concept.isRecommended && (<div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2"><span className="px-3 py-1 text-xs font-semibold tracking-wider text-slate-900 uppercase bg-amber-400 rounded-full">{t('common.recommended')}</span></div>)}
+                            {concept.isRecommended && (<div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2"><span className="px-3 py-1 text-xs font-semibold tracking-wider text-slate-900 uppercase bg-amber-400 rounded-full">Recommended</span></div>)}
                             <h3 className="font-bold text-white mb-3 mt-3">Concept {index + 1}</h3>
                             <p className="text-slate-300 text-sm mb-4"><strong>Visual:</strong> {concept.prompt}</p>
                             <p className="text-slate-300 text-sm mb-4"><strong>Caption:</strong> {concept.caption}</p>
-                            {concept.reason && (<div className="mt-4 pt-4 border-t border-slate-700/50"><p className="text-xs text-amber-300/80 italic"><span className="font-bold not-italic">{t('common.reason')}:</span> {concept.reason}</p></div>)}
+                            {concept.reason && (<div className="mt-4 pt-4 border-t border-slate-700/50"><p className="text-xs text-amber-300/80 italic"><span className="font-bold not-italic">Reason:</span> {concept.reason}</p></div>)}
                         </div>
                     </div>
                 ))}
             </div>
             <div className="flex justify-center mt-10">
                 <button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
-                    <HiArrowLeft className="w-5 h-5" /> {t('common.backToSettings')}
+                    <HiArrowLeft className="w-5 h-5" /> Back to Settings
                 </button>
             </div>
         </div>
@@ -526,14 +557,16 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         if (mode === 'campaign' && campaignResult) {
             return (
                 <div className="max-w-7xl mx-auto animate-fade-in">
-                    <h2 className="text-3xl font-bold text-center mb-2 text-white">{t('socialCampaignFactory.resultsTitle')}</h2>
-                    <p className="text-slate-400 text-center mb-10">{t('socialCampaignFactory.resultsSubtitle')}</p>
+                    <h2 className="text-3xl font-bold text-center mb-2 text-white">Your AI-Generated Social Media Campaign</h2>
+                    <p className="text-slate-400 text-center mb-10">Here is tailored content for each platform. Click to generate visuals.</p>
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                         {Object.entries(campaignResult).map(([platform, content]) => {
                             const Icon = platformIcons[platform];
                             const platformName = platform.replace('_', ' ');
                             const imageData = generatedImages[platform];
                             const videoData = generatedVideos[platform];
+                            const isFacebook = platform === 'Facebook';
+                            const postStatus = platformPostStatus[platform] || 'idle';
                             return (
                                 <div key={platform} className="p-4 bg-slate-900/60 border border-slate-700/50 rounded-xl flex flex-col">
                                     <div className="flex items-center gap-3 mb-3">
@@ -546,7 +579,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                                         {content.caption && <p className="whitespace-pre-wrap">{content.caption}</p>}
                                         {content.text_post && <p className="whitespace-pre-wrap">{content.text_post}</p>}
                                         {content.hashtags && <p className="text-sky-400">{content.hashtags.join(' ')}</p>}
-                                        {content.call_to_action && <p><strong>{t('socialCampaignFactory.cta')}:</strong> {content.call_to_action}</p>}
+                                        {content.call_to_action && <p><strong>Call to Action:</strong> {content.call_to_action}</p>}
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
                                         {imageData?.loading ? (
@@ -555,14 +588,14 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                                             <div>
                                                 <img src={`data:image/png;base64,${imageData.base64}`} alt={`${platform} visual`} className="rounded-lg w-full" />
                                                 <div className="flex gap-2 mt-2">
-                                                    <a href={`data:image/png;base64,${imageData.base64}`} download={`${platform}-image.png`} className="flex-1 text-center px-2 py-1 text-xs bg-slate-700 rounded-md hover:bg-slate-600">{t('common.download')}</a>
-                                                    <button onClick={() => handleSaveImage(platform, content.image_suggestion || '')} disabled={imageData.saved} className="flex-1 text-center px-2 py-1 text-xs bg-slate-700 rounded-md hover:bg-slate-600 disabled:opacity-50">{imageData.saved ? t('common.saved') : t('socialCampaignFactory.saveCreation')}</button>
+                                                    <a href={`data:image/png;base64,${imageData.base64}`} download={`${platform}-image.png`} className="flex-1 text-center px-2 py-1 text-xs bg-slate-700 rounded-md hover:bg-slate-600">Download</a>
+                                                    <button onClick={() => handleSaveImage(platform, content.image_suggestion || '')} disabled={imageData.saved} className="flex-1 text-center px-2 py-1 text-xs bg-slate-700 rounded-md hover:bg-slate-600 disabled:opacity-50">{imageData.saved ? "Saved!" : "Like & Save Image"}</button>
                                                 </div>
                                             </div>
                                         ) : (
                                             content.image_suggestion && (
                                                 <button onClick={() => handleGenerateImage(platform, content.image_suggestion!)} className="w-full flex items-center justify-center gap-2 p-2 text-sm bg-purple-600/20 text-purple-300 rounded-lg hover:bg-purple-600/30">
-                                                    <HiOutlinePhoto /> {t('socialCampaignFactory.generateImage')}
+                                                    <HiOutlinePhoto /> Generate Image
                                                 </button>
                                             )
                                         )}
@@ -575,24 +608,49 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                                             <div>
                                                 <video src={videoData.url} controls className="rounded-lg w-full"></video>
                                                 <div className="flex gap-2 mt-2">
-                                                     <a href={videoData.url} download={`${platform}-video.mp4`} className="flex-1 text-center px-2 py-1 text-xs bg-slate-700 rounded-md hover:bg-slate-600">{t('socialCampaignFactory.downloadVideo')}</a>
-                                                    <button onClick={() => handleSaveVideo(platform)} disabled={videoData.saved} className="flex-1 text-center px-2 py-1 text-xs bg-slate-700 rounded-md hover:bg-slate-600 disabled:opacity-50">{videoData.saved ? t('common.saved') : t('socialCampaignFactory.saveVideo')}</button>
+                                                     <a href={videoData.url} download={`${platform}-video.mp4`} className="flex-1 text-center px-2 py-1 text-xs bg-slate-700 rounded-md hover:bg-slate-600">Download Video</a>
+                                                    <button onClick={() => handleSaveVideo(platform)} disabled={videoData.saved} className="flex-1 text-center px-2 py-1 text-xs bg-slate-700 rounded-md hover:bg-slate-600 disabled:opacity-50">{videoData.saved ? "Saved!" : "Like & Save Video"}</button>
                                                 </div>
                                             </div>
                                         ) : (
                                             content.video_suggestion && content.video_suggestion !== "N/A" && (
                                                  <button onClick={() => handleOpenScriptModal(platform, content.video_script, content.video_suggestion)} className="w-full flex items-center justify-center gap-2 p-2 text-sm bg-rose-600/20 text-rose-300 rounded-lg hover:bg-rose-600/30">
-                                                    <HiOutlineVideoCamera /> {t('socialCampaignFactory.generateVideo')}
+                                                    <HiOutlineVideoCamera /> Generate Video
                                                 </button>
                                             )
+                                        )}
+                                         {isFacebook && (
+                                            <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
+                                                <p className="text-xs text-slate-400">To post directly, provide your Page details. <a href="https://developers.facebook.com/docs/graph-api/get-started" target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:underline">Learn more</a></p>
+                                                <input type="text" placeholder="Facebook Page ID" value={facebookPageId} onChange={(e) => setFacebookPageId(e.target.value)} className="w-full p-2 text-xs bg-slate-800 border border-slate-700 rounded-md" />
+                                                <input type="password" placeholder="Page Access Token" value={facebookAccessToken} onChange={(e) => setFacebookAccessToken(e.target.value)} className="w-full p-2 text-xs bg-slate-800 border border-slate-700 rounded-md" />
+                                            </div>
                                         )}
                                     </div>
                                     <div className="mt-2 flex gap-2">
                                         <button onClick={() => handleCopyPost(platform, content)} className="flex-1 flex items-center justify-center gap-2 p-2 text-sm bg-slate-700/50 rounded-lg hover:bg-slate-700">
-                                            {copiedPlatform === platform ? <HiCheck className="text-green-400"/> : <HiClipboardDocument />} {copiedPlatform === platform ? t('common.copied') : t('socialCampaignFactory.copyPost')}
+                                            {copiedPlatform === platform ? <HiCheck className="text-green-400"/> : <HiClipboardDocument />} {copiedPlatform === platform ? "Copied!" : "Copy Post"}
                                         </button>
-                                        <button disabled className="flex-1 flex items-center justify-center gap-2 p-2 text-sm bg-slate-700/50 rounded-lg disabled:opacity-50 cursor-not-allowed">
-                                            <HiOutlineShare /> {t('socialCampaignFactory.postToPlatform', {platform: platformName})}
+                                         <button 
+                                            onClick={() => isFacebook ? handlePostToFacebook(platform, content) : null}
+                                            disabled={!isFacebook || postStatus !== 'idle' || !generatedImages[platform]?.base64} 
+                                            className={`flex-1 flex items-center justify-center gap-2 p-2 text-sm rounded-lg transition-colors
+                                                ${postStatus === 'posted' ? 'bg-green-500/20 text-green-400' : 'bg-slate-700/50'}
+                                                ${postStatus === 'idle' && isFacebook && generatedImages[platform]?.base64 ? 'hover:bg-slate-700' : ''}
+                                                ${!isFacebook || (!generatedImages[platform]?.base64 && postStatus === 'idle') ? 'opacity-50 cursor-not-allowed' : ''}
+                                            `}
+                                        >
+                                            {postStatus === 'posting' && <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>}
+                                            {postStatus === 'posted' && <HiCheckCircle className="w-5 h-5"/>}
+                                            {postStatus === 'idle' && <HiOutlineShare />}
+                                            {postStatus === 'error' && <HiXMark className="w-5 h-5 text-red-400"/>}
+
+                                            <span>
+                                                {postStatus === 'idle' && `Post to ${platformName}`}
+                                                {postStatus === 'posting' && 'Posting...'}
+                                                {postStatus === 'posted' && 'Posted!'}
+                                                {postStatus === 'error' && 'Error'}
+                                            </span>
                                         </button>
                                     </div>
                                 </div>
@@ -601,7 +659,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                     </div>
                     <div className="flex justify-center mt-10">
                         <button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
-                            <HiArrowLeft className="w-5 h-5" /> {t('common.backToSettings')}
+                            <HiArrowLeft className="w-5 h-5" /> Back to Settings
                         </button>
                     </div>
                 </div>
@@ -625,16 +683,16 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
 
                     <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4 mt-8">
                         <button onClick={() => setStep('input')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 border border-slate-700">
-                            <HiArrowLeft /> {t('common.backToSettings')}
+                            <HiArrowLeft /> Back to Settings
                         </button>
                         <button onClick={() => setStep('conceptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 border border-slate-700">
-                           <HiOutlineLightBulb/> {t('common.backToConcepts')}
+                           <HiOutlineLightBulb/> Back to Concepts
                         </button>
                         <button onClick={handleSaveFinalPost} disabled={isFinalPostSaved || !session} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 border border-slate-700 disabled:opacity-60">
-                           <HiOutlineHeart className={isFinalPostSaved ? 'text-pink-500' : ''} /> {isFinalPostSaved ? t('common.saved') : t('common.likeAndSave')}
+                           <HiOutlineHeart className={isFinalPostSaved ? 'text-pink-500' : ''} /> {isFinalPostSaved ? "Saved!" : "Like & Save Creation"}
                         </button>
                         <a href={`data:image/png;base64,${finalGeneratedPost}`} download="dreampixel-social-post.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90">
-                           <HiArrowDownTray /> {t('common.download')}
+                           <HiArrowDownTray /> Download
                         </a>
                     </div>
                 </div>
@@ -650,13 +708,13 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
             <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" onClick={() => setIsScriptModalOpen(false)}>
                 <div className="bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
                     <header className="flex items-center justify-between p-4 border-b border-slate-800">
-                        <h2 className="text-lg font-bold text-white">{t('socialCampaignFactory.editVideoScriptTitle')}</h2>
-                        <button onClick={() => setIsScriptModalOpen(false)} className="text-slate-500 hover:text-white"><HiOutlineXMark className="w-6 h-6"/></button>
+                        <h2 className="text-lg font-bold text-white">Edit Video Script</h2>
+                        <button onClick={() => setIsScriptModalOpen(false)} className="text-slate-500 hover:text-white"><HiXMark className="w-6 h-6"/></button>
                     </header>
                     <main className="p-6 space-y-4">
-                        <p className="text-sm text-slate-400">{t('socialCampaignFactory.editVideoScriptDesc')}</p>
+                        <p className="text-sm text-slate-400">Review and edit the AI-generated script before creating your video.</p>
                         <div>
-                             <label htmlFor="script-textarea" className="font-semibold text-slate-300">{t('socialCampaignFactory.scriptLabel')}</label>
+                             <label htmlFor="script-textarea" className="font-semibold text-slate-300">Video Script / Voiceover</label>
                             <textarea
                                 id="script-textarea"
                                 value={currentScriptData.script}
@@ -668,7 +726,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                     </main>
                     <footer className="flex justify-end p-4 bg-slate-950/30 border-t border-slate-800">
                         <button onClick={handleGenerateVideoWithScript} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary-gradient text-white rounded-lg hover:opacity-90">
-                           <HiOutlineVideoCamera /> {t('socialCampaignFactory.generateWithScript')}
+                           <HiOutlineVideoCamera /> Generate Video with this Script
                         </button>
                     </footer>
                 </div>

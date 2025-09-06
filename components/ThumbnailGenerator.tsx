@@ -18,7 +18,7 @@ interface ThumbnailGeneratorProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
-const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome, onThumbnailGenerated, onGenerating }) => {
+export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome, onThumbnailGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [headshots, setHeadshots] = useState<UploadedFile[]>([]);
@@ -67,7 +67,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
         setIsSaved(false);
     };
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const files = Array.from(event.target.files).slice(0, 5 - headshots.length);
             files.forEach(file => {
@@ -86,7 +86,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
             // Reset file input to allow re-uploading the same file
             event.target.value = '';
         }
-    };
+    }, [headshots.length]);
     
     const removeHeadshot = (index: number) => {
         setHeadshots(prev => prev.filter((_, i) => i !== index));
@@ -312,7 +312,7 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
             <StyleSelector
                 title="3. Choose a Creator Style"
                 tooltip="Select a creator whose style you admire. This choice heavily influences the mood, color, and composition of the generated thumbnail concepts."
-                stylesData={CREATOR_STYLES as any}
+                stylesData={CREATOR_STYLES}
                 selectedStyleId={selectedStyleId}
                 onStyleSelect={setSelectedStyleId}
             />
@@ -465,5 +465,3 @@ const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNavigateHome,
         </div>
     );
 };
-
-export default ThumbnailGenerator;

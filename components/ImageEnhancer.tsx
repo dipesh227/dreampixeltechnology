@@ -6,6 +6,7 @@ import * as jobService from '../services/jobService';
 import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiArrowLeft, HiOutlineArrowPath, HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
+import { resizeImage } from '../utils/cropImage';
 
 interface ImageEnhancerProps {
     onNavigateHome: () => void;
@@ -13,7 +14,7 @@ interface ImageEnhancerProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
-const ImageEnhancer: React.FC<ImageEnhancerProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
+export const ImageEnhancer: React.FC<ImageEnhancerProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [originalImage, setOriginalImage] = useState<UploadedFile | null>(null);
     const [enhancedImage, setEnhancedImage] = useState<string | null>(null);
@@ -51,18 +52,20 @@ const ImageEnhancer: React.FC<ImageEnhancerProps> = ({ onNavigateHome, onCreatio
         return () => clearInterval(interval);
     }, [isLoading]);
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
             const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                const base64 = (reader.result as string).split(',')[1];
-                setOriginalImage({ base64, mimeType: file.type, name: file.name });
+            try {
+                // Enhancer can handle larger images, but we still cap it to prevent browser issues.
+                const resizedImage = await resizeImage(file, 4096);
+                setOriginalImage(resizedImage);
                 setEnhancedImage(null);
                 setError(null);
                 setIsSaved(false);
-            };
-            reader.readAsDataURL(file);
+            } catch (error) {
+                console.error("Error processing image:", error);
+                setError("Failed to process image. Please try a different file.");
+            }
             event.target.value = '';
         }
     };
@@ -291,5 +294,3 @@ const ImageEnhancer: React.FC<ImageEnhancerProps> = ({ onNavigateHome, onCreatio
         </div>
     );
 };
-
-export default ImageEnhancer;

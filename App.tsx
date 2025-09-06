@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import LandingPage from './components/LandingPage';
 import Header from './components/Header';
 import { ToolType, ValidationStatus, ConnectedAccount } from './types';
@@ -10,21 +10,28 @@ import * as aiService from './services/aiService';
 import MouseTrail from './components/MouseTrail';
 import { useAuth } from './context/AuthContext';
 import { checkDatabaseConnection } from './services/supabaseClient';
-import { useLocalization } from './hooks/useLocalization';
 
-// Eager load components to fix potential module resolution issues with lazy loading.
-import ThumbnailGenerator from './components/ThumbnailGenerator';
-import PoliticiansPosterMaker from './components/PoliticiansPosterMaker';
-import AdBannerGenerator from './components/AdBannerGenerator';
-import ProfileImageGenerator from './components/ProfileImageGenerator';
-import LogoGenerator from './components/LogoGenerator';
-import ImageEnhancer from './components/ImageEnhancer';
-import HeadshotMaker from './components/HeadshotMaker';
-import PassportPhotoMaker from './components/PassportPhotoMaker';
-import VisitingCardMaker from './components/VisitingCardMaker';
-import EventPosterMaker from './components/EventPosterMaker';
-// FIX: Changed to a named import as SocialMediaCampaignFactory is a named export.
-import { SocialMediaCampaignFactory } from './components/SocialMediaCampaignFactory';
+// Lazy load components to improve initial page load time. All components use named exports now.
+const ThumbnailGenerator = lazy(() => import('./components/ThumbnailGenerator').then(module => ({ default: module.ThumbnailGenerator })));
+const PoliticiansPosterMaker = lazy(() => import('./components/PoliticiansPosterMaker').then(module => ({ default: module.PoliticiansPosterMaker })));
+const AdBannerGenerator = lazy(() => import('./components/AdBannerGenerator').then(module => ({ default: module.AdBannerGenerator })));
+const ProfileImageGenerator = lazy(() => import('./components/ProfileImageGenerator').then(module => ({ default: module.ProfileImageGenerator })));
+const LogoGenerator = lazy(() => import('./components/LogoGenerator').then(module => ({ default: module.LogoGenerator })));
+const ImageEnhancer = lazy(() => import('./components/ImageEnhancer').then(module => ({ default: module.ImageEnhancer })));
+const HeadshotMaker = lazy(() => import('./components/HeadshotMaker').then(module => ({ default: module.HeadshotMaker })));
+const PassportPhotoMaker = lazy(() => import('./components/PassportPhotoMaker').then(module => ({ default: module.PassportPhotoMaker })));
+const VisitingCardMaker = lazy(() => import('./components/VisitingCardMaker').then(module => ({ default: module.VisitingCardMaker })));
+const EventPosterMaker = lazy(() => import('./components/EventPosterMaker').then(module => ({ default: module.EventPosterMaker })));
+const SocialMediaCampaignFactory = lazy(() => import('./components/SocialMediaCampaignFactory').then(module => ({ default: module.SocialMediaCampaignFactory })));
+
+const ToolLoadingSpinner: React.FC = () => (
+    <div className="flex justify-center items-center py-40">
+        <div className="relative w-24 h-24">
+            <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-t-purple-400 rounded-full animate-spin"></div>
+        </div>
+    </div>
+);
 
 const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');
@@ -39,7 +46,6 @@ const App: React.FC = () => {
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([]);
 
   const { session } = useAuth();
-  const { t, locale } = useLocalization();
 
   // This effect runs ONLY ONCE when the app first loads to check static connections.
   useEffect(() => {
@@ -80,13 +86,25 @@ const App: React.FC = () => {
   }, []); // Empty dependency array ensures this runs only once on mount.
   
   useEffect(() => {
-    const baseTitle = "DreamPixel Technology";
-    const toolTitle = activeTool === 'landing' 
-        ? t('landing.docTitle') 
-        : t(`tools.${activeTool.replace(/-/g, '_')}.title`);
+    const toolTitles: Record<ToolType | 'landing', string> = {
+        landing: 'AI Content Creation Suite',
+        thumbnail: 'YouTube Thumbnail Generator',
+        advertisement: 'Ad Banner Generator',
+        political: 'Politician\'s Poster Maker',
+        profile: 'Profile Picture Generator',
+        logo: 'AI Logo Generator',
+        'image-enhancer': 'AI Image Enhancer',
+        'headshot-maker': 'HQ Headshot Maker',
+        'passport-photo': 'Passport Photo Maker',
+        'visiting-card': 'AI Visiting Card Maker',
+        'event-poster': 'AI Event Poster Maker',
+        'social-campaign': 'AI Social Media Content Factory'
+    };
     
+    const baseTitle = "DreamPixel Technology";
+    const toolTitle = toolTitles[activeTool];
     document.title = `${toolTitle} | ${baseTitle}`;
-  }, [activeTool, t, locale]);
+  }, [activeTool]);
 
   const handleSelectTool = useCallback((tool: ToolType) => {
     setActiveTool(tool);
@@ -161,7 +179,9 @@ const App: React.FC = () => {
         onLogin={handleOpenAuthModal}
       />
       <main className="container mx-auto px-4 py-8">
-        {renderActiveTool()}
+        <Suspense fallback={<ToolLoadingSpinner />}>
+            {renderActiveTool()}
+        </Suspense>
       </main>
       <Footer dbStatus={dbStatus} dbError={dbError} connectedAccounts={connectedAccounts} />
       {isFeedbackOpen && <FeedbackModal onClose={handleCloseFeedback} />}

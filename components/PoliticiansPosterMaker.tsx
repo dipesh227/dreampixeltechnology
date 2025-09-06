@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
 import StyleSelector from './StyleSelector';
+import { resizeImage } from '../utils/cropImage';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -18,7 +19,7 @@ interface PoliticiansPosterMakerProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
-const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavigateHome, onPosterGenerated, onGenerating }) => {
+export const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavigateHome, onPosterGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [headshots, setHeadshots] = useState<UploadedFile[]>([]);
@@ -87,26 +88,21 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
         setIsSaved(false);
     };
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const files = Array.from(event.target.files).slice(0, 5 - headshots.length);
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const base64 = (reader.result as string).split(',')[1];
-                    const newHeadshot: UploadedFile = {
-                        base64,
-                        mimeType: file.type,
-                        name: file.name,
-                    };
-                    setHeadshots(prev => [...prev, newHeadshot].slice(0, 5));
-                };
-                reader.readAsDataURL(file);
-            });
-            // Reset file input to allow re-uploading the same file
+            for (const file of files) {
+                try {
+                    const resizedImage = await resizeImage(file, 1024);
+                    setHeadshots(prev => [...prev, resizedImage].slice(0, 5));
+                } catch (error) {
+                    console.error("Error resizing image:", error);
+                    setError("Failed to process image. Please try a different file.");
+                }
+            }
             event.target.value = '';
         }
-    };
+    }, [headshots.length]);
     
     const removeHeadshot = (index: number) => {
         setHeadshots(prev => prev.filter((_, i) => i !== index));
@@ -379,7 +375,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
             </div>
         </div>
     );
-    
+
     const renderGeneratingStep = () => (
         <div className="text-center py-20 animate-fade-in">
             <div className="relative w-24 h-24 mx-auto">
@@ -408,12 +404,13 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
                     <HiOutlineArrowPath className="w-5 h-5 text-sky-400"/> Regenerate
                  </button>
                  <div className="relative group" title={!session ? 'Please sign in to save creations' : ''}>
-                     <button 
+                    <button 
                         onClick={handleSaveCreation} 
                         disabled={isSaved || !session} 
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-pink">
-                        <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save Poster'}
-                     </button>
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-pink"
+                    >
+                        <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save Creation'}
+                    </button>
                  </div>
                  <a href={`data:image/png;base64,${generatedPoster}`} download="dreampixel-poster.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
                     <HiArrowDownTray className="w-5 h-5"/> Download
@@ -421,7 +418,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
              </div>
         </div>
     );
-
+    
     return (
         <div className="animate-fade-in">
             {isTemplateBrowserOpen && (
@@ -432,7 +429,7 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
                 />
             )}
             <ErrorMessage error={error} />
-
+            
             {step === 'input' && renderInputStep()}
             {(step === 'promptSelection' || step === 'generating' || step === 'result') && (
                 <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
@@ -444,5 +441,3 @@ const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavig
         </div>
     );
 };
-
-export default PoliticiansPosterMaker;

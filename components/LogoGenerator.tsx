@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
 import StyleSelector from './StyleSelector';
+import { resizeImage } from '../utils/cropImage';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -18,7 +19,7 @@ interface LogoGeneratorProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
-const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
+export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [headshot, setHeadshot] = useState<UploadedFile | null>(null);
@@ -66,15 +67,16 @@ const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, onCreatio
         setIsSaved(false);
     };
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
             const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                const base64 = (reader.result as string).split(',')[1];
-                setHeadshot({ base64, mimeType: file.type, name: file.name });
-            };
-            reader.readAsDataURL(file);
+            try {
+                const resizedImage = await resizeImage(file, 1024);
+                setHeadshot(resizedImage);
+            } catch (error) {
+                console.error("Error resizing image:", error);
+                setError("Failed to process image. Please try a different file.");
+            }
             event.target.value = '';
         }
     };
@@ -212,7 +214,7 @@ const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, onCreatio
             <StyleSelector
                 title="3. Choose a Logo Style"
                 tooltip="Select a style to define the visual direction of your logo. This is the most important choice for the final design."
-                stylesData={LOGO_STYLES as any}
+                stylesData={LOGO_STYLES}
                 selectedStyleId={selectedStyleId}
                 onStyleSelect={setSelectedStyleId}
             />
@@ -318,5 +320,3 @@ const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, onCreatio
         </div>
     );
 };
-
-export default LogoGenerator;

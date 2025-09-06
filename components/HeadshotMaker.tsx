@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
 import StyleSelector from './StyleSelector';
+import { resizeImage } from '../utils/cropImage';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -23,7 +24,7 @@ interface HeadshotMakerProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
-const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
+export const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreationGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
     const [originalImages, setOriginalImages] = useState<UploadedFile[]>([]);
@@ -76,14 +77,14 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const files = Array.from(event.target.files).slice(0, 5 - originalImages.length);
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const base64 = (reader.result as string).split(',')[1];
-                    const newImage: UploadedFile = { base64, mimeType: file.type, name: file.name };
-                    setOriginalImages(prev => [...prev, newImage].slice(0, 5));
-                };
-                reader.readAsDataURL(file);
+            files.forEach(async (file) => {
+                try {
+                    const resizedImage = await resizeImage(file, 1024); // Smaller size for headshots
+                    setOriginalImages(prev => [...prev, resizedImage].slice(0, 5));
+                } catch (error) {
+                    console.error("Error resizing image:", error);
+                    setError("Failed to process image. Please try a different file.");
+                }
             });
             event.target.value = '';
         }
@@ -427,5 +428,3 @@ const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, onCreatio
         </div>
     );
 };
-
-export default HeadshotMaker;

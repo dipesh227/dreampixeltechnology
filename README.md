@@ -373,10 +373,10 @@ CREATE TABLE public.trend_post_jobs (
 ALTER TABLE public.trend_post_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own trend post jobs" ON public.trend_post_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- Drop the old social_campaign_jobs table if it exists
+-- Drop the old social_campaign_jobs table if it exists to clean up
 DROP TABLE IF EXISTS public.social_campaign_jobs;
 
--- Create the new social_campaign_jobs table with added language and creator_name columns
+-- Create the new social_campaign_jobs table without the 'language' column
 CREATE TABLE public.social_campaign_jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -384,7 +384,6 @@ CREATE TABLE public.social_campaign_jobs (
   topic TEXT,
   keywords TEXT,
   link TEXT,
-  language TEXT,
   creator_name TEXT,
   target_area TEXT,
   dress_style TEXT,
@@ -394,7 +393,6 @@ CREATE TABLE public.social_campaign_jobs (
 );
 ALTER TABLE public.social_campaign_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own social campaign jobs" ON public.social_campaign_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
-
 ```
 </details>
 
@@ -588,7 +586,6 @@ CREATE TABLE public.social_campaign_jobs (
   topic TEXT,
   keywords TEXT,
   link TEXT,
-  language TEXT,
   creator_name TEXT,
   target_area TEXT,
   dress_style TEXT,
