@@ -249,11 +249,7 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
                     </div>
                 ))}
             </div>
-            <div className="flex justify-center mt-10">
-                <button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
-                    <HiArrowLeft className="w-5 h-5" /> Back
-                </button>
-            </div>
+            <div className="flex justify-center mt-10"><button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect"><HiArrowLeft className="w-5 h-5" /> Back</button></div>
         </div>
     );
     
@@ -273,7 +269,7 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
              <h2 className="text-3xl font-bold text-center mb-8 text-white">Your Logo is Ready!</h2>
              {generatedImage && (
                 <div className="bg-white p-8 inline-block rounded-xl">
-                    <img src={`data:image/png;base64,${generatedImage}`} alt="Generated Logo" className="w-64 h-64 object-contain mx-auto shadow-2xl shadow-black/30 mb-8" />
+                    <img src={`data:image/png;base64,${generatedImage}`} alt="Generated Logo" className="w-64 h-64 object-contain mx-auto shadow-2xl shadow-black/30" />
                 </div>
              )}
              <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4 mt-8">
@@ -308,15 +304,12 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
                 />
             )}
             <ErrorMessage error={error} />
-            
-            {step === 'input' && renderInputStep()}
-            {(step === 'promptSelection' || step === 'generating' || step === 'result') && (
-                <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
-                    {step === 'promptSelection' && renderPromptSelectionStep()}
-                    {step === 'generating' && renderGeneratingStep()}
-                    {step === 'result' && renderResultStep()}
-                </div>
-            )}
+            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
+                {step === 'input' && renderInputStep()}
+                {step === 'promptSelection' && renderPromptSelectionStep()}
+                {step === 'generating' && renderGeneratingStep()}
+                {step === 'result' && renderResultStep()}
+            </div>
         </div>
     );
 };

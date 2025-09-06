@@ -41,23 +41,6 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
         onGenerating(isLoading);
     }, [isLoading, onGenerating]);
 
-    const resetState = useCallback(() => {
-        setStep('input');
-        setHeadshots([]);
-        setDescription('');
-        setThumbnailText('');
-        setBrandDetails('');
-        setSelectedStyleId(CREATOR_STYLES[Object.keys(CREATOR_STYLES)[0]][0].id);
-        setAspectRatio('16:9');
-        setGeneratedPrompts([]);
-        setFinalPrompt('');
-        setGeneratedThumbnail(null);
-        setError(null);
-        setIsLoading(false);
-        setLoadingMessage('');
-        setIsSaved(false);
-    }, []);
-
     const handleBackToSettings = () => {
         setStep('input');
         setGeneratedPrompts([]);
@@ -83,7 +66,6 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
                 };
                 reader.readAsDataURL(file);
             });
-            // Reset file input to allow re-uploading the same file
             event.target.value = '';
         }
     }, [headshots.length]);
@@ -98,7 +80,6 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
             return;
         }
 
-        // Log the job before starting generation
         if (session) {
             jobService.saveThumbnailJob({
                 userId: session.user.id,
@@ -220,6 +201,11 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
         return () => clearInterval(interval);
     }, [isLoading, step]);
 
+    const handleCopyPrompt = (prompt: string) => {
+        navigator.clipboard.writeText(prompt);
+        setCopiedPrompt(prompt);
+        setTimeout(() => setCopiedPrompt(null), 2000);
+    };
 
     const renderInputStep = () => (
         <div className="space-y-8">
@@ -342,12 +328,6 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
         </div>
     );
     
-    const handleCopyPrompt = (prompt: string) => {
-        navigator.clipboard.writeText(prompt);
-        setCopiedPrompt(prompt);
-        setTimeout(() => setCopiedPrompt(null), 2000);
-    };
-
     const renderPromptSelectionStep = () => (
         <div className="max-w-7xl mx-auto animate-fade-in">
             <h2 className="text-3xl font-bold text-center mb-2 text-white">Choose Your Thumbnail Style</h2>
@@ -453,15 +433,12 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
                 />
             )}
             <ErrorMessage error={error} />
-            
-            {step === 'input' && renderInputStep()}
-            {(step === 'promptSelection' || step === 'generating' || step === 'result') && (
-                <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
-                    {step === 'promptSelection' && renderPromptSelectionStep()}
-                    {step === 'generating' && renderGeneratingStep()}
-                    {step === 'result' && renderResultStep()}
-                </div>
-            )}
+            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
+                {step === 'input' && renderInputStep()}
+                {step === 'promptSelection' && renderPromptSelectionStep()}
+                {step === 'generating' && renderGeneratingStep()}
+                {step === 'result' && renderResultStep()}
+            </div>
         </div>
     );
 };

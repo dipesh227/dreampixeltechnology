@@ -4,7 +4,7 @@ import { generatePassportPhoto, enhanceImage } from '../services/aiService';
 import { PASSPORT_PHOTO_STYLES, PASSPORT_PHOTO_SIZES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
-import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiArrowLeft, HiOutlinePrinter, HiOutlinePhoto } from 'react-icons/hi2';
+import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiArrowLeft, HiOutlinePrinter } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import { resizeImage } from '../utils/cropImage';
@@ -99,7 +99,7 @@ export const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNaviga
         });
 
         let photosDrawn = 0;
-        const PADDING = 0.1 * DPI; // 0.1 inch padding
+        const PADDING = 0.1 * DPI;
 
         for (let y = PADDING; y < canvas.height - photoHeightPx && photosDrawn < count; y += photoHeightPx + PADDING) {
             for (let x = PADDING; x < canvas.width - photoWidthPx && photosDrawn < count; x += photoWidthPx + PADDING) {
@@ -283,7 +283,7 @@ export const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNaviga
             return null;
         }
         
-        const photoWidthPx = (size.widthMM / 25.4) * 96; // 96 DPI for screen
+        const photoWidthPx = (size.widthMM / 25.4) * 96;
         const photoHeightPx = (size.heightMM / 25.4) * 96;
         
         return (

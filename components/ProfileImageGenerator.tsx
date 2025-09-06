@@ -328,15 +328,12 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
                 />
             )}
             <ErrorMessage error={error} />
-            
-            {step === 'input' && renderInputStep()}
-            {(step === 'promptSelection' || step === 'generating' || step === 'result') && (
-                <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
-                    {step === 'promptSelection' && renderPromptSelectionStep()}
-                    {step === 'generating' && renderGeneratingStep()}
-                    {step === 'result' && renderResultStep()}
-                </div>
-            )}
+            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
+                {step === 'input' && renderInputStep()}
+                {step === 'promptSelection' && renderPromptSelectionStep()}
+                {step === 'generating' && renderGeneratingStep()}
+                {step === 'result' && renderResultStep()}
+            </div>
         </div>
     );
 };

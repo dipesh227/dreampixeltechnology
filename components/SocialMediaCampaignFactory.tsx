@@ -112,6 +112,16 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         }
     };
     
+    const handleBackToSettings = () => {
+        setStep('input');
+        // Reset single/trend mode state
+        setGeneratedConcepts([]);
+        setFinalPrompt('');
+        setFinalCaption('');
+        setFinalGeneratedPost(null);
+        setIsFinalPostSaved(false);
+    };
+
     // --- API CALL HANDLERS ---
     const handleGenerateCampaign = async () => {
         if (!topic.trim()) {
@@ -172,7 +182,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         
         if(session) {
             if (mode === 'single') {
-                jobService.saveSocialPostJob({ userId: session.user.id, topic, platform: platform, tone, callToAction, styleId: selectedStyleId, aspectRatio });
+                jobService.saveSocialPostJob({ userId: session.user.id, topic, platform: String(platform), tone, callToAction, styleId: selectedStyleId, aspectRatio });
             } else if (mode === 'trend') {
                 jobService.saveTrendPostJob({ userId: session.user.id, baseKeyword, selectedTrend, styleId: selectedStyleId, aspectRatio });
             }
@@ -183,8 +193,8 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         setLoadingMessage("Crafting concepts...");
         try {
             const concepts = mode === 'trend'
-                ? await generateTrendPostConcepts(selectedTrend, platform, selectedStyle)
-                : await generateSocialPostConcepts(topic, platform, tone, selectedStyle, callToAction);
+                ? await generateTrendPostConcepts(selectedTrend, String(platform), selectedStyle)
+                : await generateSocialPostConcepts(topic, String(platform), tone, selectedStyle, callToAction);
             
             setGeneratedConcepts(concepts);
             setStep('conceptSelection');
@@ -261,6 +271,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         }, 8000);
 
         try {
+            // FIX: Removed invalid backslash from template literal
             const finalVideoPrompt = `Video Concept: "${suggestion}". The required voiceover script is: "${script}".`;
             const videoUrl = await generateSocialVideo(finalVideoPrompt);
             if (videoUrl) {
@@ -276,10 +287,10 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         }
     };
     
-    // --- UI & STATE HANDLERS ---
     const handleSaveImage = async (platform: string, imagePrompt: string) => {
         const imageData = generatedImages[platform];
         if (imageData?.base64 && !imageData.saved && session) {
+            // FIX: Removed invalid backslashes from template literals
             const newEntry = { id: '', prompt: `Campaign: ${topic} - ${platform} Visual: ${imagePrompt}`, imageUrl: `data:image/png;base64,${imageData.base64}`, timestamp: Date.now() };
             try {
                 await historyService.saveCreation(newEntry, session.user.id);
@@ -349,6 +360,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
             
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred while posting to Facebook.';
+            // FIX: Removed invalid backslash from template literal
             setError(`Facebook Post Failed: ${errorMessage}. Please check your Page ID, Access Token and permissions.`);
             setPlatformPostStatus(prev => ({ ...prev, [platform]: 'error' }));
             setTimeout(() => {
@@ -481,7 +493,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                              <label className="font-semibold text-slate-300">Headshots for Images</label>
                              <div className={`mt-2 p-2 border-2 border-dashed rounded-xl text-center ${headshot ? 'border-green-500/50' : 'border-slate-700 hover:border-slate-600'}`}>
                                 <input type="file" id="headshot-upload" className="hidden" onChange={(e) => handleFileChange(e, 'headshot')} />
-                                <label htmlFor="headshot-upload" className="cursor-pointer text-xs">{headshot ? headshot.name : "Upload Headshots (up to 5)"}</label>
+                                <label htmlFor="headshot-upload" className="cursor-pointer text-xs">{headshot ? headshot.name : "Upload Headshot"}</label>
                              </div>
                         </div>
                     </div>
@@ -506,17 +518,17 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
             <h2 className="text-3xl font-bold text-center mb-2 text-white">Select a Trending Topic</h2>
             <p className="text-slate-400 text-center mb-10">Choose one of the current trending topics below to create a post about.</p>
             {foundTrends.length > 0 ? (
-                <div className="space-y-4">
+                 <div className="space-y-4">
                     {foundTrends.map((trend, index) => (
-                        <button key={index} onClick={() => handleSelectTrend(trend)} className="w-full p-4 text-left bg-slate-800/50 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors">
+                        <button key={index} onClick={() => handleSelectTrend(trend)} className="w-full p-4 bg-slate-800/50 border border-slate-700 rounded-lg text-left hover:bg-slate-700 transition-colors">
                             <p className="font-semibold text-white">{trend}</p>
                         </button>
                     ))}
                 </div>
             ) : (
-                <p className="text-slate-500 text-center">No relevant trends found. Please try a different keyword.</p>
+                <p className="text-center text-slate-500">No specific trends found. Try a broader keyword.</p>
             )}
-            <div className="flex justify-center mt-10">
+             <div className="flex justify-center mt-10">
                 <button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
                     <HiArrowLeft className="w-5 h-5" /> Back
                 </button>
@@ -526,230 +538,211 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
 
     const renderConceptSelectionStep = () => (
         <div className="max-w-7xl mx-auto animate-fade-in">
-            <h2 className="text-3xl font-bold text-center mb-2 text-white">Choose Your Concept</h2>
-            <p className="text-slate-400 text-center mb-10">Select a concept below to generate your final creation.</p>
+            <h2 className="text-3xl font-bold text-center mb-2 text-white">Choose Your Post Concept</h2>
+            <p className="text-slate-400 text-center mb-10">Select a concept below to generate your final post.</p>
             <div className="grid md:grid-cols-3 gap-6">
                 {generatedConcepts.map((concept, index) => (
                     <div 
                         key={index} 
                         onClick={() => handleGenerateFinalPost(concept.prompt, concept.caption || '')}
-                        className={`relative p-6 rounded-xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between ${concept.isRecommended ? 'border-amber-400 bg-slate-800/50' : 'border-slate-800 bg-slate-900/70 hover:border-slate-700 hover:-translate-y-1'}`}
-                    >
+                        // FIX: Removed invalid backslash from template literal
+                        className={`relative p-6 rounded-xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between ${concept.isRecommended ? 'border-amber-400 bg-slate-800/50' : 'border-slate-800 bg-slate-900/70 hover:border-slate-700 hover:-translate-y-1'}`}>
                         <div>
                             {concept.isRecommended && (<div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2"><span className="px-3 py-1 text-xs font-semibold tracking-wider text-slate-900 uppercase bg-amber-400 rounded-full">Recommended</span></div>)}
-                            <h3 className="font-bold text-white mb-3 mt-3">Concept {index + 1}</h3>
-                            <p className="text-slate-300 text-sm mb-4"><strong>Visual:</strong> {concept.prompt}</p>
-                            <p className="text-slate-300 text-sm mb-4"><strong>Caption:</strong> {concept.caption}</p>
-                            {concept.reason && (<div className="mt-4 pt-4 border-t border-slate-700/50"><p className="text-xs text-amber-300/80 italic"><span className="font-bold not-italic">Reason:</span> {concept.reason}</p></div>)}
+                            <h3 className="font-bold text-white mb-3 mt-3">Visual Idea</h3>
+                            <p className="text-slate-400 text-sm mb-3">{concept.prompt}</p>
+                            <h3 className="font-bold text-white mb-2">Caption</h3>
+                            <p className="text-slate-300 text-sm mb-4 whitespace-pre-wrap">{concept.caption}</p>
+                            {concept.isRecommended && concept.reason && (<div className="mt-4 pt-4 border-t border-slate-700/50"><p className="text-xs text-amber-300/80 italic"><span className="font-bold not-italic">Reason:</span> {concept.reason}</p></div>)}
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="flex justify-center mt-10">
-                <button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
-                    <HiArrowLeft className="w-5 h-5" /> Back to Settings
-                </button>
-            </div>
+            <div className="flex justify-center mt-10"><button onClick={() => { setStep('input'); setSelectedTrend(''); }} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect"><HiArrowLeft className="w-5 h-5" /> Back</button></div>
         </div>
     );
-    
-    const renderResultStep = () => {
-        if (mode === 'campaign' && campaignResult) {
-            return (
-                <div className="max-w-7xl mx-auto animate-fade-in">
-                    <h2 className="text-3xl font-bold text-center mb-2 text-white">Your AI-Generated Social Media Campaign</h2>
-                    <p className="text-slate-400 text-center mb-10">Here is tailored content for each platform. Click to generate visuals.</p>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                        {Object.entries(campaignResult).map(([platform, content]) => {
-                            const Icon = platformIcons[platform];
-                            const platformName = platform.replace('_', ' ');
-                            const imageData = generatedImages[platform];
-                            const videoData = generatedVideos[platform];
-                            const isFacebook = platform === 'Facebook';
-                            const postStatus = platformPostStatus[platform] || 'idle';
-                            return (
-                                <div key={platform} className="p-4 bg-slate-900/60 border border-slate-700/50 rounded-xl flex flex-col">
-                                    <div className="flex items-center gap-3 mb-3">
-                                        {Icon && <Icon className="w-6 h-6 text-slate-400" />}
-                                        <h3 className="font-bold text-lg text-white">{platformName}</h3>
-                                    </div>
-                                    <div className="space-y-2 text-sm text-slate-300 flex-grow">
-                                        {content.title && <p><strong>Title:</strong> {content.title}</p>}
-                                        {content.post && <p className="whitespace-pre-wrap">{content.post}</p>}
-                                        {content.caption && <p className="whitespace-pre-wrap">{content.caption}</p>}
-                                        {content.text_post && <p className="whitespace-pre-wrap">{content.text_post}</p>}
-                                        {content.hashtags && <p className="text-sky-400">{content.hashtags.join(' ')}</p>}
-                                        {content.call_to_action && <p><strong>Call to Action:</strong> {content.call_to_action}</p>}
-                                    </div>
-                                    <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
-                                        {imageData?.loading ? (
-                                            <div className="flex items-center justify-center h-48 bg-slate-800 rounded-lg"><div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div></div>
-                                        ) : imageData?.base64 ? (
-                                            <div>
-                                                <img src={`data:image/png;base64,${imageData.base64}`} alt={`${platform} visual`} className="rounded-lg w-full" />
-                                                <div className="flex gap-2 mt-2">
-                                                    <a href={`data:image/png;base64,${imageData.base64}`} download={`${platform}-image.png`} className="flex-1 text-center px-2 py-1 text-xs bg-slate-700 rounded-md hover:bg-slate-600">Download</a>
-                                                    <button onClick={() => handleSaveImage(platform, content.image_suggestion || '')} disabled={imageData.saved} className="flex-1 text-center px-2 py-1 text-xs bg-slate-700 rounded-md hover:bg-slate-600 disabled:opacity-50">{imageData.saved ? "Saved!" : "Like & Save Image"}</button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            content.image_suggestion && (
-                                                <button onClick={() => handleGenerateImage(platform, content.image_suggestion!)} className="w-full flex items-center justify-center gap-2 p-2 text-sm bg-purple-600/20 text-purple-300 rounded-lg hover:bg-purple-600/30">
-                                                    <HiOutlinePhoto /> Generate Image
-                                                </button>
-                                            )
-                                        )}
-                                        {videoData?.loading ? (
-                                            <div className="flex flex-col items-center justify-center h-48 bg-slate-800 rounded-lg">
-                                                <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
-                                                <p className="text-xs mt-2 text-slate-400">{videoData.loadingMessage}</p>
-                                            </div>
-                                        ) : videoData?.url ? (
-                                            <div>
-                                                <video src={videoData.url} controls className="rounded-lg w-full"></video>
-                                                <div className="flex gap-2 mt-2">
-                                                     <a href={videoData.url} download={`${platform}-video.mp4`} className="flex-1 text-center px-2 py-1 text-xs bg-slate-700 rounded-md hover:bg-slate-600">Download Video</a>
-                                                    <button onClick={() => handleSaveVideo(platform)} disabled={videoData.saved} className="flex-1 text-center px-2 py-1 text-xs bg-slate-700 rounded-md hover:bg-slate-600 disabled:opacity-50">{videoData.saved ? "Saved!" : "Like & Save Video"}</button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            content.video_suggestion && content.video_suggestion !== "N/A" && (
-                                                 <button onClick={() => handleOpenScriptModal(platform, content.video_script, content.video_suggestion)} className="w-full flex items-center justify-center gap-2 p-2 text-sm bg-rose-600/20 text-rose-300 rounded-lg hover:bg-rose-600/30">
-                                                    <HiOutlineVideoCamera /> Generate Video
-                                                </button>
-                                            )
-                                        )}
-                                         {isFacebook && (
-                                            <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
-                                                <p className="text-xs text-slate-400">To post directly, provide your Page details. <a href="https://developers.facebook.com/docs/graph-api/get-started" target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:underline">Learn more</a></p>
-                                                <input type="text" placeholder="Facebook Page ID" value={facebookPageId} onChange={(e) => setFacebookPageId(e.target.value)} className="w-full p-2 text-xs bg-slate-800 border border-slate-700 rounded-md" />
-                                                <input type="password" placeholder="Page Access Token" value={facebookAccessToken} onChange={(e) => setFacebookAccessToken(e.target.value)} className="w-full p-2 text-xs bg-slate-800 border border-slate-700 rounded-md" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="mt-2 flex gap-2">
-                                        <button onClick={() => handleCopyPost(platform, content)} className="flex-1 flex items-center justify-center gap-2 p-2 text-sm bg-slate-700/50 rounded-lg hover:bg-slate-700">
-                                            {copiedPlatform === platform ? <HiCheck className="text-green-400"/> : <HiClipboardDocument />} {copiedPlatform === platform ? "Copied!" : "Copy Post"}
-                                        </button>
-                                         <button 
-                                            onClick={() => isFacebook ? handlePostToFacebook(platform, content) : null}
-                                            disabled={!isFacebook || postStatus !== 'idle' || !generatedImages[platform]?.base64} 
-                                            className={`flex-1 flex items-center justify-center gap-2 p-2 text-sm rounded-lg transition-colors
-                                                ${postStatus === 'posted' ? 'bg-green-500/20 text-green-400' : 'bg-slate-700/50'}
-                                                ${postStatus === 'idle' && isFacebook && generatedImages[platform]?.base64 ? 'hover:bg-slate-700' : ''}
-                                                ${!isFacebook || (!generatedImages[platform]?.base64 && postStatus === 'idle') ? 'opacity-50 cursor-not-allowed' : ''}
-                                            `}
-                                        >
-                                            {postStatus === 'posting' && <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>}
-                                            {postStatus === 'posted' && <HiCheckCircle className="w-5 h-5"/>}
-                                            {postStatus === 'idle' && <HiOutlineShare />}
-                                            {postStatus === 'error' && <HiXMark className="w-5 h-5 text-red-400"/>}
 
-                                            <span>
-                                                {postStatus === 'idle' && `Post to ${platformName}`}
-                                                {postStatus === 'posting' && 'Posting...'}
-                                                {postStatus === 'posted' && 'Posted!'}
-                                                {postStatus === 'error' && 'Error'}
-                                            </span>
+    const renderResultStep = () => {
+        if (mode === 'campaign') {
+            return (
+                <div className="animate-fade-in">
+                    <h2 className="text-3xl font-bold text-center mb-2 text-white">Your Social Media Campaign is Ready!</h2>
+                    <p className="text-slate-400 text-center mb-10">Here are tailored posts for each platform. Generate visuals and post them directly.</p>
+                    <div className="space-y-6">
+                        {campaignResult && Object.entries(campaignResult).map(([platform, content]) => {
+                            if (!content) return null;
+                            const Icon = platformIcons[platform];
+                            const platformImage = generatedImages[platform];
+                            const platformVideo = generatedVideos[platform];
+                            return (
+                                <div key={platform} className="p-4 md:p-6 bg-slate-900/70 backdrop-blur-lg border border-slate-700/50 rounded-xl">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-3">
+                                            {Icon && <Icon className="w-6 h-6 text-white"/>}
+                                            <h3 className="text-xl font-bold text-white">{platform.replace(/_/g, ' ')}</h3>
+                                        </div>
+                                        <button onClick={() => handleCopyPost(platform, content)} className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors">
+                                            {copiedPlatform === platform ? <HiCheck className="w-4 h-4 text-green-400" /> : <HiClipboardDocument className="w-4 h-4" />}
+                                            {copiedPlatform === platform ? 'Copied!' : 'Copy Text'}
                                         </button>
                                     </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-3 text-sm text-slate-300 whitespace-pre-wrap">
+                                            {[content.title, content.post, content.caption, content.text_post, content.description].filter(Boolean).join('\n\n')}
+                                            <p className="text-sky-400">{content.hashtags?.join(' ')}</p>
+                                            {content.call_to_action && <p className="font-semibold text-amber-400">{content.call_to_action}</p>}
+                                        </div>
+                                        <div>
+                                            {content.video_suggestion && content.video_suggestion !== 'N/A' ? (
+                                                <div className="aspect-video bg-slate-800 rounded-lg flex flex-col items-center justify-center p-4 text-center">
+                                                    {platformVideo?.loading ? (
+                                                         <>
+                                                            <div className="w-8 h-8 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
+                                                            <p className="text-sm mt-2 text-slate-400">{platformVideo.loadingMessage}</p>
+                                                         </>
+                                                    ) : platformVideo?.url ? (
+                                                        <>
+                                                            <video src={platformVideo.url} controls className="w-full h-full rounded-md object-cover"></video>
+                                                            <div className="flex items-center gap-2 mt-2">
+                                                                <a href={platformVideo.url} download={`${platform}.mp4`} className="text-xs p-1 rounded-md bg-slate-700/50 hover:bg-slate-700">Download</a>
+                                                            </div>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <HiOutlineVideoCamera className="w-10 h-10 text-slate-500 mb-2"/>
+                                                            <p className="text-sm font-semibold text-white">Video Concept</p>
+                                                            <p className="text-xs text-slate-400 mb-3">{content.video_suggestion}</p>
+                                                            <button onClick={() => handleOpenScriptModal(platform, content.video_script, content.video_suggestion)} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg bg-primary-gradient text-white hover:opacity-90">
+                                                                <HiOutlineSparkles/> Generate Video
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="aspect-square bg-slate-800 rounded-lg flex flex-col items-center justify-center p-4 text-center">
+                                                    {platformImage?.loading ? (
+                                                        <div className="w-8 h-8 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
+                                                    ) : platformImage?.base64 ? (
+                                                        <>
+                                                            {/* FIX: Removed invalid backslashes from template literals */}
+                                                            <img src={`data:image/png;base64,${platformImage.base64}`} alt={`${platform} visual`} className="w-full h-full rounded-md object-cover"/>
+                                                            <div className="flex items-center gap-2 mt-2">
+                                                                {/* FIX: Removed invalid backslashes from template literals */}
+                                                                <a href={`data:image/png;base64,${platformImage.base64}`} download={`${platform}.png`} className="text-xs p-1 rounded-md bg-slate-700/50 hover:bg-slate-700">Download</a>
+                                                                {/* FIX: Removed invalid backslash from template literal */}
+                                                                <button onClick={() => handleSaveImage(platform, content.image_suggestion || '')} disabled={platformImage.saved} className={`text-xs p-1 rounded-md ${platformImage.saved ? 'bg-green-500/20 text-green-400' : 'bg-slate-700/50 hover:bg-slate-700'}`}>{platformImage.saved ? 'Saved' : 'Save'}</button>
+                                                            </div>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <HiOutlinePhoto className="w-10 h-10 text-slate-500 mb-2"/>
+                                                            <p className="text-sm font-semibold text-white">Image Suggestion</p>
+                                                            <p className="text-xs text-slate-400 mb-3">{content.image_suggestion}</p>
+                                                            <button onClick={() => handleGenerateImage(platform, content.image_suggestion || '')} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg bg-primary-gradient text-white hover:opacity-90">
+                                                                <HiOutlineSparkles/> Generate Image
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    {platform === 'Facebook' && (
+                                        <div className="mt-4 pt-4 border-t border-slate-700/50">
+                                            <h4 className="text-sm font-semibold text-white mb-2">Post to Facebook Page</h4>
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                                <input value={facebookPageId} onChange={e => setFacebookPageId(e.target.value)} placeholder="Facebook Page ID" className="w-full p-2 text-xs bg-slate-800 border border-slate-700 rounded-lg"/>
+                                                <input value={facebookAccessToken} onChange={e => setFacebookAccessToken(e.target.value)} placeholder="Page Access Token" className="w-full p-2 text-xs bg-slate-800 border border-slate-700 rounded-lg"/>
+                                                <button 
+                                                    onClick={() => handlePostToFacebook(platform, content)}
+                                                    disabled={platformPostStatus[platform] === 'posting' || platformPostStatus[platform] === 'posted' || !generatedImages[platform]?.base64}
+                                                    className={`w-full flex items-center justify-center gap-2 text-xs font-semibold rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed
+                                                        ${platformPostStatus[platform] === 'posted' ? 'bg-green-500/80' : 'bg-blue-600 hover:bg-blue-500'}`}>
+                                                    {platformPostStatus[platform] === 'posting' ? 'Posting...' : platformPostStatus[platform] === 'posted' ? 'Posted!' : 'Post Now'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )
                         })}
                     </div>
-                    <div className="flex justify-center mt-10">
-                        <button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
-                            <HiArrowLeft className="w-5 h-5" /> Back to Settings
-                        </button>
+                     <div className="flex justify-center mt-10">
+                        <button onClick={() => { setStep('input'); setCampaignResult(null); setGeneratedImages({}); }} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect"><HiArrowLeft className="w-5 h-5" /> Back</button>
                     </div>
                 </div>
-            )
-        }
-        
-        if ((mode === 'single' || mode === 'trend') && finalGeneratedPost) {
-             return (
-                <div className="max-w-4xl mx-auto text-center animate-fade-in">
-                    <h2 className="text-3xl font-bold text-center mb-8 text-white">Your Social Post is Ready!</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                        <div className="text-left p-4 bg-slate-800/50 rounded-lg">
-                             <h3 className="font-bold text-lg text-white mb-2">Generated Image</h3>
-                             <img src={`data:image/png;base64,${finalGeneratedPost}`} alt="Generated social post" className="rounded-lg mx-auto shadow-lg mb-4 border-2 border-slate-700/50" />
-                        </div>
-                         <div className="text-left p-4 bg-slate-800/50 rounded-lg">
-                             <h3 className="font-bold text-lg text-white mb-2">Generated Caption</h3>
-                             <p className="text-slate-300 whitespace-pre-wrap">{finalCaption}</p>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4 mt-8">
-                        <button onClick={() => setStep('input')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 border border-slate-700">
-                            <HiArrowLeft /> Back to Settings
-                        </button>
-                        <button onClick={() => setStep('conceptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 border border-slate-700">
-                           <HiOutlineLightBulb/> Back to Concepts
-                        </button>
-                        <button onClick={handleSaveFinalPost} disabled={isFinalPostSaved || !session} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 border border-slate-700 disabled:opacity-60">
-                           <HiOutlineHeart className={isFinalPostSaved ? 'text-pink-500' : ''} /> {isFinalPostSaved ? "Saved!" : "Like & Save Creation"}
-                        </button>
-                        <a href={`data:image/png;base64,${finalGeneratedPost}`} download="dreampixel-social-post.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90">
-                           <HiArrowDownTray /> Download
-                        </a>
-                    </div>
-                </div>
-            )
-        }
-
-        return null;
-    }
-
-    const renderScriptModal = () => {
-        if (!isScriptModalOpen || !currentScriptData) return null;
-        return (
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" onClick={() => setIsScriptModalOpen(false)}>
-                <div className="bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
-                    <header className="flex items-center justify-between p-4 border-b border-slate-800">
-                        <h2 className="text-lg font-bold text-white">Edit Video Script</h2>
-                        <button onClick={() => setIsScriptModalOpen(false)} className="text-slate-500 hover:text-white"><HiXMark className="w-6 h-6"/></button>
-                    </header>
-                    <main className="p-6 space-y-4">
-                        <p className="text-sm text-slate-400">Review and edit the AI-generated script before creating your video.</p>
+            );
+        } else {
+            return (
+                <div className="max-w-4xl mx-auto animate-fade-in">
+                     <h2 className="text-3xl font-bold text-center mb-2 text-white">Your Social Post is Ready!</h2>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
                         <div>
-                             <label htmlFor="script-textarea" className="font-semibold text-slate-300">Video Script / Voiceover</label>
-                            <textarea
-                                id="script-textarea"
-                                value={currentScriptData.script}
-                                onChange={(e) => setCurrentScriptData(prev => prev ? { ...prev, script: e.target.value } : null)}
-                                className="w-full p-3 mt-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm"
-                                rows={8}
-                            ></textarea>
+                            <h3 className="font-semibold text-white mb-2 text-center">Generated Visual</h3>
+                            {finalGeneratedPost && <img src={`data:image/png;base64,${finalGeneratedPost}`} alt="Generated social post" className="rounded-xl mx-auto shadow-lg border-2 border-slate-700/50" style={{ aspectRatio: aspectRatio.replace(':', ' / ') }} />}
                         </div>
-                    </main>
-                    <footer className="flex justify-end p-4 bg-slate-950/30 border-t border-slate-800">
-                        <button onClick={handleGenerateVideoWithScript} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary-gradient text-white rounded-lg hover:opacity-90">
-                           <HiOutlineVideoCamera /> Generate Video with this Script
-                        </button>
-                    </footer>
+                        <div className="p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+                             <h3 className="font-semibold text-white mb-2">Generated Caption</h3>
+                             <p className="text-sm text-slate-300 whitespace-pre-wrap">{finalCaption}</p>
+                        </div>
+                     </div>
+                     <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4 mt-8">
+                         <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 border border-slate-700"><HiArrowLeft/> Back to Settings</button>
+                         <button onClick={() => setStep('conceptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 border border-slate-700"><HiOutlineLightBulb/> Back to Concepts</button>
+                         <div className="relative group" title={!session ? 'Please sign in to save creations' : ''}><button onClick={handleSaveFinalPost} disabled={isFinalPostSaved || !session} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 border border-slate-700 disabled:opacity-60"><HiOutlineHeart className={isFinalPostSaved ? 'text-pink-500' : ''}/> {isFinalPostSaved ? 'Saved!' : 'Like & Save'}</button></div>
+                         <a href={`data:image/png;base64,${finalGeneratedPost}`} download="dreampixel-post.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90"><HiArrowDownTray/> Download Image</a>
+                     </div>
                 </div>
-            </div>
-        )
+            );
+        }
     };
     
+    const renderActiveStep = () => {
+        switch (step) {
+            case 'input':
+                return renderInputStep();
+            case 'trendSelection':
+                return renderTrendSelectionStep();
+            case 'conceptSelection':
+                return renderConceptSelectionStep();
+            case 'generating':
+                return renderGeneratingStep();
+            case 'result':
+                return renderResultStep();
+            default:
+                return renderInputStep();
+        }
+    };
+
     return (
         <div className="animate-fade-in">
             <ErrorMessage error={error} />
-            
-            {(step === 'input' || step === 'trendSelection' || step === 'conceptSelection') && (
-                <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
-                    {step === 'input' && renderInputStep()}
-                    {step === 'trendSelection' && renderTrendSelectionStep()}
-                    {step === 'conceptSelection' && renderConceptSelectionStep()}
-                </div>
+            {isScriptModalOpen && currentScriptData && (
+                 <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 animate-fade-in" onClick={() => setIsScriptModalOpen(false)}>
+                     <div className="bg-slate-900/80 border border-slate-700 rounded-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
+                         <header className="p-4 border-b border-slate-800 flex justify-between items-center">
+                            <h3 className="font-bold text-white">Video Script for {currentScriptData.platform}</h3>
+                            <button onClick={() => setIsScriptModalOpen(false)}><HiXMark className="w-6 h-6"/></button>
+                         </header>
+                         <main className="p-6 space-y-4">
+                             <div>
+                                <label className="font-semibold text-sm text-slate-400">Video Concept</label>
+                                <p className="p-2 bg-slate-800 rounded-md text-sm">{currentScriptData.suggestion}</p>
+                             </div>
+                             <div>
+                                <label className="font-semibold text-sm text-slate-400">Editable Script / Voiceover</label>
+                                <textarea value={currentScriptData.script} onChange={(e) => setCurrentScriptData(prev => prev ? {...prev, script: e.target.value} : null)} rows={6} className="w-full p-2 bg-slate-800 rounded-md text-sm border border-slate-700"></textarea>
+                             </div>
+                         </main>
+                         <footer className="p-4 flex justify-end">
+                            <button onClick={handleGenerateVideoWithScript} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-primary-gradient text-white hover:opacity-90">
+                                <HiOutlineSparkles/> Generate Video with this Script
+                            </button>
+                         </footer>
+                     </div>
+                 </div>
             )}
-            
-            {step === 'generating' && renderGeneratingStep()}
-            {step === 'result' && renderResultStep()}
-
-            {renderScriptModal()}
+            {renderActiveStep()}
         </div>
     );
 };

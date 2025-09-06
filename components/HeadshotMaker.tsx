@@ -92,9 +92,8 @@ export const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, on
     
     const removeImage = (indexToRemove: number) => {
         setOriginalImages(prev => prev.filter((_, index) => index !== indexToRemove));
-        // Adjust primary index if the removed image was primary or before the primary
         if (indexToRemove === primaryImageIndex) {
-            setPrimaryImageIndex(0); // Reset to first image
+            setPrimaryImageIndex(0);
         } else if (indexToRemove < primaryImageIndex) {
             setPrimaryImageIndex(prev => prev - 1);
         }
@@ -203,7 +202,7 @@ export const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, on
     
     const handleDownloadAll = () => {
         generatedImages.forEach((img, index) => {
-            setTimeout(() => { // Stagger downloads to prevent browser blocking
+            setTimeout(() => {
                 const link = document.createElement('a');
                 link.href = `data:image/png;base64,${img.image}`;
                 link.download = `dreampixel-headshot-${img.angle.toLowerCase().replace(/ /g, '-')}.png`;
@@ -416,15 +415,12 @@ export const HeadshotMaker: React.FC<HeadshotMakerProps> = ({ onNavigateHome, on
                 />
             )}
             <ErrorMessage error={error} />
-            
-            {step === 'input' && renderInputStep()}
-            {(step === 'promptSelection' || step === 'generating' || step === 'result') && (
-                <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
-                    {step === 'promptSelection' && renderPromptSelectionStep()}
-                    {step === 'generating' && renderGeneratingStep()}
-                    {step === 'result' && renderResultStep()}
-                </div>
-            )}
+            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
+                {step === 'input' && renderInputStep()}
+                {step === 'promptSelection' && renderPromptSelectionStep()}
+                {step === 'generating' && renderGeneratingStep()}
+                {step === 'result' && renderResultStep()}
+            </div>
         </div>
     );
 };
