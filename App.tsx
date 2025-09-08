@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import LandingPage from './components/LandingPage';
 import Header from './components/Header';
-import { ToolType, ValidationStatus, ConnectedAccount } from './types';
+import { ToolType, ValidationStatus, ConnectedAccount, ViewType } from './types';
 import HistorySidebar from './components/HistorySidebar';
 import Footer from './components/Footer';
 import FeedbackModal from './components/FeedbackModal';
@@ -24,6 +24,10 @@ const VisitingCardMaker = lazy(() => import('./components/VisitingCardMaker').th
 const EventPosterMaker = lazy(() => import('./components/EventPosterMaker').then(module => ({ default: module.EventPosterMaker })));
 const SocialMediaCampaignFactory = lazy(() => import('./components/SocialMediaCampaignFactory').then(module => ({ default: module.SocialMediaCampaignFactory })));
 const NewspaperCuttingMaker = lazy(() => import('./components/NewspaperCuttingMaker').then(module => ({ default: module.NewspaperCuttingMaker })));
+const AboutUs = lazy(() => import('./components/AboutUs').then(module => ({ default: module.AboutUs })));
+const ContactUs = lazy(() => import('./components/ContactUs').then(module => ({ default: module.ContactUs })));
+const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy').then(module => ({ default: module.PrivacyPolicy })));
+const TermsOfService = lazy(() => import('./components/TermsOfService').then(module => ({ default: module.TermsOfService })));
 
 const ToolLoadingSpinner: React.FC = () => (
     <div className="flex justify-center items-center py-40">
@@ -35,7 +39,7 @@ const ToolLoadingSpinner: React.FC = () => (
 );
 
 const App: React.FC = () => {
-  const [activeTool, setActiveTool] = useState<ToolType | 'landing'>('landing');
+  const [activeView, setActiveView] = useState<ViewType>('landing');
   const [historyUpdated, setHistoryUpdated] = useState(0);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -47,6 +51,52 @@ const App: React.FC = () => {
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([]);
 
   const { session } = useAuth();
+  
+  // Effect to handle URL hash for navigation
+  useEffect(() => {
+    const handleHashChange = () => {
+        const hash = window.location.hash.substring(1);
+        const validViews: ViewType[] = [
+            'landing', 'about', 'contact', 'privacy', 'terms', 
+            'thumbnail', 'advertisement', 'political', 'profile', 'logo', 
+            'image-enhancer', 'headshot-maker', 'passport-photo', 
+            'visiting-card', 'event-poster', 'social-campaign', 'newspaper'
+        ];
+        
+        if (validViews.includes(hash as ViewType)) {
+            setActiveView(hash as ViewType);
+        } else {
+            setActiveView('landing');
+        }
+    };
+
+    window.addEventListener('hashchange', handleHashChange, false);
+    // Set initial view from hash
+    handleHashChange();
+
+    return () => {
+        window.removeEventListener('hashchange', handleHashChange, false);
+    };
+}, []);
+
+// Effect to update URL hash when activeView changes, preventing crashes in sandboxed environments.
+useEffect(() => {
+    const currentHash = window.location.hash.substring(1);
+
+    if (activeView === 'landing' || !activeView) {
+        // If on the landing page and there's a hash, clear it safely.
+        // This avoids using history.pushState which can fail in certain (e.g., blob:) environments.
+        if (currentHash) {
+            window.location.hash = '';
+        }
+    } else {
+        // Only update the hash if it's different to prevent redundant history entries and loops.
+        if (currentHash !== activeView) {
+            window.location.hash = activeView;
+        }
+    }
+}, [activeView]);
+
 
   // This effect runs ONLY ONCE when the app first loads to check static connections.
   useEffect(() => {
@@ -87,7 +137,7 @@ const App: React.FC = () => {
   }, []); // Empty dependency array ensures this runs only once on mount.
   
   useEffect(() => {
-    const toolTitles: Record<ToolType | 'landing', string> = {
+    const viewTitles: Record<ViewType, string> = {
         landing: 'AI Content Creation Suite',
         thumbnail: 'YouTube Thumbnail Generator',
         advertisement: 'Ad Banner Generator',
@@ -101,20 +151,25 @@ const App: React.FC = () => {
         'event-poster': 'AI Event Poster Maker',
         'social-campaign': 'AI Social Media Content Factory',
         newspaper: 'AI Newspaper Cutting Maker',
+        about: 'About Us',
+        contact: 'Contact Us',
+        privacy: 'Privacy Policy',
+        terms: 'Terms of Service',
     };
     
     const baseTitle = "DreamPixel Technology";
-    const toolTitle = toolTitles[activeTool];
-    document.title = `${toolTitle} | ${baseTitle}`;
-  }, [activeTool]);
+    const viewTitle = viewTitles[activeView] || viewTitles['landing'];
+    document.title = `${viewTitle} | ${baseTitle}`;
+  }, [activeView]);
 
-  const handleSelectTool = useCallback((tool: ToolType) => {
-    setActiveTool(tool);
+  const handleSetView = useCallback((view: ViewType) => {
+    setActiveView(view);
+    window.scrollTo(0, 0); // Scroll to top on navigation
   }, []);
 
   const handleNavigateHome = useCallback(() => {
-    setActiveTool('landing');
-  }, []);
+    handleSetView('landing');
+  }, [handleSetView]);
 
   const onCreationGenerated = useCallback(() => {
     setHistoryUpdated(count => count + 1);
@@ -142,13 +197,13 @@ const App: React.FC = () => {
     });
   }, []);
 
-  const renderActiveTool = () => {
-    switch(activeTool) {
+  const renderActiveView = () => {
+    switch(activeView) {
         case 'landing':
             return (
                 <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8">
                     <div className="lg:col-span-2">
-                    <LandingPage onSelectTool={handleSelectTool} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />
+                    <LandingPage onSelectTool={handleSetView} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />
                     </div>
                     <div className="mt-8 lg:mt-0">
                     <HistorySidebar key={historyUpdated} />
@@ -167,7 +222,11 @@ const App: React.FC = () => {
         case 'event-poster': return <EventPosterMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'social-campaign': return <SocialMediaCampaignFactory onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
         case 'newspaper': return <NewspaperCuttingMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
-        default: return <LandingPage onSelectTool={handleSelectTool} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
+        case 'about': return <AboutUs onNavigateHome={handleNavigateHome} />;
+        case 'contact': return <ContactUs onNavigateHome={handleNavigateHome} />;
+        case 'privacy': return <PrivacyPolicy onNavigateHome={handleNavigateHome} />;
+        case 'terms': return <TermsOfService onNavigateHome={handleNavigateHome} />;
+        default: return <LandingPage onSelectTool={handleSetView} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
     }
   }
 
@@ -183,10 +242,10 @@ const App: React.FC = () => {
       />
       <main className="container mx-auto px-4 py-8">
         <Suspense fallback={<ToolLoadingSpinner />}>
-            {renderActiveTool()}
+            {renderActiveView()}
         </Suspense>
       </main>
-      <Footer dbStatus={dbStatus} dbError={dbError} connectedAccounts={connectedAccounts} />
+      <Footer dbStatus={dbStatus} dbError={dbError} connectedAccounts={connectedAccounts} onNavigate={handleSetView} />
       {isFeedbackOpen && <FeedbackModal onClose={handleCloseFeedback} />}
       {isAuthModalOpen && <AuthModal onClose={handleCloseAuthModal} />}
     </div>

@@ -181,6 +181,7 @@ interface ProfileImageJobData {
     description: string;
     styleId: string;
     headshot: UploadedFile;
+    aspectRatio: AspectRatio;
 }
 
 export const saveProfileImageJob = async (data: ProfileImageJobData): Promise<void> => {
@@ -189,7 +190,8 @@ export const saveProfileImageJob = async (data: ProfileImageJobData): Promise<vo
             user_id: data.userId,
             description: data.description,
             style_id: data.styleId,
-            headshot_filenames: [data.headshot.name] // Stored as an array for consistency
+            headshot_filenames: [data.headshot.name], // Stored as an array for consistency
+            aspect_ratio: data.aspectRatio,
         });
         if (error) throw error;
     } catch (error) {
@@ -205,6 +207,7 @@ interface LogoJobData {
     description: string;
     styleId: string;
     headshot: UploadedFile | null;
+    aspectRatio: AspectRatio;
 }
 
 export const saveLogoJob = async (data: LogoJobData): Promise<void> => {
@@ -215,7 +218,8 @@ export const saveLogoJob = async (data: LogoJobData): Promise<void> => {
             slogan: data.slogan,
             description: data.description,
             style_id: data.styleId,
-            headshot_filename: data.headshot?.name || null
+            headshot_filename: data.headshot?.name || null,
+            aspect_ratio: data.aspectRatio
         });
         if (error) throw error;
     } catch (error) {
@@ -298,6 +302,7 @@ interface VisitingCardJobData {
     contactInfo: string;
     styleId: string;
     logoFilename: string | null;
+    aspectRatio: AspectRatio;
 }
 
 export const saveVisitingCardJob = async (data: VisitingCardJobData): Promise<void> => {
@@ -310,6 +315,7 @@ export const saveVisitingCardJob = async (data: VisitingCardJobData): Promise<vo
             contact_info: data.contactInfo,
             style_id: data.styleId,
             logo_filename: data.logoFilename,
+            aspect_ratio: data.aspectRatio,
         });
         if (error) throw error;
     } catch (error) {
@@ -327,6 +333,7 @@ interface EventPosterJobData {
     date: string;
     time: string;
     venue: string;
+    aspectRatio: AspectRatio;
 }
 
 export const saveEventPosterJob = async (data: EventPosterJobData): Promise<void> => {
@@ -340,9 +347,38 @@ export const saveEventPosterJob = async (data: EventPosterJobData): Promise<void
             event_date: data.date,
             event_time: data.time,
             event_venue: data.venue,
+            aspect_ratio: data.aspectRatio
         });
         if (error) throw error;
     } catch (error) {
         console.error("Failed to save event poster job", error);
+    }
+};
+
+// Newspaper Job
+interface NewspaperJobData {
+    userId: string;
+    headline: string;
+    bodyText: string;
+    language: string;
+    styleId: string;
+    imageFilename: string | null;
+    aspectRatio: AspectRatio;
+}
+
+export const saveNewspaperJob = async (data: NewspaperJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('newspaper_cutting_jobs').insert({
+            user_id: data.userId,
+            headline: data.headline,
+            body_text: data.bodyText,
+            language: data.language,
+            style_id: data.styleId,
+            image_filename: data.imageFilename,
+            aspect_ratio: data.aspectRatio,
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save newspaper job", error);
     }
 };

@@ -1,9 +1,16 @@
 import { Type } from "@google/genai";
-// FIX: Added NewspaperStyle to imports to support the new NewspaperCuttingMaker tool.
-import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle, SocialCampaign, NewspaperStyle } from '../types';
+import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle, SocialCampaign, NewspaperStyle, StructuredPrompt } from '../types';
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
 import { RateLimitError } from "./errors";
+
+const STRUCTURED_PROMPT_SCHEMA_PROPERTIES = {
+    composition: { type: Type.STRING, description: "Detailed description of the scene's composition, framing, and camera angle." },
+    lighting: { type: Type.STRING, description: "Description of the lighting style (e.g., dramatic, soft, neon)." },
+    color_palette: { type: Type.STRING, description: "Description of the color grading and dominant colors." },
+    subject_details: { type: Type.STRING, description: "Details about the subject's pose, expression, and clothing." },
+    extra_details: { type: Type.STRING, description: "Any other stylistic elements like textures, lens effects, or background details." },
+};
 
 const CONCEPTS_SCHEMA = {
     type: Type.OBJECT,
@@ -13,16 +20,21 @@ const CONCEPTS_SCHEMA = {
             items: {
                 type: Type.OBJECT,
                 properties: {
-                    prompt: { type: Type.STRING, description: "The AI image generator prompt." },
+                    structured_prompt: {
+                        type: Type.OBJECT,
+                        properties: STRUCTURED_PROMPT_SCHEMA_PROPERTIES,
+                        required: ["composition", "lighting", "color_palette", "subject_details", "extra_details"]
+                    },
                     reason: { type: Type.STRING, description: "Explanation of why this concept is effective." },
                     isRecommended: { type: Type.BOOLEAN, description: "Set to true for the single best concept." }
                 },
-                required: ["prompt", "reason", "isRecommended"]
+                required: ["structured_prompt", "reason", "isRecommended"]
             },
         },
     },
     required: ["concepts"],
 };
+
 
 const SOCIAL_CONCEPTS_SCHEMA = {
     type: Type.OBJECT,
@@ -32,12 +44,16 @@ const SOCIAL_CONCEPTS_SCHEMA = {
             items: {
                 type: Type.OBJECT,
                 properties: {
-                    prompt: { type: Type.STRING, description: "The AI image generator prompt for the visual." },
+                     structured_prompt: {
+                        type: Type.OBJECT,
+                        properties: STRUCTURED_PROMPT_SCHEMA_PROPERTIES,
+                        required: ["composition", "lighting", "color_palette", "subject_details", "extra_details"]
+                    },
                     caption: { type: Type.STRING, description: "The written text content for the social media post caption." },
                     reason: { type: Type.STRING, description: "Explanation of why this concept is effective." },
                     isRecommended: { type: Type.BOOLEAN, description: "Set to true for the single best concept." }
                 },
-                required: ["prompt", "caption", "reason", "isRecommended"]
+                required: ["structured_prompt", "caption", "reason", "isRecommended"]
             },
         },
     },
@@ -58,7 +74,6 @@ const TRENDS_SCHEMA = {
     required: ["topics"],
 };
 
-// FIX: Added schemas for the new social media campaign generation feature.
 const PLATFORM_POST_CONCEPT_SCHEMA = {
     type: Type.OBJECT,
     properties: {
@@ -95,53 +110,63 @@ const SOCIAL_CAMPAIGN_SCHEMA = {
 
 // Explicit type for the AI's JSON response to ensure type safety.
 interface ConceptsResponse {
-    concepts: GeneratedConcept[];
+    concepts: {
+        structured_prompt: StructuredPrompt;
+        caption?: string;
+        reason: string;
+        isRecommended: boolean;
+    }[];
 }
 
 const parseAndValidateConcepts = (jsonText: string): GeneratedConcept[] => {
     try {
-        // Clean the response by removing markdown code block fences that some models add.
         const cleanedJsonText = jsonText.replace(/^```(?:json)?\s*|```\s*$/g, '').trim();
         const result = JSON.parse(cleanedJsonText) as ConceptsResponse;
         
         if (result && result.concepts && Array.isArray(result.concepts)) {
-            // Ensure only one is recommended, or just take the first one if multiple are.
             let recommendedFound = false;
 
-            const concepts: GeneratedConcept[] = result.concepts.map((c: GeneratedConcept) => {
-                // Create a copy to avoid mutating the original object from the parsed JSON.
-                const newConcept: GeneratedConcept = { ...c };
+            const concepts: GeneratedConcept[] = result.concepts.map(c => {
+                const flatPrompt = Object.values(c.structured_prompt).join(' ');
+                const newConcept: GeneratedConcept = { 
+                    ...c, 
+                    prompt: flatPrompt,
+                };
 
                 if (newConcept.isRecommended && !recommendedFound) {
                     recommendedFound = true;
-                    return newConcept;
+                } else {
+                    newConcept.isRecommended = false;
                 }
-                return { ...newConcept, isRecommended: false };
+                return newConcept;
             });
 
-            // If no concept was recommended by the AI, recommend the second one as a safe default.
-            if (!recommendedFound && concepts.length > 1) {
-                concepts[1].isRecommended = true;
-            } else if (!recommendedFound && concepts.length > 0) {
-                concepts[0].isRecommended = true;
+            if (!recommendedFound && concepts.length > 0) {
+                const indexToRecommend = concepts.length > 1 ? 1 : 0;
+                concepts[indexToRecommend].isRecommended = true;
             }
 
             return concepts.slice(0, 3);
         } else {
-            console.error("Parsed JSON, but format is invalid:", result);
-            throw new Error("Invalid response format from AI. The received data is not structured as expected.");
+            throw new Error("Invalid response format from AI.");
         }
     } catch (parseError) {
-        console.error("Failed to parse AI response as JSON:", parseError);
-        console.error("Raw text received from AI:", jsonText);
-        throw new Error("Failed to parse the AI's response. The data was not valid JSON.");
+        console.error("Failed to parse AI response as JSON:", parseError, "Raw text:", jsonText);
+        throw new Error("Failed to parse the AI's response.");
     }
 };
 
+const FACIAL_LIKENESS_COMMAND = `
+**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
+Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image(s). This is a strict technical mandate, not a creative guideline.
+- **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
+- **No Artistic Interpretation:** Do not alter, stylize, or approximate the face. It must be an exact, identical, photorealistic replication.
+- **Failure Condition:** Any deviation from a perfect likeness constitutes a complete failure.`;
 
 export const generatePrompts = async (description: string, style: CreatorStyle): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are a world-class viral content strategist for YouTube. Your task is to generate three distinct, high-CTR thumbnail concepts based on a video description, a target creator's brand, and a specific visual style. You MUST follow the JSON output format.
+You are a world-class viral content strategist for YouTube. Your task is to generate three distinct, high-CTR thumbnail concepts.
+For each concept, you must break down the visual idea into a structured JSON object containing: composition, lighting, color_palette, subject_details, and extra_details.
 
 **1. Video Analysis:**
    - **Content:** "${description}"
@@ -155,27 +180,10 @@ You are a world-class viral content strategist for YouTube. Your task is to gene
    - **Core Aesthetic & Technical Details:** ${style.imageStyle}
 
 **CRITICAL TASK & INSTRUCTIONS:**
-Your primary goal is to generate three unique thumbnail concepts. For each concept, create a detailed, expert-level prompt for an AI image generator. This prompt must translate the abstract "Visual Style Brief" into concrete, actionable instructions.
-
-Your generated prompts MUST explicitly define:
-- **Composition & Framing:** (e.g., Extreme close-up on face, rule-of-thirds with negative space, dynamic dutch angle).
-- **Lighting Design:** (e.g., Dramatic high-contrast rim lighting, soft and even beauty lighting, neon colored gels).
-- **Color Grading & Palette:** (e.g., Hyper-saturated and vibrant, desaturated cinematic with teal/orange, monochrome with a single color pop).
-- **Subject's Pose & Expression:** (e.g., Exaggerated shocked expression with wide eyes, confident and aspirational gaze, humorous and relatable reaction).
-- **Camera & Lens Effects:** (e.g., 85mm portrait lens with creamy bokeh, 24mm wide-angle lens with slight distortion, anamorphic lens flare).
-- **Facial Likeness Command:** Each prompt MUST include this exact, verbatim command:
-  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-  Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image(s). This is a strict technical mandate, not a creative guideline.
-  - **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail: eyes, nose, mouth, jawline, skin texture, and unique features.
-  - **No Artistic Interpretation:** Do not alter, stylize, approximate, or "enhance" the face. It must be an exact, identical, photorealistic replication.
-  - **Failure Condition:** Any deviation from a perfect likeness, no matter how small, constitutes a complete failure of the entire generation task."
-
+Your primary goal is to generate three unique thumbnail concepts. For each concept, create a structured JSON object that translates the abstract "Visual Style Brief" into concrete, actionable instructions for an AI.
 You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
-Each concept object must have the following keys: "prompt", "reason", "isRecommended".
-- **"prompt"**: The detailed, expertly crafted prompt for the AI image generator. This must be a single string of text.
-- **"reason"**: A brief, strategic explanation of why this concept will maximize clicks for this specific creator and video. This must be a single string of text.
-- **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
-Your entire response MUST be only the raw JSON object, without any markdown formatting, comments, or any other text outside of the JSON structure.
+Each concept object must have a "structured_prompt" (which is another JSON object with the visual details), a "reason", and an "isRecommended" boolean.
+Your entire response MUST be only the raw JSON object.
 `;
 
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
@@ -196,11 +204,7 @@ export const generateThumbnail = async (
     }
 
     const finalPrompt = `
-**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image(s). This is a strict technical mandate, not a creative guideline.
-- **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail: eyes, nose, mouth, jawline, skin texture, and unique features.
-- **No Artistic Interpretation:** Do not alter, stylize, approximate, or "enhance" the face. It must be an exact, identical, photorealistic replication.
-- **Failure Condition:** Any deviation from a perfect likeness, no matter how small, constitutes a complete failure of the entire generation task.
+${FACIAL_LIKENESS_COMMAND}
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
@@ -213,7 +217,7 @@ Your primary, non-negotiable, and most critical task is to achieve a perfect, 10
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 - **Overall Quality:** The image must be high-resolution, professional, and visually striking, fully realizing the creative brief.
 `;
-    
+    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(finalPrompt, headshots);
 };
 
@@ -223,7 +227,7 @@ export const generatePosterPrompts = async (party: PoliticalParty, event: string
         : '';
     
     const fullPrompt = `
-You are a world-class creative director for political campaigns. Your task is to generate three distinct, professional, and high-impact political poster concepts based on the provided campaign details. You must follow the specified JSON output format.
+You are a world-class creative director for political campaigns. Your task is to generate three distinct, professional, and high-impact political poster concepts. For each concept, break down the visual idea into a structured JSON object.
 
 **1. Campaign Brief:**
    - **Party:** ${party.name}
@@ -237,26 +241,10 @@ You are a world-class creative director for political campaigns. Your task is to
    ${ideologyInstruction}
 
 **CRITICAL TASK & INSTRUCTIONS:**
-Your main goal is to generate three unique poster concepts. For each concept, create a detailed prompt for an AI image generator that translates the abstract 'Target Style' into a concrete art direction.
-
-Your generated prompts MUST explicitly define:
-- **Composition & Framing:** (e.g., Formal, symmetrical composition for stability; dynamic, asymmetrical layout for progress).
-- **Lighting Design:** (e.g., Heroic three-point lighting for a powerful look; soft, natural light for approachability).
-- **Color Palette & Grading:** (e.g., High-contrast, vibrantly saturated palette using party colors; muted, cinematic grade for a serious tone).
-- **Subject's Pose & Expression:** (e.g., Confident, forward-looking gaze for leadership; warm, humble smile for empathy).
-- **Facial Likeness Command:** Each prompt MUST include this exact, verbatim command:
-  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-  Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image(s). This is a strict technical mandate, not a creative guideline.
-  - **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail: eyes, nose, mouth, jawline, skin texture, and unique features.
-  - **No Artistic Interpretation:** Do not alter, stylize, approximate, or "enhance" the face. It must be an exact, identical, photorealistic replication.
-  - **Failure Condition:** Any deviation from a perfect likeness, no matter how small, constitutes a complete failure of the entire generation task."
-
-You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
-Each concept object must have the following keys: "prompt", "reason", "isRecommended".
-- **"prompt"**: The detailed, expertly crafted prompt for the AI image generator, including all branding and facial likeness commands. This must be a single string of text.
-- **"reason"**: A brief, strategic analysis of why this concept is effective for this campaign. This must be a single string of text.
-- **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
-Your entire response MUST be only the raw JSON object, without any markdown formatting, comments, or any other text outside of the JSON structure.
+Your main goal is to generate three unique poster concepts. For each, create a structured JSON object with keys: composition, lighting, color_palette, subject_details, and extra_details.
+You will return a single JSON object containing a key "concepts", which is an array of three concept objects.
+Each concept object must have a "structured_prompt", a "reason", and an "isRecommended" boolean.
+Your entire response MUST be only the raw JSON object.
 `;
 
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
@@ -265,11 +253,7 @@ Your entire response MUST be only the raw JSON object, without any markdown form
 
 export const generatePoster = async (selectedPrompt: string, headshots: UploadedFile[], aspectRatio: AspectRatio, party: PoliticalParty | undefined): Promise<string | null> => {
     const finalPrompt = `
-**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image(s). This is a strict technical mandate.
-- **Source of Truth:** The source photograph is the absolute ground truth for every facial detail.
-- **No Artistic Interpretation:** Do not alter, stylize, or approximate the face.
-- **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task.
+${FACIAL_LIKENESS_COMMAND}
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
@@ -280,13 +264,13 @@ Your primary, non-negotiable, and most critical task is to achieve a perfect, 10
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 - **Overall Quality:** The image must be high-resolution, professional-grade, and suitable for a political campaign, fully realizing the creative brief.
 `;
-    
+    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(finalPrompt, headshots);
 };
 
 export const generateAdConcepts = async (productDescription: string, headline: string, style: AdStyle): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are an award-winning Creative Director at a top advertising agency. Your task is to generate three professional, visually stunning, and strategically sound ad banner concepts. You must follow the specified JSON output format.
+You are an award-winning Creative Director. Your task is to generate three professional ad banner concepts. For each concept, break down the visual idea into a structured JSON object.
 
 **1. Campaign Brief:**
    - **Product/Service:** ${productDescription}
@@ -295,27 +279,11 @@ You are an award-winning Creative Director at a top advertising agency. Your tas
    - **Mandatory Elements:** The ad must feature a person (from a headshot) and the product (from a product image).
 
 **CRITICAL TASK & INSTRUCTIONS:**
-Your goal is to generate three unique ad concepts. For each, create a detailed prompt for an AI image generator that provides a complete art direction.
-
-Your generated prompts MUST explicitly define:
-- **Core Concept & Narrative:** A one-sentence story for the ad (e.g., "The moment of joyful discovery as the product solves a key problem.").
-- **Model & Product Interaction:** How does the person interact with the product? (e.g., "Model confidently holds the product, presenting it to the viewer.").
-- **Composition & Lighting:** Define camera angle, composition, lighting scheme (e.g., "dramatic three-point studio lighting with a soft key light"), and color grading.
-- **Model's Pose & Expression:** Detail the exact pose and emotion the model should convey to connect with the target audience.
-- **Facial Likeness Command:** Each prompt MUST include this exact, verbatim command:
-  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-  Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image. This is a strict technical mandate, not a creative guideline.
-  - **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
-  - **No Artistic Interpretation:** Do not alter, stylize, or approximate the face.
-  - **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task."
-- **Product Integration Command:** Each prompt MUST include a command to photorealistically composite the user's provided product image into the scene, treating it as an exact, unchangeable element.
-
-You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
-Each concept object must have the following keys: "prompt", "reason", "isRecommended".
-- **"prompt"**: The detailed, expertly crafted prompt for the AI image generator, including all commands. This must be a single string of text.
-- **"reason"**: An expert analysis of the marketing strategy behind the concept and its expected ROI. This must be a single string of text.
-- **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
-Your entire response MUST be only the raw JSON object, without any markdown formatting, comments, or any other text outside of the JSON structure.
+Generate three unique ad concepts. For each, create a structured JSON object with keys: composition, lighting, color_palette, subject_details, and extra_details.
+The subject_details must describe how the person interacts with the product and their exact pose and emotion.
+You will return a single JSON object containing a "concepts" key, which is an array of three concept objects.
+Each concept object must have a "structured_prompt", a "reason", and an "isRecommended" boolean.
+Your entire response MUST be only the raw JSON object.
 `;
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
     return parseAndValidateConcepts(jsonText);
@@ -329,15 +297,10 @@ You will be provided with two images. Image 1 is the PRODUCT. Image 2 is the MOD
 **ABSOLUTE COMMAND: 1000% PERFECT PRODUCT MATCH. NO EXCEPTIONS.**
 Your primary and most important task is to perfectly and exactly composite the provided PRODUCT image (Image 1) into the final scene.
 - **DO NOT REDRAW THE PRODUCT. DO NOT ALTER THE PRODUCT. DO NOT STYLIZE THE PRODUCT. DO NOT CHANGE THE PRODUCT IN ANY WAY.**
-- This is especially critical for handicraft items where the exact appearance is everything.
 - You must treat the product image as a fixed, unchangeable asset to be placed within the scene you generate.
-- The final product in the ad MUST be 1000% identical to the source image. This is a non-negotiable technical requirement. Any change is a failure.
+- The final product in the ad MUST be 1000% identical to the source image. Any change is a failure.
 
-**ABSOLUTE COMMAND: 1000% PERFECT HEADSHOT MATCH. NO EXCEPTIONS.**
-Your second primary task is to achieve a perfect, 1000% photorealistic match to the face from the provided MODEL HEADSHOT (Image 2).
-- **Source of Truth:** The headshot is the absolute ground truth for all facial features.
-- **No Artistic Interpretation of the Face:** Do not alter, stylize, or approximate the face. It must be an exact, identical, photorealistic replication.
-- **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task.
+${FACIAL_LIKENESS_COMMAND}
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
@@ -349,13 +312,13 @@ Your second primary task is to achieve a perfect, 1000% photorealistic match to 
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 - **Overall Quality:** The image must be high-resolution, professional-grade ad creative that fully realizes the brief.
 `;
-    
+    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(finalPrompt, allImages);
 };
 
 export const generateSocialPostConcepts = async (topic: string, platform: string, tone: string, style: AdStyle, callToAction?: string): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are an expert social media content strategist. Your task is to generate three complete, distinct, and engaging social media post concepts (visual + caption) based on the user's brief. You must follow the specified JSON output format.
+You are an expert social media content strategist. Your task is to generate three complete, distinct, and engaging social media post concepts (visual + caption) based on the user's brief. For each concept, break down the visual idea into a structured JSON object.
 
 **1. Post Brief:**
    - **Core Topic:** "${topic}"
@@ -365,25 +328,19 @@ You are an expert social media content strategist. Your task is to generate thre
    - **Call to Action (Optional):** "${callToAction || 'None specified'}"
 
 **CRITICAL TASK & INSTRUCTIONS:**
-For each of the three concepts, develop a complete package: a compelling visual idea and an engaging caption.
+For each concept, develop a complete package: a visual idea (as a structured prompt) and an engaging caption.
 
-**Visual Idea (for the "prompt" field):**
-- Translate the 'Visual Style' into a detailed art direction for an AI image generator.
-- Specify composition, subject, lighting, color, and overall vibe. The prompt should be creative and generate an eye-catching image.
+**Visual Idea ("structured_prompt"):**
+- Translate the 'Visual Style' into a detailed art direction as a structured JSON object (composition, lighting, etc.).
 
-**Caption (for the "caption" field):**
+**Caption ("caption"):**
 - Write a compelling, platform-aware caption that embodies the '${tone}' tone.
-- It must be well-written, engaging, and grammatically perfect.
-- Seamlessly integrate the 'Core Topic' and the 'Call to Action' (if provided).
+- Seamlessly integrate the 'Core Topic' and 'Call to Action'.
 - Include 3-5 relevant and popular hashtags for the '${platform}' platform.
 
-You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
-Each concept object must have the following keys: "prompt", "caption", "reason", "isRecommended".
-- **"prompt"**: The detailed prompt for the AI image generator. This must be a single string of text.
-- **"caption"**: The complete, ready-to-post text caption. This must be a single string of text.
-- **"reason"**: A brief, expert analysis of why this visual/caption combo is a strong strategy for this platform. This must be a single string of text.
-- **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
-Your entire response MUST be only the raw JSON object, without any markdown formatting, comments, or any other text outside of the JSON structure.
+You will return a single JSON object with a key "concepts", an array of three concept objects.
+Each object must have "structured_prompt", "caption", "reason", and "isRecommended".
+Your entire response MUST be only the raw JSON object.
 `;
     const jsonText = await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA);
     return parseAndValidateConcepts(jsonText);
@@ -410,7 +367,8 @@ ${prompt}
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 - **Overall Quality:** The image must be high-resolution, professional, and visually striking, fully realizing the creative brief.
 `;
-    return geminiNativeService.generateImage(prompt, [headshot]);
+    // FIX: Corrected a bug where the original 'prompt' was used instead of 'finalPrompt' and removed the unsupported 'aspectRatio' argument.
+    return geminiNativeService.generateImage(finalPrompt, [headshot]);
 };
 
 export const generateSocialVideo = async (prompt: string): Promise<string | null> => {
@@ -422,11 +380,9 @@ export const generateSocialVideo = async (prompt: string): Promise<string | null
     if (!videoBlob) {
         return null;
     }
-    // Create a local URL for the blob to be used in the <video> src
     return URL.createObjectURL(videoBlob);
 };
 
-// Explicit type for the AI's JSON response to ensure type safety.
 interface TrendsResponse {
     topics: string[];
 }
@@ -460,10 +416,9 @@ Your entire response MUST be only the raw JSON object.
     }
 };
 
-// FIX: Completed the function by adding a prompt and return statement.
 export const generateTrendPostConcepts = async (topic: string, platform: string, style: AdStyle): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are a viral content specialist. Your task is to generate three complete social media post concepts (visual + caption) to capitalize on a trending topic. You must follow the specified JSON output format.
+You are a viral content specialist. Your task is to generate three complete social media post concepts (visual + caption) to capitalize on a trending topic. For each concept, break down the visual idea into a structured JSON object.
 
 **1. Post Brief:**
    - **Trending Topic:** "${topic}"
@@ -471,35 +426,23 @@ You are a viral content specialist. Your task is to generate three complete soci
    - **Visual Style:** '${style.name}' (${style.stylePrompt})
 
 **CRITICAL TASK & INSTRUCTIONS:**
-For each of the three concepts, develop a complete package: a compelling visual idea and an engaging caption that taps into the trend.
+For each of the three concepts, develop a complete package: a visual idea (as a structured prompt) and an engaging caption.
+The visual idea ("structured_prompt") must directly relate to the trending topic and adhere to the visual style.
+The caption ("caption") must be short, punchy, and include 3-5 highly relevant trending hashtags.
 
-**Visual Idea (for the "prompt" field):**
-- Create a detailed prompt for an AI image generator that is visually arresting and directly relates to the trending topic.
-- The prompt must adhere to the specified '${style.name}' visual style.
-
-**Caption (for the "caption" field):**
-- Write a short, punchy, and platform-aware caption that immediately hooks into the trend.
-- Include 3-5 highly relevant and trending hashtags for the '${platform}' platform to maximize reach.
-
-You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
-Each concept object must have the following keys: "prompt", "caption", "reason", "isRecommended".
-- **"prompt"**: The detailed prompt for the AI image generator.
-- **"caption"**: The complete, ready-to-post text caption.
-- **"reason"**: A brief, expert analysis of why this angle on the trend is likely to go viral.
-- **"isRecommended"**: A boolean. You must identify the single best concept by setting this to 'true'. The other two must be 'false'.
+You will return a single JSON object with a key "concepts", an array of three concept objects.
+Each object must have "structured_prompt", "caption", "reason", and "isRecommended".
 Your entire response MUST be only the raw JSON object.
 `;
     const jsonText = await geminiNativeService.generateText(fullPrompt, SOCIAL_CONCEPTS_SCHEMA);
     return parseAndValidateConcepts(jsonText);
 };
 
-// FIX: Added a new parsing function for the complex SocialCampaign type.
 const parseAndValidateCampaign = (jsonText: string): SocialCampaign => {
     try {
         const cleanedJsonText = jsonText.replace(/^```(?:json)?\s*|```\s*$/g, '').trim();
         const result = JSON.parse(cleanedJsonText);
         
-        // Basic validation to ensure it looks like the campaign object
         if (result && typeof result === 'object' && result.Instagram && result.LinkedIn) {
             return result as SocialCampaign;
         } else {
@@ -509,15 +452,14 @@ const parseAndValidateCampaign = (jsonText: string): SocialCampaign => {
     } catch (parseError) {
         console.error("Failed to parse AI response as JSON for campaign:", parseError);
         console.error("Raw text received from AI:", jsonText);
-        throw new Error("Failed to parse the AI's campaign response. The data was not valid JSON.");
+        throw new Error("Failed to parse the AI's campaign response.");
     }
 };
 
-// FIX: Implemented the missing function 'generateSocialMediaCampaign'.
 export const generateSocialMediaCampaign = async (topic: string, keywords: string, link: string, headshot: UploadedFile | null, sampleImage: UploadedFile | null, postLink: string, creatorName?: string): Promise<SocialCampaign> => {
     const headshotInstruction = headshot ? `
 - **Headshot Provided (MAIN SUBJECT):** A headshot image has been provided. THIS IS THE MAIN SUBJECT. All generated 'image_suggestion' prompts MUST include the following verbatim command to ensure facial likeness of this person:
-  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.** Your primary task is to achieve a perfect, photorealistic match to the face in the provided headshot image. This is a strict technical mandate. Any deviation is a complete failure."
+  "${FACIAL_LIKENESS_COMMAND}"
 ` : '- **No Headshot Provided:** Generate images without a specific person.';
 
     const styleInstruction = sampleImage || postLink.trim() ? `
@@ -572,72 +514,47 @@ Your entire response MUST be only the raw JSON object, without any markdown form
     return parseAndValidateCampaign(jsonText);
 };
 
-// FIX: Implemented the missing function 'generateProfilePicturePrompts'.
 export const generateProfilePicturePrompts = async (description: string, style: ProfilePictureStyle): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are a master portrait photographer and digital artist. Your task is to generate three distinct concepts for a professional or creative profile picture. You must follow the specified JSON output format.
+You are a master portrait photographer and digital artist. Your task is to generate three distinct concepts for a professional or creative profile picture. For each concept, break down the visual idea into a structured JSON object.
 
 **1. User Request:**
    - **Description:** "${description}"
    - **Target Style:** '${style.name}' (${style.stylePrompt})
 
 **CRITICAL TASK & INSTRUCTIONS:**
-Generate three unique concepts. For each, create a detailed prompt for an AI image generator.
-
-Your generated prompts MUST explicitly define:
-- **Lighting:** (e.g., "dramatic Rembrandt lighting", "soft, flattering beauty light").
-- **Composition:** (e.g., "centered head-and-shoulders crop", "asymmetrical framing").
-- **Background:** (e.g., "solid neutral gray background", "out-of-focus office environment").
-- **Expression & Mood:** (e.g., "confident and approachable smile", "creative and introspective expression").
-- **Facial Likeness Command:** Each prompt MUST include this exact, verbatim command:
-  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-  Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image. This is a strict technical mandate, not a creative guideline.
-  - **Source of Truth:** Treat the source photograph as the absolute ground truth for every facial detail.
-  - **No Artistic Interpretation:** Do not alter, stylize, approximate, or "enhance" the face. It must be an exact, identical, photorealistic replication.
-  - **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the entire generation task."
-
+Generate three unique concepts. For each, create a detailed structured prompt object for an AI image generator.
 You will return a single JSON object with a key "concepts", which is an array of three concept objects.
-Each object must have "prompt", "reason", and "isRecommended" keys.
+Each object must have "structured_prompt", "reason", and "isRecommended" keys.
 Your entire response MUST be only the raw JSON object.
 `;
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
     return parseAndValidateConcepts(jsonText);
 };
 
-// FIX: Implemented the missing function 'generateProfilePicture'.
-export const generateProfilePicture = async (selectedPrompt: string, headshot: UploadedFile): Promise<string | null> => {
+export const generateProfilePicture = async (selectedPrompt: string, headshot: UploadedFile, aspectRatio: AspectRatio): Promise<string | null> => {
     const finalPrompt = `
-**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-Your primary, non-negotiable, and most critical task is to achieve a perfect, 10000% photorealistic match to the face in the provided headshot image. This is a strict technical mandate.
-- **Source of Truth:** The provided photo is the absolute ground truth for all facial features.
-- **No Artistic Interpretation of Face:** Do not alter or stylize the face. It must be a perfect, photorealistic replication.
-- **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task.
+${FACIAL_LIKENESS_COMMAND}
 
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
 
 **FINAL EXECUTION CHECKLIST:**
 - **Facial Likeness:** Adhere to the Core Directive. The face must be a perfect match.
-- **Aspect Ratio:** The final image MUST be a square (1:1 aspect ratio).
+- **Aspect Ratio:** The final image MUST be a ${aspectRatio}. For profile pictures, this is typically '1:1'.
 - **Overall Quality:** The image must be a high-resolution, professional-grade profile picture.
 `;
+    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(finalPrompt, [headshot]);
 };
 
-// FIX: Implemented the missing function 'generateLogoPrompts'.
 export const generateLogoPrompts = async (companyName: string, description: string, style: LogoStyle, slogan?: string, hasMascot?: boolean): Promise<GeneratedConcept[]> => {
     const mascotInstruction = hasMascot ? `
-- **Mascot Integration:** The logo MUST incorporate a character or mascot.
-- **Facial Likeness Command for Mascot:** The prompt MUST include this exact, verbatim command:
-  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY FOR MASCOT.**
-  Your primary task is to achieve a perfect, 10000% photorealistic match for the MASCOT'S FACE using the provided headshot image, but stylize it to fit the logo. The rest of the logo should be designed around this mascot.
-  - **Source of Truth:** The photo is the ground truth for the mascot's facial features.
-  - **Artistic Interpretation:** While the likeness must be perfect, the rendering style (e.g., cartoon, illustrative) should match the overall logo aesthetic.
-  - **Failure Condition:** Failure to achieve a clear likeness for the mascot is a complete failure of the task."`
-        : '';
+- **Mascot Integration:** The logo MUST incorporate a character or mascot. The structured prompt must describe how to stylize the mascot to fit the logo.
+` : '';
 
     const fullPrompt = `
-You are a world-class brand identity designer. Your task is to generate three distinct, professional logo concepts. You must follow the specified JSON output format.
+You are a world-class brand identity designer. Your task is to generate three distinct, professional logo concepts. For each concept, break down the visual idea into a structured JSON object.
 
 **1. Brand Brief:**
    - **Company Name:** "${companyName}"
@@ -647,25 +564,28 @@ You are a world-class brand identity designer. Your task is to generate three di
    ${mascotInstruction}
 
 **CRITICAL TASK & INSTRUCTIONS:**
-Generate three unique logo concepts. For each, create a detailed prompt for an AI image generator. The prompt should be a complete art direction for creating a vector-style logo on a clean, solid white background.
+Generate three unique logo concepts. For each, create a detailed structured prompt object for an AI. The prompt should result in a vector-style logo on a clean, solid white background.
 
-The prompts MUST include:
+The structured prompt MUST include:
 - **Core Concept:** A clear idea for the logo's iconography and composition.
 - **Typography:** Suggestions for font style (e.g., "clean sans-serif font", "elegant serif typeface").
 - **Color Palette:** A specific color scheme.
 - **Text Integration:** Explicitly state that the logo must include the company name "${companyName}" and, if provided, the slogan "${slogan}".
 
 You will return a single JSON object with a "concepts" key, an array of three objects.
-Each object must have "prompt", "reason", and "isRecommended" keys.
+Each object must have "structured_prompt", "reason", and "isRecommended" keys.
 Your response MUST be only the raw JSON object.
 `;
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
     return parseAndValidateConcepts(jsonText);
 };
 
-// FIX: Implemented the missing function 'generateLogo'.
-export const generateLogo = async (selectedPrompt: string, headshot: UploadedFile | null): Promise<string | null> => {
+export const generateLogo = async (selectedPrompt: string, headshot: UploadedFile | null, aspectRatio: AspectRatio): Promise<string | null> => {
+    const mascotPrompt = headshot ? FACIAL_LIKENESS_COMMAND.replace("face in the provided headshot image(s)", "MASCOT'S FACE using the provided headshot image, but stylize it to fit the logo") : "";
+    
     const finalPrompt = `
+${mascotPrompt}
+
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
 
@@ -673,19 +593,19 @@ export const generateLogo = async (selectedPrompt: string, headshot: UploadedFil
 - **Design Style:** Execute the creative brief precisely.
 - **Background:** The logo MUST be on a solid, clean, WHITE background. This is non-negotiable.
 - **Text Accuracy:** Any text (company name, slogan) mentioned in the brief must be rendered with 10000% accuracy. No spelling errors.
-- **Mascot Likeness:** If the brief includes the "FACIAL LIKENESS" directive, you must adhere to it for the mascot.
-- **Aspect Ratio:** The final image must be a square (1:1 aspect ratio).
+- **Mascot Likeness:** If a headshot is provided, you must adhere to the mascot likeness directive.
+- **Aspect Ratio:** The final image must be a ${aspectRatio}.
 - **Format:** The final output should be a clean, high-resolution graphic, suitable for a logo.
 `;
     const images = headshot ? [headshot] : [];
     if (images.length > 0) {
+        // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
         return geminiNativeService.generateImage(finalPrompt, images);
     } else {
-        return geminiNativeService.generateImageFromText(finalPrompt, '1:1');
+        return geminiNativeService.generateImageFromText(finalPrompt, aspectRatio);
     }
 };
 
-// FIX: Implemented the missing function 'enhanceImage'.
 export const enhanceImage = async (image: UploadedFile): Promise<string | null> => {
     const prompt = `
 **CRITICAL TASK: 10x IMAGE ENHANCEMENT**
@@ -696,13 +616,13 @@ Your task is to take the provided user image and perform a comprehensive, profes
 4.  **Lighting and Color Correction:** Correct any color casts, improve dynamic range (contrast), and relight the scene subtly to make the subject pop. The result should look natural and professional, not overly edited.
 5.  **Output:** Return only the final, enhanced image. Do not add any text or alter the composition.
 `;
+    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(prompt, [image]);
 };
 
-// FIX: Implemented the missing function 'generateHeadshotPrompts'.
 export const generateHeadshotPrompts = async (description: string, style: HeadshotStyle, imageCount: number): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are an expert corporate and portrait photographer. Generate three distinct concepts for a professional headshot. The final output will be a set of 5 headshots from different angles (Front, 3/4 Left, 3/4 Right, Left Profile, Right Profile). Your concepts should provide a strong, unified art direction suitable for this multi-angle output. You must follow the specified JSON output format.
+You are an expert corporate and portrait photographer. Generate three distinct concepts for a professional headshot. For each concept, break down the visual idea into a structured JSON object. The final output will be a set of 5 headshots from different angles. Your concepts should provide a strong, unified art direction suitable for this multi-angle output.
 
 **1. User Request:**
    - **Purpose/Description:** "${description}"
@@ -710,29 +630,15 @@ You are an expert corporate and portrait photographer. Generate three distinct c
    - **User Assets:** The user has provided ${imageCount} reference photo(s).
 
 **CRITICAL TASK & INSTRUCTIONS:**
-Generate three unique concepts. For each, create a detailed prompt for an AI image generator.
-
-Your prompts MUST explicitly define:
-- **Outfit:** Describe a suitable professional outfit.
-- **Lighting:** (e.g., "professional three-point studio lighting", "soft window light").
-- **Background:** (e.g., "out-of-focus modern office background", "solid, neutral-colored studio backdrop").
-- **Expression & Mood:** (e.g., "a confident, friendly smile, posed at a 3/4 angle", "a powerful and serious expression, looking directly at the camera").
-- **Facial Likeness Command:** Each prompt MUST include this exact, verbatim command:
-  "**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-  Your primary task is to achieve a perfect, 10000% photorealistic match to the face by synthesizing the best features from ALL provided reference images. This is not a creative guideline.
-  - **Source of Truth:** The provided photos are the absolute ground truth for all facial features. Use the clearest details from across the entire set of images.
-  - **No Artistic Interpretation:** Do not alter or stylize the face. It must be a perfect, photorealistic replication.
-  - **Failure Condition:** Any deviation from a perfect likeness is a complete failure of the task."
-
-Return a single JSON object with a "concepts" key, an array of three objects.
-Each object must have "prompt", "reason", and "isRecommended" keys.
+Generate three unique concepts. For each, create a detailed structured prompt object.
+You will return a single JSON object with a "concepts" key, an array of three objects.
+Each object must have "structured_prompt", "reason", and "isRecommended" keys.
 Your response MUST be only the raw JSON object.
 `;
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
     return parseAndValidateConcepts(jsonText);
 };
 
-// FIX: Implemented the missing function 'generateHeadshot'.
 const HEADSHOT_ANGLES = ["Front", "3/4 Left", "3/4 Right", "Left Profile", "Right Profile"];
 export const generateHeadshot = async (selectedPrompt: string, images: UploadedFile[]): Promise<{ angle: string; image: string; }[]> => {
     const generationPromises = HEADSHOT_ANGLES.map(async (angle) => {
@@ -756,6 +662,7 @@ Your primary, non-negotiable, and most critical task is to achieve a perfect, 10
 - **Quality:** High-resolution, professional-grade headshot.
 `;
         try {
+            // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
             const image = await geminiNativeService.generateImage(anglePrompt, images);
             return image ? { angle, image } : null;
         } catch (error) {
@@ -768,14 +675,12 @@ Your primary, non-negotiable, and most critical task is to achieve a perfect, 10
     return results.filter((result): result is { angle: string; image: string; } => result !== null);
 };
 
-// FIX: Implemented the missing function 'generatePassportPhoto'.
 export const generatePassportPhoto = async (image: UploadedFile, outfit: string, backgroundColor: string): Promise<string | null> => {
     const prompt = `
 **CRITICAL TASK: OFFICIAL PASSPORT PHOTO CREATION**
 Your task is to convert the provided user photo into an official, compliant passport/visa photo.
 
-**NON-NEGOTIABLE CORE DIRECTIVE: 10000% FACIAL LIKENESS & FIDELITY.**
-- Your primary task is to achieve a perfect, 10000% photorealistic match to the face in the provided image. This is a strict technical mandate. Do not alter or stylize the face. Any deviation is a complete failure.
+${FACIAL_LIKENESS_COMMAND}
 
 **EXECUTION STEPS:**
 1.  **Isolate Subject:** Perfectly cut out the person from their original background.
@@ -784,16 +689,17 @@ Your task is to convert the provided user photo into an official, compliant pass
 4.  **Pose & Expression:** Ensure the final image is a front-facing, head-and-shoulders portrait with a neutral expression, eyes open and looking directly at the camera.
 5.  **Final Image:** The output must be a clean, high-resolution image with no shadows on the background. Return only the final image.
 `;
+    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(prompt, [image]);
 };
 
-// FIX: Updated function to accept eventDetails object and include them in the prompt, resolving the argument count error.
 export const editEventPoster = async (
     image: UploadedFile,
     headline: string,
     branding: string,
     style: EventPosterStyle,
-    eventDetails: { date: string; time: string; venue: string }
+    eventDetails: { date: string; time: string; venue: string },
+    aspectRatio: AspectRatio
 ): Promise<string | null> => {
     const brandingInstruction = branding.trim() ? `Also, subtly integrate the following branding information: "${branding}".` : "";
     
@@ -817,48 +723,46 @@ Take the provided event photograph and turn it into a stylish promotional poster
 4.  **Add Branding:** ${brandingInstruction}
 5.  **Add Event Details:** ${detailsInstruction}
 6.  **Integration:** All text elements (headline, branding, details) must be artistically integrated into the image, looking like a professional graphic designer created it. It should not look like simple text overlaid on a photo. Ensure good hierarchy and readability.
-7.  **Output:** Return only the final, edited poster image.
+7.  **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
+8.  **Output:** Return only the final, edited poster image.
 `;
+    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(prompt, [image]);
 };
 
-// FIX: Implemented the missing function 'generateNewspaperCutting' to support the NewspaperCuttingMaker tool.
 export const generateNewspaperCutting = async (
     image: UploadedFile,
     headline: string,
     bodyText: string,
-    newspaperName: string,
-    date: string,
-    style: NewspaperStyle
+    language: string,
+    style: NewspaperStyle,
+    aspectRatio: AspectRatio
 ): Promise<string | null> => {
     const prompt = `
-**CRITICAL TASK: CREATE REALISTIC NEWSPAPER CLIPPING**
-Your task is to take a user-provided photo and text, and transform them into a highly realistic newspaper clipping.
+**CRITICAL TASK: CREATE REALISTIC NEWSPAPER CLIPPING in ${language.toUpperCase()}**
+Your task is to take a user-provided photo and text, and transform them into a highly realistic newspaper clipping. ALL TEXT you generate (like the newspaper name) or render (headline, body) MUST be in the **${language}** language.
 
 **EXECUTION STEPS:**
-1.  **Apply Newspaper Style:** The entire clipping MUST adhere to the following style guide: "${style.stylePrompt}". This includes the paper texture, font choices, and photo treatment (e.g., black and white, halftone).
-2.  **Integrate Text:**
-    -   **Newspaper Name:** Prominently feature the name of the newspaper: "${newspaperName}".
-    -   **Date:** Include the date: "${date}".
-    -   **Headline:** Use the main headline: "${headline}". This must be the most prominent text.
-    -   **Body Text:** Use the following body text for the article, formatted into realistic newspaper columns: "${bodyText}".
-3.  **Integrate Photo:**
-    -   Take the user-provided image and place it within the article.
-    -   The photo's style MUST be transformed to match the newspaper style (e.g., converted to grainy black and white with a halftone effect if the style is vintage).
-4.  **Final Composition:**
-    -   The final output should be a single image of the newspaper clipping, appearing as if it was torn or cut from a larger page.
-    -   The layout should be professional and authentic to the chosen newspaper style.
-    -   Return ONLY the final image of the newspaper clipping.
+1.  **Invent Details:** Based on the style guide, invent a plausible newspaper name and a relevant date. These must fit the theme and be in the **${language}** language.
+2.  **Apply Newspaper Style:** The entire clipping MUST adhere to the following style guide: "${style.stylePrompt}". This includes the paper texture, font choices, and photo treatment.
+3.  **Integrate Text (in ${language}):**
+    -   Use the newspaper name and date you invented.
+    -   Use the main headline: "${headline}". This must be the most prominent text.
+    -   Use the following body text for the article, formatted into realistic newspaper columns: "${bodyText}".
+4.  **Integrate Photo:** Place the user's photo within the article, transforming its style to match the newspaper theme (e.g., grainy black and white for vintage).
+5.  **Final Composition:** The output should be a single image of the newspaper clipping, looking authentically cut or torn.
+6.  **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
+7.  **Return ONLY the final image.**
 `;
+    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(prompt, [image]);
 };
 
-// FIX: Implemented the missing function 'generateVisitingCardPrompts'.
 export const generateVisitingCardPrompts = async (companyName: string, personName: string, title: string, contactInfo: string, style: VisitingCardStyle, hasLogo?: boolean): Promise<GeneratedConcept[]> => {
     const logoInstruction = hasLogo ? "The design MUST incorporate the user's provided company logo." : "The design should have a space for a logo, or create a simple typographic logo for the company name.";
 
     const fullPrompt = `
-You are a professional graphic designer specializing in print design. Generate three distinct concepts for a professional visiting card (business card). You must follow the specified JSON output format.
+You are a professional graphic designer specializing in print design. Generate three distinct concepts for a professional visiting card (business card). For each concept, break down the visual idea into a structured JSON object.
 
 **1. Card Details:**
    - **Company Name:** ${companyName}
@@ -869,24 +773,23 @@ You are a professional graphic designer specializing in print design. Generate t
    - **Logo:** ${logoInstruction}
 
 **CRITICAL TASK & INSTRUCTIONS:**
-Generate three unique concepts. For each, create a detailed prompt for an AI image generator. The prompt should result in a standard visiting card design (3.5 x 2 inches).
+Generate three unique concepts. For each, create a detailed structured prompt object for an AI image generator. The prompt should result in a standard visiting card design.
 
-The prompts MUST include:
+The structured prompt must include:
 - **Layout & Composition:** Describe the placement of all elements (logo, names, contact info).
 - **Typography:** Suggest specific font styles and hierarchy for the text elements.
 - **Color Palette:** Define a professional color scheme that fits the style.
 - **Text Accuracy:** The prompt must explicitly command the AI to render all text details with 10000% accuracy.
 
 You will return a single JSON object with a "concepts" key, an array of three objects.
-Each object must have "prompt", "reason", and "isRecommended" keys.
+Each object must have "structured_prompt", "reason", and "isRecommended" keys.
 Your response MUST be only the raw JSON object.
 `;
     const jsonText = await geminiNativeService.generateText(fullPrompt, CONCEPTS_SCHEMA);
     return parseAndValidateConcepts(jsonText);
 };
 
-// FIX: Implemented the missing function 'generateVisitingCard'.
-export const generateVisitingCard = async (selectedPrompt: string, logo: UploadedFile | null): Promise<string | null> => {
+export const generateVisitingCard = async (selectedPrompt: string, logo: UploadedFile | null, aspectRatio: AspectRatio): Promise<string | null> => {
     const finalPrompt = `
 **CREATIVE BRIEF TO EXECUTE:**
 "${selectedPrompt}"
@@ -895,18 +798,18 @@ export const generateVisitingCard = async (selectedPrompt: string, logo: Uploade
 - **Design:** Execute the creative brief precisely.
 - **Text Accuracy:** All text details (names, company, contact info) mentioned in the brief must be rendered with 10000% PERFECT accuracy, with no spelling errors or omissions. This is the most critical part of the task.
 - **Logo Integration:** If the brief mentions integrating a provided logo, you must use the image provided.
-- **Aspect Ratio:** The final image MUST have a standard business card aspect ratio of **3.5:2**.
+- **Aspect Ratio:** The final image MUST have the aspect ratio of **${aspectRatio}**.
 - **Quality:** The final image must be a crisp, high-resolution, print-ready design.
 `;
     const images = logo ? [logo] : [];
     if (images.length > 0) {
+        // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
         return geminiNativeService.generateImage(finalPrompt, images);
     } else {
-        return geminiNativeService.generateImageFromText(finalPrompt, '3.5:2');
+        return geminiNativeService.generateImageFromText(finalPrompt, aspectRatio);
     }
 };
 
-// FIX: Implemented the missing function 'checkCurrentApiStatus'.
 export const checkCurrentApiStatus = async (): Promise<{ status: ValidationStatus; error?: string | null }> => {
     try {
         const apiKey = apiConfigService.getApiKey();

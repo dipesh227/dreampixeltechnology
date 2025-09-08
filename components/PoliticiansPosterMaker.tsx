@@ -4,12 +4,13 @@ import { generatePosterPrompts, generatePoster } from '../services/aiService';
 import { POLITICAL_PARTIES, POSTER_STYLES, POSTER_THEMES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
-import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineFlag, HiOutlineCalendarDays, HiOutlineDocumentText, HiComputerDesktop, HiDevicePhoneMobile, HiOutlineArrowPath, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb, HiOutlineQueueList } from 'react-icons/hi2';
+import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineFlag, HiOutlineCalendarDays, HiOutlineDocumentText, HiOutlineArrowPath, HiArrowLeft, HiOutlineDocumentDuplicate, HiCheck, HiOutlineLightBulb, HiOutlineQueueList } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
 import StyleSelector from './StyleSelector';
 import { resizeImage } from '../utils/cropImage';
+import AspectRatioSelector from './AspectRatioSelector';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -299,21 +300,11 @@ export const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ 
                 onStyleSelect={setSelectedStyleId}
             />
             
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Choose the final poster shape. 4:5 is ideal for most social media feeds, while 9:16 is for stories (e.g., Instagram, WhatsApp).">
-                <h2 className="text-xl font-bold text-white mb-4">6. Choose Aspect Ratio</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <button onClick={() => setAspectRatio('4:5')} className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors duration-200 ${aspectRatio === '4:5' ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>
-                        <HiComputerDesktop className="w-10 h-10 mb-2 text-slate-300"/>
-                        <p className="font-bold text-lg text-white">4:5</p>
-                        <p className="text-sm text-slate-400">Social Media Post</p>
-                    </button>
-                    <button onClick={() => setAspectRatio('9:16')} className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors duration-200 ${aspectRatio === '9:16' ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>
-                        <HiDevicePhoneMobile className="w-10 h-10 mb-2 text-slate-300"/>
-                        <p className="font-bold text-lg text-white">9:16</p>
-                        <p className="text-sm text-slate-400">Story / Reel</p>
-                    </button>
-                </div>
-            </div>
+            <AspectRatioSelector
+                selectedRatio={aspectRatio}
+                onSelectRatio={setAspectRatio}
+                availableRatios={['4:5', '9:16', '1:1', '16:9']}
+            />
 
              <div className="flex justify-center pt-4">
                 <button onClick={handleGenerateConcepts} disabled={isLoading || headshots.length === 0} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
@@ -327,7 +318,7 @@ export const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ 
     const renderPromptSelectionStep = () => (
         <div className="max-w-7xl mx-auto animate-fade-in">
             <h2 className="text-3xl font-bold text-center mb-2 text-white">Choose Your Poster Concept</h2>
-            <p className="text-slate-400 text-center mb-10">Select a concept below to generate your final poster.</p>
+            <p className="text-slate-400 text-center mb-10">Select a concept below to generate your final poster. Hover to see the detailed AI prompt.</p>
             <div className="grid md:grid-cols-3 gap-6">
                 {generatedPrompts.map((concept, index) => (
                     <div 
@@ -338,6 +329,7 @@ export const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ 
                                 ? 'border-amber-400 bg-slate-800/50' 
                                 : 'border-slate-800 bg-slate-900/70 hover:border-slate-700 hover:-translate-y-1'
                             }`}
+                         data-tooltip={concept.structured_prompt ? JSON.stringify(concept.structured_prompt, null, 2) : 'No structured prompt available.'}
                     >
                         <div>
                             {concept.isRecommended && (

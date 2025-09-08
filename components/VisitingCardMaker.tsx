@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UploadedFile, GeneratedConcept, TemplatePrefillData, VisitingCardStyle } from '../types';
+import { UploadedFile, GeneratedConcept, TemplatePrefillData, VisitingCardStyle, AspectRatio } from '../types';
 import { generateVisitingCardPrompts, generateVisitingCard } from '../services/aiService';
 import { VISITING_CARD_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
@@ -27,6 +27,8 @@ export const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigate
     const [title, setTitle] = useState('');
     const [contactInfo, setContactInfo] = useState('');
     const [selectedStyleId, setSelectedStyleId] = useState<string>(VISITING_CARD_STYLES[0].id);
+    // FIX: Added missing aspectRatio state required by service calls. Defaulted to standard business card ratio.
+    const [aspectRatio, setAspectRatio] = useState<AspectRatio>('3.5:2');
     
     const [generatedPrompts, setGeneratedPrompts] = useState<GeneratedConcept[]>([]);
     const [finalPrompt, setFinalPrompt] = useState<string>('');
@@ -87,9 +89,10 @@ export const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigate
         }
 
         if (session) {
+            // FIX: Added missing aspectRatio property to satisfy the VisitingCardJobData type.
             jobService.saveVisitingCardJob({
                 userId: session.user.id,
-                companyName, personName, title, contactInfo, styleId: selectedStyleId, logoFilename: logo?.name || null
+                companyName, personName, title, contactInfo, styleId: selectedStyleId, logoFilename: logo?.name || null, aspectRatio
             });
         }
         
@@ -116,7 +119,8 @@ export const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigate
         setStep('generating');
         setIsSaved(false);
         try {
-            const imageResult = await generateVisitingCard(prompt, logo);
+            // FIX: Added missing aspectRatio argument to the function call.
+            const imageResult = await generateVisitingCard(prompt, logo, aspectRatio);
             if (imageResult) {
                 setGeneratedImage(imageResult);
                 setStep('result');

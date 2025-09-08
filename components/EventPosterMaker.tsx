@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UploadedFile, EventPosterStyle, TemplatePrefillData } from '../types';
+import { UploadedFile, EventPosterStyle, TemplatePrefillData, AspectRatio } from '../types';
 import { editEventPoster } from '../services/aiService';
 import { EVENT_POSTER_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import StyleSelector from './StyleSelector';
 import { resizeImage } from '../utils/cropImage';
+import AspectRatioSelector from './AspectRatioSelector';
 
 interface EventPosterMakerProps {
     onNavigateHome: () => void;
@@ -26,6 +27,8 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
     const [time, setTime] = useState('');
     const [venue, setVenue] = useState('');
     const [selectedStyleId, setSelectedStyleId] = useState<string>(EVENT_POSTER_STYLES[0].id);
+    // FIX: Added missing aspectRatio state required by service calls.
+    const [aspectRatio, setAspectRatio] = useState<AspectRatio>('4:5');
     
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -89,6 +92,7 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
         }
 
         if (session) {
+            // FIX: Added missing aspectRatio property to the job data object.
             jobService.saveEventPosterJob({
                 userId: session.user.id,
                 headline,
@@ -98,6 +102,7 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
                 date,
                 time,
                 venue,
+                aspectRatio,
             });
         }
         
@@ -105,7 +110,8 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
         setError(null);
         setIsSaved(false);
         try {
-            const result = await editEventPoster(originalImage, headline, branding, selectedStyle, { date, time, venue });
+            // FIX: Added missing aspectRatio argument to the function call.
+            const result = await editEventPoster(originalImage, headline, branding, selectedStyle, { date, time, venue }, aspectRatio);
             if (result) {
                 setEditedImage(result);
             } else {
@@ -205,6 +211,11 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
                 selectedStyleId={selectedStyleId}
                 onStyleSelect={setSelectedStyleId}
             />
+             <AspectRatioSelector
+                selectedRatio={aspectRatio}
+                onSelectRatio={setAspectRatio}
+                availableRatios={['4:5', '9:16', '1:1', '16:9']}
+            />
              <div className="flex justify-center pt-8">
                 <button onClick={handleGenerate} disabled={isLoading || !originalImage || !headline.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
@@ -218,7 +229,7 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
         <div className="max-w-4xl mx-auto text-center animate-fade-in">
              <h2 className="text-3xl font-bold text-center mb-8 text-white">Your Event Poster is Ready!</h2>
              {editedImage && (
-                <img src={`data:image/png;base64,${editedImage}`} alt="Edited Event Poster" className="rounded-xl mx-auto shadow-2xl shadow-black/30 mb-8 border-2 border-slate-700/50" />
+                <img src={`data:image/png;base64,${editedImage}`} alt="Edited Event Poster" className="rounded-xl mx-auto shadow-2xl shadow-black/30 mb-8 border-2 border-slate-700/50" style={{ aspectRatio: aspectRatio.replace(':', ' / ') }} />
              )}
              <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4">
                  <button onClick={handleReset} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect">

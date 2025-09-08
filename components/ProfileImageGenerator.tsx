@@ -88,11 +88,13 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
         }
 
         if (session) {
+            // FIX: Added missing aspectRatio property to satisfy the ProfileImageJobData type.
             jobService.saveProfileImageJob({
                 userId: session.user.id,
                 description,
                 styleId: selectedStyleId,
-                headshot
+                headshot,
+                aspectRatio: '1:1'
             });
         }
         
@@ -125,7 +127,8 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
         setStep('generating');
         setIsSaved(false);
         try {
-            const imageResult = await generateProfilePicture(prompt, headshot);
+            // FIX: Added missing aspectRatio argument ('1:1') to the function call.
+            const imageResult = await generateProfilePicture(prompt, headshot, '1:1');
             if (imageResult) {
                 setGeneratedImage(imageResult);
                 setStep('result');

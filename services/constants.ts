@@ -1,4 +1,4 @@
-import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, PassportPhotoSize, VisitingCardStyle, EventPosterStyle, NewspaperStyle } from '../types';
+import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, PassportPhotoSize, VisitingCardStyle, EventPosterStyle, NewspaperStyle, AspectRatio, NewspaperLanguage } from '../types';
 
 // --- INLINED DATA FROM /data/*.json FILES ---
 
@@ -631,11 +631,53 @@ const eventPosterStylesData = [
     { "id": "ep-festive", "name": "Festive & Fun", "tags": "Playful, Colorful", "stylePrompt": "Use a playful, rounded, or script font. The text should be vibrant and can have a slight glow or outline. The layout should be fun and dynamic, possibly with text at an angle. Use bright, cheerful colors." }
 ];
 
-const newspaperStylesData = [
-    { "id": "vintage-broadsheet", "name": "Vintage Broadsheet", "tags": "Classic, Aged, Formal", "stylePrompt": "Create a classic, vintage newspaper look from the early 20th century. The paper should be yellowed and aged with a visible textured grain. Use a classic serif font like Times New Roman. The photo should be converted to a grainy black and white with a clear halftone dot pattern." },
-    { "id": "modern-tabloid", "name": "Modern Tabloid", "tags": "Bold, Sensational, Color", "stylePrompt": "Create a modern, sensational tabloid newspaper style. Use bold, impactful sans-serif fonts for the headline. The paper should be clean and white. The user's photo should be in full color, sharp, and prominently featured." },
-    { "id": "local-community", "name": "Local Community Paper", "tags": "Simple, Clean, Friendly", "stylePrompt": "Create the look of a friendly, local community newspaper. The design should be simple and clean, with a mix of serif and sans-serif fonts. The paper is slightly off-white. The photo should be in color but with a slightly muted, natural look." }
+const newspaperStylesData = {
+    "indian": [
+      { "id": "hindi-broadsheet", "name": "Classic Hindi Broadsheet", "tags": "Formal, Devanagari", "stylePrompt": "A classic, formal Hindi broadsheet newspaper style. The paper is slightly off-white and textured. Use a classic Devanagari serif font for headlines and body. The photo should be converted to a grainy, high-contrast black and white with a visible halftone pattern." },
+      { "id": "english-indian-daily", "name": "Modern Indian Daily (English)", "tags": "Clean, Professional", "stylePrompt": "A clean, modern Indian daily newspaper style in English. The layout is professional and grid-based, similar to the Times of India. Use a mix of serif (for body) and sans-serif (for headlines) fonts. The photo should be in full, crisp color." },
+      { "id": "marathi-local", "name": "Marathi Local Paper", "tags": "Regional, Vibrant", "stylePrompt": "A vibrant Marathi local newspaper style. Use bold Devanagari fonts. The layout can be dense and energetic. The paper is standard newsprint. The photo is in color, but with slightly boosted saturation typical of regional papers." },
+      { "id": "punjabi-bold", "name": "Bold Punjabi Tabloid", "tags": "Impactful, Gurmukhi", "stylePrompt": "A bold, impactful Punjabi tabloid style. Use large, heavy Gurmukhi fonts for the headline. The paper is white and clean. The photo is a prominent, full-color image." },
+      { "id": "tamil-weekly", "name": "Tamil Weekly Magazine", "tags": "Glossy, Colorful", "stylePrompt": "A glossy, colorful Tamil weekly magazine or newspaper style. The paper is brighter and of higher quality. Use stylish Tamil fonts. The photo is a high-quality, vibrant color photograph." },
+      { "id": "urdu-calligraphic", "name": "Urdu Calligraphic Daily", "tags": "Elegant, Traditional", "stylePrompt": "An elegant, traditional Urdu newspaper style. Use a beautiful Nastaliq calligraphic font for headlines. The paper is aged and off-white. The photo is in black and white with a classic, slightly soft focus." },
+      { "id": "bengali-literary", "name": "Bengali Literary Paper", "tags": "Classic, Artistic", "stylePrompt": "A literary and artistic Bengali newspaper style. Use classic Bengali typography. The layout is clean and thoughtful. The photo should be a moody, artistic black and white shot." },
+      { "id": "telugu-mass-daily", "name": "Telugu Mass Daily", "tags": "Bold, Colorful, Dynamic", "stylePrompt": "A dynamic and colorful Telugu mass-market daily newspaper. Use large, bold Telugu fonts for headlines. The layout is packed with information and visuals. The photo is a sharp, vibrant color picture." },
+      { "id": "malayalam-formal", "name": "Formal Malayalam Broadsheet", "tags": "Clean, Respected", "stylePrompt": "A clean, respected Malayalam broadsheet style. Use clear and legible Malayalam fonts. The layout is organized and professional. The photo is a standard, clear color news photograph." },
+      { "id": "gujarati-business", "name": "Gujarati Business Paper", "tags": "Financial, Professional", "stylePrompt": "A professional Gujarati business newspaper. The layout is structured with tables and financial data. Use clean Gujarati fonts. The photo is a formal, color portrait or product shot." }
+    ],
+    "international": [
+      { "id": "us-broadsheet", "name": "Classic American Broadsheet", "tags": "Vintage, NYT-style", "stylePrompt": "A classic American broadsheet newspaper from the 1940s-50s. The paper is aged, yellowed, with a visible texture. Use a classic serif font like Times New Roman or Bodoni. The photo must be a grainy black and white with a clear halftone dot pattern." },
+      { "id": "uk-tabloid", "name": "British Red-Top Tabloid", "tags": "Sensational, Bold", "stylePrompt": "A sensational, modern British red-top tabloid style. Use huge, bold, sans-serif fonts for a shocking headline. The layout is chaotic and loud. The photo is a slightly paparazzi-style, full-color, and dramatic image." },
+      { "id": "french-le-monde", "name": "French Le Monde Style", "tags": "Elegant, Minimalist", "stylePrompt": "An elegant, minimalist, and intellectual newspaper style like Le Monde. Use a sophisticated serif font. The layout is clean, with lots of white space. The photo is a beautifully composed, often moody, black and white photograph." },
+      { "id": "japanese-daily", "name": "Japanese Daily", "tags": "Dense, Vertical Text", "stylePrompt": "A traditional Japanese newspaper style. The layout is dense with a mix of horizontal and vertical text using Japanese characters (Kanji, Hiragana). The paper is standard newsprint. The photo is a clean, standard color news photo." },
+      { "id": "soviet-propaganda", "name": "Soviet Propaganda Paper", "tags": "Constructivist, Red", "stylePrompt": "A Soviet-era propaganda newspaper like 'Pravda'. Use bold, constructivist typography (often Cyrillic-style fonts). The color palette is limited to red, black, and the aged paper color. The photo should be a heroic, heavily contrasted black and white image." },
+      { "id": "art-deco-gazette", "name": "1920s Art Deco Gazette", "tags": "Stylish, Geometric", "stylePrompt": "A stylish Art Deco newspaper from the 1920s. Use geometric, stylized sans-serif fonts and decorative borders. The paper is lightly aged. The photo is a glamorous, slightly soft-focus sepia-toned image." },
+      { "id": "underground-zine", "name": "Underground Punk Zine", "tags": "DIY, Grunge", "stylePrompt": "A DIY punk rock zine from the 1980s. The style is chaotic, with a cut-and-paste, photocopied look. Use typewriter or stencil fonts. The paper is cheap and grainy. The photo is a very high-contrast, grainy, and gritty black and white image." },
+      { "id": "sci-fi-holo-news", "name": "Sci-Fi Holo-News", "tags": "Futuristic, Digital", "stylePrompt": "A futuristic sci-fi newspaper. The style is digital, with clean lines, sans-serif fonts, and a glowing, holographic quality. The 'paper' could be a semi-transparent screen. The photo is a sharp, futuristic color image with digital artifacts or a slight blue tint." },
+      { "id": "wild-west-chronicle", "name": "Wild West Chronicle", "tags": "1800s, Western", "stylePrompt": "An old newspaper from the American Wild West in the 1880s. The paper is heavily aged, torn, and stained. Use a mix of ornate and slab-serif western-style fonts. The photo is a faded, sepia-toned portrait with visible chemical stains and imperfections." },
+      { "id": "financial-times", "name": "Modern Financial Paper", "tags": "Clean, Corporate, Pink", "stylePrompt": "A modern financial newspaper style like the Financial Times. The paper is a distinctive salmon pink color. The layout is clean, dense, and full of data. Use a clean, modern serif font. The photo is a professional, color corporate headshot or image." }
+    ]
+  };
+
+const newspaperLanguagesData = [
+    { id: 'english', name: 'English' },
+    { id: 'hindi', name: 'Hindi (हिन्दी)' },
+    { id: 'marathi', name: 'Marathi (मराठी)' },
+    { id: 'punjabi', name: 'Punjabi (ਪੰਜਾਬੀ)' },
+    { id: 'tamil', name: 'Tamil (தமிழ்)' },
+    { id: 'spanish', name: 'Spanish (Español)' },
+    { id: 'french', name: 'French (Français)' },
+    { id: 'german', name: 'German (Deutsch)' },
+    { id: 'japanese', name: 'Japanese (日本語)' },
 ];
+
+const aspectRatiosData: { id: AspectRatio; name: string; icon: string }[] = [
+    { id: '1:1', name: 'Square', icon: 'M13 13V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1z' },
+    { id: '16:9', name: 'Landscape', icon: 'M21 5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5z' },
+    { id: "9:16", name: "Portrait", icon: "M5 21a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5z" },
+    { id: '4:5', name: 'Social', icon: 'M6 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3H6z' },
+    { id: '1.91:1', name: 'Widescreen', icon: 'M21 7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7z' }
+];
+
 
 // --- EXPORTED CONSTANTS ---
 
@@ -655,6 +697,10 @@ type LogoStyles = {
     [key: string]: LogoStyle[];
 }
 
+type NewspaperStyles = {
+    [key: string]: NewspaperStyle[];
+}
+
 export const CREATOR_STYLES: CreatorStyles = creatorStylesData;
 export const POLITICAL_PARTIES: PoliticalParty[] = politicalPartiesData;
 export const POSTER_STYLES: PosterStyle[] = posterStylesData;
@@ -667,4 +713,6 @@ export const PASSPORT_PHOTO_SIZES: PassportPhotoSize[] = passportPhotoSizesData;
 export const PASSPORT_PHOTO_STYLES: PassportPhotoStyle[] = passportPhotoStylesData;
 export const VISITING_CARD_STYLES: VisitingCardStyle[] = visitingCardStylesData;
 export const EVENT_POSTER_STYLES: EventPosterStyle[] = eventPosterStylesData;
-export const NEWSPAPER_STYLES: NewspaperStyle[] = newspaperStylesData;
+export const NEWSPAPER_STYLES: NewspaperStyles = newspaperStylesData;
+export const NEWSPAPER_LANGUAGES: NewspaperLanguage[] = newspaperLanguagesData;
+export const ASPECT_RATIOS: { id: AspectRatio; name: string; icon: string }[] = aspectRatiosData;

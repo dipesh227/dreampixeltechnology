@@ -285,7 +285,8 @@ CREATE TABLE public.profile_image_generation_jobs (
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
   description TEXT,
   style_id TEXT,
-  headshot_filenames TEXT[]
+  headshot_filenames TEXT[],
+  aspect_ratio TEXT
 );
 ALTER TABLE public.profile_image_generation_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own profile image jobs" ON public.profile_image_generation_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -298,7 +299,8 @@ CREATE TABLE public.logo_generation_jobs (
   slogan TEXT,
   description TEXT,
   style_id TEXT,
-  headshot_filename TEXT
+  headshot_filename TEXT,
+  aspect_ratio TEXT
 );
 ALTER TABLE public.logo_generation_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own logo jobs" ON public.logo_generation_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -345,7 +347,8 @@ CREATE TABLE public.visiting_card_jobs (
   title TEXT,
   contact_info TEXT,
   style_id TEXT,
-  logo_filename TEXT
+  logo_filename TEXT,
+  aspect_ratio TEXT
 );
 ALTER TABLE public.visiting_card_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own visiting card jobs" ON public.visiting_card_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -360,7 +363,8 @@ CREATE TABLE public.event_poster_jobs (
   original_image_filename TEXT,
   event_date TEXT,
   event_time TEXT,
-  event_venue TEXT
+  event_venue TEXT,
+  aspect_ratio TEXT
 );
 ALTER TABLE public.event_poster_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own event poster jobs" ON public.event_poster_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -404,10 +408,10 @@ CREATE TABLE public.newspaper_cutting_jobs (
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
   headline TEXT,
   body_text TEXT,
-  newspaper_name TEXT,
-  issue_date DATE,
+  language TEXT,
   style_id TEXT,
-  image_filename TEXT
+  image_filename TEXT,
+  aspect_ratio TEXT
 );
 ALTER TABLE public.newspaper_cutting_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own newspaper jobs" ON public.newspaper_cutting_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -625,7 +629,8 @@ CREATE TABLE public.profile_image_generation_jobs (
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
   description TEXT,
   style_id TEXT,
-  headshot_filenames TEXT[]
+  headshot_filenames TEXT[],
+  aspect_ratio TEXT
 );
 ```
 </details>
@@ -642,7 +647,8 @@ CREATE TABLE public.logo_generation_jobs (
   slogan TEXT,
   description TEXT,
   style_id TEXT,
-  headshot_filename TEXT
+  headshot_filename TEXT,
+  aspect_ratio TEXT
 );
 ```
 </details>
@@ -705,7 +711,8 @@ CREATE TABLE public.visiting_card_jobs (
   title TEXT,
   contact_info TEXT,
   style_id TEXT,
-  logo_filename TEXT
+  logo_filename TEXT,
+  aspect_ratio TEXT
 );
 ```
 </details>
@@ -724,7 +731,8 @@ CREATE TABLE public.event_poster_jobs (
   original_image_filename TEXT,
   event_date TEXT,
   event_time TEXT,
-  event_venue TEXT
+  event_venue TEXT,
+  aspect_ratio TEXT
 );
 ```
 </details>
@@ -739,10 +747,10 @@ CREATE TABLE public.newspaper_cutting_jobs (
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
   headline TEXT,
   body_text TEXT,
-  newspaper_name TEXT,
-  issue_date DATE,
+  language TEXT,
   style_id TEXT,
-  image_filename TEXT
+  image_filename TEXT,
+  aspect_ratio TEXT
 );
 ```
 </details>

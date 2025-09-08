@@ -1,6 +1,10 @@
 // FIX: Removed 'social' from ToolType as it is not an implemented tool and was causing a type error. The 'social-campaign' tool handles all social media functionality.
 export type ToolType = 'thumbnail' | 'advertisement' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'social-campaign' | 'newspaper';
 
+export type PageType = 'about' | 'contact' | 'privacy' | 'terms';
+export type ViewType = ToolType | 'landing' | PageType;
+
+
 export interface Tool {
   id: ToolType;
   description: string;
@@ -95,7 +99,7 @@ export interface NewspaperStyle {
     stylePrompt: string;
 }
 
-export type AspectRatio = '16:9' | '9:16' | '1:1' | '4:5' | '1.91:1' | '3.5:2';
+export type AspectRatio = '1:1' | '16:9' | '9:16' | '4:5' | '1.91:1' | '3.5:2' | '2:3.5';
 
 export interface UploadedFile {
     base64: string;
@@ -110,8 +114,17 @@ export interface HistoryEntry {
   timestamp: number;
 }
 
+export interface StructuredPrompt {
+  composition: string;
+  lighting: string;
+  color_palette: string;
+  subject_details: string;
+  extra_details: string;
+}
+
 export interface GeneratedConcept {
   prompt: string;
+  structured_prompt: StructuredPrompt;
   caption?: string;
   reason: string;
   isRecommended: boolean;
@@ -194,4 +207,9 @@ export interface SocialCampaign {
     TikTok?: PlatformPostConcept;
     Threads?: PlatformPostConcept;
     YouTube_Shorts?: PlatformPostConcept;
+}
+
+export interface NewspaperLanguage {
+  id: string;
+  name: string;
 }

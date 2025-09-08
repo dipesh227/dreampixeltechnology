@@ -88,9 +88,10 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
         }
 
         if (session) {
+            // FIX: Added missing aspectRatio property to satisfy the LogoJobData type.
             jobService.saveLogoJob({
                 userId: session.user.id,
-                companyName, slogan, description, styleId: selectedStyleId, headshot
+                companyName, slogan, description, styleId: selectedStyleId, headshot, aspectRatio: '1:1'
             });
         }
         
@@ -117,7 +118,8 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
         setStep('generating');
         setIsSaved(false);
         try {
-            const imageResult = await generateLogo(prompt, headshot);
+            // FIX: Added missing aspectRatio argument ('1:1') to the function call.
+            const imageResult = await generateLogo(prompt, headshot, '1:1');
             if (imageResult) {
                 setGeneratedImage(imageResult);
                 setStep('result');

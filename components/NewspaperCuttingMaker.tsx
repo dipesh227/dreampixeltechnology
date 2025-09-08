@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { UploadedFile, NewspaperStyle } from '../types';
+import { UploadedFile, NewspaperStyle, AspectRatio } from '../types';
 import { generateNewspaperCutting } from '../services/aiService';
-import { NEWSPAPER_STYLES } from '../services/constants';
+import { NEWSPAPER_STYLES, NEWSPAPER_LANGUAGES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
-import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiArrowLeft, HiOutlineNewspaper, HiCalendar, HiPencil } from 'react-icons/hi2';
+import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiArrowLeft, HiOutlineNewspaper, HiPencil, HiOutlineLanguage } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import StyleSelector from './StyleSelector';
 import { resizeImage } from '../utils/cropImage';
+import AspectRatioSelector from './AspectRatioSelector';
 
 interface NewspaperCuttingMakerProps {
     onNavigateHome: () => void;
@@ -21,9 +22,11 @@ export const NewspaperCuttingMaker: React.FC<NewspaperCuttingMakerProps> = ({ on
     const [image, setImage] = useState<UploadedFile | null>(null);
     const [headline, setHeadline] = useState('');
     const [bodyText, setBodyText] = useState('');
-    const [newspaperName, setNewspaperName] = useState('The Daily Chronicle');
-    const [date, setDate] = useState(new Date().toLocaleDateString('en-CA'));
-    const [selectedStyleId, setSelectedStyleId] = useState<string>(NEWSPAPER_STYLES[0].id);
+    // FIX: Replaced incorrect newspaperName and date state with language and aspectRatio to match service requirements.
+    const [language, setLanguage] = useState(NEWSPAPER_LANGUAGES[0].id);
+    const [aspectRatio, setAspectRatio] = useState<AspectRatio>('4:5');
+    // FIX: Correctly initialize selectedStyleId from the categorized NEWSPAPER_STYLES object.
+    const [selectedStyleId, setSelectedStyleId] = useState<string>(NEWSPAPER_STYLES.indian[0].id);
     
     const [generatedImage, setGeneratedImage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -78,21 +81,32 @@ export const NewspaperCuttingMaker: React.FC<NewspaperCuttingMakerProps> = ({ on
             setError('Please provide a headline and body text.');
             return;
         }
-        const selectedStyle = NEWSPAPER_STYLES.find(s => s.id === selectedStyleId);
+        // FIX: Correctly find the selected style from the nested object structure.
+        const allStyles = Object.values(NEWSPAPER_STYLES).flat();
+        const selectedStyle = allStyles.find(s => s.id === selectedStyleId);
         if (!selectedStyle) {
             setError('Please select a valid newspaper style.');
             return;
         }
 
         if (session) {
-            // jobService.saveNewspaperJob({...}); // TODO: Add to jobService
+            jobService.saveNewspaperJob({
+                userId: session.user.id,
+                headline,
+                bodyText,
+                language,
+                styleId: selectedStyleId,
+                imageFilename: image.name,
+                aspectRatio,
+            });
         }
         
         setIsLoading(true);
         setError(null);
         setIsSaved(false);
         try {
-            const result = await generateNewspaperCutting(image, headline, bodyText, newspaperName, date, selectedStyle);
+            // FIX: Passed correct arguments (language, selectedStyle, aspectRatio) to the service function.
+            const result = await generateNewspaperCutting(image, headline, bodyText, language, selectedStyle, aspectRatio);
             if (result) {
                 setGeneratedImage(result);
             } else {
@@ -161,8 +175,9 @@ export const NewspaperCuttingMaker: React.FC<NewspaperCuttingMakerProps> = ({ on
                 </div>
                  <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
                     <h3 className="text-xl font-bold text-white mb-1">2. Write Your Article</h3>
-                     <div className="flex items-center gap-3"><HiOutlineNewspaper className="w-5 h-5 text-purple-400"/><input value={newspaperName} onChange={(e) => setNewspaperName(e.target.value)} placeholder="Newspaper Name" className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" /></div>
-                     <div className="flex items-center gap-3"><HiCalendar className="w-5 h-5 text-purple-400"/><input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" /></div>
+                    <div className="flex items-center gap-3"><HiOutlineLanguage className="w-5 h-5 text-purple-400"/><select value={language} onChange={e => setLanguage(e.target.value)} className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm">
+                        {NEWSPAPER_LANGUAGES.map(lang => <option key={lang.id} value={lang.id}>{lang.name}</option>)}
+                    </select></div>
                     <div className="flex items-start gap-3"><HiPencil className="w-5 h-5 mt-2 text-purple-400"/><input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Headline" className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" /></div>
                     <textarea value={bodyText} onChange={(e) => setBodyText(e.target.value)} placeholder="Body text for the article..." className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={4}></textarea>
                 </div>
@@ -173,6 +188,11 @@ export const NewspaperCuttingMaker: React.FC<NewspaperCuttingMakerProps> = ({ on
                 stylesData={NEWSPAPER_STYLES}
                 selectedStyleId={selectedStyleId}
                 onStyleSelect={setSelectedStyleId}
+            />
+            <AspectRatioSelector
+                selectedRatio={aspectRatio}
+                onSelectRatio={setAspectRatio}
+                availableRatios={['4:5', '1:1', '9:16']}
             />
              <div className="flex justify-center pt-8">
                 <button onClick={handleGenerate} disabled={isLoading || !image || !headline.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">

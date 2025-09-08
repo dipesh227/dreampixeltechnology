@@ -1,14 +1,15 @@
 import React from 'react';
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaXTwitter } from 'react-icons/fa6';
-import { ConnectedAccount } from '../types';
+import { ConnectedAccount, ViewType } from '../types';
 
 interface FooterProps {
     dbStatus: 'connecting' | 'connected' | 'error';
     dbError: string | null;
     connectedAccounts: ConnectedAccount[];
+    onNavigate: (view: ViewType) => void;
 }
 
-const Footer: React.FC<FooterProps> = ({ dbStatus, dbError, connectedAccounts }) => {
+const Footer: React.FC<FooterProps> = ({ dbStatus, dbError, connectedAccounts, onNavigate }) => {
     const statusInfo = {
         connecting: { color: 'bg-yellow-500 neon-yellow-pulse', text: 'Connecting to database...' },
         connected: { color: 'bg-green-500 neon-green', text: 'Database connection stable' },
@@ -23,7 +24,6 @@ const Footer: React.FC<FooterProps> = ({ dbStatus, dbError, connectedAccounts })
     ];
 
     const isConnected = (platformName: string) => {
-        // Handle 'X' and 'X-Twitter' as the same platform for connection status
         if (platformName === 'X') {
             return connectedAccounts.some(acc => acc.platform === 'X' || acc.platform === 'X-Twitter');
         }
@@ -31,12 +31,9 @@ const Footer: React.FC<FooterProps> = ({ dbStatus, dbError, connectedAccounts })
     };
 
     return (
-        <footer className="py-6 px-4 border-t border-slate-800/50 mt-12">
-            <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-6">
-                <p className="text-sm text-slate-500 order-3 sm:order-1">
-                    © {new Date().getFullYear()} Dream Pixel Technology. All rights reserved.
-                </p>
-                <div className="flex items-center gap-6 order-2 sm:order-2">
+        <footer className="py-8 px-4 border-t border-slate-800/50 mt-12">
+            <div className="container mx-auto flex flex-col items-center gap-6">
+                <div className="flex items-center gap-6">
                     {socialLinks.map(({ Icon, name, hoverClass }) => (
                         <div
                             key={name}
@@ -50,9 +47,20 @@ const Footer: React.FC<FooterProps> = ({ dbStatus, dbError, connectedAccounts })
                         </div>
                     ))}
                 </div>
-                <div className="flex items-center gap-2 order-1 sm:order-3" title={statusInfo[dbStatus].text}>
-                    <div className={`w-2.5 h-2.5 rounded-full ${statusInfo[dbStatus].color} transition-colors`}></div>
-                    <span className="text-xs text-slate-600">Database Status</span>
+                <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-sm text-slate-400">
+                    <button onClick={() => onNavigate('about')} className="hover:text-white transition-colors">About Us</button>
+                    <button onClick={() => onNavigate('contact')} className="hover:text-white transition-colors">Contact</button>
+                    <button onClick={() => onNavigate('privacy')} className="hover:text-white transition-colors">Privacy Policy</button>
+                    <button onClick={() => onNavigate('terms')} className="hover:text-white transition-colors">Terms of Service</button>
+                </div>
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-between pt-6 border-t border-slate-800/80 mt-6">
+                    <p className="text-sm text-slate-500 order-2 sm:order-1">
+                        © {new Date().getFullYear()} Dream Pixel Technology. All rights reserved.
+                    </p>
+                    <div className="flex items-center gap-2 order-1 sm:order-2" title={statusInfo[dbStatus].text}>
+                        <div className={`w-2.5 h-2.5 rounded-full ${statusInfo[dbStatus].color} transition-colors`}></div>
+                        <span className="text-xs text-slate-600">Database Status</span>
+                    </div>
                 </div>
             </div>
         </footer>

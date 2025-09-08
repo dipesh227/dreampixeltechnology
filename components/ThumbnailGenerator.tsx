@@ -4,11 +4,12 @@ import { generatePrompts, generateThumbnail } from '../services/aiService';
 import { CREATOR_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
-import { HiArrowLeft, HiCheck, HiComputerDesktop, HiDevicePhoneMobile, HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineDocumentText, HiOutlineChatBubbleLeftRight, HiOutlineTag, HiOutlineDocumentDuplicate, HiOutlineArrowPath, HiOutlineLightBulb, HiOutlineQueueList } from 'react-icons/hi2';
+import { HiArrowLeft, HiCheck, HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiOutlineDocumentText, HiOutlineChatBubbleLeftRight, HiOutlineTag, HiOutlineDocumentDuplicate, HiOutlineArrowPath, HiOutlineLightBulb, HiOutlineQueueList } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
 import StyleSelector from './StyleSelector';
+import AspectRatioSelector from './AspectRatioSelector';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -225,11 +226,11 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
               <div className="flex divide-x divide-slate-700">
                 <div className="pr-6">
                   <h3 className="font-semibold text-slate-300">Concept Generation</h3>
-                  <p className="text-sm text-slate-500">Gemini 1.5 Flash</p>
+                  <p className="text-sm text-slate-500">gemini-2.5-flash</p>
                 </div>
                 <div className="pl-6">
                   <h3 className="font-semibold text-slate-300">Thumbnail Generation</h3>
-                  <p className="text-sm text-slate-500">Gemini 1.5 Flash (Vision)</p>
+                  <p className="text-sm text-slate-500">gemini-2.5-flash-image-preview</p>
                 </div>
               </div>
             </div>
@@ -303,21 +304,11 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
                 onStyleSelect={setSelectedStyleId}
             />
             
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Choose the final shape of your thumbnail. 16:9 is standard for YouTube videos, while 9:16 is for Shorts, Reels, and TikTok.">
-                <h2 className="text-xl font-bold text-white mb-4">4. Choose Aspect Ratio</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <button onClick={() => setAspectRatio('16:9')} className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors duration-200 ${aspectRatio === '16:9' ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>
-                        <HiComputerDesktop className="w-10 h-10 mb-2 text-slate-300"/>
-                        <p className="font-bold text-lg text-white">16:9</p>
-                        <p className="text-sm text-slate-400">YouTube</p>
-                    </button>
-                    <button onClick={() => setAspectRatio('9:16')} className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors duration-200 ${aspectRatio === '9:16' ? 'border-purple-500 bg-slate-800/50' : 'border-slate-800 bg-slate-900 hover:border-slate-700'}`}>
-                        <HiDevicePhoneMobile className="w-10 h-10 mb-2 text-slate-300"/>
-                        <p className="font-bold text-lg text-white">9:16</p>
-                        <p className="text-sm text-slate-400">Shorts/Reels</p>
-                    </button>
-                </div>
-            </div>
+            <AspectRatioSelector
+                selectedRatio={aspectRatio}
+                onSelectRatio={setAspectRatio}
+                availableRatios={['16:9', '9:16', '1:1', '4:5']}
+            />
 
              <div className="flex justify-center pt-4">
                 <button onClick={handleGeneratePrompts} disabled={isLoading || !description.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
@@ -331,7 +322,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
     const renderPromptSelectionStep = () => (
         <div className="max-w-7xl mx-auto animate-fade-in">
             <h2 className="text-3xl font-bold text-center mb-2 text-white">Choose Your Thumbnail Style</h2>
-            <p className="text-slate-400 text-center mb-10">Select a concept below to generate your thumbnail.</p>
+            <p className="text-slate-400 text-center mb-10">Select a concept below to generate your thumbnail. Hover to see the detailed AI prompt.</p>
             <div className="grid md:grid-cols-3 gap-6">
                 {generatedPrompts.map((concept, index) => (
                     <div 
@@ -342,6 +333,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
                                 ? 'border-amber-400 bg-slate-800/50' 
                                 : 'border-slate-800 bg-slate-900/70 hover:border-slate-700 hover:-translate-y-1'
                             }`}
+                        data-tooltip={concept.structured_prompt ? JSON.stringify(concept.structured_prompt, null, 2) : 'No structured prompt available.'}
                     >
                         <div>
                             {concept.isRecommended && (

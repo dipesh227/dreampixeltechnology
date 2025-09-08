@@ -1,5 +1,3 @@
-
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { AdStyle, AspectRatio, UploadedFile, GeneratedConcept, TemplatePrefillData } from '../types';
 import { generateAdConcepts, generateAdBanner, editImage } from '../services/aiService';
@@ -12,6 +10,7 @@ import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
 import StyleSelector from './StyleSelector';
 import { resizeImage } from '../utils/cropImage';
+import AspectRatioSelector from './AspectRatioSelector';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -21,6 +20,7 @@ interface AdBannerGeneratorProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
+// FIX: Added a return statement to the component to render JSX, resolving the type error where the function returned 'void'.
 export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, onBannerGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
@@ -284,6 +284,12 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
                 </div>
             </div>
             <StyleSelector title="3. Choose an Ad Style" stylesData={AD_STYLES} selectedStyleId={selectedStyleId} onStyleSelect={setSelectedStyleId} />
+            
+            <AspectRatioSelector
+                selectedRatio={aspectRatio}
+                onSelectRatio={setAspectRatio}
+            />
+
             <div className="flex justify-center pt-4">
                 <button onClick={handleGenerateConcepts} disabled={isLoading || !productImage || !modelHeadshot || !productDescription.trim() || !headline.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
@@ -296,10 +302,14 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
     const renderPromptSelectionStep = () => (
         <div className="max-w-7xl mx-auto animate-fade-in">
             <h2 className="text-3xl font-bold text-center mb-2 text-white">Choose Your Ad Concept</h2>
-            <p className="text-slate-400 text-center mb-10">Select a concept below to generate your banner.</p>
+            <p className="text-slate-400 text-center mb-10">Select a concept below to generate your banner. Hover to see the detailed AI prompt.</p>
             <div className="grid md:grid-cols-3 gap-6">
                 {generatedPrompts.map((concept, index) => (
-                    <div key={index} onClick={() => handleGenerateBanner(concept.prompt)} className={`relative p-6 rounded-xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between ${concept.isRecommended ? 'border-amber-400 bg-slate-800/50' : 'border-slate-800 bg-slate-900/70 hover:border-slate-700 hover:-translate-y-1'}`}>
+                    <div key={index} 
+                         onClick={() => handleGenerateBanner(concept.prompt)} 
+                         className={`relative p-6 rounded-xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between ${concept.isRecommended ? 'border-amber-400 bg-slate-800/50' : 'border-slate-800 bg-slate-900/70 hover:border-slate-700 hover:-translate-y-1'}`}
+                         data-tooltip={concept.structured_prompt ? JSON.stringify(concept.structured_prompt, null, 2) : 'No structured prompt available.'}
+                    >
                         <div>
                             {concept.isRecommended && (<div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2"><span className="px-3 py-1 text-xs font-semibold tracking-wider text-slate-900 uppercase bg-amber-400 rounded-full">Recommended</span></div>)}
                             <h3 className="font-bold text-white mb-3 mt-3">Concept {index + 1}</h3>
@@ -342,18 +352,40 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
                 </div>
              </div>
              <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4 mt-8">
-                 <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 border border-slate-700"><HiArrowLeft/> Back to Settings</button>
-                 <button onClick={() => setStep('promptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 border border-slate-700"><HiOutlineLightBulb/> Back to Concepts</button>
-                 <button onClick={() => handleGenerateBanner(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 border border-slate-700 disabled:opacity-60"><HiOutlineArrowPath/> Regenerate</button>
-                 <div className="relative group" title={!session ? 'Please sign in to save creations' : ''}><button onClick={handleSaveCreation} disabled={isSaved || !session} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 border border-slate-700 disabled:opacity-60"><HiOutlineHeart className={isSaved ? 'text-pink-500' : ''}/> {isSaved ? 'Saved!' : 'Like & Save'}</button></div>
-                 <a href={`data:image/png;base64,${generatedBanner}`} download="dreampixel-banner.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90"><HiArrowDownTray/> Download</a>
+                 <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect">
+                    <HiArrowLeft className="w-5 h-5 text-slate-300"/> Back to Settings
+                 </button>
+                 <button onClick={() => setStep('promptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect icon-hover-effect-yellow">
+                    <HiOutlineLightBulb className="w-5 h-5 text-yellow-400"/> Back to Concepts
+                 </button>
+                 <button onClick={() => handleGenerateBanner(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-blue">
+                    <HiOutlineArrowPath className="w-5 h-5 text-sky-400"/> Regenerate
+                 </button>
+                 <div className="relative group" title={!session ? 'Please sign in to save creations' : ''}>
+                    <button 
+                        onClick={handleSaveCreation} 
+                        disabled={isSaved || !session} 
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-pink"
+                    >
+                        <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save Creation'}
+                    </button>
+                 </div>
+                 <a href={`data:image/png;base64,${generatedBanner}`} download="dreampixel-banner.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
+                    <HiArrowDownTray className="w-5 h-5"/> Download
+                 </a>
              </div>
         </div>
     );
-
+    
     return (
         <div className="animate-fade-in">
-            {isTemplateBrowserOpen && <TemplateBrowser tool="advertisement" onClose={() => setIsTemplateBrowserOpen(false)} onSelect={handleSelectTemplate} />}
+            {isTemplateBrowserOpen && (
+                <TemplateBrowser
+                    tool="advertisement"
+                    onClose={() => setIsTemplateBrowserOpen(false)}
+                    onSelect={handleSelectTemplate}
+                />
+            )}
             <ErrorMessage error={error} />
             <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
                 {step === 'input' && renderInputStep()}
