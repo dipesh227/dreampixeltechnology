@@ -11,25 +11,25 @@ interface LandingPageProps {
 
 const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ tool, onClick }) => {
     const icons: { [key in ToolType]: { icon: React.ElementType, gradient: string } } = {
-        thumbnail: { icon: HiOutlinePhoto, gradient: 'from-purple-400 to-indigo-500' },
-        advertisement: { icon: HiOutlineMegaphone, gradient: 'from-pink-400 to-rose-500' },
-        political: { icon: HiOutlineUserGroup, gradient: 'from-amber-400 to-orange-500' },
-        profile: { icon: HiOutlineUserCircle, gradient: 'from-teal-400 to-emerald-500' },
-        logo: { icon: HiOutlineSwatch, gradient: 'from-fuchsia-400 to-purple-500' },
+        thumbnail: { icon: HiOutlinePhoto, gradient: 'from-purple-500 to-indigo-500' },
+        advertisement: { icon: HiOutlineMegaphone, gradient: 'from-pink-500 to-rose-500' },
+        political: { icon: HiOutlineUserGroup, gradient: 'from-amber-500 to-orange-500' },
+        profile: { icon: HiOutlineUserCircle, gradient: 'from-teal-500 to-emerald-500' },
+        logo: { icon: HiOutlineSwatch, gradient: 'from-fuchsia-500 to-purple-500' },
         'image-enhancer': { icon: HiOutlineSparkles, gradient: 'from-yellow-400 to-amber-500' },
         'headshot-maker': { icon: HiOutlineIdentification, gradient: 'from-cyan-400 to-sky-500' },
-        'passport-photo': { icon: HiOutlineCreditCard, gradient: 'from-blue-400 to-indigo-500' },
-        'visiting-card': { icon: HiOutlineClipboardDocumentList, gradient: 'from-cyan-500 to-blue-600' },
+        'passport-photo': { icon: HiOutlineCreditCard, gradient: 'from-blue-500 to-indigo-600' },
+        'visiting-card': { icon: HiOutlineClipboardDocumentList, gradient: 'from-slate-400 to-slate-600' },
         'event-poster': { icon: HiOutlineTicket, gradient: 'from-rose-400 to-red-500' },
         'social-campaign': { icon: HiOutlineBuildingStorefront, gradient: 'from-indigo-500 to-violet-600' },
-        newspaper: { icon: HiOutlineNewspaper, gradient: 'from-amber-500 to-yellow-600'},
+        newspaper: { icon: HiOutlineNewspaper, gradient: 'from-stone-500 to-gray-600'},
     };
     const { icon: Icon, gradient } = icons[tool.id];
 
     return (
         <div
             className={`
-                flex flex-col p-4 sm:p-6 rounded-2xl h-full tool-card
+                flex flex-col p-6 rounded-2xl h-full tool-card
                 ${!tool.enabled ? 'opacity-50' : ''}
             `}
         >
@@ -37,8 +37,8 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ to
                 <div className={`mb-4 p-3 bg-gradient-to-br ${gradient} border border-slate-700 rounded-lg inline-block shadow-lg`}>
                     <Icon className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-lg font-bold text-headings mb-2">{tool.title}</h3>
-                <p className="text-text-secondary text-sm mb-4">{tool.description}</p>
+                <h3 className="text-lg font-bold text-white mb-2">{tool.title}</h3>
+                <p className="text-slate-400 text-sm mb-4">{tool.description}</p>
             </div>
             <button 
                 onClick={tool.enabled ? onClick : undefined}
@@ -69,10 +69,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccoun
     ];
 
     return (
-        <div className="animate-fade-in">
-            <div className="mb-8 sm:mb-12">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-headings mb-3">The AI Content Creation Suite</h2>
-                <p className="text-base md:text-lg text-text-secondary max-w-3xl">One platform for all your creative needs. Generate stunning visuals for your brand, channel, or campaign in seconds.</p>
+        <div className="animate-fade-in-up">
+            <div className="mb-12">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-3">The AI Content Creation Suite</h2>
+                <p className="text-base md:text-lg text-slate-400 max-w-3xl">One platform for all your creative needs. Generate stunning visuals for your brand, channel, or campaign in seconds.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {tools.map((tool) => (

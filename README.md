@@ -27,7 +27,6 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
 -   **Live API Status**: An indicator in the header shows if the default API key is configured correctly and is operational.
 -   **Interactive & Modern UI**: A vibrant, colorful UI with a neon mouse trail, glowing hover effects, and an animated background that synchronizes with AI generation tasks.
 -   **Personalized History**: Like and save your favorite creations, stored securely and tied to your user account.
--   **Custom User API Keys (New!)**: Logged-in users can securely provide their own Gemini API key to use their personal quota.
 
 ---
 
@@ -115,8 +114,7 @@ ON CONFLICT (name) DO NOTHING;
 CREATE TABLE public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
-  avatar_url TEXT,
-  encrypted_gemini_key BYTEA -- New column for encrypted API key
+  avatar_url TEXT
 );
 -- Allow users to view their own profile and all other profiles.
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -137,36 +135,6 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
 AFTER INSERT ON auth.users
 FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
--- ========= API KEY MANAGEMENT RPCs =========
--- RPC to securely set/update a user's encrypted Gemini API key.
-CREATE OR REPLACE FUNCTION set_user_gemini_key(p_user_id UUID, p_api_key TEXT)
-RETURNS void AS $$
-DECLARE
-  key_id UUID;
-BEGIN
-  SELECT id INTO key_id FROM pgsodium.key WHERE name = 'dreampixel_encryption_key';
-  UPDATE public.profiles
-  SET encrypted_gemini_key = pgsodium.crypto_aead_det_encrypt(p_api_key::bytea, 'user_api_key'::bytea, key_id)
-  WHERE id = p_user_id;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- RPC to securely retrieve a user's decrypted Gemini API key.
-CREATE OR REPLACE FUNCTION get_user_gemini_key(p_user_id UUID)
-RETURNS TEXT AS $$
-DECLARE
-  key_id UUID;
-  decrypted_key TEXT;
-BEGIN
-  SELECT id INTO key_id FROM pgsodium.key WHERE name = 'dreampixel_encryption_key';
-  SELECT pgsodium.crypto_aead_det_decrypt(encrypted_gemini_key, 'user_api_key'::bytea, key_id)::TEXT
-  INTO decrypted_key
-  FROM public.profiles
-  WHERE id = p_user_id;
-  RETURN decrypted_key;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
 -- ========= TABLE: creations =========
@@ -438,18 +406,8 @@ CREATE TABLE public.newspaper_cutting_jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-  publication_name TEXT,
-  issue_date DATE,
   headline TEXT,
   body_text TEXT,
-  author TEXT,
-  location TEXT,
-  section TEXT,
-  price TEXT,
-  volume_issue TEXT,
-  quote TEXT,
-  weather_report TEXT,
-  ad_snippet TEXT,
   language TEXT,
   style_id TEXT,
   image_filename TEXT,
@@ -457,6 +415,7 @@ CREATE TABLE public.newspaper_cutting_jobs (
 );
 ALTER TABLE public.newspaper_cutting_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own newspaper jobs" ON public.newspaper_cutting_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+
 ```
 </details>
 
@@ -517,8 +476,7 @@ For reference, here is the schema for the tables created by the setup script. Th
 CREATE TABLE public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
-  avatar_url TEXT,
-  encrypted_gemini_key BYTEA -- Encrypted API key
+  avatar_url TEXT
 );
 ```
 </details>
@@ -787,18 +745,8 @@ CREATE TABLE public.newspaper_cutting_jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-  publication_name TEXT,
-  issue_date DATE,
   headline TEXT,
   body_text TEXT,
-  author TEXT,
-  location TEXT,
-  section TEXT,
-  price TEXT,
-  volume_issue TEXT,
-  quote TEXT,
-  weather_report TEXT,
-  ad_snippet TEXT,
   language TEXT,
   style_id TEXT,
   image_filename TEXT,

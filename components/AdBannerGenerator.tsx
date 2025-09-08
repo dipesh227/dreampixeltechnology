@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { AdStyle, AspectRatio, UploadedFile, GeneratedConcept, TemplatePrefillData } from '../types';
 import { generateAdConcepts, generateAdBanner, editImage } from '../services/aiService';
@@ -21,6 +20,7 @@ interface AdBannerGeneratorProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
+// FIX: Added a return statement to the component to render JSX, resolving the type error where the function returned 'void'.
 export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, onBannerGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');
@@ -247,39 +247,39 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
                 </button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-4 md:p-6 main-content-area rounded-xl space-y-4">
-                    <h2 className="text-xl font-bold text-headings mb-1">1. Upload Assets</h2>
-                    <p className="text-sm text-text-secondary mb-4">Provide images for the product and the model.</p>
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
+                    <h2 className="text-xl font-bold text-white mb-1">1. Upload Assets</h2>
+                    <p className="text-sm text-slate-400 mb-4">Provide images for the product and the model.</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div data-tooltip="Upload a clear, high-quality image of your product. A transparent PNG is recommended.">
-                            <label className="font-semibold text-text-primary flex items-center gap-2"><HiOutlineCube className="w-5 h-5"/> Product Image</label>
-                            <div className="mt-2 p-2 border-2 border-dashed rounded-xl text-center bg-slate-100 dark:bg-slate-800/50 hover:border-slate-400 dark:hover:border-slate-600 transition h-24 flex flex-col justify-center">
+                            <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineCube className="w-5 h-5"/> Product Image</label>
+                            <div className="mt-2 p-2 border-2 border-dashed rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-24 flex flex-col justify-center">
                                 <input type="file" id="product-upload" className="hidden" accept="image/png, image/jpeg" onChange={(e) => handleFileChange(e, 'product')} />
                                 <label htmlFor="product-upload" className="cursor-pointer text-xs">{productImage ? productImage.name : "Upload Image"}</label>
                             </div>
                         </div>
                         <div data-tooltip="Upload a clear, forward-facing headshot of the model to be featured in the ad.">
-                            <label className="font-semibold text-text-primary flex items-center gap-2"><HiOutlineUserCircle className="w-5 h-5"/> Model Headshot</label>
-                            <div className="mt-2 p-2 border-2 border-dashed rounded-xl text-center bg-slate-100 dark:bg-slate-800/50 hover:border-slate-400 dark:hover:border-slate-600 transition h-24 flex flex-col justify-center">
+                            <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineUserCircle className="w-5 h-5"/> Model Headshot</label>
+                            <div className="mt-2 p-2 border-2 border-dashed rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-24 flex flex-col justify-center">
                                 <input type="file" id="model-upload" className="hidden" accept="image/png, image/jpeg" onChange={(e) => handleFileChange(e, 'model')} />
                                 <label htmlFor="model-upload" className="cursor-pointer text-xs">{modelHeadshot ? modelHeadshot.name : "Upload Headshot"}</label>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="p-4 md:p-6 main-content-area rounded-xl space-y-4">
-                    <h2 className="text-xl font-bold text-headings mb-1">2. Define Your Campaign</h2>
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
+                    <h2 className="text-xl font-bold text-white mb-1">2. Define Your Campaign</h2>
                     <div data-tooltip="Describe your product. What does it do? Who is it for? Key features and benefits.">
-                        <label className="font-semibold text-text-primary flex items-center gap-2"><HiOutlineDocumentText className="w-5 h-5"/> Product Description</label>
-                        <textarea value={productDescription} onChange={(e) => setProductDescription(e.target.value)} placeholder="e.g., 'A sleek, wireless earbud...'" className="w-full mt-2 p-2 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={2}></textarea>
+                        <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineDocumentText className="w-5 h-5"/> Product Description</label>
+                        <textarea value={productDescription} onChange={(e) => setProductDescription(e.target.value)} placeholder="e.g., 'A sleek, wireless earbud with 24-hour battery life and noise-cancellation...'" className="w-full mt-2 p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={2}></textarea>
                     </div>
                     <div data-tooltip="The main call-to-action text for your ad. Keep it short and punchy.">
-                        <label className="font-semibold text-text-primary flex items-center gap-2"><HiOutlineChatBubbleLeftRight className="w-5 h-5"/> Headline</label>
-                        <input value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g., 'Sound That Moves You'" className="w-full mt-2 p-2 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                        <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineChatBubbleLeftRight className="w-5 h-5"/> Headline</label>
+                        <input value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g., 'Sound That Moves You'" className="w-full mt-2 p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                     </div>
                     <div data-tooltip="Include your brand name or any other text to be subtly included in the ad.">
-                        <label className="font-semibold text-text-primary flex items-center gap-2"><HiOutlineTag className="w-5 h-5"/> Brand Details (Optional)</label>
-                        <input value={brandDetails} onChange={e => setBrandDetails(e.target.value)} placeholder="e.g., 'AudioVibe'" className="w-full mt-2 p-2 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                        <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineTag className="w-5 h-5"/> Brand Details (Optional)</label>
+                        <input value={brandDetails} onChange={e => setBrandDetails(e.target.value)} placeholder="e.g., 'AudioVibe'" className="w-full mt-2 p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                     </div>
                 </div>
             </div>
@@ -291,7 +291,7 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
             />
 
             <div className="flex justify-center pt-4">
-                <button onClick={handleGenerateConcepts} disabled={isLoading || !productImage || !modelHeadshot || !productDescription.trim() || !headline.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105">
+                <button onClick={handleGenerateConcepts} disabled={isLoading || !productImage || !modelHeadshot || !productDescription.trim() || !headline.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
                     {isLoading ? loadingMessage : 'Generate Ad Concepts'}
                 </button>
@@ -301,8 +301,8 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
 
     const renderPromptSelectionStep = () => (
         <div className="max-w-7xl mx-auto animate-fade-in">
-            <h2 className="text-3xl font-bold text-center mb-2 text-headings">Choose Your Ad Concept</h2>
-            <p className="text-text-secondary text-center mb-10">Select a concept below to generate your banner. Hover to see the detailed AI prompt.</p>
+            <h2 className="text-3xl font-bold text-center mb-2 text-white">Choose Your Ad Concept</h2>
+            <p className="text-slate-400 text-center mb-10">Select a concept below to generate your banner. Hover to see the detailed AI prompt.</p>
             <div className="grid md:grid-cols-3 gap-6">
                 {generatedPrompts.map((concept, index) => (
                     <div key={index} 
@@ -331,23 +331,23 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
     
     const renderGeneratingStep = () => (
         <div className="text-center py-20 animate-fade-in">
-            <div className="relative w-24 h-24 mx-auto"><div className="absolute inset-0 border-4 border-slate-700 rounded-full"></div><div className="absolute inset-0 border-4 border-t-purple-500 rounded-full animate-spin"></div></div>
-            <h2 className="text-3xl font-bold mt-8 text-headings">{loadingMessage}</h2>
-            <p className="text-text-secondary mt-2">This can take up to a minute. Please don't close the window.</p>
+            <div className="relative w-24 h-24 mx-auto"><div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div><div className="absolute inset-0 border-4 border-t-purple-400 rounded-full animate-spin"></div></div>
+            <h2 className="text-3xl font-bold mt-8 text-white">{loadingMessage}</h2>
+            <p className="text-slate-400 mt-2">This can take up to a minute. Please don't close the window.</p>
         </div>
     );
 
     const renderResultStep = () => (
         <div className="max-w-4xl mx-auto text-center animate-fade-in">
-             <h2 className="text-3xl font-bold text-center mb-8 text-headings">Your Ad Banner is Ready!</h2>
+             <h2 className="text-3xl font-bold text-center mb-8 text-white">Your Ad Banner is Ready!</h2>
              <div className="relative inline-block">
-                {generatedBanner && <img src={`data:image/png;base64,${generatedBanner}`} alt="Generated Ad Banner" className="rounded-xl mx-auto shadow-2xl shadow-black/30 mb-4 border-2 border-slate-300 dark:border-slate-700/50" style={{ aspectRatio: aspectRatio.replace(':', ' / ') }} />}
+                {generatedBanner && <img src={`data:image/png;base64,${generatedBanner}`} alt="Generated Ad Banner" className="rounded-xl mx-auto shadow-2xl shadow-black/30 mb-4 border-2 border-slate-700/50" style={{ aspectRatio: aspectRatio.replace(':', ' / ') }} />}
                 {(isLoading || isEditing) && <div className="absolute inset-0 bg-black/70 rounded-xl flex flex-col items-center justify-center"><div className="w-8 h-8 border-4 border-t-transparent border-white rounded-full animate-spin"></div><p className="mt-2 text-sm text-white">{loadingMessage}</p></div>}
              </div>
-             <div className="mt-4 p-4 max-w-2xl mx-auto bg-slate-200 dark:bg-slate-800/50 rounded-lg border border-slate-300 dark:border-slate-700" data-tooltip="Make quick changes to your banner. Type what you want to change (e.g., 'change the background to a beach', 'make her shirt blue') and click 'Magic Edit'.">
-                <label className="font-semibold text-text-primary flex items-center justify-center gap-2 mb-2"><HiOutlineWrenchScrewdriver className="w-5 h-5 text-amber-500"/> Magic Edit</label>
+             <div className="mt-4 p-4 max-w-2xl mx-auto bg-slate-800/50 rounded-lg border border-slate-700" data-tooltip="Make quick changes to your banner. Type what you want to change (e.g., 'change the background to a beach', 'make her shirt blue') and click 'Magic Edit'.">
+                <label className="font-semibold text-slate-300 flex items-center justify-center gap-2 mb-2"><HiOutlineWrenchScrewdriver className="w-5 h-5 text-amber-400"/> Magic Edit</label>
                 <div className="flex gap-2">
-                    <input value={editPrompt} onChange={(e) => setEditPrompt(e.target.value)} placeholder="e.g., 'Change the background to a city street'" className="w-full p-2 rounded-lg focus:ring-2 focus:ring-amber-500 transition text-sm" />
+                    <input value={editPrompt} onChange={(e) => setEditPrompt(e.target.value)} placeholder="e.g., 'Change the background to a city street'" className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-amber-500 transition text-sm" />
                     <button onClick={handleMagicEdit} disabled={isEditing || !editPrompt.trim()} className="px-4 py-2 bg-amber-500/80 text-white font-semibold rounded-lg hover:bg-amber-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Edit</button>
                 </div>
              </div>
@@ -387,10 +387,8 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
                 />
             )}
             <ErrorMessage error={error} />
-            <div className="p-4 sm:p-6 md:p-8 main-content-area rounded-2xl shadow-lg">
-                <div className="sm:hidden md:block">
-                    {step === 'input' && renderInputStep()}
-                </div>
+            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
+                {step === 'input' && renderInputStep()}
                 {step === 'promptSelection' && renderPromptSelectionStep()}
                 {step === 'generating' && renderGeneratingStep()}
                 {step === 'result' && renderResultStep()}

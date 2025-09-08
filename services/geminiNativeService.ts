@@ -6,7 +6,7 @@ import { RateLimitError } from "./errors";
 const getAiClient = (apiKeyOverride?: string) => {
     const apiKey = apiKeyOverride || apiConfigService.getApiKey();
     if (!apiKey) {
-        throw new Error("API key is not configured. Please add a default key in environment variables or your own key in Settings.");
+        throw new Error("API key is not configured. Please ensure the API_KEY environment variable is set.");
     }
     return new GoogleGenAI({ apiKey });
 };
@@ -14,10 +14,10 @@ const getAiClient = (apiKeyOverride?: string) => {
 const handleGeminiError = (error: unknown): Error => {
     if (error instanceof Error) {
         if (error.message.includes('API key not valid')) {
-            return new Error("The active API Key is invalid. Please check your key in Settings or contact the site administrator.");
+            return new Error("Invalid Gemini API Key. Please ensure the API_KEY environment variable is set correctly.");
         }
         if (error.message.includes('429') || error.message.includes('RESOURCE_EXHAUSTED')) {
-            return new RateLimitError("Rate limit exceeded. You've made too many requests recently. Please wait a minute and try again.");
+            return new RateLimitError("Rate limit exceeded. You've made too many requests to the Gemini API recently. Please wait a minute and try again.");
         }
         if (error.message.includes('SAFETY')) {
             return new Error("The request was blocked due to safety policies. Please adjust your prompt or images and try again.");
@@ -135,7 +135,6 @@ export const generateImageFromText = async (prompt: string, aspectRatio: AspectR
             '4:5': '3:4',      // Map 4:5 (0.8) to closest supported value 3:4 (0.75)
             '1.91:1': '16:9', // Map 1.91:1 (~1.77) to 16:9 (1.77)
             '3.5:2': '16:9',  // Map 3.5:2 (1.75) to closest supported value 16:9 (1.77)
-            '2:3.5': '9:16',  // Map 2:3.5 (~0.57) to closest value 9:16 (~0.56)
         };
         const supportedAspectRatio = validAspectRatios[aspectRatio] || '1:1';
 
@@ -205,7 +204,7 @@ export const fetchVideoData = async (downloadLink: string): Promise<Blob | null>
 };
 
 export const validateApiKey = async (apiKey: string): Promise<{ isValid: boolean, error?: string }> => {
-    if (!apiKey) return { isValid: false, error: 'API key cannot be empty.' };
+    if (!apiKey) return { isValid: false };
     try {
         const ai = getAiClient(apiKey);
         // Use a very simple, fast model and request to validate the key

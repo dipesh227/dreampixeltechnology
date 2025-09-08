@@ -1,4 +1,3 @@
-
 import { HistoryEntry } from '../types';
 import { supabase } from './supabaseClient';
 

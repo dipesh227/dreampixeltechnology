@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import * as historyService from '../services/historyService';
 import { HistoryEntry } from '../types';
@@ -51,23 +52,23 @@ const HistorySidebar: React.FC = () => {
 
     if (!session) {
         return (
-            <div className="p-6 main-content-area rounded-xl h-full flex flex-col items-center justify-center text-center">
-                <HiOutlineUserCircle className="w-12 h-12 text-slate-500 dark:text-slate-600 mb-4" />
-                <h3 className="text-lg font-bold text-headings">Sign In to See Your Creations</h3>
-                <p className="text-sm text-text-secondary mt-1">Log in to save and view your liked creations across sessions.</p>
+            <div className="p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl h-full flex flex-col items-center justify-center text-center">
+                <HiOutlineUserCircle className="w-12 h-12 text-slate-600 mb-4" />
+                <h3 className="text-lg font-bold text-white">Sign In to See Your Creations</h3>
+                <p className="text-sm text-slate-500 mt-1">Log in to save and view your liked creations across sessions.</p>
             </div>
         );
     }
 
     return (
-        <div className="p-6 main-content-area rounded-xl h-full flex flex-col">
+        <div className="p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl h-full flex flex-col">
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-headings flex items-center gap-2">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
                     Liked Creations
-                    <span className="text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">{creations.length}</span>
+                    <span className="text-xs font-semibold bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full">{creations.length}</span>
                 </h3>
                 {creations.length > 0 && (
-                    <button onClick={handleClearCreations} aria-label="Clear all creations" className="text-slate-500 transition-colors p-1 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 trash-icon-hover">
+                    <button onClick={handleClearCreations} aria-label="Clear all creations" className="text-slate-500 transition-colors p-1 rounded-md hover:bg-slate-800 trash-icon-hover">
                         <HiOutlineTrash className="w-5 h-5" />
                     </button>
                 )}
@@ -79,7 +80,7 @@ const HistorySidebar: React.FC = () => {
                     placeholder="Search history..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 text-sm rounded-lg focus:ring-1 focus:ring-purple-500"
+                    className="w-full pl-10 pr-4 py-2 text-sm bg-slate-800 border border-slate-700 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <HiOutlineMagnifyingGlass className="w-5 h-5 text-slate-500" />
@@ -106,7 +107,7 @@ const HistorySidebar: React.FC = () => {
                 </div>
             ) : (
                 <div className="text-center py-8 flex-grow flex items-center justify-center">
-                    <p className="text-sm text-text-secondary">
+                    <p className="text-sm text-slate-500">
                         {creations.length > 0 ? "No matching creations found." : "Your liked creations will appear here."}
                     </p>
                 </div>

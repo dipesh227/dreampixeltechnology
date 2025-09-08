@@ -20,9 +20,12 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
 
     const handleFeedbackChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newFeedback = e.target.value;
+        // Prevent user from typing past the max length
         if (newFeedback.length <= MAX_FEEDBACK_LENGTH) {
             setFeedback(newFeedback);
         }
+        
+        // Clear validation error as user types
         if (validationError) {
             setValidationError(null);
         }
@@ -37,6 +40,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
             setValidationError("Please provide at least 10 characters of feedback.");
             return;
         }
+
         if (trimmedFeedback.length > MAX_FEEDBACK_LENGTH) {
             setValidationError(`Feedback cannot exceed ${MAX_FEEDBACK_LENGTH} characters.`);
             return;
@@ -67,7 +71,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" onClick={onClose}>
-            <div className="bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-lg modal-content" onClick={e => e.stopPropagation()}>
+            <div className="bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
                 <header className="flex items-center justify-between p-4 border-b border-slate-800">
                     <div className="flex items-center gap-3">
                         <HiOutlineChatBubbleLeftEllipsis className="w-6 h-6 text-pink-400"/>
@@ -95,7 +99,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
                                     value={feedback}
                                     onChange={handleFeedbackChange}
                                     placeholder="Tell us about your experience..."
-                                    className={`w-full p-3 bg-slate-800 border rounded-lg focus:ring-2 transition text-sm text-white ${validationError ? 'border-red-500 focus:ring-red-500' : 'border-slate-700 focus:ring-purple-500'}`}
+                                    className={`w-full p-3 bg-slate-800 border rounded-lg focus:ring-2 focus:border-purple-500 transition text-sm ${validationError ? 'border-red-500 focus:ring-red-500' : 'border-slate-700 focus:ring-purple-500'}`}
                                     rows={5}
                                     required
                                     disabled={isSubmitting}
