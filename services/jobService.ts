@@ -324,6 +324,9 @@ interface EventPosterJobData {
     branding: string;
     styleId: string;
     originalImageFilename: string;
+    date: string;
+    time: string;
+    venue: string;
 }
 
 export const saveEventPosterJob = async (data: EventPosterJobData): Promise<void> => {
@@ -334,6 +337,9 @@ export const saveEventPosterJob = async (data: EventPosterJobData): Promise<void
             branding: data.branding,
             style_id: data.styleId,
             original_image_filename: data.originalImageFilename,
+            event_date: data.date,
+            event_time: data.time,
+            event_venue: data.venue,
         });
         if (error) throw error;
     } catch (error) {

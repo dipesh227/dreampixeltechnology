@@ -265,14 +265,48 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
     );
 
     const renderResultStep = () => (
-        <div className="max-w-4xl mx-auto text-center animate-fade-in">
-             <h2 className="text-3xl font-bold text-center mb-8 text-white">Your Logo is Ready!</h2>
-             {generatedImage && (
-                <div className="bg-white p-8 inline-block rounded-xl">
-                    <img src={`data:image/png;base64,${generatedImage}`} alt="Generated Logo" className="w-64 h-64 object-contain mx-auto shadow-2xl shadow-black/30" />
+        <div className="max-w-7xl mx-auto text-center animate-fade-in">
+             <h2 className="text-3xl font-bold text-center mb-2 text-white">Your Logo is Ready!</h2>
+             <p className="text-slate-400 text-center mb-8">Download your new logo and see how it looks on different mockups.</p>
+             
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                {/* Main Logo */}
+                <div className="lg:col-span-1 flex flex-col items-center">
+                    <h3 className="font-semibold text-white mb-4">Logo on White</h3>
+                    {generatedImage && (
+                        <div className="bg-white p-8 inline-block rounded-xl shadow-2xl shadow-black/30">
+                            <img src={`data:image/png;base64,${generatedImage}`} alt="Generated Logo" className="w-48 h-48 object-contain" />
+                        </div>
+                     )}
                 </div>
-             )}
-             <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4 mt-8">
+                 {/* Mockups */}
+                 <div className="lg:col-span-2 space-y-6">
+                    <h3 className="font-semibold text-white">Previews</h3>
+                    {/* Business Card Mockup */}
+                    <div className="bg-white p-6 rounded-lg shadow-lg text-left w-full max-w-sm mx-auto">
+                        <div className="flex items-center gap-4">
+                            {generatedImage && <img src={`data:image/png;base64,${generatedImage}`} className="h-10 w-auto" />}
+                        </div>
+                        <div className="mt-6">
+                            <div className="h-4 w-2/3 bg-slate-200 rounded-sm mb-2"></div>
+                            <div className="h-3 w-1/2 bg-slate-200 rounded-sm"></div>
+                        </div>
+                    </div>
+                     {/* Website Header Mockup */}
+                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-left w-full max-w-sm mx-auto">
+                        <div className="flex items-center justify-between">
+                            {generatedImage && <img src={`data:image/png;base64,${generatedImage}`} className="h-8 w-auto" />}
+                            <div className="flex items-center gap-3">
+                                <div className="h-3 w-12 bg-slate-700 rounded-sm"></div>
+                                <div className="h-3 w-12 bg-slate-700 rounded-sm"></div>
+                                <div className="h-3 w-12 bg-slate-700 rounded-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+
+             <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4 mt-12">
                  <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect">
                     <HiArrowLeft className="w-5 h-5 text-slate-300"/> Back to Settings
                  </button>

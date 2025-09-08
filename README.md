@@ -20,6 +20,7 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
     -   Passport Photo Maker
     -   AI Visiting Card Maker 
     -   AI Event Poster Maker
+    -   AI Newspaper Cutting Maker **(New!)**
 -   **Secure Google Authentication**: Sign in to save and manage your creations securely.
 -   **Database Encryption**: User-submitted prompts and feedback are encrypted at rest in the database using `pgsodium` for enhanced privacy.
 -   **Focused on Google Gemini**: Built to exclusively use Google's powerful Gemini AI models for the best results.
@@ -356,7 +357,10 @@ CREATE TABLE public.event_poster_jobs (
   headline TEXT,
   branding TEXT,
   style_id TEXT,
-  original_image_filename TEXT
+  original_image_filename TEXT,
+  event_date TEXT,
+  event_time TEXT,
+  event_venue TEXT
 );
 ALTER TABLE public.event_poster_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own event poster jobs" ON public.event_poster_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -393,6 +397,21 @@ CREATE TABLE public.social_campaign_jobs (
 );
 ALTER TABLE public.social_campaign_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own social campaign jobs" ON public.social_campaign_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE TABLE public.newspaper_cutting_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  headline TEXT,
+  body_text TEXT,
+  newspaper_name TEXT,
+  issue_date DATE,
+  style_id TEXT,
+  image_filename TEXT
+);
+ALTER TABLE public.newspaper_cutting_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own newspaper jobs" ON public.newspaper_cutting_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+
 ```
 </details>
 
@@ -702,7 +721,28 @@ CREATE TABLE public.event_poster_jobs (
   headline TEXT,
   branding TEXT,
   style_id TEXT,
-  original_image_filename TEXT
+  original_image_filename TEXT,
+  event_date TEXT,
+  event_time TEXT,
+  event_venue TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>newspaper_cutting_jobs</strong> - Logs inputs for newspaper cutting generation.</summary>
+
+```sql
+CREATE TABLE public.newspaper_cutting_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  headline TEXT,
+  body_text TEXT,
+  newspaper_name TEXT,
+  issue_date DATE,
+  style_id TEXT,
+  image_filename TEXT
 );
 ```
 </details>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { UploadedFile, EventPosterStyle } from '../types';
+import { UploadedFile, EventPosterStyle, TemplatePrefillData } from '../types';
 import { editEventPoster } from '../services/aiService';
 import { EVENT_POSTER_STYLES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
-import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiArrowLeft, HiOutlineTag, HiOutlineChatBubbleLeftRight } from 'react-icons/hi2';
+import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiArrowLeft, HiOutlineTag, HiOutlineChatBubbleLeftRight, HiOutlineCalendar, HiOutlineClock, HiOutlineMapPin } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import StyleSelector from './StyleSelector';
@@ -22,6 +22,9 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
     const [editedImage, setEditedImage] = useState<string | null>(null);
     const [headline, setHeadline] = useState('');
     const [branding, setBranding] = useState('');
+    const [date, setDate] = useState('');
+    const [time, setTime] = useState('');
+    const [venue, setVenue] = useState('');
     const [selectedStyleId, setSelectedStyleId] = useState<string>(EVENT_POSTER_STYLES[0].id);
     
     const [error, setError] = useState<string | null>(null);
@@ -40,7 +43,7 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
                 'Analyzing your event photo...',
                 'Enhancing image quality...',
                 'Applying stylish typography...',
-                'Integrating branding elements...',
+                'Integrating event details...',
                 'Rendering final poster...',
             ];
             let index = 0;
@@ -92,6 +95,9 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
                 branding,
                 styleId: selectedStyleId,
                 originalImageFilename: originalImage.name,
+                date,
+                time,
+                venue,
             });
         }
         
@@ -99,7 +105,7 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
         setError(null);
         setIsSaved(false);
         try {
-            const result = await editEventPoster(originalImage, headline, branding, selectedStyle);
+            const result = await editEventPoster(originalImage, headline, branding, selectedStyle, { date, time, venue });
             if (result) {
                 setEditedImage(result);
             } else {
@@ -167,26 +173,28 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
                     }
                 </div>
                  <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
-                    <h3 className="text-xl font-bold text-white mb-1">2. Add Text & Branding</h3>
+                    <h3 className="text-xl font-bold text-white mb-1">2. Add Text & Details</h3>
                     <div data-tooltip="This is the main, attention-grabbing text on your poster.">
-                        <div className="flex items-start gap-3">
-                            <HiOutlineChatBubbleLeftRight className="w-6 h-6 mt-1 text-pink-400"/>
-                            <div>
-                               <h3 className="text-md font-bold text-white">Headline</h3>
-                               <p className="text-sm text-slate-400 mb-2">The main text for the poster (e.g., 'Summer Fest 2024').</p>
-                            </div>
-                        </div>
-                        <input type="text" value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g., 'Annual Gala Dinner'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                        <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineChatBubbleLeftRight className="w-5 h-5 text-pink-400"/> Headline</label>
+                        <input type="text" value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g., 'Annual Gala Dinner'" className="w-full p-2 mt-1 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                     </div>
-                     <div data-tooltip="Add your brand name, a sponsor's logo, or a website URL to be subtly included on the poster.">
-                        <div className="flex items-start gap-3">
-                            <HiOutlineTag className="w-6 h-6 mt-1 text-sky-400"/>
-                            <div>
-                               <h3 className="text-md font-bold text-white">Branding Details <span className="text-slate-400 font-normal">(Optional)</span></h3>
-                               <p className="text-sm text-slate-400 mb-2">Brand name, sponsor, or URL to add.</p>
-                            </div>
+                     <div data-tooltip="Add your brand name, a sponsor's logo, or a website URL.">
+                        <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineTag className="w-5 h-5 text-sky-400"/> Branding Details (Optional)</label>
+                        <input type="text" value={branding} onChange={e => setBranding(e.target.value)} placeholder="e.g., 'Sponsored by DreamPixel'" className="w-full p-2 mt-1 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div data-tooltip="Date of the event.">
+                            <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineCalendar className="w-5 h-5 text-emerald-400"/> Date</label>
+                            <input type="text" value={date} onChange={e => setDate(e.target.value)} placeholder="e.g., October 26th" className="w-full p-2 mt-1 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                         </div>
-                        <input type="text" value={branding} onChange={e => setBranding(e.target.value)} placeholder="e.g., 'Sponsored by DreamPixel'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                        <div data-tooltip="Time of the event.">
+                            <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineClock className="w-5 h-5 text-emerald-400"/> Time</label>
+                            <input type="text" value={time} onChange={e => setTime(e.target.value)} placeholder="e.g., 7 PM onwards" className="w-full p-2 mt-1 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                        </div>
+                    </div>
+                     <div data-tooltip="Location of the event.">
+                        <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineMapPin className="w-5 h-5 text-amber-400"/> Venue</label>
+                        <input type="text" value={venue} onChange={e => setVenue(e.target.value)} placeholder="e.g., The Grand Ballroom" className="w-full p-2 mt-1 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                     </div>
                 </div>
             </div>

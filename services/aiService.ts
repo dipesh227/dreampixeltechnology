@@ -1,6 +1,6 @@
 import { Type } from "@google/genai";
-// FIX: Added all required types for the new functions.
-import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle, SocialCampaign } from '../types';
+// FIX: Added NewspaperStyle to imports to support the new NewspaperCuttingMaker tool.
+import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle, SocialCampaign, NewspaperStyle } from '../types';
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
 import { RateLimitError } from "./errors";
@@ -787,9 +787,25 @@ Your task is to convert the provided user photo into an official, compliant pass
     return geminiNativeService.generateImage(prompt, [image]);
 };
 
-// FIX: Implemented the missing function 'editEventPoster'.
-export const editEventPoster = async (image: UploadedFile, headline: string, branding: string, style: EventPosterStyle): Promise<string | null> => {
+// FIX: Updated function to accept eventDetails object and include them in the prompt, resolving the argument count error.
+export const editEventPoster = async (
+    image: UploadedFile,
+    headline: string,
+    branding: string,
+    style: EventPosterStyle,
+    eventDetails: { date: string; time: string; venue: string }
+): Promise<string | null> => {
     const brandingInstruction = branding.trim() ? `Also, subtly integrate the following branding information: "${branding}".` : "";
+    
+    const details = [];
+    if (eventDetails.date?.trim()) details.push(`Date: ${eventDetails.date}`);
+    if (eventDetails.time?.trim()) details.push(`Time: ${eventDetails.time}`);
+    if (eventDetails.venue?.trim()) details.push(`Venue: ${eventDetails.venue}`);
+    
+    const detailsInstruction = details.length > 0
+        ? `In a smaller, legible font, include the following event details: ${details.join(' | ')}.`
+        : "";
+
     const prompt = `
 **TASK: TRANSFORM PHOTO INTO EVENT POSTER**
 Take the provided event photograph and turn it into a stylish promotional poster.
@@ -797,10 +813,42 @@ Take the provided event photograph and turn it into a stylish promotional poster
 **EXECUTION STEPS:**
 1.  **Enhance Image:** First, perform a general enhancement on the photo to improve its quality, lighting, and color.
 2.  **Add Headline:** Add the main headline text: "${headline}".
-3.  **Apply Style:** The text's typography (font, color, layout) MUST adhere to this style guide: ${style.stylePrompt}.
+3.  **Apply Style:** The text's typography (font, color, layout) for the headline MUST adhere to this style guide: ${style.stylePrompt}.
 4.  **Add Branding:** ${brandingInstruction}
-5.  **Integration:** The text and branding must be artistically integrated into the image, looking like a professional graphic designer created it. It should not look like simple text overlaid on a photo.
-6.  **Output:** Return only the final, edited poster image.
+5.  **Add Event Details:** ${detailsInstruction}
+6.  **Integration:** All text elements (headline, branding, details) must be artistically integrated into the image, looking like a professional graphic designer created it. It should not look like simple text overlaid on a photo. Ensure good hierarchy and readability.
+7.  **Output:** Return only the final, edited poster image.
+`;
+    return geminiNativeService.generateImage(prompt, [image]);
+};
+
+// FIX: Implemented the missing function 'generateNewspaperCutting' to support the NewspaperCuttingMaker tool.
+export const generateNewspaperCutting = async (
+    image: UploadedFile,
+    headline: string,
+    bodyText: string,
+    newspaperName: string,
+    date: string,
+    style: NewspaperStyle
+): Promise<string | null> => {
+    const prompt = `
+**CRITICAL TASK: CREATE REALISTIC NEWSPAPER CLIPPING**
+Your task is to take a user-provided photo and text, and transform them into a highly realistic newspaper clipping.
+
+**EXECUTION STEPS:**
+1.  **Apply Newspaper Style:** The entire clipping MUST adhere to the following style guide: "${style.stylePrompt}". This includes the paper texture, font choices, and photo treatment (e.g., black and white, halftone).
+2.  **Integrate Text:**
+    -   **Newspaper Name:** Prominently feature the name of the newspaper: "${newspaperName}".
+    -   **Date:** Include the date: "${date}".
+    -   **Headline:** Use the main headline: "${headline}". This must be the most prominent text.
+    -   **Body Text:** Use the following body text for the article, formatted into realistic newspaper columns: "${bodyText}".
+3.  **Integrate Photo:**
+    -   Take the user-provided image and place it within the article.
+    -   The photo's style MUST be transformed to match the newspaper style (e.g., converted to grainy black and white with a halftone effect if the style is vintage).
+4.  **Final Composition:**
+    -   The final output should be a single image of the newspaper clipping, appearing as if it was torn or cut from a larger page.
+    -   The layout should be professional and authentic to the chosen newspaper style.
+    -   Return ONLY the final image of the newspaper clipping.
 `;
     return geminiNativeService.generateImage(prompt, [image]);
 };

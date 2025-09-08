@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tool, ToolType, ConnectedAccount } from '../types';
-import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineUserGroup, HiOutlineUserCircle, HiOutlineSwatch, HiOutlineSparkles, HiOutlineIdentification, HiOutlineCreditCard, HiOutlineClipboardDocumentList, HiOutlineTicket, HiOutlineArrowTrendingUp, HiOutlineBuildingStorefront } from 'react-icons/hi2';
+import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineUserGroup, HiOutlineUserCircle, HiOutlineSwatch, HiOutlineSparkles, HiOutlineIdentification, HiOutlineCreditCard, HiOutlineClipboardDocumentList, HiOutlineTicket, HiOutlineBuildingStorefront, HiOutlineNewspaper } from 'react-icons/hi2';
 import SocialConnect from './SocialConnect';
 
 interface LandingPageProps {
@@ -22,15 +22,15 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ to
         'visiting-card': { icon: HiOutlineClipboardDocumentList, gradient: 'from-slate-400 to-slate-600' },
         'event-poster': { icon: HiOutlineTicket, gradient: 'from-rose-400 to-red-500' },
         'social-campaign': { icon: HiOutlineBuildingStorefront, gradient: 'from-indigo-500 to-violet-600' },
+        newspaper: { icon: HiOutlineNewspaper, gradient: 'from-stone-500 to-gray-600'},
     };
     const { icon: Icon, gradient } = icons[tool.id];
 
     return (
         <div
             className={`
-                flex flex-col p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl
-                transition-all duration-300 ease-in-out h-full
-                ${!tool.enabled ? 'opacity-50' : 'hover:border-slate-600 hover:shadow-2xl hover:shadow-slate-900/50 hover:-translate-y-1'}
+                flex flex-col p-6 rounded-2xl h-full tool-card
+                ${!tool.enabled ? 'opacity-50' : ''}
             `}
         >
             <div className="flex-grow">
@@ -43,7 +43,7 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ to
             <button 
                 onClick={tool.enabled ? onClick : undefined}
                 disabled={!tool.enabled}
-                className="w-full mt-4 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                className="w-full mt-4 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700/70 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
             >
                 {tool.enabled ? 'Launch Tool' : 'Coming Soon'}
             </button>
@@ -65,6 +65,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccoun
         { id: 'passport-photo', title: "Passport Photo Maker", description: "Create official, compliant passport-size photos with background and outfit changes.", enabled: true },
         { id: 'visiting-card', title: "AI Visiting Card Maker", description: "Design professional business cards with your name, title, contact details, and optional logo.", enabled: true },
         { id: 'event-poster', title: "AI Event Poster Maker", description: "Turn your event photos into promotional posters by adding stylish text and branding.", enabled: true },
+        { id: 'newspaper', title: "Newspaper Cutting Maker", description: "Create realistic newspaper clippings from your photos and text for fun or announcements.", enabled: true },
     ];
 
     return (

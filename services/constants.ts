@@ -1,4 +1,4 @@
-import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, PassportPhotoSize, VisitingCardStyle, EventPosterStyle } from '../types';
+import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, PassportPhotoSize, VisitingCardStyle, EventPosterStyle, NewspaperStyle } from '../types';
 
 // --- INLINED DATA FROM /data/*.json FILES ---
 
@@ -631,6 +631,12 @@ const eventPosterStylesData = [
     { "id": "ep-festive", "name": "Festive & Fun", "tags": "Playful, Colorful", "stylePrompt": "Use a playful, rounded, or script font. The text should be vibrant and can have a slight glow or outline. The layout should be fun and dynamic, possibly with text at an angle. Use bright, cheerful colors." }
 ];
 
+const newspaperStylesData = [
+    { "id": "vintage-broadsheet", "name": "Vintage Broadsheet", "tags": "Classic, Aged, Formal", "stylePrompt": "Create a classic, vintage newspaper look from the early 20th century. The paper should be yellowed and aged with a visible textured grain. Use a classic serif font like Times New Roman. The photo should be converted to a grainy black and white with a clear halftone dot pattern." },
+    { "id": "modern-tabloid", "name": "Modern Tabloid", "tags": "Bold, Sensational, Color", "stylePrompt": "Create a modern, sensational tabloid newspaper style. Use bold, impactful sans-serif fonts for the headline. The paper should be clean and white. The user's photo should be in full color, sharp, and prominently featured." },
+    { "id": "local-community", "name": "Local Community Paper", "tags": "Simple, Clean, Friendly", "stylePrompt": "Create the look of a friendly, local community newspaper. The design should be simple and clean, with a mix of serif and sans-serif fonts. The paper is slightly off-white. The photo should be in color but with a slightly muted, natural look." }
+];
+
 // --- EXPORTED CONSTANTS ---
 
 type CreatorStyles = {
@@ -661,3 +667,4 @@ export const PASSPORT_PHOTO_SIZES: PassportPhotoSize[] = passportPhotoSizesData;
 export const PASSPORT_PHOTO_STYLES: PassportPhotoStyle[] = passportPhotoStylesData;
 export const VISITING_CARD_STYLES: VisitingCardStyle[] = visitingCardStylesData;
 export const EVENT_POSTER_STYLES: EventPosterStyle[] = eventPosterStylesData;
+export const NEWSPAPER_STYLES: NewspaperStyle[] = newspaperStylesData;

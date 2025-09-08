@@ -292,11 +292,43 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
 
     const renderResultStep = () => (
         <div className="max-w-4xl mx-auto text-center animate-fade-in">
-             <h2 className="text-3xl font-bold text-center mb-8 text-white">Your Profile Picture is Ready!</h2>
-             {generatedImage && (
-                <img src={`data:image/png;base64,${generatedImage}`} alt="Generated Profile Picture" className="rounded-full w-64 h-64 object-cover mx-auto shadow-2xl shadow-black/30 mb-8 border-4 border-slate-700/50" />
-             )}
-             <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4">
+             <h2 className="text-3xl font-bold text-center mb-2 text-white">Your Profile Picture is Ready!</h2>
+             <p className="text-slate-400 text-center mb-8">See how your new picture looks in different contexts.</p>
+             
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="flex flex-col items-center">
+                    <h3 className="font-semibold text-white mb-4">Final Image</h3>
+                    {generatedImage && (
+                       <img src={`data:image/png;base64,${generatedImage}`} alt="Generated Profile Picture" className="rounded-full w-48 h-48 md:w-64 md:h-64 object-cover mx-auto shadow-2xl shadow-black/30 border-4 border-slate-700/50" />
+                    )}
+                </div>
+                <div className="space-y-6">
+                    <h3 className="font-semibold text-white">Previews</h3>
+                    {/* LinkedIn Mockup */}
+                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-left">
+                        <div className="flex items-center gap-4">
+                            {generatedImage && <img src={`data:image/png;base64,${generatedImage}`} className="w-16 h-16 rounded-full object-cover border-2 border-slate-600" />}
+                            <div>
+                                <div className="h-4 w-32 bg-slate-700 rounded-sm mb-2"></div>
+                                <div className="h-3 w-48 bg-slate-700 rounded-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                     {/* Instagram Mockup */}
+                     <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-left">
+                        <div className="flex items-center gap-3">
+                            {generatedImage && 
+                                <div className="p-1 bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600 rounded-full">
+                                    <img src={`data:image/png;base64,${generatedImage}`} className="w-12 h-12 rounded-full object-cover border-2 border-slate-800" />
+                                </div>
+                            }
+                            <div className="h-4 w-24 bg-slate-700 rounded-sm"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4 mt-12">
                  <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect">
                     <HiArrowLeft className="w-5 h-5 text-slate-300"/> Back to Settings
                  </button>

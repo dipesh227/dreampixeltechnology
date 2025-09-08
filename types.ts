@@ -1,5 +1,5 @@
 // FIX: Removed 'social' from ToolType as it is not an implemented tool and was causing a type error. The 'social-campaign' tool handles all social media functionality.
-export type ToolType = 'thumbnail' | 'advertisement' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'social-campaign';
+export type ToolType = 'thumbnail' | 'advertisement' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'social-campaign' | 'newspaper';
 
 export interface Tool {
   id: ToolType;
@@ -88,6 +88,13 @@ export interface EventPosterStyle {
     stylePrompt: string;
 }
 
+export interface NewspaperStyle {
+    id: string;
+    name: string;
+    tags: string;
+    stylePrompt: string;
+}
+
 export type AspectRatio = '16:9' | '9:16' | '1:1' | '4:5' | '1.91:1' | '3.5:2';
 
 export interface UploadedFile {
@@ -148,6 +155,9 @@ export interface TemplatePrefillData {
     // Event Poster
     epHeadline?: string;
     epBranding?: string;
+    epDate?: string;
+    epTime?: string;
+    epVenue?: string;
 }
 
 export interface Template {

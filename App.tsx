@@ -23,6 +23,7 @@ const PassportPhotoMaker = lazy(() => import('./components/PassportPhotoMaker').
 const VisitingCardMaker = lazy(() => import('./components/VisitingCardMaker').then(module => ({ default: module.VisitingCardMaker })));
 const EventPosterMaker = lazy(() => import('./components/EventPosterMaker').then(module => ({ default: module.EventPosterMaker })));
 const SocialMediaCampaignFactory = lazy(() => import('./components/SocialMediaCampaignFactory').then(module => ({ default: module.SocialMediaCampaignFactory })));
+const NewspaperCuttingMaker = lazy(() => import('./components/NewspaperCuttingMaker').then(module => ({ default: module.NewspaperCuttingMaker })));
 
 const ToolLoadingSpinner: React.FC = () => (
     <div className="flex justify-center items-center py-40">
@@ -98,7 +99,8 @@ const App: React.FC = () => {
         'passport-photo': 'Passport Photo Maker',
         'visiting-card': 'AI Visiting Card Maker',
         'event-poster': 'AI Event Poster Maker',
-        'social-campaign': 'AI Social Media Content Factory'
+        'social-campaign': 'AI Social Media Content Factory',
+        newspaper: 'AI Newspaper Cutting Maker',
     };
     
     const baseTitle = "DreamPixel Technology";
@@ -164,6 +166,7 @@ const App: React.FC = () => {
         case 'visiting-card': return <VisitingCardMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'event-poster': return <EventPosterMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'social-campaign': return <SocialMediaCampaignFactory onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
+        case 'newspaper': return <NewspaperCuttingMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         default: return <LandingPage onSelectTool={handleSelectTool} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
     }
   }
