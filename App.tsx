@@ -1,15 +1,17 @@
+
 import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import LandingPage from './components/LandingPage';
 import Header from './components/Header';
-import { ToolType, ValidationStatus, ConnectedAccount, ViewType } from './types';
+import { ViewType, ConnectedAccount } from './types';
 import HistorySidebar from './components/HistorySidebar';
 import Footer from './components/Footer';
 import FeedbackModal from './components/FeedbackModal';
 import AuthModal from './components/AuthModal';
-import * as aiService from './services/aiService';
+import SettingsModal from './components/SettingsModal'; // Import new SettingsModal
 import MouseTrail from './components/MouseTrail';
 import { useAuth } from './context/AuthContext';
 import { checkDatabaseConnection } from './services/supabaseClient';
+import * as apiConfigService from './services/apiConfigService'; // Import apiConfigService
 
 // Lazy load components to improve initial page load time. All components use named exports now.
 const ThumbnailGenerator = lazy(() => import('./components/ThumbnailGenerator').then(module => ({ default: module.ThumbnailGenerator })));
@@ -32,8 +34,8 @@ const TermsOfService = lazy(() => import('./components/TermsOfService').then(mod
 const ToolLoadingSpinner: React.FC = () => (
     <div className="flex justify-center items-center py-40">
         <div className="relative w-24 h-24">
-            <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-t-purple-400 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 border-4 border-slate-700 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-t-purple-500 rounded-full animate-spin"></div>
         </div>
     </div>
 );
@@ -43,14 +45,13 @@ const App: React.FC = () => {
   const [historyUpdated, setHistoryUpdated] = useState(0);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [apiKeyStatus, setApiKeyStatus] = useState<ValidationStatus>('validating');
-  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false); // State for new modal
   const [isGenerating, setIsGenerating] = useState(false);
   const [dbStatus, setDbStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
   const [dbError, setDbError] = useState<string | null>(null);
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([]);
 
-  const { session } = useAuth();
+  const { session, customApiKey, customApiKeyStatus, fetchCustomApiKey } = useAuth();
   
   // Effect to handle URL hash for navigation
   useEffect(() => {
@@ -71,7 +72,6 @@ const App: React.FC = () => {
     };
 
     window.addEventListener('hashchange', handleHashChange, false);
-    // Set initial view from hash
     handleHashChange();
 
     return () => {
@@ -79,47 +79,45 @@ const App: React.FC = () => {
     };
 }, []);
 
-// Effect to update URL hash when activeView changes, preventing crashes in sandboxed environments.
+// Effect to update URL hash when activeView changes
 useEffect(() => {
     const currentHash = window.location.hash.substring(1);
-
     if (activeView === 'landing' || !activeView) {
-        // If on the landing page and there's a hash, clear it safely.
-        // This avoids using history.pushState which can fail in certain (e.g., blob:) environments.
         if (currentHash) {
             window.location.hash = '';
         }
     } else {
-        // Only update the hash if it's different to prevent redundant history entries and loops.
         if (currentHash !== activeView) {
             window.location.hash = activeView;
         }
     }
 }, [activeView]);
 
+  // Effect to set the active API key based on user login status and custom key
+  useEffect(() => {
+    const initializeApiKey = async () => {
+        if (session && customApiKeyStatus === 'idle') {
+            await fetchCustomApiKey();
+        } else if (!session) {
+            // User logged out, revert to default key
+            apiConfigService.setActiveApiKey(null);
+        }
+    };
+    initializeApiKey();
+  }, [session, customApiKeyStatus, fetchCustomApiKey]);
+  
+  useEffect(() => {
+      if (session && customApiKeyStatus !== 'idle' && customApiKeyStatus !== 'validating') {
+          apiConfigService.setActiveApiKey(customApiKey);
+      }
+  }, [session, customApiKey, customApiKeyStatus]);
 
-  // This effect runs ONLY ONCE when the app first loads to check static connections.
+
+  // This effect runs ONLY ONCE to check static connections like the DB.
   useEffect(() => {
     const checkInitialConnections = async () => {
-        setApiKeyStatus('validating');
-        setApiKeyError(null);
         setDbStatus('connecting');
         setDbError(null);
-
-        // Check API Status - this is based on environment config, not session.
-        try {
-            const apiResult = await aiService.checkCurrentApiStatus();
-            setApiKeyStatus(apiResult.status);
-            if (apiResult.error) {
-                setApiKeyError(apiResult.error);
-            }
-        } catch (error: any) {
-            console.error("Failed to check API status:", error);
-            setApiKeyStatus('invalid');
-            setApiKeyError(error.message || 'An unknown error occurred during API validation.');
-        }
-
-        // Check Database Connection - this is also based on config, not session.
         try {
             const dbResult = await checkDatabaseConnection();
             setDbStatus(dbResult.isConnected ? 'connected' : 'error');
@@ -132,9 +130,8 @@ useEffect(() => {
              setDbError(error.message || 'An unknown error occurred during DB connection check.');
         }
     };
-
     checkInitialConnections();
-  }, []); // Empty dependency array ensures this runs only once on mount.
+  }, []);
   
   useEffect(() => {
     const viewTitles: Record<ViewType, string> = {
@@ -164,26 +161,18 @@ useEffect(() => {
 
   const handleSetView = useCallback((view: ViewType) => {
     setActiveView(view);
-    window.scrollTo(0, 0); // Scroll to top on navigation
+    window.scrollTo(0, 0);
   }, []);
 
-  const handleNavigateHome = useCallback(() => {
-    handleSetView('landing');
-  }, [handleSetView]);
-
-  const onCreationGenerated = useCallback(() => {
-    setHistoryUpdated(count => count + 1);
-  }, []);
-
+  const handleNavigateHome = useCallback(() => handleSetView('landing'), [handleSetView]);
+  const onCreationGenerated = useCallback(() => setHistoryUpdated(count => count + 1), []);
   const handleOpenFeedback = useCallback(() => setIsFeedbackOpen(true), []);
   const handleCloseFeedback = useCallback(() => setIsFeedbackOpen(false), []);
-  
   const handleOpenAuthModal = useCallback(() => setIsAuthModalOpen(true), []);
   const handleCloseAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
-
-  const handleGeneratingStatusChange = useCallback((status: boolean) => {
-    setIsGenerating(status);
-  }, []);
+  const handleOpenSettingsModal = useCallback(() => setIsSettingsModalOpen(true), []);
+  const handleCloseSettingsModal = useCallback(() => setIsSettingsModalOpen(false), []);
+  const handleGeneratingStatusChange = useCallback((status: boolean) => setIsGenerating(status), []);
 
   const handleToggleConnect = useCallback((platform: string) => {
     setConnectedAccounts(prev => {
@@ -191,7 +180,6 @@ useEffect(() => {
       if (isConnected) {
         return prev.filter(acc => acc.platform !== platform);
       } else {
-        // Storing the platform name fulfills the placeholder requirement.
         return [...prev, { platform }];
       }
     });
@@ -236,9 +224,8 @@ useEffect(() => {
       <Header 
         onNavigateHome={handleNavigateHome} 
         onOpenFeedback={handleOpenFeedback} 
-        apiKeyStatus={apiKeyStatus} 
-        apiKeyError={apiKeyError}
         onLogin={handleOpenAuthModal}
+        onOpenSettings={handleOpenSettingsModal} // Pass handler to Header
       />
       <main className="container mx-auto px-4 py-4 sm:py-8">
         <Suspense fallback={<ToolLoadingSpinner />}>
@@ -248,6 +235,7 @@ useEffect(() => {
       <Footer dbStatus={dbStatus} dbError={dbError} connectedAccounts={connectedAccounts} onNavigate={handleSetView} />
       {isFeedbackOpen && <FeedbackModal onClose={handleCloseFeedback} />}
       {isAuthModalOpen && <AuthModal onClose={handleCloseAuthModal} />}
+      {isSettingsModalOpen && <SettingsModal onClose={handleCloseSettingsModal} />}
     </div>
   );
 };

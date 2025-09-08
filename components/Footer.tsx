@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaXTwitter } from 'react-icons/fa6';
 import { ConnectedAccount, ViewType } from '../types';
@@ -31,15 +32,15 @@ const Footer: React.FC<FooterProps> = ({ dbStatus, dbError, connectedAccounts, o
     };
 
     return (
-        <footer className="py-8 px-4 border-t border-slate-800/50 mt-12">
+        <footer className="py-8 px-4 border-t border-slate-200 dark:border-slate-800/50 mt-12">
             <div className="container mx-auto flex flex-col items-center gap-6">
                 <div className="flex items-center gap-6">
                     {socialLinks.map(({ Icon, name, hoverClass }) => (
                         <div
                             key={name}
                             className={`
-                                text-slate-500 text-2xl transition-all duration-300
-                                ${isConnected(name) ? 'text-green-400 neon-green' : hoverClass}
+                                text-slate-500 dark:text-slate-500 text-2xl transition-all duration-300
+                                ${isConnected(name) ? 'text-green-500 dark:text-green-400 neon-green' : hoverClass}
                             `}
                             data-tooltip={isConnected(name) ? `${name} Connected` : `Connect ${name}`}
                         >
@@ -47,19 +48,19 @@ const Footer: React.FC<FooterProps> = ({ dbStatus, dbError, connectedAccounts, o
                         </div>
                     ))}
                 </div>
-                <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-sm text-slate-400">
-                    <button onClick={() => onNavigate('about')} className="hover:text-white transition-colors">About Us</button>
-                    <button onClick={() => onNavigate('contact')} className="hover:text-white transition-colors">Contact</button>
-                    <button onClick={() => onNavigate('privacy')} className="hover:text-white transition-colors">Privacy Policy</button>
-                    <button onClick={() => onNavigate('terms')} className="hover:text-white transition-colors">Terms of Service</button>
+                <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-sm text-text-secondary">
+                    <button onClick={() => onNavigate('about')} className="hover:text-text-primary transition-colors">About Us</button>
+                    <button onClick={() => onNavigate('contact')} className="hover:text-text-primary transition-colors">Contact</button>
+                    <button onClick={() => onNavigate('privacy')} className="hover:text-text-primary transition-colors">Privacy Policy</button>
+                    <button onClick={() => onNavigate('terms')} className="hover:text-text-primary transition-colors">Terms of Service</button>
                 </div>
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-between pt-6 border-t border-slate-800/80 mt-6">
-                    <p className="text-sm text-slate-500 order-2 sm:order-1">
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-between pt-6 border-t border-slate-200 dark:border-slate-800/80 mt-6">
+                    <p className="text-sm text-slate-500 dark:text-slate-500 order-2 sm:order-1">
                         © {new Date().getFullYear()} Dream Pixel Technology. All rights reserved.
                     </p>
-                    <div className="flex items-center gap-2 order-1 sm:order-2" title={statusInfo[dbStatus].text}>
+                    <div className="flex items-center gap-2 order-1 sm:order-2" data-tooltip={statusInfo[dbStatus].text}>
                         <div className={`w-2.5 h-2.5 rounded-full ${statusInfo[dbStatus].color} transition-colors`}></div>
-                        <span className="text-xs text-slate-600">Database Status</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-600">Database Status</span>
                     </div>
                 </div>
             </div>

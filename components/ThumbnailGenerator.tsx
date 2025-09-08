@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { CreatorStyle, AspectRatio, UploadedFile, GeneratedConcept, TemplatePrefillData } from '../types';
 import { generatePrompts, generateThumbnail } from '../services/aiService';
@@ -10,6 +11,7 @@ import ErrorMessage from './ErrorMessage';
 import TemplateBrowser from './TemplateBrowser';
 import StyleSelector from './StyleSelector';
 import AspectRatioSelector from './AspectRatioSelector';
+import { resizeImage } from '../utils/cropImage';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -51,22 +53,18 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
         setIsSaved(false);
     };
 
-    const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const files = Array.from(event.target.files).slice(0, 5 - headshots.length);
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const base64 = (reader.result as string).split(',')[1];
-                    const newHeadshot: UploadedFile = {
-                        base64,
-                        mimeType: file.type,
-                        name: file.name,
-                    };
-                    setHeadshots(prev => [...prev, newHeadshot].slice(0, 5));
-                };
-                reader.readAsDataURL(file);
-            });
+            for (const file of files) {
+                try {
+                    const resizedImage = await resizeImage(file, 2048);
+                    setHeadshots(prev => [...prev, resizedImage].slice(0, 5));
+                } catch (error) {
+                    console.error("Error resizing image:", error);
+                    setError("Failed to process image. Please try a different file.");
+                }
+            }
             event.target.value = '';
         }
     }, [headshots.length]);
@@ -219,32 +217,17 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
                     Browse Templates
                 </button>
             </div>
-        
-            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
-              <h2 className="text-xl font-bold text-white mb-1">1. Powered by Google Gemini</h2>
-              <p className="text-sm text-slate-400 mb-4">Using state-of-the-art models for the best results. The default API key is used for all generations.</p>
-              <div className="flex divide-x divide-slate-700">
-                <div className="pr-6">
-                  <h3 className="font-semibold text-slate-300">Concept Generation</h3>
-                  <p className="text-sm text-slate-500">gemini-2.5-flash</p>
-                </div>
-                <div className="pl-6">
-                  <h3 className="font-semibold text-slate-300">Thumbnail Generation</h3>
-                  <p className="text-sm text-slate-500">gemini-2.5-flash-image-preview</p>
-                </div>
-              </div>
-            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Upload 1-5 high-quality images of the person to be featured. The AI will use these to ensure the face in the thumbnail is a perfect match.">
-                    <h2 className="text-xl font-bold text-white mb-1">2. Upload Headshots</h2>
-                    <p className="text-sm text-slate-400 mb-4">Provide 1-5 images for the best face accuracy.</p>
-                    <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
+                <div className="p-4 md:p-6 main-content-area rounded-xl" data-tooltip="Upload 1-5 high-quality images of the person to be featured. The AI will use these to ensure the face in the thumbnail is a perfect match.">
+                    <h2 className="text-xl font-bold text-headings mb-1">1. Upload Headshots</h2>
+                    <p className="text-sm text-text-secondary mb-4">Provide 1-5 images for the best face accuracy.</p>
+                    <div className="p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-center bg-slate-100 dark:bg-slate-800/50 hover:border-slate-400 dark:hover:border-slate-600 transition h-48 flex flex-col justify-center">
                          <input type="file" id="file-upload" className="hidden" multiple accept="image/png, image/jpeg" onChange={handleFileChange} disabled={headshots.length >= 5} />
                          <label htmlFor="file-upload" className={`cursor-pointer ${headshots.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                            <HiArrowUpTray className="w-8 h-8 mx-auto text-slate-500 mb-2"/>
-                            <p className="text-slate-300 font-semibold">Click to upload or drag & drop</p>
-                            <p className="text-xs text-slate-500">You can add {5 - headshots.length} more images.</p>
+                            <HiArrowUpTray className="w-8 h-8 mx-auto text-slate-500 dark:text-slate-500 mb-2"/>
+                            <p className="text-text-primary font-semibold">Click to upload or drag & drop</p>
+                            <p className="text-xs text-text-secondary">You can add {5 - headshots.length} more images.</p>
                          </label>
                     </div>
                      {headshots.length > 0 && 
@@ -260,38 +243,38 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
                         </div>
                     }
                 </div>
-                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
+                 <div className="p-4 md:p-6 main-content-area rounded-xl space-y-4">
                     <div data-tooltip="Describe your video in detail. The AI uses this to brainstorm concepts that match your content and attract viewers.">
                         <div className="flex items-start gap-3">
-                            <HiOutlineDocumentText className="w-6 h-6 mt-1 text-purple-400"/>
+                            <HiOutlineDocumentText className="w-6 h-6 mt-1 text-purple-500"/>
                             <div>
-                               <h3 className="text-md font-bold text-white">2. Describe Your Video</h3>
-                               <p className="text-sm text-slate-400 mb-2">The more detail, the better the thumbnail concepts.</p>
+                               <h3 className="text-md font-bold text-headings">2. Describe Your Video</h3>
+                               <p className="text-sm text-text-secondary mb-2">The more detail, the better the thumbnail concepts.</p>
                             </div>
                         </div>
-                        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., 'A video essay exploring the rise of AI in creative industries, and whether it will replace human artists...'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" rows={4}></textarea>
+                        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., 'A video essay exploring the rise of AI in creative industries...'" className="w-full p-3 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={4}></textarea>
                     </div>
                     
-                    <div data-tooltip="Add short, punchy text that grabs attention. This text will be a prominent part of your thumbnail. Keep it under 5-6 words for maximum impact.">
+                    <div data-tooltip="Add short, punchy text that grabs attention. Keep it under 5-6 words for maximum impact.">
                          <div className="flex items-start gap-3">
-                            <HiOutlineChatBubbleLeftRight className="w-6 h-6 mt-1 text-pink-400"/>
+                            <HiOutlineChatBubbleLeftRight className="w-6 h-6 mt-1 text-pink-500"/>
                             <div>
-                               <h3 className="text-md font-bold text-white">Text on Thumbnail <span className="text-slate-400 font-normal">(Optional)</span></h3>
-                               <p className="text-sm text-slate-400 mb-2">Add compelling text to grab attention. Keep it short!</p>
+                               <h3 className="text-md font-bold text-headings">Text on Thumbnail <span className="text-text-secondary font-normal">(Optional)</span></h3>
+                               <p className="text-sm text-text-secondary mb-2">Keep it short!</p>
                             </div>
                         </div>
-                        <input type="text" value={thumbnailText} onChange={e => setThumbnailText(e.target.value)} placeholder="e.g., 'AI TAKEOVER?!' or 'My BIGGEST Secret'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
+                        <input type="text" value={thumbnailText} onChange={e => setThumbnailText(e.target.value)} placeholder="e.g., 'AI TAKEOVER?!'" className="w-full p-3 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                     </div>
 
-                    <div data-tooltip="Include your brand name, a specific font you use, or other branding notes. The AI will try to incorporate these elements into the design.">
+                    <div data-tooltip="Include your brand name, a specific font, or other branding notes.">
                         <div className="flex items-start gap-3">
-                            <HiOutlineTag className="w-6 h-6 mt-1 text-sky-400"/>
+                            <HiOutlineTag className="w-6 h-6 mt-1 text-sky-500"/>
                             <div>
-                               <h3 className="text-md font-bold text-white">Brand Details <span className="text-slate-400 font-normal">(Optional)</span></h3>
-                               <p className="text-sm text-slate-400 mb-2">Add a brand name or style notes (e.g., 'Use our font "Poppins"').</p>
+                               <h3 className="text-md font-bold text-headings">Brand Details <span className="text-text-secondary font-normal">(Optional)</span></h3>
+                               <p className="text-sm text-text-secondary mb-2">Add a brand name or style notes.</p>
                             </div>
                         </div>
-                        <input type="text" value={brandDetails} onChange={e => setBrandDetails(e.target.value)} placeholder="e.g., 'DreamPixel Tech'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" />
+                        <input type="text" value={brandDetails} onChange={e => setBrandDetails(e.target.value)} placeholder="e.g., 'DreamPixel Tech'" className="w-full p-3 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                     </div>
                 </div>
             </div>
@@ -311,7 +294,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
             />
 
              <div className="flex justify-center pt-4">
-                <button onClick={handleGeneratePrompts} disabled={isLoading || !description.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
+                <button onClick={handleGeneratePrompts} disabled={isLoading || !description.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
                     {isLoading ? loadingMessage : 'Generate Thumbnail Concepts'}
                 </button>
@@ -321,8 +304,8 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
     
     const renderPromptSelectionStep = () => (
         <div className="max-w-7xl mx-auto animate-fade-in">
-            <h2 className="text-3xl font-bold text-center mb-2 text-white">Choose Your Thumbnail Style</h2>
-            <p className="text-slate-400 text-center mb-10">Select a concept below to generate your thumbnail. Hover to see the detailed AI prompt.</p>
+            <h2 className="text-3xl font-bold text-center mb-2 text-headings">Choose Your Thumbnail Style</h2>
+            <p className="text-text-secondary text-center mb-10">Select a concept below to generate your thumbnail. Hover to see the detailed AI prompt.</p>
             <div className="grid md:grid-cols-3 gap-6">
                 {generatedPrompts.map((concept, index) => (
                     <div 
@@ -375,19 +358,19 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
     const renderGeneratingStep = () => (
         <div className="text-center py-20 animate-fade-in">
             <div className="relative w-24 h-24 mx-auto">
-                <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
-                <div className="absolute inset-0 border-4 border-t-purple-400 rounded-full animate-spin"></div>
+                <div className="absolute inset-0 border-4 border-slate-700 rounded-full"></div>
+                <div className="absolute inset-0 border-4 border-t-purple-500 rounded-full animate-spin"></div>
             </div>
-            <h2 className="text-3xl font-bold mt-8 text-white">{loadingMessage}</h2>
-            <p className="text-slate-400 mt-2">This can take up to a minute. Please don't close the window.</p>
+            <h2 className="text-3xl font-bold mt-8 text-headings">{loadingMessage}</h2>
+            <p className="text-text-secondary mt-2">This can take up to a minute. Please don't close the window.</p>
         </div>
     );
 
     const renderResultStep = () => (
         <div className="max-w-4xl mx-auto text-center animate-fade-in">
-             <h2 className="text-3xl font-bold text-center mb-8 text-white">Your Thumbnail is Ready!</h2>
+             <h2 className="text-3xl font-bold text-center mb-8 text-headings">Your Thumbnail is Ready!</h2>
              {generatedThumbnail && (
-                <img src={`data:image/png;base64,${generatedThumbnail}`} alt="Generated Thumbnail" className="rounded-xl mx-auto shadow-2xl shadow-black/30 mb-8 border-2 border-slate-700/50" style={{ aspectRatio: aspectRatio.replace(':', ' / ') }} />
+                <img src={`data:image/png;base64,${generatedThumbnail}`} alt="Generated Thumbnail" className="rounded-xl mx-auto shadow-2xl shadow-black/30 mb-8 border-2 border-slate-300 dark:border-slate-700/50" style={{ aspectRatio: aspectRatio.replace(':', ' / ') }} />
              )}
              <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4">
                  <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect">
@@ -425,8 +408,10 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({ onNaviga
                 />
             )}
             <ErrorMessage error={error} />
-            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
-                {step === 'input' && renderInputStep()}
+            <div className="p-4 sm:p-6 md:p-8 main-content-area rounded-2xl shadow-lg">
+                <div className="sm:hidden md:block"> {/* Responsive check */}
+                    {step === 'input' && renderInputStep()}
+                </div>
                 {step === 'promptSelection' && renderPromptSelectionStep()}
                 {step === 'generating' && renderGeneratingStep()}
                 {step === 'result' && renderResultStep()}

@@ -1,9 +1,7 @@
-// FIX: Removed 'social' from ToolType as it is not an implemented tool and was causing a type error. The 'social-campaign' tool handles all social media functionality.
 export type ToolType = 'thumbnail' | 'advertisement' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'social-campaign' | 'newspaper';
 
 export type PageType = 'about' | 'contact' | 'privacy' | 'terms';
 export type ViewType = ToolType | 'landing' | PageType;
-
 
 export interface Tool {
   id: ToolType;
@@ -16,6 +14,7 @@ export interface CreatorStyle {
   id: string;
   name: string;
   tags: string;
+  imageUrl: string;
   creatorStyle: string;
   mood: string;
   imageStyle: string;
@@ -33,6 +32,7 @@ export interface PosterStyle {
   id: string;
   name: string;
   tags: string;
+  imageUrl: string;
   stylePrompt: string;
 }
 
@@ -40,6 +40,7 @@ export interface AdStyle {
     id: string;
     name: string;
     tags: string;
+    imageUrl: string;
     stylePrompt: string;
 }
 
@@ -47,6 +48,7 @@ export interface ProfilePictureStyle {
     id: string;
     name: string;
     tags: string;
+    imageUrl: string;
     stylePrompt: string;
 }
 
@@ -54,6 +56,7 @@ export interface LogoStyle {
     id: string;
     name: string;
     tags: string;
+    imageUrl: string;
     stylePrompt: string;
 }
 
@@ -61,12 +64,14 @@ export interface HeadshotStyle {
     id: string;
     name: string;
     tags: string;
+    imageUrl: string;
     stylePrompt: string;
 }
 
 export interface PassportPhotoStyle {
     id: string;
     name: string;
+    imageUrl: string;
     outfitPrompt: string;
 }
 
@@ -82,6 +87,7 @@ export interface VisitingCardStyle {
     id: string;
     name: string;
     tags: string;
+    imageUrl: string;
     stylePrompt: string;
 }
 
@@ -89,6 +95,7 @@ export interface EventPosterStyle {
     id: string;
     name: string;
     tags: string;
+    imageUrl: string;
     stylePrompt: string;
 }
 
@@ -96,6 +103,7 @@ export interface NewspaperStyle {
     id: string;
     name: string;
     tags: string;
+    imageUrl: string;
     stylePrompt: string;
 }
 
@@ -133,39 +141,29 @@ export interface GeneratedConcept {
 export type ValidationStatus = 'idle' | 'validating' | 'valid' | 'invalid';
 
 export interface TemplatePrefillData {
-    // Common
     styleId: string;
-    aspectRatio: AspectRatio;
-    // Thumbnail
+    aspectRatio?: AspectRatio;
     description?: string;
     thumbnailText?: string;
-    // Political
     partyId?: string;
     eventTheme?: string;
     customText?: string;
-    // Ad Banner
     productDescription?: string;
     headline?: string;
     brandDetails?: string;
-    // Social
     topic?: string;
     platform?: string;
     tone?: string;
     callToAction?: string;
-    // Profile Picture
     profileDescription?: string;
-    // Logo
     logoDescription?: string;
     companyName?: string;
     slogan?: string;
-    // Headshot Maker
     headshotDescription?: string;
-    // Visiting Card
     vcName?: string;
     vcTitle?: string;
     vcCompanyName?: string;
     vcContact?: string;
-    // Event Poster
     epHeadline?: string;
     epBranding?: string;
     epDate?: string;
@@ -185,7 +183,6 @@ export interface ConnectedAccount {
   platform: string;
 }
 
-// For Social Media Campaign Factory
 export interface PlatformPostConcept {
     post?: string;
     caption?: string;

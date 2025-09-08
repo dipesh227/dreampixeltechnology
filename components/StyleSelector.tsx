@@ -6,6 +6,7 @@ interface Style {
     id: string;
     name: string;
     tags: string;
+    imageUrl: string;
 }
 
 interface StyleSelectorProps {
@@ -17,27 +18,12 @@ interface StyleSelectorProps {
 }
 
 const StyleCard: React.FC<{ style: Style; isSelected: boolean; onSelect: (id: string) => void; }> = ({ style, isSelected, onSelect }) => {
-    // Generate a simple hash for a color to make placeholders visually distinct
-    const getBgColor = (name: string) => {
-        let hash = 0;
-        if (name.length === 0) return '808080';
-        for (let i = 0; i < name.length; i++) {
-            hash = name.charCodeAt(i) + ((hash << 5) - hash);
-            hash = hash & hash; // Convert to 32bit integer
-        }
-        const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
-        return "00000".substring(0, 6 - c.length) + c;
-    };
-
-    const bgColor = getBgColor(style.name);
-    const placeholderUrl = `https://placehold.co/300x200/${bgColor}/FFFFFF?text=${encodeURIComponent(style.name)}&font=inter`;
-
     return (
         <div
             onClick={() => onSelect(style.id)}
             className={`relative group cursor-pointer bg-slate-800/50 rounded-lg border-2 transition-all duration-200 overflow-hidden ${isSelected ? 'border-purple-500 shadow-lg shadow-purple-900/50' : 'border-slate-800 hover:border-slate-700 hover:-translate-y-1'}`}
         >
-            <img src={placeholderUrl} alt={style.name} className="w-full h-24 object-cover transition-transform duration-300 group-hover:scale-105" />
+            <img src={style.imageUrl} alt={style.name} className="w-full h-24 object-cover transition-transform duration-300 group-hover:scale-105" />
             <div className="p-3">
                 <p className="font-bold text-white text-sm truncate">{style.name}</p>
                 <p className="text-xs text-slate-400 truncate">{style.tags}</p>
@@ -55,7 +41,6 @@ const StyleCard: React.FC<{ style: Style; isSelected: boolean; onSelect: (id: st
 const StyleSelector: React.FC<StyleSelectorProps> = ({ title, tooltip, stylesData, selectedStyleId, onStyleSelect }) => {
     const isCategorized = !Array.isArray(stylesData);
     const initialCategories = isCategorized ? Object.keys(stylesData) : [];
-    // Special case for logo styles which has one category "general" - don't show tabs for it.
     const categories = initialCategories.length > 1 ? initialCategories : [];
 
     const [activeCategory, setActiveCategory] = useState(categories[0] || initialCategories[0] || '');
@@ -68,24 +53,26 @@ const StyleSelector: React.FC<StyleSelectorProps> = ({ title, tooltip, stylesDat
         if (isCategorized) {
             for (const category of initialCategories) {
                 if ((stylesData as { [key: string]: Style[] })[category]?.some(style => style.id === selectedStyleId)) {
-                    setActiveCategory(category);
+                    if (activeCategory !== category) {
+                        setActiveCategory(category);
+                    }
                     break;
                 }
             }
         }
-    }, [selectedStyleId, isCategorized, initialCategories, stylesData]);
+    }, [selectedStyleId, isCategorized, initialCategories, stylesData, activeCategory]);
     
 
     return (
-        <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip={tooltip}>
-            <h2 className="text-xl font-bold text-white mb-4">{title}</h2>
+        <div className="p-4 md:p-6 main-content-area rounded-xl" data-tooltip={tooltip}>
+            <h2 className="text-xl font-bold text-headings mb-4">{title}</h2>
             {categories.length > 0 && (
-                 <div className="flex flex-wrap gap-2 mb-4 border-b border-slate-800 pb-4">
+                 <div className="flex flex-wrap gap-2 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                      {categories.map(category => (
                         <button 
                             key={category} 
                             onClick={() => setActiveCategory(category)} 
-                            className={`px-4 py-1.5 text-sm rounded-full transition-colors duration-200 ${activeCategory === category ? 'bg-primary-gradient text-white font-semibold' : 'bg-slate-800 hover:bg-slate-700'}`}
+                            className={`px-4 py-1.5 text-sm rounded-full transition-colors duration-200 ${activeCategory === category ? 'bg-primary-gradient text-white font-semibold' : 'bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-text-secondary dark:text-text-primary'}`}
                         >
                            {category.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                         </button>

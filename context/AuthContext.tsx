@@ -1,13 +1,16 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '../services/supabaseClient';
 import type { Session, User } from '@supabase/supabase-js';
 import useSWR from 'swr';
+import * as userSettingsService from '../services/userSettingsService';
 
 interface Profile {
     id: string;
     full_name: string;
     avatar_url: string;
 }
+
+type CustomApiKeyStatus = 'idle' | 'validating' | 'valid' | 'invalid';
 
 interface AuthContextType {
     session: Session | null;
@@ -19,6 +22,11 @@ interface AuthContextType {
     isLoggingIn: boolean;
     isLoggingOut: boolean;
     authError: string | null;
+    customApiKey: string | null;
+    customApiKeyStatus: CustomApiKeyStatus;
+    fetchCustomApiKey: () => Promise<void>;
+    setCustomApiKey: (apiKey: string) => Promise<void>;
+    clearCustomApiKey: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,13 +49,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [authError, setAuthError] = useState<string | null>(null);
     
+    const [customApiKey, _setCustomApiKey] = useState<string | null>(null);
+    const [customApiKeyStatus, setCustomApiKeyStatus] = useState<CustomApiKeyStatus>('idle');
+    
     const userId = user?.id;
     const { data: profile } = useSWR(userId ? ['profile', userId] : null, ([_, id]) => fetcher('profiles', id));
+
+    const fetchCustomApiKey = useCallback(async () => {
+        if (!userId) return;
+        setCustomApiKeyStatus('validating');
+        try {
+            const key = await userSettingsService.getUserGeminiKey(userId);
+            _setCustomApiKey(key);
+            setCustomApiKeyStatus(key ? 'valid' : 'idle');
+        } catch (error) {
+            console.error("Error fetching custom API key:", error);
+            _setCustomApiKey(null);
+            setCustomApiKeyStatus('invalid');
+        }
+    }, [userId]);
+
+    const setCustomApiKey = useCallback(async (apiKey: string) => {
+        if (!userId) return;
+        setCustomApiKeyStatus('validating');
+        await userSettingsService.setUserGeminiKey(userId, apiKey);
+        _setCustomApiKey(apiKey);
+        setCustomApiKeyStatus('valid');
+    }, [userId]);
+    
+    const clearCustomApiKey = useCallback(async () => {
+        if (!userId) return;
+        await userSettingsService.setUserGeminiKey(userId, ''); // Set to empty string
+        _setCustomApiKey(null);
+        setCustomApiKeyStatus('idle');
+    }, [userId]);
 
     useEffect(() => {
         const setAuthState = (currentSession: Session | null) => {
             setSession(currentSession);
-            setUser(currentSession?.user ?? null);
+            const currentUser = currentSession?.user ?? null;
+            setUser(currentUser);
+            if (!currentUser) {
+                // User logged out, clear custom key state
+                _setCustomApiKey(null);
+                setCustomApiKeyStatus('idle');
+            }
             setLoading(false);
         };
 
@@ -103,6 +149,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoggingIn,
         isLoggingOut,
         authError,
+        customApiKey,
+        customApiKeyStatus,
+        fetchCustomApiKey,
+        setCustomApiKey,
+        clearCustomApiKey,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
