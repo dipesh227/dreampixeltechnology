@@ -4,9 +4,9 @@ import { generateSocialMediaCampaign, generateSocialPost, generateSocialPostWith
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
 import * as facebookService from '../services/facebookService';
-import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowLeft, HiClipboardDocument, HiCheck, HiOutlinePhoto, HiOutlineUserCircle, HiArrowUpTray, HiOutlineLink, HiXMark, HiCheckCircle, HiOutlineVideoCamera, HiOutlinePencil, HiOutlineShare, HiBuildingStorefront, HiRectangleStack, HiOutlineArrowTrendingUp, HiOutlineLightBulb } from 'react-icons/hi2';
-import { FaLinkedin, FaInstagram, FaFacebook, FaTiktok, FaYoutube } from 'react-icons/fa6';
-import { FaTwitter, FaThreads } from 'react-icons/fa6';
+import * as linkedinService from '../services/linkedinService';
+import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowLeft, HiClipboardDocument, HiCheck, HiOutlinePhoto, HiOutlineUserCircle, HiArrowUpTray, HiOutlineLink, HiXMark, HiCheckCircle, HiOutlineVideoCamera, HiOutlinePencil, HiOutlineShare, HiBuildingStorefront, HiRectangleStack, HiOutlineArrowTrendingUp, HiOutlineLightBulb, HiOutlineExclamationTriangle, HiArrowPath } from 'react-icons/hi2';
+import { FaLinkedin, FaInstagram, FaFacebook, FaTiktok, FaYoutube, FaXTwitter, FaThreads } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import { AD_STYLES } from '../services/constants';
@@ -28,7 +28,7 @@ const platformIcons: { [key: string]: React.ElementType } = {
     LinkedIn: FaLinkedin,
     Instagram: FaInstagram,
     Facebook: FaFacebook,
-    'X-Twitter': FaTwitter,
+    'X-Twitter': FaXTwitter,
     TikTok: FaTiktok,
     Threads: FaThreads,
     YouTube_Shorts: FaYoutube,
@@ -66,6 +66,8 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
     const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null);
     const [facebookAccessToken, setFacebookAccessToken] = useState('');
     const [facebookPageId, setFacebookPageId] = useState('');
+    const [linkedinAccessToken, setLinkedinAccessToken] = useState('');
+    const [linkedinPersonId, setLinkedinPersonId] = useState('');
     const [platformPostStatus, setPlatformPostStatus] = useState<{ [key: string]: PostStatus }>({});
     
     // Single Post & Trend Mode State
@@ -77,7 +79,7 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
     const [callToAction, setCallToAction] = useState('');
     const [selectedStyleId, setSelectedStyleId] = useState<string>(AD_STYLES[Object.keys(AD_STYLES)[0]][0].id);
     const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1');
-    const [generatedConcepts, setGeneratedConcepts] = useState<GeneratedConcept[]>([]);
+    const [generatedConcepts, setGeneratedConcepts] = useState<(GeneratedConcept & { imageBase64?: string | null; })[]>([]);
     const [finalPrompt, setFinalPrompt] = useState('');
     const [finalCaption, setFinalCaption] = useState('');
     const [finalGeneratedPost, setFinalGeneratedPost] = useState<string | null>(null);
@@ -190,13 +192,27 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         
         setIsLoading(true);
         setError(null);
-        setLoadingMessage("Crafting concepts...");
+        setLoadingMessage("Crafting concepts and generating previews...");
         try {
             const concepts = mode === 'trend'
                 ? await generateTrendPostConcepts(selectedTrend, String(platform), selectedStyle)
                 : await generateSocialPostConcepts(topic, String(platform), tone, selectedStyle, callToAction);
             
-            setGeneratedConcepts(concepts);
+            const imagePromises = concepts.map(concept =>
+                generateSocialPost(concept.prompt, aspectRatio)
+                    .catch(err => {
+                        console.error("Failed to generate preview for concept:", concept.prompt, err);
+                        return null;
+                    })
+            );
+            const generatedImages = await Promise.all(imagePromises);
+
+            const conceptsWithImages = concepts.map((concept, index) => ({
+                ...concept,
+                imageBase64: generatedImages[index],
+            }));
+            
+            setGeneratedConcepts(conceptsWithImages);
             setStep('conceptSelection');
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to generate concepts.");
@@ -205,27 +221,16 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         }
     };
     
-    const handleGenerateFinalPost = async (prompt: string, caption: string) => {
-        setIsLoading(true);
-        setError(null);
-        setFinalPrompt(prompt);
-        setFinalCaption(caption);
-        setStep('generating');
-        setIsFinalPostSaved(false);
-        try {
-            const postResult = await generateSocialPost(prompt, aspectRatio);
-            if (postResult) {
-                setFinalGeneratedPost(postResult);
-                setStep('result');
-            } else {
-                throw new Error("The AI failed to generate an image. Please try another concept.");
-            }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to generate post image.');
-            setStep('conceptSelection');
-        } finally {
-            setIsLoading(false);
+    const handleSelectFinalPost = (concept: (GeneratedConcept & { imageBase64?: string | null })) => {
+        if (!concept.imageBase64) {
+            setError("This concept's image could not be generated. Please select another.");
+            return;
         }
+        setFinalPrompt(concept.prompt);
+        setFinalCaption(concept.caption || '');
+        setFinalGeneratedPost(concept.imageBase64);
+        setIsFinalPostSaved(false); // Reset save state for new selection
+        setStep('result');
     };
 
     const handleGenerateImage = async (platform: string, imagePrompt: string) => {
@@ -271,7 +276,6 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
         }, 8000);
 
         try {
-            // FIX: Removed invalid backslash from template literal
             const finalVideoPrompt = `Video Concept: "${suggestion}". The required voiceover script is: "${script}".`;
             const videoUrl = await generateSocialVideo(finalVideoPrompt);
             if (videoUrl) {
@@ -290,7 +294,6 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
     const handleSaveImage = async (platform: string, imagePrompt: string) => {
         const imageData = generatedImages[platform];
         if (imageData?.base64 && !imageData.saved && session) {
-            // FIX: Removed invalid backslashes from template literals
             const newEntry = { id: '', prompt: `Campaign: ${topic} - ${platform} Visual: ${imagePrompt}`, imageUrl: `data:image/png;base64,${imageData.base64}`, timestamp: Date.now() };
             try {
                 await historyService.saveCreation(newEntry, session.user.id);
@@ -360,12 +363,40 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
             
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred while posting to Facebook.';
-            // FIX: Removed invalid backslash from template literal
             setError(`Facebook Post Failed: ${errorMessage}. Please check your Page ID, Access Token and permissions.`);
             setPlatformPostStatus(prev => ({ ...prev, [platform]: 'error' }));
-            setTimeout(() => {
-                setPlatformPostStatus(prev => ({ ...prev, [platform]: 'idle' }));
-            }, 5000);
+        }
+    };
+
+    const handlePostToLinkedIn = async (platform: string, content: PlatformPostConcept) => {
+        if (!linkedinPersonId.trim() || !linkedinAccessToken.trim()) {
+            setError('Please provide your LinkedIn Person ID and Access Token.');
+            return;
+        }
+    
+        const imageBase64 = generatedImages[platform]?.base64;
+        if (!imageBase64) {
+            setError('Please generate the image for LinkedIn before posting.');
+            return;
+        }
+    
+        setPlatformPostStatus(prev => ({ ...prev, [platform]: 'posting' }));
+        setError(null);
+    
+        try {
+            const fullMessage = [content.title, content.post, content.caption, content.text_post, content.hashtags?.join(' '), content.call_to_action].filter(Boolean).join('\n\n');
+            
+            await linkedinService.postToLinkedIn(linkedinAccessToken, linkedinPersonId, {
+                message: fullMessage,
+                imageBase64: imageBase64
+            });
+            
+            setPlatformPostStatus(prev => ({ ...prev, [platform]: 'posted' }));
+            
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred while posting to LinkedIn.';
+            setError(`LinkedIn Post Failed: ${errorMessage}. Please check your Person ID, Access Token and permissions.`);
+            setPlatformPostStatus(prev => ({ ...prev, [platform]: 'error' }));
         }
     };
 
@@ -538,22 +569,33 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
 
     const renderConceptSelectionStep = () => (
         <div className="max-w-7xl mx-auto animate-fade-in">
-            <h2 className="text-3xl font-bold text-center mb-2 text-white">Choose Your Post Concept</h2>
-            <p className="text-slate-400 text-center mb-10">Select a concept below to generate your final post.</p>
+            <h2 className="text-3xl font-bold text-center mb-2 text-white">Choose Your Favorite Post</h2>
+            <p className="text-slate-400 text-center mb-10">Select a complete post (visual + caption) to finalize.</p>
             <div className="grid md:grid-cols-3 gap-6">
                 {generatedConcepts.map((concept, index) => (
                     <div 
                         key={index} 
-                        onClick={() => handleGenerateFinalPost(concept.prompt, concept.caption || '')}
-                        // FIX: Removed invalid backslash from template literal
-                        className={`relative p-6 rounded-xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between ${concept.isRecommended ? 'border-amber-400 bg-slate-800/50' : 'border-slate-800 bg-slate-900/70 hover:border-slate-700 hover:-translate-y-1'}`}>
+                        onClick={() => handleSelectFinalPost(concept)}
+                        className={`relative p-4 rounded-xl border-2 transition-all duration-200 flex flex-col justify-between 
+                            ${concept.isRecommended ? 'border-amber-400 bg-slate-800/50' : 'border-slate-800 bg-slate-900/70 hover:border-slate-700 hover:-translate-y-1'}
+                            ${!concept.imageBase64 ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+                        `}>
+                        {concept.isRecommended && (<div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2"><span className="px-3 py-1 text-xs font-semibold tracking-wider text-slate-900 uppercase bg-amber-400 rounded-full">Recommended</span></div>)}
+                        
+                        <div className="aspect-square bg-slate-800 rounded-lg mb-4 mt-3">
+                            {concept.imageBase64 ? (
+                                <img src={`data:image/png;base64,${concept.imageBase64}`} alt={`Concept ${index + 1}`} className="w-full h-full object-cover rounded-lg"/>
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-center p-4">
+                                    <p className="text-sm text-red-400">Image generation failed for this concept.</p>
+                                </div>
+                            )}
+                        </div>
+
                         <div>
-                            {concept.isRecommended && (<div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2"><span className="px-3 py-1 text-xs font-semibold tracking-wider text-slate-900 uppercase bg-amber-400 rounded-full">Recommended</span></div>)}
-                            <h3 className="font-bold text-white mb-3 mt-3">Visual Idea</h3>
-                            <p className="text-slate-400 text-sm mb-3">{concept.prompt}</p>
                             <h3 className="font-bold text-white mb-2">Caption</h3>
-                            <p className="text-slate-300 text-sm mb-4 whitespace-pre-wrap">{concept.caption}</p>
-                            {concept.isRecommended && concept.reason && (<div className="mt-4 pt-4 border-t border-slate-700/50"><p className="text-xs text-amber-300/80 italic"><span className="font-bold not-italic">Reason:</span> {concept.reason}</p></div>)}
+                            <p className="text-slate-300 text-sm mb-4 whitespace-pre-wrap h-24 overflow-y-auto p-1">{concept.caption}</p>
+                            {concept.isRecommended && concept.reason && (<div className="mt-2 pt-2 border-t border-slate-700/50"><p className="text-xs text-amber-300/80 italic"><span className="font-bold not-italic">Reason:</span> {concept.reason}</p></div>)}
                         </div>
                     </div>
                 ))}
@@ -574,6 +616,46 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                             const Icon = platformIcons[platform];
                             const platformImage = generatedImages[platform];
                             const platformVideo = generatedVideos[platform];
+                            const postStatus = platformPostStatus[platform] || 'idle';
+                            
+                            const handlePost = () => {
+                                if (platform === 'Facebook') handlePostToFacebook(platform, content);
+                                if (platform === 'LinkedIn') handlePostToLinkedIn(platform, content);
+                            };
+
+                            const getButtonState = () => {
+                                const isDisabled = postStatus === 'posting' || postStatus === 'posted' || !platformImage?.base64;
+                                let className = "disabled:opacity-60 disabled:cursor-not-allowed";
+                                let text = "Post Now";
+                                let icon = <HiOutlineShare className="w-4 h-4" />;
+                                
+                                switch(postStatus) {
+                                    case 'posting':
+                                        className += " bg-slate-600";
+                                        text = "Posting...";
+                                        icon = <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>;
+                                        break;
+                                    case 'posted':
+                                        className += " bg-green-600";
+                                        text = "Posted Successfully!";
+                                        icon = <HiCheckCircle className="w-4 h-4" />;
+                                        break;
+                                    case 'error':
+                                        className += " bg-red-600 hover:bg-red-500";
+                                        text = "Post Failed. Retry?";
+                                        icon = <HiOutlineExclamationTriangle className="w-4 h-4" />;
+                                        break;
+                                    default: // idle
+                                        if (platform === 'Facebook') className += " bg-blue-600 hover:bg-blue-500";
+                                        else if (platform === 'LinkedIn') className += " bg-sky-600 hover:bg-sky-500";
+                                        else className += " bg-slate-700";
+                                        break;
+                                }
+                                return { isDisabled, className, text, icon };
+                            };
+
+                            const buttonState = getButtonState();
+
                             return (
                                 <div key={platform} className="p-4 md:p-6 bg-slate-900/70 backdrop-blur-lg border border-slate-700/50 rounded-xl">
                                     <div className="flex items-center justify-between mb-4">
@@ -624,12 +706,9 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                                                         <div className="w-8 h-8 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
                                                     ) : platformImage?.base64 ? (
                                                         <>
-                                                            {/* FIX: Removed invalid backslashes from template literals */}
                                                             <img src={`data:image/png;base64,${platformImage.base64}`} alt={`${platform} visual`} className="w-full h-full rounded-md object-cover"/>
                                                             <div className="flex items-center gap-2 mt-2">
-                                                                {/* FIX: Removed invalid backslashes from template literals */}
                                                                 <a href={`data:image/png;base64,${platformImage.base64}`} download={`${platform}.png`} className="text-xs p-1 rounded-md bg-slate-700/50 hover:bg-slate-700">Download</a>
-                                                                {/* FIX: Removed invalid backslash from template literal */}
                                                                 <button onClick={() => handleSaveImage(platform, content.image_suggestion || '')} disabled={platformImage.saved} className={`text-xs p-1 rounded-md ${platformImage.saved ? 'bg-green-500/20 text-green-400' : 'bg-slate-700/50 hover:bg-slate-700'}`}>{platformImage.saved ? 'Saved' : 'Save'}</button>
                                                             </div>
                                                         </>
@@ -647,20 +726,31 @@ export const SocialMediaCampaignFactory: React.FC<SocialMediaCampaignFactoryProp
                                             )}
                                         </div>
                                     </div>
-                                    {platform === 'Facebook' && (
-                                        <div className="mt-4 pt-4 border-t border-slate-700/50">
-                                            <h4 className="text-sm font-semibold text-white mb-2">Post to Facebook Page</h4>
-                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                                <input value={facebookPageId} onChange={e => setFacebookPageId(e.target.value)} placeholder="Facebook Page ID" className="w-full p-2 text-xs bg-slate-800 border border-slate-700 rounded-lg"/>
-                                                <input value={facebookAccessToken} onChange={e => setFacebookAccessToken(e.target.value)} placeholder="Page Access Token" className="w-full p-2 text-xs bg-slate-800 border border-slate-700 rounded-lg"/>
-                                                <button 
-                                                    onClick={() => handlePostToFacebook(platform, content)}
-                                                    disabled={platformPostStatus[platform] === 'posting' || platformPostStatus[platform] === 'posted' || !generatedImages[platform]?.base64}
-                                                    className={`w-full flex items-center justify-center gap-2 text-xs font-semibold rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed
-                                                        ${platformPostStatus[platform] === 'posted' ? 'bg-green-500/80' : 'bg-blue-600 hover:bg-blue-500'}`}>
-                                                    {platformPostStatus[platform] === 'posting' ? 'Posting...' : platformPostStatus[platform] === 'posted' ? 'Posted!' : 'Post Now'}
+
+                                    {['Facebook', 'LinkedIn'].includes(platform) && (
+                                        <div className="mt-4 pt-4 border-t border-slate-700/50 space-y-3">
+                                            <h4 className="text-sm font-semibold text-white">Publish to {platform}</h4>
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                                                {platform === 'Facebook' && <>
+                                                    <input value={facebookPageId} onChange={e => setFacebookPageId(e.target.value)} placeholder="Facebook Page ID" className="w-full p-2 text-xs bg-slate-800 border border-slate-700 rounded-lg" data-tooltip="Find this in your Facebook Page's 'About' section."/>
+                                                    <input value={facebookAccessToken} onChange={e => setFacebookAccessToken(e.target.value)} placeholder="Page Access Token" className="w-full p-2 text-xs bg-slate-800 border border-slate-700 rounded-lg" data-tooltip="Generate this from Meta for Developers. It needs pages_read_engagement and pages_manage_posts permissions."/>
+                                                </>}
+                                                {platform === 'LinkedIn' && <>
+                                                    <input value={linkedinPersonId} onChange={e => setLinkedinPersonId(e.target.value)} placeholder="Your Person ID (e.g., A1bC2dE3F4)" className="w-full p-2 text-xs bg-slate-800 border border-slate-700 rounded-lg" data-tooltip="Find this in your LinkedIn profile URL or via an API call to /me"/>
+                                                    <input value={linkedinAccessToken} onChange={e => setLinkedinAccessToken(e.target.value)} placeholder="Access Token" className="w-full p-2 text-xs bg-slate-800 border border-slate-700 rounded-lg" data-tooltip="Generate this from your LinkedIn Developer App with the w_member_social permission."/>
+                                                </>}
+                                                <button onClick={handlePost} disabled={buttonState.isDisabled} className={`w-full flex items-center justify-center gap-2 text-xs font-semibold rounded-lg transition-colors p-2 ${buttonState.className}`}>
+                                                    {buttonState.icon} {buttonState.text}
                                                 </button>
                                             </div>
+                                        </div>
+                                    )}
+                                    {['X-Twitter', 'Instagram', 'TikTok', 'Threads', 'YouTube_Shorts'].includes(platform) && (
+                                        <div className="mt-4 pt-4 border-t border-slate-700/50">
+                                             <div className="p-3 bg-slate-800/60 rounded-lg text-center">
+                                                <h4 className="text-sm font-semibold text-slate-400">Manual Posting Required</h4>
+                                                <p className="text-xs text-slate-500 mt-1">Direct posting to {platform.replace('-','/')} is not supported via its API for this application type. Please download the media and copy the text to post manually.</p>
+                                             </div>
                                         </div>
                                     )}
                                 </div>

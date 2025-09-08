@@ -1,5 +1,3 @@
-
-
 // Helper function to convert base64 to a Blob, which is required for FormData uploads.
 const base64ToBlob = (base64: string, mimeType: string): Blob => {
     const byteCharacters = atob(base64);

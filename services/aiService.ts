@@ -165,8 +165,7 @@ Your primary, non-negotiable, and most critical task is to achieve a perfect, 10
 
 export const generatePrompts = async (description: string, style: CreatorStyle): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are a world-class viral content strategist for YouTube. Your task is to generate three distinct, high-CTR thumbnail concepts.
-For each concept, you must break down the visual idea into a structured JSON object containing: composition, lighting, color_palette, subject_details, and extra_details.
+You are a world-class viral content strategist for YouTube. Your task is to generate three distinct, high-CTR thumbnail concepts based on the provided brief.
 
 **1. Video Analysis:**
    - **Content:** "${description}"
@@ -179,8 +178,14 @@ For each concept, you must break down the visual idea into a structured JSON obj
    - **Target Mood:** ${style.mood}
    - **Core Aesthetic & Technical Details:** ${style.imageStyle}
 
+**4. Creative Exploration Mandate:**
+To ensure diversity, each of the three concepts MUST explore a different strategic angle:
+- **Concept 1 (The Human Angle):** Focus on a powerful, exaggerated human emotion (e.g., shock, excitement, curiosity). The subject's expression should be the primary focal point.
+- **Concept 2 (The Object/Spectacle Angle):** Focus on the core subject or spectacle of the video. Make it look larger-than-life, incredibly detailed, or visually stunning.
+- **Concept 3 (The Conceptual Angle):** Represent the video's topic metaphorically or abstractly. Use intriguing symbolism or a "what if" scenario to create curiosity.
+
 **CRITICAL TASK & INSTRUCTIONS:**
-Your primary goal is to generate three unique thumbnail concepts. For each concept, create a structured JSON object that translates the abstract "Visual Style Brief" into concrete, actionable instructions for an AI.
+Your primary goal is to generate three unique thumbnail concepts, each following one of the Creative Exploration Mandates above. For each concept, create a structured JSON object that translates the abstract "Visual Style Brief" into concrete, actionable instructions for an AI.
 You will return a single JSON object. The object must contain a key "concepts", which is an array of three concept objects.
 Each concept object must have a "structured_prompt" (which is another JSON object with the visual details), a "reason", and an "isRecommended" boolean.
 Your entire response MUST be only the raw JSON object.
@@ -217,7 +222,6 @@ ${FACIAL_LIKENESS_COMMAND}
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 - **Overall Quality:** The image must be high-resolution, professional, and visually striking, fully realizing the creative brief.
 `;
-    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(finalPrompt, headshots);
 };
 
@@ -227,7 +231,7 @@ export const generatePosterPrompts = async (party: PoliticalParty, event: string
         : '';
     
     const fullPrompt = `
-You are a world-class creative director for political campaigns. Your task is to generate three distinct, professional, and high-impact political poster concepts. For each concept, break down the visual idea into a structured JSON object.
+You are a world-class creative director for political campaigns. Your task is to generate three distinct, professional, and high-impact political poster concepts based on the brief.
 
 **1. Campaign Brief:**
    - **Party:** ${party.name}
@@ -240,8 +244,14 @@ You are a world-class creative director for political campaigns. Your task is to
    - **Color Scheme:** The official party colors, **${party.colorScheme}**, must be central to the design.
    ${ideologyInstruction}
 
+**3. Creative Exploration Mandate:**
+To provide a range of strategic options, each concept MUST explore a different angle:
+- **Concept 1 (Leader-Centric):** A powerful, charismatic portrait of the politician. The focus is on their strength, trustworthiness, and vision.
+- **Concept 2 (People-Centric):** Show the politician interacting with or representing the people. The mood should be one of unity, hope, and grassroots connection.
+- **Concept 3 (Issue-Centric):** Focus on the core message or promise of the campaign (e.g., development, change, security). Use powerful symbolism and imagery related to the theme.
+
 **CRITICAL TASK & INSTRUCTIONS:**
-Your main goal is to generate three unique poster concepts. For each, create a structured JSON object with keys: composition, lighting, color_palette, subject_details, and extra_details.
+Your main goal is to generate three unique poster concepts, one for each Creative Exploration Mandate. For each, create a structured JSON object with keys: composition, lighting, color_palette, subject_details, and extra_details.
 You will return a single JSON object containing a key "concepts", which is an array of three concept objects.
 Each concept object must have a "structured_prompt", a "reason", and an "isRecommended" boolean.
 Your entire response MUST be only the raw JSON object.
@@ -264,13 +274,12 @@ ${FACIAL_LIKENESS_COMMAND}
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 - **Overall Quality:** The image must be high-resolution, professional-grade, and suitable for a political campaign, fully realizing the creative brief.
 `;
-    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(finalPrompt, headshots);
 };
 
 export const generateAdConcepts = async (productDescription: string, headline: string, style: AdStyle): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are an award-winning Creative Director. Your task is to generate three professional ad banner concepts. For each concept, break down the visual idea into a structured JSON object.
+You are an award-winning Creative Director. Your task is to generate three professional ad banner concepts based on the brief.
 
 **1. Campaign Brief:**
    - **Product/Service:** ${productDescription}
@@ -278,8 +287,14 @@ You are an award-winning Creative Director. Your task is to generate three profe
    - **Target Ad Style:** '${style.name}' (${style.stylePrompt})
    - **Mandatory Elements:** The ad must feature a person (from a headshot) and the product (from a product image).
 
+**2. Creative Exploration Mandate:**
+To ensure a diverse range of options, each of the three concepts MUST explore a different advertising strategy:
+- **Concept 1 (Benefit-Oriented):** Focus on the emotional benefit for the user. Show the model experiencing the positive outcome of using the product. The mood should be aspirational.
+- **Concept 2 (Product-as-Hero):** Make the product the undeniable hero. The composition should glorify the product's design and features. The model should be secondary, presenting or admiring the product.
+- **Concept 3 (Bold & Graphic):** A high-impact, attention-grabbing concept. This can be more abstract, using bold typography, colors, and a dynamic composition that breaks the mold.
+
 **CRITICAL TASK & INSTRUCTIONS:**
-Generate three unique ad concepts. For each, create a structured JSON object with keys: composition, lighting, color_palette, subject_details, and extra_details.
+Generate three unique ad concepts, each following one of the Creative Exploration Mandates above. For each, create a structured JSON object with keys: composition, lighting, color_palette, subject_details, and extra_details.
 The subject_details must describe how the person interacts with the product and their exact pose and emotion.
 You will return a single JSON object containing a "concepts" key, which is an array of three concept objects.
 Each concept object must have a "structured_prompt", a "reason", and an "isRecommended" boolean.
@@ -312,13 +327,12 @@ ${FACIAL_LIKENESS_COMMAND}
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 - **Overall Quality:** The image must be high-resolution, professional-grade ad creative that fully realizes the brief.
 `;
-    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(finalPrompt, allImages);
 };
 
 export const generateSocialPostConcepts = async (topic: string, platform: string, tone: string, style: AdStyle, callToAction?: string): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are an expert social media content strategist. Your task is to generate three complete, distinct, and engaging social media post concepts (visual + caption) based on the user's brief. For each concept, break down the visual idea into a structured JSON object.
+You are an expert social media content strategist. Your task is to generate three complete, distinct, and engaging social media post concepts (visual + caption) based on the user's brief.
 
 **1. Post Brief:**
    - **Core Topic:** "${topic}"
@@ -326,6 +340,12 @@ You are an expert social media content strategist. Your task is to generate thre
    - **Desired Tone:** ${tone}
    - **Visual Style:** '${style.name}' (${style.stylePrompt})
    - **Call to Action (Optional):** "${callToAction || 'None specified'}"
+
+**2. Creative Exploration Mandate:**
+Each concept MUST explore a different engagement strategy suitable for the target platform:
+- **Concept 1 (The Value Post):** Provide direct value. This could be an educational tip, a surprising fact, or an insightful take on the topic. The visual should be clean and informative.
+- **Concept 2 (The Story/Emotional Post):** Tell a relatable story or evoke a specific emotion. The visual should be cinematic or authentic, aiming to connect with the audience on a personal level.
+- **Concept 3 (The Engagement Post):** Directly ask a question or present a bold, slightly controversial statement to spark conversation. The visual should be attention-grabbing and provocative.
 
 **CRITICAL TASK & INSTRUCTIONS:**
 For each concept, develop a complete package: a visual idea (as a structured prompt) and an engaging caption.
@@ -367,7 +387,6 @@ ${prompt}
 - **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 - **Overall Quality:** The image must be high-resolution, professional, and visually striking, fully realizing the creative brief.
 `;
-    // FIX: Corrected a bug where the original 'prompt' was used instead of 'finalPrompt' and removed the unsupported 'aspectRatio' argument.
     return geminiNativeService.generateImage(finalPrompt, [headshot]);
 };
 
@@ -418,17 +437,29 @@ Your entire response MUST be only the raw JSON object.
 
 export const generateTrendPostConcepts = async (topic: string, platform: string, style: AdStyle): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are a viral content specialist. Your task is to generate three complete social media post concepts (visual + caption) to capitalize on a trending topic. For each concept, break down the visual idea into a structured JSON object.
+You are a viral content specialist and an expert in capitalizing on trends. Your task is to generate three complete, distinct, and engaging social media post concepts (visual + caption) based on a trending topic.
 
 **1. Post Brief:**
    - **Trending Topic:** "${topic}"
    - **Target Platform:** ${platform}
    - **Visual Style:** '${style.name}' (${style.stylePrompt})
 
+**2. Creative Exploration Mandate:**
+Each concept MUST take a different angle on the trend to maximize reach and engagement:
+- **Concept 1 (The Hot Take):** Present a bold, slightly controversial, or unique opinion on the trend to spark conversation and debate. The visual should be provocative and attention-grabbing.
+- **Concept 2 (The Explainer/Deep Dive):** Break down the trend for a wider audience. Explain what it is, why it's trending, and what its impact is. The visual should be informative and clear, perhaps using infographic elements.
+- **Concept 3 (The Humorous/Meme Angle):** Create a funny, relatable meme or a humorous observation about the trend. The visual should be simple, shareable, and feel native to the platform.
+
 **CRITICAL TASK & INSTRUCTIONS:**
-For each of the three concepts, develop a complete package: a visual idea (as a structured prompt) and an engaging caption.
-The visual idea ("structured_prompt") must directly relate to the trending topic and adhere to the visual style.
-The caption ("caption") must be short, punchy, and include 3-5 highly relevant trending hashtags.
+For each concept, develop a complete package: a visual idea (as a structured prompt) and an engaging caption.
+
+**Visual Idea ("structured_prompt"):**
+- Translate the 'Visual Style' into a detailed art direction as a structured JSON object (composition, lighting, etc.).
+
+**Caption ("caption"):**
+- Write a compelling, platform-aware caption that embodies the angle of the concept.
+- Seamlessly integrate the 'Trending Topic'.
+- Include 3-5 highly relevant and trending hashtags for the '${platform}' platform.
 
 You will return a single JSON object with a key "concepts", an array of three concept objects.
 Each object must have "structured_prompt", "caption", "reason", and "isRecommended".
@@ -516,14 +547,20 @@ Your entire response MUST be only the raw JSON object, without any markdown form
 
 export const generateProfilePicturePrompts = async (description: string, style: ProfilePictureStyle): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are a master portrait photographer and digital artist. Your task is to generate three distinct concepts for a professional or creative profile picture. For each concept, break down the visual idea into a structured JSON object.
+You are a master portrait photographer and digital artist. Your task is to generate three distinct concepts for a professional or creative profile picture based on the brief.
 
 **1. User Request:**
    - **Description:** "${description}"
    - **Target Style:** '${style.name}' (${style.stylePrompt})
 
+**2. Creative Exploration Mandate:**
+Each concept MUST explore a different photographic approach:
+- **Concept 1 (Classic & Professional):** Focus on perfect, clean studio lighting (e.g., three-point or Rembrandt). The background should be simple and non-distracting. The expression should be confident and approachable.
+- **Concept 2 (Candid & Environmental):** Place the subject in a natural environment that reflects their profession or personality (e.g., an office, a park, a creative studio). The lighting should be soft and natural (e.g., window light).
+- **Concept 3 (Bold & Artistic):** A high-impact, creative concept. Use dramatic lighting, a unique background, or a bold color scheme to make a strong statement.
+
 **CRITICAL TASK & INSTRUCTIONS:**
-Generate three unique concepts. For each, create a detailed structured prompt object for an AI image generator.
+Generate three unique concepts, one for each Creative Exploration Mandate. For each, create a detailed structured prompt object for an AI image generator.
 You will return a single JSON object with a key "concepts", which is an array of three concept objects.
 Each object must have "structured_prompt", "reason", and "isRecommended" keys.
 Your entire response MUST be only the raw JSON object.
@@ -544,7 +581,6 @@ ${FACIAL_LIKENESS_COMMAND}
 - **Aspect Ratio:** The final image MUST be a ${aspectRatio}. For profile pictures, this is typically '1:1'.
 - **Overall Quality:** The image must be a high-resolution, professional-grade profile picture.
 `;
-    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(finalPrompt, [headshot]);
 };
 
@@ -554,7 +590,7 @@ export const generateLogoPrompts = async (companyName: string, description: stri
 ` : '';
 
     const fullPrompt = `
-You are a world-class brand identity designer. Your task is to generate three distinct, professional logo concepts. For each concept, break down the visual idea into a structured JSON object.
+You are a world-class brand identity designer. Your task is to generate three distinct, professional logo concepts based on the brief.
 
 **1. Brand Brief:**
    - **Company Name:** "${companyName}"
@@ -563,8 +599,14 @@ You are a world-class brand identity designer. Your task is to generate three di
    - **Target Style:** '${style.name}' (${style.stylePrompt})
    ${mascotInstruction}
 
+**2. Creative Exploration Mandate:**
+Each concept MUST explore a different fundamental logo design approach:
+- **Concept 1 (The Abstract Mark):** Create a unique, abstract symbol that represents the brand's core values (e.g., a geometric shape for stability, flowing lines for dynamism).
+- **Concept 2 (The Combination Mark):** Combine a simple, recognizable icon (a literal or stylized representation of what the company does) with the company name.
+- **Concept 3 (The Wordmark/Lettermark):** A purely typographic logo. The focus is on a custom, beautifully crafted font for the company's full name or initials.
+
 **CRITICAL TASK & INSTRUCTIONS:**
-Generate three unique logo concepts. For each, create a detailed structured prompt object for an AI. The prompt should result in a vector-style logo on a clean, solid white background.
+Generate three unique logo concepts, one for each Creative Exploration Mandate. For each, create a detailed structured prompt object for an AI. The prompt should result in a vector-style logo on a clean, solid white background.
 
 The structured prompt MUST include:
 - **Core Concept:** A clear idea for the logo's iconography and composition.
@@ -599,7 +641,6 @@ ${mascotPrompt}
 `;
     const images = headshot ? [headshot] : [];
     if (images.length > 0) {
-        // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
         return geminiNativeService.generateImage(finalPrompt, images);
     } else {
         return geminiNativeService.generateImageFromText(finalPrompt, aspectRatio);
@@ -616,21 +657,26 @@ Your task is to take the provided user image and perform a comprehensive, profes
 4.  **Lighting and Color Correction:** Correct any color casts, improve dynamic range (contrast), and relight the scene subtly to make the subject pop. The result should look natural and professional, not overly edited.
 5.  **Output:** Return only the final, enhanced image. Do not add any text or alter the composition.
 `;
-    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(prompt, [image]);
 };
 
 export const generateHeadshotPrompts = async (description: string, style: HeadshotStyle, imageCount: number): Promise<GeneratedConcept[]> => {
     const fullPrompt = `
-You are an expert corporate and portrait photographer. Generate three distinct concepts for a professional headshot. For each concept, break down the visual idea into a structured JSON object. The final output will be a set of 5 headshots from different angles. Your concepts should provide a strong, unified art direction suitable for this multi-angle output.
+You are an expert corporate and portrait photographer. Generate three distinct concepts for a professional headshot based on the brief. Each concept should provide a strong, unified art direction suitable for a multi-angle set of photos.
 
 **1. User Request:**
    - **Purpose/Description:** "${description}"
    - **Target Style:** '${style.name}' (${style.stylePrompt})
    - **User Assets:** The user has provided ${imageCount} reference photo(s).
 
+**2. Creative Exploration Mandate:**
+Each concept MUST provide a distinct art direction for the final set of photos:
+- **Concept 1 (The Corporate Standard):** A clean, bright, high-key lighting setup on a simple studio background (e.g., light gray, white, or a softly blurred office). This is the safe, professional choice.
+- **Concept 2 (The Moody & Cinematic):** A more dramatic, low-key lighting setup (e.g., Rembrandt, split lighting) on a dark, textured background. This conveys authority and seriousness.
+- **Concept 3 (The Outdoor & Natural):** Use the soft, natural light of a golden hour setting. The background is an outdoor scene (e.g., urban street, park) with a very shallow depth of field (bokeh). This feels approachable and authentic.
+
 **CRITICAL TASK & INSTRUCTIONS:**
-Generate three unique concepts. For each, create a detailed structured prompt object.
+Generate three unique concepts, one for each Creative Exploration Mandate. For each, create a detailed structured prompt object.
 You will return a single JSON object with a "concepts" key, an array of three objects.
 Each object must have "structured_prompt", "reason", and "isRecommended" keys.
 Your response MUST be only the raw JSON object.
@@ -662,7 +708,6 @@ Your primary, non-negotiable, and most critical task is to achieve a perfect, 10
 - **Quality:** High-resolution, professional-grade headshot.
 `;
         try {
-            // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
             const image = await geminiNativeService.generateImage(anglePrompt, images);
             return image ? { angle, image } : null;
         } catch (error) {
@@ -689,7 +734,6 @@ ${FACIAL_LIKENESS_COMMAND}
 4.  **Pose & Expression:** Ensure the final image is a front-facing, head-and-shoulders portrait with a neutral expression, eyes open and looking directly at the camera.
 5.  **Final Image:** The output must be a clean, high-resolution image with no shadows on the background. Return only the final image.
 `;
-    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(prompt, [image]);
 };
 
@@ -726,7 +770,6 @@ Take the provided event photograph and turn it into a stylish promotional poster
 7.  **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 8.  **Output:** Return only the final, edited poster image.
 `;
-    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(prompt, [image]);
 };
 
@@ -754,7 +797,6 @@ Your task is to take a user-provided photo and text, and transform them into a h
 6.  **Aspect Ratio:** The final image's aspect ratio MUST be exactly ${aspectRatio}.
 7.  **Return ONLY the final image.**
 `;
-    // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
     return geminiNativeService.generateImage(prompt, [image]);
 };
 
@@ -762,7 +804,7 @@ export const generateVisitingCardPrompts = async (companyName: string, personNam
     const logoInstruction = hasLogo ? "The design MUST incorporate the user's provided company logo." : "The design should have a space for a logo, or create a simple typographic logo for the company name.";
 
     const fullPrompt = `
-You are a professional graphic designer specializing in print design. Generate three distinct concepts for a professional visiting card (business card). For each concept, break down the visual idea into a structured JSON object.
+You are a professional graphic designer specializing in print design. Generate three distinct concepts for a professional visiting card (business card).
 
 **1. Card Details:**
    - **Company Name:** ${companyName}
@@ -772,8 +814,14 @@ You are a professional graphic designer specializing in print design. Generate t
    - **Design Style:** '${style.name}' (${style.stylePrompt})
    - **Logo:** ${logoInstruction}
 
+**2. Creative Exploration Mandate:**
+Each concept MUST explore a different design philosophy:
+- **Concept 1 (Information First):** A clean, minimalist layout that prioritizes legibility and clarity. Uses a simple grid and lots of white space.
+- **Concept 2 (Brand First):** A bold, graphic design where the brand's logo and colors are the hero. The layout is more expressive and makes a strong visual statement.
+- **Concept 3 (Elegant & Tactile):** A design that evokes luxury and high quality. It might simulate a premium paper texture (like linen or cotton) and use elegant typography and a refined color palette.
+
 **CRITICAL TASK & INSTRUCTIONS:**
-Generate three unique concepts. For each, create a detailed structured prompt object for an AI image generator. The prompt should result in a standard visiting card design.
+Generate three unique concepts, one for each Mandate. For each, create a detailed structured prompt object for an AI image generator. The prompt should result in a standard visiting card design.
 
 The structured prompt must include:
 - **Layout & Composition:** Describe the placement of all elements (logo, names, contact info).
@@ -803,7 +851,6 @@ export const generateVisitingCard = async (selectedPrompt: string, logo: Uploade
 `;
     const images = logo ? [logo] : [];
     if (images.length > 0) {
-        // FIX: Removed extra 'aspectRatio' argument. It is not supported by geminiNativeService.generateImage.
         return geminiNativeService.generateImage(finalPrompt, images);
     } else {
         return geminiNativeService.generateImageFromText(finalPrompt, aspectRatio);
