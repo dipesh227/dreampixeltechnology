@@ -50,16 +50,6 @@ const HistorySidebar: React.FC = () => {
         );
     }, [creations, searchTerm]);
 
-    if (!session) {
-        return (
-            <div className="p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl h-full flex flex-col items-center justify-center text-center">
-                <HiOutlineUserCircle className="w-12 h-12 text-slate-600 mb-4" />
-                <h3 className="text-lg font-bold text-white">Sign In to See Your Creations</h3>
-                <p className="text-sm text-slate-500 mt-1">Log in to save and view your liked creations across sessions.</p>
-            </div>
-        );
-    }
-
     return (
         <div className="p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl h-full flex flex-col">
             <div className="flex justify-between items-center mb-4">

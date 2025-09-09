@@ -200,16 +200,20 @@ useEffect(() => {
   const renderActiveView = () => {
     switch(activeView) {
         case 'landing':
-            return (
-                <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8">
-                    <div className="lg:col-span-2">
-                    <LandingPage onSelectTool={handleSetView} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />
+            if (session) {
+                return (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8">
+                        <div className="lg:col-span-2">
+                            <LandingPage onSelectTool={handleSetView} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />
+                        </div>
+                        <div className="mt-8 lg:mt-0">
+                            <HistorySidebar key={historyUpdated} />
+                        </div>
                     </div>
-                    <div className="mt-8 lg:mt-0">
-                    <HistorySidebar key={historyUpdated} />
-                    </div>
-                </div>
-            );
+                );
+            } else {
+                return <LandingPage onSelectTool={handleSetView} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
+            }
         case 'thumbnail': return <ThumbnailGenerator onNavigateHome={handleNavigateHome} onThumbnailGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'political': return <PoliticiansPosterMaker onNavigateHome={handleNavigateHome} onPosterGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'advertisement': return <AdBannerGenerator onNavigateHome={handleNavigateHome} onBannerGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
