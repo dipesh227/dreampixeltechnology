@@ -361,6 +361,8 @@ interface NewspaperJobData {
     headline: string;
     bodyText: string;
     language: string;
+    newspaperName: string;
+    date: string;
     styleId: string;
     imageFilename: string | null;
     aspectRatio: AspectRatio;
@@ -373,6 +375,8 @@ export const saveNewspaperJob = async (data: NewspaperJobData): Promise<void> =>
             headline: data.headline,
             body_text: data.bodyText,
             language: data.language,
+            newspaper_name: data.newspaperName,
+            date: data.date,
             style_id: data.styleId,
             image_filename: data.imageFilename,
             aspect_ratio: data.aspectRatio,

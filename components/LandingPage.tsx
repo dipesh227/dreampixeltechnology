@@ -1,6 +1,12 @@
 import React from 'react';
 import { Tool, ToolType, ConnectedAccount } from '../types';
-import { HiOutlinePhoto, HiOutlineMegaphone, HiOutlineUserGroup, HiOutlineUserCircle, HiOutlineSwatch, HiOutlineSparkles, HiOutlineIdentification, HiOutlineCreditCard, HiOutlineClipboardDocumentList, HiOutlineTicket, HiOutlineBuildingStorefront, HiOutlineNewspaper } from 'react-icons/hi2';
+import { 
+    HiOutlinePhoto, HiOutlineMegaphone, HiOutlineUserGroup, HiOutlineUserCircle, HiOutlineSwatch, 
+    HiOutlineSparkles, HiOutlineIdentification, HiOutlineCreditCard, HiOutlineClipboardDocumentList, 
+    HiOutlineTicket, HiOutlineBuildingStorefront, HiOutlineNewspaper,
+    // Added for new sections
+    HiOutlineCursorArrowRays, HiOutlineDocumentText, HiOutlinePaintBrush, HiOutlineClock
+} from 'react-icons/hi2';
 import SocialConnect from './SocialConnect';
 
 interface LandingPageProps {
@@ -67,21 +73,95 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccoun
         { id: 'event-poster', title: "AI Event Poster Maker", description: "Turn your event photos into promotional posters by adding stylish text and branding.", enabled: true },
         { id: 'newspaper', title: "Newspaper Cutting Maker", description: "Create realistic newspaper clippings from your photos and text for fun or announcements.", enabled: true },
     ];
+    
+     const features = [
+        {
+            icon: HiOutlineSparkles,
+            title: "Generate Engaging Content with Advanced AI",
+            description: "Go from a simple idea to a finished visual in seconds. Our AI, powered by Google Gemini, crafts stunning, professional-grade assets tailored to your needs.",
+            gradient: "from-purple-500 to-indigo-500"
+        },
+        {
+            icon: HiOutlinePaintBrush,
+            title: "Effortless Visual Design Powered by AI",
+            description: "No design skills needed. Just provide your text and images, and let our AI handle the layout, branding, and creative composition for you.",
+            gradient: "from-pink-500 to-rose-500"
+        },
+        {
+            icon: HiOutlineClock,
+            title: "Smart Social Media Scheduling & Automation",
+            description: "Automate your content creation with our Social Media Factory. Generate full campaigns, single posts, or capitalize on trends with just a few clicks.",
+            gradient: "from-amber-500 to-orange-500"
+        }
+    ];
 
     return (
-        <div className="animate-fade-in-up">
-            <div className="mb-12">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-3">The AI Content Creation Suite</h2>
-                <p className="text-base md:text-lg text-slate-400 max-w-3xl">One platform for all your creative needs. Generate stunning visuals for your brand, channel, or campaign in seconds.</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {tools.map((tool) => (
-                    <ToolCard key={tool.id} tool={tool} onClick={() => onSelectTool(tool.id)} />
-                ))}
-            </div>
-            <div className="mt-16">
+        <div className="animate-fade-in-up space-y-24">
+             {/* Hero Section */}
+            <section className="text-center pt-8">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-3">DreamPixel Technology: Your Complete AI Content & Social Media Automation Suite</h1>
+                <h2 className="text-base md:text-lg text-slate-400 max-w-3xl mx-auto">Unlock your creative potential. Effortlessly generate high-quality content, design stunning visuals, and streamline your social media strategy with our free, all-in-one AI platform.</h2>
+            </section>
+            
+             {/* How It Works Section */}
+            <section>
+                <h2 className="text-3xl font-bold text-white text-center mb-12">How Our AI Suite Works: A Step-by-Step Guide</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    <div className="flex flex-col items-center">
+                        <div className="p-4 bg-slate-800/50 border border-slate-700 rounded-full mb-4">
+                            <HiOutlineCursorArrowRays className="w-10 h-10 text-sky-400"/>
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">1. Select a Tool</h3>
+                        <p className="text-slate-400">Choose from our suite of 12+ specialized AI content generators.</p>
+                    </div>
+                    <div className="flex flex-col items-center">
+                         <div className="p-4 bg-slate-800/50 border border-slate-700 rounded-full mb-4">
+                            <HiOutlineDocumentText className="w-10 h-10 text-purple-400"/>
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">2. Provide Your Input</h3>
+                        <p className="text-slate-400">Add your text, upload images, and select a style for the AI.</p>
+                    </div>
+                    <div className="flex flex-col items-center">
+                         <div className="p-4 bg-slate-800/50 border border-slate-700 rounded-full mb-4">
+                            <HiOutlineSparkles className="w-10 h-10 text-pink-400"/>
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">3. Generate & Download</h3>
+                        <p className="text-slate-400">Let the AI create your content, then download your finished asset.</p>
+                    </div>
+                </div>
+            </section>
+
+             {/* Features Section */}
+            <section>
+                <h2 className="text-3xl font-bold text-white text-center mb-12">Why DreamPixel is the Best Free AI Tool</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {features.map((feature, index) => (
+                        <div key={index} className="p-6 bg-slate-900/60 border border-slate-700/50 rounded-xl tool-card">
+                             <div className={`mb-4 p-3 bg-gradient-to-br ${feature.gradient} rounded-lg inline-block shadow-lg`}>
+                                <feature.icon className="w-7 h-7 text-white" />
+                            </div>
+                            <h3 className="text-lg font-bold text-white mb-2">{feature.title}</h3>
+                            <p className="text-slate-400 text-sm">{feature.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+            
+            {/* Tools Section */}
+            <section>
+                <h2 className="text-3xl font-bold text-white text-center mb-12">Explore Our Creation Suite</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {tools.map((tool) => (
+                        <ToolCard key={tool.id} tool={tool} onClick={() => onSelectTool(tool.id)} />
+                    ))}
+                </div>
+            </section>
+
+             {/* Social Connect Section */}
+            <section className="p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl text-center">
+              <h2 className="text-3xl font-bold text-white text-center mb-6">Connect Your Social Accounts</h2>
               <SocialConnect connectedAccounts={connectedAccounts} onToggleConnect={onToggleConnect} />
-            </div>
+            </section>
         </div>
     );
 };

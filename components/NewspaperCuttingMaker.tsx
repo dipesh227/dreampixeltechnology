@@ -4,7 +4,7 @@ import { generateNewspaperCutting } from '../services/aiService';
 import { NEWSPAPER_STYLES, NEWSPAPER_LANGUAGES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
-import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiArrowLeft, HiOutlineNewspaper, HiPencil, HiOutlineLanguage } from 'react-icons/hi2';
+import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiArrowLeft, HiOutlineNewspaper, HiPencil, HiOutlineLanguage, HiOutlineCalendar } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import StyleSelector from './StyleSelector';
@@ -22,10 +22,10 @@ export const NewspaperCuttingMaker: React.FC<NewspaperCuttingMakerProps> = ({ on
     const [image, setImage] = useState<UploadedFile | null>(null);
     const [headline, setHeadline] = useState('');
     const [bodyText, setBodyText] = useState('');
-    // FIX: Replaced incorrect newspaperName and date state with language and aspectRatio to match service requirements.
+    const [newspaperName, setNewspaperName] = useState('');
+    const [date, setDate] = useState('');
     const [language, setLanguage] = useState(NEWSPAPER_LANGUAGES[0].id);
     const [aspectRatio, setAspectRatio] = useState<AspectRatio>('4:5');
-    // FIX: Correctly initialize selectedStyleId from the categorized NEWSPAPER_STYLES object.
     const [selectedStyleId, setSelectedStyleId] = useState<string>(NEWSPAPER_STYLES.indian[0].id);
     
     const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -81,7 +81,6 @@ export const NewspaperCuttingMaker: React.FC<NewspaperCuttingMakerProps> = ({ on
             setError('Please provide a headline and body text.');
             return;
         }
-        // FIX: Correctly find the selected style from the nested object structure.
         const allStyles = Object.values(NEWSPAPER_STYLES).flat();
         const selectedStyle = allStyles.find(s => s.id === selectedStyleId);
         if (!selectedStyle) {
@@ -95,6 +94,8 @@ export const NewspaperCuttingMaker: React.FC<NewspaperCuttingMakerProps> = ({ on
                 headline,
                 bodyText,
                 language,
+                newspaperName,
+                date,
                 styleId: selectedStyleId,
                 imageFilename: image.name,
                 aspectRatio,
@@ -105,8 +106,7 @@ export const NewspaperCuttingMaker: React.FC<NewspaperCuttingMakerProps> = ({ on
         setError(null);
         setIsSaved(false);
         try {
-            // FIX: Passed correct arguments (language, selectedStyle, aspectRatio) to the service function.
-            const result = await generateNewspaperCutting(image, headline, bodyText, language, selectedStyle, aspectRatio);
+            const result = await generateNewspaperCutting(image, headline, bodyText, language, selectedStyle, aspectRatio, newspaperName, date);
             if (result) {
                 setGeneratedImage(result);
             } else {
@@ -178,6 +178,8 @@ export const NewspaperCuttingMaker: React.FC<NewspaperCuttingMakerProps> = ({ on
                     <div className="flex items-center gap-3"><HiOutlineLanguage className="w-5 h-5 text-purple-400"/><select value={language} onChange={e => setLanguage(e.target.value)} className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm">
                         {NEWSPAPER_LANGUAGES.map(lang => <option key={lang.id} value={lang.id}>{lang.name}</option>)}
                     </select></div>
+                    <div className="flex items-center gap-3"><HiOutlineNewspaper className="w-5 h-5 text-purple-400"/><input value={newspaperName} onChange={(e) => setNewspaperName(e.target.value)} placeholder="Newspaper Name (e.g., The Daily Times)" className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" /></div>
+                    <div className="flex items-center gap-3"><HiOutlineCalendar className="w-5 h-5 text-purple-400"/><input value={date} onChange={(e) => setDate(e.target.value)} placeholder="Date (e.g., October 26, 1985)" className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" /></div>
                     <div className="flex items-start gap-3"><HiPencil className="w-5 h-5 mt-2 text-purple-400"/><input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Headline" className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" /></div>
                     <textarea value={bodyText} onChange={(e) => setBodyText(e.target.value)} placeholder="Body text for the article..." className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={4}></textarea>
                 </div>

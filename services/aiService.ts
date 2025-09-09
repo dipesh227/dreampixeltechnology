@@ -779,17 +779,29 @@ export const generateNewspaperCutting = async (
     bodyText: string,
     language: string,
     style: NewspaperStyle,
-    aspectRatio: AspectRatio
+    aspectRatio: AspectRatio,
+    newspaperName: string,
+    date: string
 ): Promise<string | null> => {
+    const nameAndDateInstruction = newspaperName.trim() && date.trim()
+        ? `Use the exact newspaper name "${newspaperName}" and date "${date}".`
+        : "Invent a plausible newspaper name and a relevant date in the correct language and style.";
+
+    const languageInstruction = language === 'hindi'
+        ? `All text MUST be in Hindi, written using Devanagari script. Ensure the typography is culturally authentic for a real Hindi newspaper.`
+        : `All text you generate (like the newspaper name) or render (headline, body) MUST be in the **${language}** language.`;
+
     const prompt = `
-**CRITICAL TASK: CREATE REALISTIC NEWSPAPER CLIPPING in ${language.toUpperCase()}**
-Your task is to take a user-provided photo and text, and transform them into a highly realistic newspaper clipping. ALL TEXT you generate (like the newspaper name) or render (headline, body) MUST be in the **${language}** language.
+**CRITICAL TASK: CREATE REALISTIC NEWSPAPER CLIPPING**
+Your task is to take a user-provided photo and text, and transform them into a highly realistic newspaper clipping.
+
+**LANGUAGE & SCRIPT DIRECTIVE:**
+${languageInstruction}
 
 **EXECUTION STEPS:**
-1.  **Invent Details:** Based on the style guide, invent a plausible newspaper name and a relevant date. These must fit the theme and be in the **${language}** language.
+1.  **Use Provided Details:** ${nameAndDateInstruction}
 2.  **Apply Newspaper Style:** The entire clipping MUST adhere to the following style guide: "${style.stylePrompt}". This includes the paper texture, font choices, and photo treatment.
-3.  **Integrate Text (in ${language}):**
-    -   Use the newspaper name and date you invented.
+3.  **Integrate Text:**
     -   Use the main headline: "${headline}". This must be the most prominent text.
     -   Use the following body text for the article, formatted into realistic newspaper columns: "${bodyText}".
 4.  **Integrate Photo:** Place the user's photo within the article, transforming its style to match the newspaper theme (e.g., grainy black and white for vintage).

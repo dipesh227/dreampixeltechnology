@@ -409,6 +409,8 @@ CREATE TABLE public.newspaper_cutting_jobs (
   headline TEXT,
   body_text TEXT,
   language TEXT,
+  newspaper_name TEXT,
+  date TEXT,
   style_id TEXT,
   image_filename TEXT,
   aspect_ratio TEXT
@@ -748,6 +750,8 @@ CREATE TABLE public.newspaper_cutting_jobs (
   headline TEXT,
   body_text TEXT,
   language TEXT,
+  newspaper_name TEXT,
+  date TEXT,
   style_id TEXT,
   image_filename TEXT,
   aspect_ratio TEXT
