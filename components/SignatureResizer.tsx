@@ -1,5 +1,6 @@
 import React from 'react';
 import { ResizerTool, ToolConfig } from './ResizerTool';
+import { SIGNATURE_PRESETS } from '../services/examPresets';
 
 interface SignatureResizerProps {
     onNavigateHome: () => void;
@@ -15,5 +16,5 @@ const signatureConfig: ToolConfig = {
 };
 
 export const SignatureResizer: React.FC<SignatureResizerProps> = ({ onNavigateHome }) => {
-    return <ResizerTool config={signatureConfig} onNavigateHome={onNavigateHome} />;
+    return <ResizerTool config={signatureConfig} onNavigateHome={onNavigateHome} presets={SIGNATURE_PRESETS} />;
 };

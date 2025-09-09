@@ -1,5 +1,6 @@
 import React from 'react';
 import { ResizerTool, ToolConfig } from './ResizerTool';
+import { PHOTO_PRESETS } from '../services/examPresets';
 
 interface PhotoResizerProps {
     onNavigateHome: () => void;
@@ -15,5 +16,5 @@ const photoConfig: ToolConfig = {
 };
 
 export const PhotoResizer: React.FC<PhotoResizerProps> = ({ onNavigateHome }) => {
-    return <ResizerTool config={photoConfig} onNavigateHome={onNavigateHome} />;
+    return <ResizerTool config={photoConfig} onNavigateHome={onNavigateHome} presets={PHOTO_PRESETS} />;
 };

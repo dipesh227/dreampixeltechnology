@@ -147,3 +147,29 @@ export const resizeAndCompressImage = async (
 
     return { base64: bestUrl, sizeKB: bestSize };
 };
+
+/**
+ * Applies subtle, client-side enhancements to an image using the Canvas API.
+ * This improves brightness, contrast, and saturation for better quality without using AI.
+ * @param imageSrc The base64 source of the image to enhance.
+ * @returns A promise that resolves to the base64 string of the enhanced image.
+ */
+export const enhanceImageWithCanvas = async (imageSrc: string): Promise<string> => {
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement('canvas');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    // Applying a combination of filters can subtly enhance the image.
+    // These values are chosen to be gentle and not over-process the image.
+    ctx.filter = 'contrast(1.05) saturate(1.05) brightness(1.02)';
+    
+    ctx.drawImage(image, 0, 0);
+    
+    // It's good practice to reset the filter.
+    ctx.filter = 'none';
+
+    return canvas.toDataURL('image/png');
+};
