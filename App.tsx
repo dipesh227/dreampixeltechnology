@@ -28,6 +28,9 @@ const AboutUs = lazy(() => import('./components/AboutUs').then(module => ({ defa
 const ContactUs = lazy(() => import('./components/ContactUs').then(module => ({ default: module.ContactUs })));
 const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy').then(module => ({ default: module.PrivacyPolicy })));
 const TermsOfService = lazy(() => import('./components/TermsOfService').then(module => ({ default: module.TermsOfService })));
+const PhotoResizer = lazy(() => import('./components/PhotoResizer').then(module => ({ default: module.PhotoResizer })));
+const SignatureResizer = lazy(() => import('./components/SignatureResizer').then(module => ({ default: module.SignatureResizer })));
+const ThumbResizer = lazy(() => import('./components/ThumbResizer').then(module => ({ default: module.ThumbResizer })));
 
 const ToolLoadingSpinner: React.FC = () => (
     <div className="flex justify-center items-center py-40">
@@ -60,7 +63,8 @@ const App: React.FC = () => {
             'landing', 'about', 'contact', 'privacy', 'terms', 
             'thumbnail', 'advertisement', 'political', 'profile', 'logo', 
             'image-enhancer', 'headshot-maker', 'passport-photo', 
-            'visiting-card', 'event-poster', 'social-campaign', 'newspaper'
+            'visiting-card', 'event-poster', 'social-campaign', 'newspaper',
+            'photo-resizer', 'signature-resizer', 'thumb-resizer'
         ];
         
         if (validViews.includes(hash as ViewType)) {
@@ -151,6 +155,9 @@ useEffect(() => {
         'event-poster': 'AI Event Poster Maker',
         'social-campaign': 'AI Social Media Content Factory',
         newspaper: 'AI Newspaper Cutting Maker',
+        'photo-resizer': 'Photo Resizer',
+        'signature-resizer': 'Signature Resizer',
+        'thumb-resizer': 'Thumb Impression Resizer',
         about: 'About Us',
         contact: 'Contact Us',
         privacy: 'Privacy Policy',
@@ -226,6 +233,9 @@ useEffect(() => {
         case 'event-poster': return <EventPosterMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'social-campaign': return <SocialMediaCampaignFactory onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
         case 'newspaper': return <NewspaperCuttingMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'photo-resizer': return <PhotoResizer onNavigateHome={handleNavigateHome} />;
+        case 'signature-resizer': return <SignatureResizer onNavigateHome={handleNavigateHome} />;
+        case 'thumb-resizer': return <ThumbResizer onNavigateHome={handleNavigateHome} />;
         case 'about': return <AboutUs onNavigateHome={handleNavigateHome} />;
         case 'contact': return <ContactUs onNavigateHome={handleNavigateHome} />;
         case 'privacy': return <PrivacyPolicy onNavigateHome={handleNavigateHome} />;

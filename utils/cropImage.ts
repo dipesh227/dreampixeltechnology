@@ -92,3 +92,58 @@ export const resizeImage = (file: File, maxSize: number = 2048): Promise<Uploade
     reader.onerror = (error) => reject(new Error('File could not be read for resizing.'));
   });
 };
+
+/**
+ * Takes a cropped image, resizes it to specified dimensions, and compresses it to fit within a file size range.
+ * @param imageSrc The base64 source of the cropped image.
+ * @param outputWidth The target width in pixels.
+ * @param outputHeight The target height in pixels.
+ * @param maxSizeKB The maximum allowed file size in kilobytes.
+ * @returns A promise resolving to the final image's base64 data and file size.
+ */
+export const resizeAndCompressImage = async (
+  imageSrc: string,
+  outputWidth: number,
+  outputHeight: number,
+  maxSizeKB: number
+): Promise<{ base64: string; sizeKB: number }> => {
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement('canvas');
+    canvas.width = outputWidth;
+    canvas.height = outputHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(image, 0, 0, outputWidth, outputHeight);
+
+    let low = 0.1;
+    let high = 1.0;
+    let quality = 0.9;
+    let bestUrl = '';
+    let bestSize = 0;
+
+    // Use a binary search to find the optimal JPEG quality that meets the size constraint
+    for (let i = 0; i < 10; i++) {
+        quality = (low + high) / 2;
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        const sizeKB = atob(dataUrl.split(',')[1]).length / 1024;
+
+        if (sizeKB <= maxSizeKB) {
+            bestUrl = dataUrl;
+            bestSize = sizeKB;
+            low = quality; // Try for higher quality
+        } else {
+            high = quality; // Need lower quality
+        }
+    }
+
+    if (!bestUrl) {
+        // If even the lowest quality is too big, return the lowest quality version
+        bestUrl = canvas.toDataURL('image/jpeg', 0.1);
+        bestSize = atob(bestUrl.split(',')[1]).length / 1024;
+        console.warn(`Image size (${bestSize.toFixed(2)}KB) exceeds max size of ${maxSizeKB}KB even at lowest quality.`);
+    }
+
+    return { base64: bestUrl, sizeKB: bestSize };
+};

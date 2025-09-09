@@ -38,6 +38,18 @@ export const TEMPLATES: Template[] = [
             thumbnailText: 'My Story',
         },
     },
+    {
+        id: 'thumb-beauty-vlog',
+        name: 'Beauty Vlog',
+        tool: 'thumbnail',
+        imageUrl: 'https://placehold.co/480x270/f472b6/ffffff?text=My+Everyday+Look',
+        prefill: {
+            styleId: 'mostly-sane',
+            aspectRatio: '16:9',
+            description: 'A "get ready with me" style vlog where I do my everyday makeup routine and chat about life. Very casual and relatable.',
+            thumbnailText: 'My Everyday Look',
+        },
+    },
     // Political Poster Templates
     {
         id: 'political-vikas',
@@ -75,6 +87,19 @@ export const TEMPLATES: Template[] = [
             eventTheme: 'State Assembly Election',
             customText: 'Time for a Change',
             styleId: 'parivartan',
+            aspectRatio: '4:5',
+        },
+    },
+    {
+        id: 'political-jan-andolan',
+        name: 'People\'s Movement',
+        tool: 'political',
+        imageUrl: 'https://placehold.co/400x500/9a3412/fef3c7?text=Rise+for+Your+Rights',
+        prefill: {
+            partyId: 'independent-india',
+            eventTheme: 'Youth Rally & Mobilization',
+            customText: 'Rise for Your Rights',
+            styleId: 'jan-andolan',
             aspectRatio: '4:5',
         },
     },
@@ -118,11 +143,23 @@ export const TEMPLATES: Template[] = [
             brandDetails: 'The Daily Grind',
         },
     },
+    {
+        id: 'ad-food-indulgent',
+        name: 'Indulgent Food Ad',
+        tool: 'advertisement',
+        imageUrl: 'https://placehold.co/600x600/422006/fef3c7?text=Indulgence+is+Here',
+        prefill: {
+            styleId: 'haagen-dazs-indulgent',
+            aspectRatio: '1:1',
+            productDescription: 'A decadent, rich chocolate lava cake with a molten fudge center, made with the finest dark chocolate.',
+            headline: 'Indulgence is Here',
+            brandDetails: 'ChocoBliss Desserts',
+        },
+    },
     // Social Media Post Templates
     {
         id: 'social-inspirational-quote',
         name: 'Inspirational Quote',
-// FIX: Changed tool type from 'social' to 'social-campaign' to match the valid ToolType.
         tool: 'social-campaign',
         imageUrl: 'https://placehold.co/1080x1080/8b5cf6/ffffff?text=Dream+Big',
         prefill: {
@@ -137,7 +174,6 @@ export const TEMPLATES: Template[] = [
     {
         id: 'social-product-launch',
         name: 'New Product Launch',
-// FIX: Changed tool type from 'social' to 'social-campaign' to match the valid ToolType.
         tool: 'social-campaign',
         imageUrl: 'https://placehold.co/1080x1350/ec4899/111827?text=It\'s+Here!',
         prefill: {
@@ -152,7 +188,6 @@ export const TEMPLATES: Template[] = [
     {
         id: 'social-funny-meme',
         name: 'Funny Meme Post',
-// FIX: Changed tool type from 'social' to 'social-campaign' to match the valid ToolType.
         tool: 'social-campaign',
         imageUrl: 'https://placehold.co/1200x675/facc15/1e293b?text=That+Friday+Feeling',
         prefill: {
@@ -162,6 +197,20 @@ export const TEMPLATES: Template[] = [
             platform: 'X / Twitter',
             tone: 'Humorous',
             callToAction: 'Tag a coworker who needs this!',
+        },
+    },
+    {
+        id: 'social-linkedin-thoughtleader',
+        name: 'LinkedIn Thought Leader',
+        tool: 'social-campaign',
+        imageUrl: 'https://placehold.co/1200x628/0e7490/f0f9ff?text=Future+of+Work',
+        prefill: {
+            styleId: 'corporate-trust',
+            aspectRatio: '1.91:1',
+            topic: 'An insightful post about the future of remote work and how companies can adapt to a hybrid model.',
+            platform: 'LinkedIn',
+            tone: 'Professional',
+            callToAction: 'What are your thoughts on the future of work? Comment below!',
         },
     },
     // Profile Picture Templates
@@ -185,6 +234,17 @@ export const TEMPLATES: Template[] = [
             styleId: 'female-creative-bold',
             aspectRatio: '1:1',
             profileDescription: 'An artistic and creative profile picture for my Instagram page where I share my design work.',
+        },
+    },
+    {
+        id: 'profile-casual-outdoor',
+        name: 'Casual Outdoor',
+        tool: 'profile',
+        imageUrl: 'https://placehold.co/400x400/166534/f0fdf4?text=Casual',
+        prefill: {
+            styleId: 'male-outdoor-candid',
+            aspectRatio: '1:1',
+            profileDescription: 'A casual and friendly profile picture for my social media accounts. I love hiking and being outdoors.',
         },
     },
     // Logo Templates
@@ -214,6 +274,19 @@ export const TEMPLATES: Template[] = [
             logoDescription: 'A cozy, local coffee shop with a focus on organic, hand-roasted beans.',
         },
     },
+    {
+        id: 'logo-luxury-fashion',
+        name: 'Luxury Fashion Brand',
+        tool: 'logo',
+        imageUrl: 'https://placehold.co/400x400/171717/f5f5f5?text=ATELIER',
+        prefill: {
+            styleId: 'logo-luxury-serif',
+            aspectRatio: '1:1',
+            companyName: 'Atelier Noire',
+            slogan: 'Timeless Elegance',
+            logoDescription: 'A high-end fashion brand specializing in bespoke evening wear.',
+        },
+    },
     // Headshot Maker Templates
     {
         id: 'headshot-linkedin-corp',
@@ -222,8 +295,110 @@ export const TEMPLATES: Template[] = [
         imageUrl: 'https://placehold.co/400x400/1e3a8a/ffffff?text=Corporate',
         prefill: {
             styleId: 'headshot-corporate',
-            aspectRatio: '1:1', // Not strictly needed for user but good for consistency
+            aspectRatio: '1:1',
             headshotDescription: 'I need a highly professional headshot for my LinkedIn profile. I work in finance, so it should look trustworthy and confident.',
+        },
+    },
+    {
+        id: 'headshot-creative-portfolio',
+        name: 'Creative Portfolio',
+        tool: 'headshot-maker',
+        imageUrl: 'https://placehold.co/400x400/4a044e/f3e8ff?text=Creative',
+        prefill: {
+            styleId: 'headshot-creative',
+            aspectRatio: '1:1',
+            headshotDescription: 'I need a moody and artistic headshot for my photography portfolio website. It should look creative and professional.',
+        },
+    },
+    // Visiting Card Templates
+    {
+        id: 'vc-minimalist-tech',
+        name: 'Minimalist Tech Card',
+        tool: 'visiting-card',
+        imageUrl: 'https://placehold.co/400x229/1f2937/ffffff?text=Minimalist+Card',
+        prefill: {
+            styleId: 'vc-minimalist',
+            aspectRatio: '3.5:2',
+            vcName: 'Alex Doe',
+            vcTitle: 'Software Engineer',
+            vcCompanyName: 'Innovate AI',
+            vcContact: 'alex.doe@innovate.ai | 123-456-7890',
+        },
+    },
+    {
+        id: 'vc-creative-designer',
+        name: 'Creative Designer Card',
+        tool: 'visiting-card',
+        imageUrl: 'https://placehold.co/400x229/be185d/fdf2f8?text=Creative+Card',
+        prefill: {
+            styleId: 'vc-creative',
+            aspectRatio: '3.5:2',
+            vcName: 'Jane Smith',
+            vcTitle: 'Graphic Designer & Illustrator',
+            vcCompanyName: 'Pixel Perfect Studios',
+            vcContact: 'jane@pixelperfect.design | pixelperfect.design',
+        },
+    },
+    // Event Poster Templates
+    {
+        id: 'ep-music-festival',
+        name: 'Music Festival',
+        tool: 'event-poster',
+        imageUrl: 'https://placehold.co/400x500/ca8a04/1c1917?text=Summer+Fest',
+        prefill: {
+            styleId: 'ep-grunge',
+            aspectRatio: '4:5',
+            epHeadline: 'Summer Fest 2024',
+            epBranding: 'Feat. The Indie Tones & More',
+            epDate: 'August 15th',
+            epTime: '6 PM',
+            epVenue: 'City Park Amphitheater',
+        },
+    },
+    {
+        id: 'ep-corporate-conference',
+        name: 'Corporate Conference',
+        tool: 'event-poster',
+        imageUrl: 'https://placehold.co/400x500/1d4ed8/eff6ff?text=Tech+Summit',
+        prefill: {
+            styleId: 'ep-corporate',
+            aspectRatio: '4:5',
+            epHeadline: 'Future of Tech Summit',
+            epBranding: 'Presented by DreamPixel',
+            epDate: 'November 10-12, 2024',
+            epTime: '9 AM - 5 PM',
+            epVenue: 'Grand Convention Center',
+        },
+    },
+    // Newspaper Templates
+    {
+        id: 'np-vintage-announcement',
+        name: 'Vintage Announcement',
+        tool: 'newspaper',
+        imageUrl: 'https://placehold.co/400x500/d6d3d1/44403c?text=Local+Couple+Ties+the+Knot',
+        prefill: {
+            styleId: 'us-broadsheet',
+            aspectRatio: '4:5',
+            headline: 'Local Couple Ties the Knot',
+            bodyText: 'In a beautiful ceremony surrounded by friends and family, John Smith and Jane Doe were married on Saturday. The event was a joyous celebration of their love and commitment.',
+            newspaperName: 'The Daily Chronicle',
+            date: 'June 12, 1955',
+            language: 'english',
+        },
+    },
+    {
+        id: 'np-modern-achievement',
+        name: 'Modern Achievement',
+        tool: 'newspaper',
+        imageUrl: 'https://placehold.co/400x500/f1f5f9/1e293b?text=Innovate+AI+Secures+Funding',
+        prefill: {
+            styleId: 'english-indian-daily',
+            aspectRatio: '4:5',
+            headline: 'Innovate AI Secures Record Funding',
+            bodyText: 'Local startup Innovate AI announced today that it has closed a $50 million Series B funding round to expand its groundbreaking work in artificial intelligence. The company plans to double its workforce over the next year.',
+            newspaperName: 'The Economic Times',
+            date: 'October 27, 2023',
+            language: 'english',
         },
     },
 ];
