@@ -377,6 +377,7 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
         </div>
     );
     
+    // FIX: Add the main return statement for the component to render the UI layout.
     return (
         <div className="animate-fade-in">
             {isTemplateBrowserOpen && (
