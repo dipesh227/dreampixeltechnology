@@ -1,5 +1,5 @@
 import { Type } from "@google/genai";
-import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle, SocialCampaign, NewspaperStyle, StructuredPrompt } from '../types';
+import { CreatorStyle, UploadedFile, AspectRatio, GeneratedConcept, PoliticalParty, PosterStyle, AdStyle, ValidationStatus, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, VisitingCardStyle, EventPosterStyle, SocialCampaign, NewspaperStyle, StructuredPrompt, CasteCertificateStyle } from '../types';
 import * as apiConfigService from './apiConfigService';
 import * as geminiNativeService from './geminiNativeService';
 import { RateLimitError } from "./errors";
@@ -867,6 +867,52 @@ export const generateVisitingCard = async (selectedPrompt: string, logo: Uploade
     } else {
         return geminiNativeService.generateImageFromText(finalPrompt, aspectRatio);
     }
+};
+
+export const generateCasteCertificate = async (
+    details: any,
+    photo: UploadedFile,
+    style: CasteCertificateStyle,
+    aspectRatio: AspectRatio
+): Promise<string | null> => {
+    const prompt = `
+**CRITICAL TASK: CREATE A REALISTIC-LOOKING NOVELTY CASTE CERTIFICATE FOR PERSONAL USE**
+Your task is to create a realistic, but unofficial, caste certificate based on the provided details and photo. The final output must be a single, high-quality image.
+
+${FACIAL_LIKENESS_COMMAND}
+
+**CERTIFICATE DETAILS TO INCLUDE:**
+- Name: ${details.name}
+- Father's/Husband's Name: ${details.fathersName}
+- Mother's Name: ${details.mothersName}
+- Date of Birth: ${details.dob}
+- Gender: ${details.gender}
+- Caste/Community: ${details.caste}
+- Sub-caste: ${details.subCaste}
+- Address: ${details.address}
+- Issuing Authority: ${details.issuingAuthority}
+- Certificate Number: ${details.certNumber}
+- Date of Issue: ${details.issueDate}
+
+**STYLE & LAYOUT GUIDELINES:**
+- Adhere strictly to the following style guide to replicate the look of a specific government document: "${style.stylePrompt}".
+- The layout must be formal and organized, with all details placed in appropriate fields.
+- Integrate the user's photo into a designated passport-size photo box. The photo should look like an official photograph attached to the document.
+- Include realistic-looking elements like official emblems (as described in the style prompt), signatures, and seals to enhance authenticity.
+- The entire certificate must look like a single, cohesive document.
+
+**NON-NEGOTIABLE SAFETY WATERMARK:**
+- You MUST include a small, semi-transparent watermark that says "SPECIMEN - NOT FOR OFFICIAL USE" diagonally across the document. This is a non-negotiable safety requirement to prevent misuse.
+
+**FINAL EXECUTION CHECKLIST:**
+- Facial likeness must be a perfect match.
+- All text details must be rendered with 100% accuracy.
+- The style guidelines must be followed precisely.
+- The safety watermark MUST be present.
+- The final image's aspect ratio MUST be exactly ${aspectRatio}.
+- Return ONLY the final image.
+`;
+    return geminiNativeService.generateImage(prompt, [photo]);
 };
 
 export const checkCurrentApiStatus = async (): Promise<{ status: ValidationStatus; error?: string | null }> => {

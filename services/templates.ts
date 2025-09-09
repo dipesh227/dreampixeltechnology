@@ -401,4 +401,45 @@ export const TEMPLATES: Template[] = [
             language: 'english',
         },
     },
+    // Caste Certificate Templates
+    {
+        id: 'cc-template-central-obc',
+        name: 'Central OBC Example',
+        tool: 'caste-certificate',
+        imageUrl: 'https://placehold.co/400x565/f97316/ffffff?text=Central+Govt+OBC',
+        prefill: {
+            styleId: 'central-obc',
+            aspectRatio: '2:3.5',
+            ccName: 'Rohan Kumar Verma',
+            ccFathersName: 'Suresh Verma',
+            ccMothersName: 'Anjali Verma',
+            ccDob: '15/08/1995',
+            ccGender: 'Male',
+            ccCaste: 'Other Backward Class',
+            ccSubCaste: 'Kurmi',
+            ccAddress: '123, MG Road, New Delhi - 110001',
+            ccIssuingAuthority: 'District Magistrate, New Delhi',
+            ccIssueDate: '22/07/2023'
+        },
+    },
+    {
+        id: 'cc-template-up-sc',
+        name: 'Uttar Pradesh SC Example',
+        tool: 'caste-certificate',
+        imageUrl: 'https://placehold.co/400x565/22c55e/ffffff?text=Uttar+Pradesh+SC',
+        prefill: {
+            styleId: 'up-sc',
+            aspectRatio: '2:3.5',
+            ccName: 'Priya Singh',
+            ccFathersName: 'Rajesh Singh',
+            ccMothersName: 'Sunita Singh',
+            ccDob: '10/05/2001',
+            ccGender: 'Female',
+            ccCaste: 'Scheduled Caste',
+            ccSubCaste: 'Jatav',
+            ccAddress: '456, Civil Lines, Lucknow, Uttar Pradesh - 226001',
+            ccIssuingAuthority: 'Tehsildar, Lucknow Sadar',
+            ccIssueDate: '15/06/2024'
+        },
+    },
 ];

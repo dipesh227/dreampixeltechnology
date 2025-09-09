@@ -1,4 +1,4 @@
-import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, PassportPhotoSize, VisitingCardStyle, EventPosterStyle, NewspaperStyle, AspectRatio, NewspaperLanguage } from '../types';
+import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, PassportPhotoSize, VisitingCardStyle, EventPosterStyle, NewspaperStyle, AspectRatio, NewspaperLanguage, CasteCertificateStyle } from '../types';
 
 // --- INLINED DATA FROM /data/*.json FILES ---
 
@@ -644,7 +644,7 @@ const newspaperStylesData = {
       { "id": "bengali-literary", "name": "Bengali Literary Paper", "tags": "Classic, Artistic", "stylePrompt": "A literary and artistic Bengali newspaper style. Use classic Bengali typography. The layout is clean and thoughtful. The photo should be a moody, artistic black and white shot." },
       { "id": "telugu-mass-daily", "name": "Telugu Mass Daily", "tags": "Bold, Colorful, Dynamic", "stylePrompt": "A dynamic and colorful Telugu mass-market daily newspaper. Use large, bold Telugu fonts for headlines. The layout is packed with information and visuals. The photo is a sharp, vibrant color picture." },
       { "id": "malayalam-formal", "name": "Formal Malayalam Broadsheet", "tags": "Clean, Respected", "stylePrompt": "A clean, respected Malayalam broadsheet style. Use clear and legible Malayalam fonts. The layout is organized and professional. The photo is a standard, clear color news photograph." },
-      { "id": "gujarati-business", "name": "Gujarati Business Paper", "tags": "Financial, Professional", "stylePrompt": "A professional Gujarati business newspaper. The layout is structured with tables and financial data. Use clean Gujarati fonts. The photo is a formal, color portrait or product shot." }
+      { "id": "gujarati-business", "name": "Gujarati Business Paper", "tags": "Financial, Professional", "stylePrompt": "A professional Gujarati business newspaper. The layout is structured with tables and financial data. Use clean Gujarati fonts. The photo is a formal, color corporate headshot or product shot." }
     ],
     "international": [
       { "id": "us-broadsheet", "name": "Classic American Broadsheet", "tags": "Vintage, NYT-style", "stylePrompt": "A classic American broadsheet newspaper from the 1940s-50s. The paper is aged, yellowed, with a visible texture. Use a classic serif font like Times New Roman or Bodoni. The photo must be a grainy black and white with a clear halftone dot pattern." },
@@ -718,3 +718,25 @@ export const EVENT_POSTER_STYLES: EventPosterStyle[] = eventPosterStylesData;
 export const NEWSPAPER_STYLES: NewspaperStyles = newspaperStylesData;
 export const NEWSPAPER_LANGUAGES: NewspaperLanguage[] = newspaperLanguagesData;
 export const ASPECT_RATIOS: { id: AspectRatio; name: string; icon: string }[] = aspectRatiosData;
+export const CASTE_CERTIFICATE_STYLES: CasteCertificateStyle[] = [
+    {
+        id: 'central-obc',
+        name: 'Central Government (OBC)',
+        stylePrompt: 'A formal Government of India caste certificate for Other Backward Class (OBC). Features the Ashoka Lion Capital emblem prominently at the top. The layout is clean and uses both English and Hindi (Devanagari script) text. The color scheme is based on the Indian flag. It includes fields for certificate number, date, and a space for an official seal and signature of a District Magistrate.'
+    },
+    {
+        id: 'up-sc',
+        name: 'Uttar Pradesh (SC)',
+        stylePrompt: 'An official caste certificate from the Government of Uttar Pradesh for Scheduled Caste (SC). It features the Uttar Pradesh state emblem (a circle with fish and bow-arrow). The document is bilingual (Hindi and English). The style is very official, with a clear layout and a designated space for the applicant\'s photo. Issued by a Tehsildar.'
+    },
+    {
+        id: 'maharashtra-vjnt',
+        name: 'Maharashtra (VJNT)',
+        stylePrompt: 'A caste certificate from the Government of Maharashtra for Vimukta Jati & Nomadic Tribes (VJNT). Features the Maharashtra state emblem. The document is primarily in Marathi with English translations. The design is modern but official, often with a QR code and a digital signature section. The paper has a slight colored tint.'
+    },
+    {
+        id: 'karnataka-st',
+        name: 'Karnataka (ST)',
+        stylePrompt: 'A caste certificate from the Government of Karnataka for Scheduled Tribe (ST). Features the Karnataka state emblem (Gandaberunda). The text is in Kannada and English. The layout is structured and includes detailed family information. The certificate has a unique holographic seal and a barcode for verification.'
+    }
+];

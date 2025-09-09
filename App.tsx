@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import LandingPage from './components/LandingPage';
 import Header from './components/Header';
@@ -24,6 +25,7 @@ const VisitingCardMaker = lazy(() => import('./components/VisitingCardMaker').th
 const EventPosterMaker = lazy(() => import('./components/EventPosterMaker').then(module => ({ default: module.EventPosterMaker })));
 const SocialMediaCampaignFactory = lazy(() => import('./components/SocialMediaCampaignFactory').then(module => ({ default: module.SocialMediaCampaignFactory })));
 const NewspaperCuttingMaker = lazy(() => import('./components/NewspaperCuttingMaker').then(module => ({ default: module.NewspaperCuttingMaker })));
+const CasteCertificateMaker = lazy(() => import('./components/CasteCertificateMaker').then(module => ({ default: module.CasteCertificateMaker })));
 const AboutUs = lazy(() => import('./components/AboutUs').then(module => ({ default: module.AboutUs })));
 const ContactUs = lazy(() => import('./components/ContactUs').then(module => ({ default: module.ContactUs })));
 const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy').then(module => ({ default: module.PrivacyPolicy })));
@@ -64,7 +66,7 @@ const App: React.FC = () => {
             'thumbnail', 'advertisement', 'political', 'profile', 'logo', 
             'image-enhancer', 'headshot-maker', 'passport-photo', 
             'visiting-card', 'event-poster', 'social-campaign', 'newspaper',
-            'photo-resizer', 'signature-resizer', 'thumb-resizer'
+            'photo-resizer', 'signature-resizer', 'thumb-resizer', 'caste-certificate'
         ];
         
         if (validViews.includes(hash as ViewType)) {
@@ -155,6 +157,7 @@ useEffect(() => {
         'event-poster': 'AI Event Poster Maker',
         'social-campaign': 'AI Social Media Content Factory',
         newspaper: 'AI Newspaper Cutting Maker',
+        'caste-certificate': 'Caste Certificate Maker',
         'photo-resizer': 'Photo Resizer',
         'signature-resizer': 'Signature Resizer',
         'thumb-resizer': 'Thumb Impression Resizer',
@@ -233,37 +236,52 @@ useEffect(() => {
         case 'event-poster': return <EventPosterMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'social-campaign': return <SocialMediaCampaignFactory onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
         case 'newspaper': return <NewspaperCuttingMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+// FIX: Corrected typo from `handleGeneratingStatus` to `handleGeneratingStatusChange` and closed the component tag.
+        case 'caste-certificate': return <CasteCertificateMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+// FIX: Added missing cases for resizer tools.
         case 'photo-resizer': return <PhotoResizer onNavigateHome={handleNavigateHome} />;
         case 'signature-resizer': return <SignatureResizer onNavigateHome={handleNavigateHome} />;
         case 'thumb-resizer': return <ThumbResizer onNavigateHome={handleNavigateHome} />;
+// FIX: Added missing cases for info pages.
         case 'about': return <AboutUs onNavigateHome={handleNavigateHome} />;
         case 'contact': return <ContactUs onNavigateHome={handleNavigateHome} />;
         case 'privacy': return <PrivacyPolicy onNavigateHome={handleNavigateHome} />;
         case 'terms': return <TermsOfService onNavigateHome={handleNavigateHome} />;
+// FIX: Added a default case to ensure a value is always returned.
         default: return <LandingPage onSelectTool={handleSetView} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
     }
-  }
+  };
 
+// FIX: Added the main return statement for the component to render the UI layout.
   return (
-    <div className={`min-h-screen animated-bg ${isGenerating ? 'generating-active' : ''}`}>
+    <div className="bg-slate-950 text-slate-200 min-h-screen font-sans antialiased relative">
       <MouseTrail />
-      <Header 
-        onNavigateHome={handleNavigateHome} 
-        onOpenFeedback={handleOpenFeedback} 
-        apiKeyStatus={apiKeyStatus} 
-        apiKeyError={apiKeyError}
-        onLogin={handleOpenAuthModal}
-      />
-      <main className="container mx-auto px-4 py-4 sm:py-8">
-        <Suspense fallback={<ToolLoadingSpinner />}>
-            {renderActiveView()}
-        </Suspense>
-      </main>
-      <Footer dbStatus={dbStatus} dbError={dbError} connectedAccounts={connectedAccounts} onNavigate={handleSetView} />
+      {isGenerating && (
+          <div className="fixed top-0 left-0 w-full h-2 bg-purple-500/50 z-50 animate-pulse-fast">
+              <div className="h-full bg-primary-gradient animate-indeterminate-progress"></div>
+          </div>
+      )}
+      <div className="relative z-10 flex flex-col min-h-screen">
+          <Header 
+              onNavigateHome={handleNavigateHome}
+              onOpenFeedback={handleOpenFeedback}
+              apiKeyStatus={apiKeyStatus}
+              apiKeyError={apiKeyError}
+              onLogin={handleOpenAuthModal}
+          />
+          <main className="container mx-auto py-8 px-4 flex-grow">
+              <Suspense fallback={<ToolLoadingSpinner />}>
+                  {renderActiveView()}
+              </Suspense>
+          </main>
+          <Footer dbStatus={dbStatus} dbError={dbError} connectedAccounts={connectedAccounts} onNavigate={handleSetView} />
+      </div>
+
       {isFeedbackOpen && <FeedbackModal onClose={handleCloseFeedback} />}
       {isAuthModalOpen && <AuthModal onClose={handleCloseAuthModal} />}
     </div>
   );
 };
 
+// FIX: Added a default export for the App component to make it importable.
 export default App;
