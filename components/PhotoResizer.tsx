@@ -7,7 +7,7 @@ interface PhotoResizerProps {
 }
 
 const photoConfig: ToolConfig = {
-    title: 'Photo Resizer',
+    titleKey: 'landing.toolPhotoResizerTitle',
     outputWidth: 150,
     outputHeight: 200,
     minSizeKB: 10,

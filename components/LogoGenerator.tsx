@@ -88,7 +88,6 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
         }
 
         if (session) {
-            // FIX: Added missing aspectRatio property to satisfy the LogoJobData type.
             jobService.saveLogoJob({
                 userId: session.user.id,
                 companyName, slogan, description, styleId: selectedStyleId, headshot, aspectRatio: '1:1'
@@ -118,7 +117,6 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
         setStep('generating');
         setIsSaved(false);
         try {
-            // FIX: Added missing aspectRatio argument ('1:1') to the function call.
             const imageResult = await generateLogo(prompt, headshot, '1:1');
             if (imageResult) {
                 setGeneratedImage(imageResult);
@@ -174,24 +172,28 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
                 </button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4" data-tooltip="Provide the core details about your brand. The more context you give the AI, the more relevant your logo concepts will be.">
-                    <div className="flex items-start gap-3">
-                        <HiOutlineBuildingOffice2 className="w-6 h-6 mt-1 text-purple-400"/>
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-800 rounded-xl space-y-4" data-tooltip="Provide the core details about your brand. The more context you give the AI, the more relevant your logo concepts will be.">
+                    <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center">
+                            <HiOutlineBuildingOffice2 className="w-6 h-6 text-purple-400"/>
+                        </div>
                         <div>
-                           <h3 className="text-md font-bold text-white">1. Brand Details</h3>
-                           <p className="text-sm text-slate-400 mb-2">Tell us about your company.</p>
+                           <h3 className="text-lg font-bold text-white">1. Brand Details</h3>
+                           <p className="text-sm text-slate-400">Tell us about your company.</p>
                         </div>
                     </div>
-                    <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Company Name" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
-                    <input value={slogan} onChange={(e) => setSlogan(e.target.value)} placeholder="Slogan (Optional)" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
-                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your company and what it does... e.g., 'A modern coffee shop for young professionals.'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={4}></textarea>
+                    <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Company Name" className="custom-input" />
+                    <input value={slogan} onChange={(e) => setSlogan(e.target.value)} placeholder="Slogan (Optional)" className="custom-input" />
+                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your company and what it does... e.g., 'A modern coffee shop for young professionals.'" className="custom-textarea" rows={4}></textarea>
                 </div>
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Want a logo featuring a character or mascot? Upload a headshot, and the AI will create a stylized mascot that looks just like the person in the photo.">
-                    <div className="flex items-start gap-3">
-                        <HiOutlineUserCircle className="w-6 h-6 mt-1 text-pink-400"/>
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-800 rounded-xl" data-tooltip="Want a logo featuring a character or mascot? Upload a headshot, and the AI will create a stylized mascot that looks just like the person in the photo.">
+                    <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center">
+                            <HiOutlineUserCircle className="w-6 h-6 text-pink-400"/>
+                        </div>
                         <div>
-                           <h3 className="text-md font-bold text-white">2. Mascot Headshot <span className="text-slate-400 font-normal">(Optional)</span></h3>
-                           <p className="text-sm text-slate-400 mb-2">Upload a headshot to create a character/mascot logo.</p>
+                           <h3 className="text-lg font-bold text-white">2. Mascot Headshot <span className="text-slate-400 font-normal">(Optional)</span></h3>
+                           <p className="text-sm text-slate-400">Upload a headshot to create a character/mascot logo.</p>
                         </div>
                     </div>
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-36 flex flex-col justify-center">
@@ -221,7 +223,7 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
                 onStyleSelect={setSelectedStyleId}
             />
              <div className="flex justify-center pt-4">
-                <button onClick={handleGenerateConcepts} disabled={isLoading || !description.trim() || !companyName.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
+                <button onClick={handleGenerateConcepts} disabled={isLoading || !description.trim() || !companyName.trim()} className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:from-slate-600 disabled:to-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
                     {isLoading ? loadingMessage : 'Generate Logo Concepts'}
                 </button>
@@ -272,7 +274,6 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
              <p className="text-slate-400 text-center mb-8">Download your new logo and see how it looks on different mockups.</p>
              
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-                {/* Main Logo */}
                 <div className="lg:col-span-1 flex flex-col items-center">
                     <h3 className="font-semibold text-white mb-4">Logo on White</h3>
                     {generatedImage && (
@@ -281,10 +282,8 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
                         </div>
                      )}
                 </div>
-                 {/* Mockups */}
                  <div className="lg:col-span-2 space-y-6">
                     <h3 className="font-semibold text-white">Previews</h3>
-                    {/* Business Card Mockup */}
                     <div className="bg-white p-6 rounded-lg shadow-lg text-left w-full max-w-sm mx-auto">
                         <div className="flex items-center gap-4">
                             {generatedImage && <img src={`data:image/png;base64,${generatedImage}`} className="h-10 w-auto" />}
@@ -294,7 +293,6 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
                             <div className="h-3 w-1/2 bg-slate-200 rounded-sm"></div>
                         </div>
                     </div>
-                     {/* Website Header Mockup */}
                     <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-left w-full max-w-sm mx-auto">
                         <div className="flex items-center justify-between">
                             {generatedImage && <img src={`data:image/png;base64,${generatedImage}`} className="h-8 w-auto" />}
@@ -323,7 +321,7 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
                         <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save'}
                     </button>
                  </div>
-                 <a href={`data:image/png;base64,${generatedImage}`} download="dreampixel-logo.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
+                 <a href={`data:image/png;base64,${generatedImage}`} download="dreampixel-logo.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
                     <HiArrowDownTray className="w-5 h-5"/> Download
                  </a>
              </div>
@@ -340,7 +338,12 @@ export const LogoGenerator: React.FC<LogoGeneratorProps> = ({ onNavigateHome, on
                 />
             )}
             <ErrorMessage error={error} />
-            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
+            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-800 rounded-2xl shadow-lg">
+                <div className="text-center mb-8">
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-white">AI Logo Generator</h2>
+                    <p className="mt-2 text-lg text-slate-400 max-w-2xl mx-auto">Create a unique, professional logo for your brand in seconds.</p>
+                </div>
+
                 {step === 'input' && renderInputStep()}
                 {step === 'promptSelection' && renderPromptSelectionStep()}
                 {step === 'generating' && renderGeneratingStep()}

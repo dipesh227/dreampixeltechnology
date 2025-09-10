@@ -1,11 +1,15 @@
+
+
 import React from 'react';
 import { InfoPage } from './InfoPage';
+import { ViewType } from '../types';
 
 interface PrivacyPolicyProps {
     onNavigateHome: () => void;
+    onNavigate: (view: ViewType) => void;
 }
 
-export const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onNavigateHome }) => {
+export const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onNavigateHome, onNavigate }) => {
     return (
         <InfoPage title="Privacy Policy" onNavigateHome={onNavigateHome}>
             <p><strong>Last updated: October 27, 2023</strong></p>
@@ -37,7 +41,7 @@ export const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onNavigateHome }) 
             <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.</p>
 
             <h2>Contact Us</h2>
-            <p>If you have any questions about this Privacy Policy, please <a href="/#contact">contact us</a>.</p>
+            <p>If you have any questions about this Privacy Policy, please <button onClick={() => onNavigate('contact')} className="font-semibold text-purple-400 hover:text-purple-300 hover:underline transition-colors">contact us</button>.</p>
         </InfoPage>
     );
 };

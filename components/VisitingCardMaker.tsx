@@ -27,7 +27,6 @@ export const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigate
     const [title, setTitle] = useState('');
     const [contactInfo, setContactInfo] = useState('');
     const [selectedStyleId, setSelectedStyleId] = useState<string>(VISITING_CARD_STYLES[0].id);
-    // FIX: Added missing aspectRatio state required by service calls. Defaulted to standard business card ratio.
     const [aspectRatio, setAspectRatio] = useState<AspectRatio>('3.5:2');
     
     const [generatedPrompts, setGeneratedPrompts] = useState<GeneratedConcept[]>([]);
@@ -89,7 +88,6 @@ export const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigate
         }
 
         if (session) {
-            // FIX: Added missing aspectRatio property to satisfy the VisitingCardJobData type.
             jobService.saveVisitingCardJob({
                 userId: session.user.id,
                 companyName, personName, title, contactInfo, styleId: selectedStyleId, logoFilename: logo?.name || null, aspectRatio
@@ -119,7 +117,6 @@ export const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigate
         setStep('generating');
         setIsSaved(false);
         try {
-            // FIX: Added missing aspectRatio argument to the function call.
             const imageResult = await generateVisitingCard(prompt, logo, aspectRatio);
             if (imageResult) {
                 setGeneratedImage(imageResult);
@@ -161,18 +158,15 @@ export const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigate
 
     const renderInputStep = () => (
         <div className="space-y-8">
-             <h2 className="text-3xl font-bold text-center mb-2 text-white">AI Visiting Card Maker</h2>
-            <p className="text-slate-400 text-center -mt-8 mb-10">Create a professional business card in seconds.</p>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4" data-tooltip="Enter the text that will appear on your business card. All fields are required except the logo.">
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-800 rounded-xl space-y-4" data-tooltip="Enter the text that will appear on your business card. All fields are required except the logo.">
                     <h3 className="text-xl font-bold text-white">1. Card Information</h3>
-                    <div className="flex items-center gap-3"><HiOutlineBuildingOffice2 className="w-5 h-5 text-purple-400"/><input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Company Name" className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" /></div>
-                    <div className="flex items-center gap-3"><HiOutlineUser className="w-5 h-5 text-purple-400"/><input value={personName} onChange={(e) => setPersonName(e.target.value)} placeholder="Your Name" className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" /></div>
-                    <div className="flex items-center gap-3"><HiOutlineIdentification className="w-5 h-5 text-purple-400"/><input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title / Designation" className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" /></div>
-                    <div className="flex items-start gap-3"><HiOutlineEnvelope className="w-5 h-5 mt-2 text-purple-400"/><textarea value={contactInfo} onChange={(e) => setContactInfo(e.target.value)} placeholder="Contact Info (Phone, Email, Website, Address)" className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" rows={3}></textarea></div>
+                    <div className="flex items-center gap-3"><HiOutlineBuildingOffice2 className="w-5 h-5 text-purple-400 flex-shrink-0"/><input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Company Name" className="custom-input text-sm" /></div>
+                    <div className="flex items-center gap-3"><HiOutlineUser className="w-5 h-5 text-purple-400 flex-shrink-0"/><input value={personName} onChange={(e) => setPersonName(e.target.value)} placeholder="Your Name" className="custom-input text-sm" /></div>
+                    <div className="flex items-center gap-3"><HiOutlineIdentification className="w-5 h-5 text-purple-400 flex-shrink-0"/><input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title / Designation" className="custom-input text-sm" /></div>
+                    <div className="flex items-start gap-3"><HiOutlineEnvelope className="w-5 h-5 mt-2 text-purple-400 flex-shrink-0"/><textarea value={contactInfo} onChange={(e) => setContactInfo(e.target.value)} placeholder="Contact Info (Phone, Email, Website, Address)" className="custom-textarea text-sm" rows={3}></textarea></div>
                 </div>
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Optionally upload your company logo. A transparent PNG file is recommended for best results.">
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-800 rounded-xl" data-tooltip="Optionally upload your company logo. A transparent PNG file is recommended for best results.">
                      <h3 className="text-xl font-bold text-white mb-4">2. Upload Logo (Optional)</h3>
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-40 flex flex-col justify-center">
                          <input type="file" id="file-upload" className="hidden" accept="image/png, image/jpeg" onChange={handleFileChange} />
@@ -201,7 +195,7 @@ export const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigate
                 onStyleSelect={setSelectedStyleId}
             />
              <div className="flex justify-center pt-4">
-                <button onClick={handleGenerateConcepts} disabled={isLoading || !companyName.trim() || !personName.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
+                <button onClick={handleGenerateConcepts} disabled={isLoading || !companyName.trim() || !personName.trim()} className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:from-slate-600 disabled:to-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
                     {isLoading ? loadingMessage : 'Generate Card Concepts'}
                 </button>
@@ -256,13 +250,17 @@ export const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigate
                  <button onClick={() => setStep('promptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect icon-hover-effect-yellow"><HiOutlineLightBulb className="w-5 h-5 text-yellow-400"/> Back to Concepts</button>
                  <button onClick={() => handleGenerateImage(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-blue"><HiOutlineArrowPath className="w-5 h-5 text-sky-400"/> Regenerate</button>
                  <div className="relative group" title={!session ? 'Please sign in to save creations' : ''}><button onClick={handleSaveCreation} disabled={isSaved || !session} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-pink"><HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save'}</button></div>
-                 <a href={`data:image/png;base64,${generatedImage}`} download="dreampixel-card.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105"><HiArrowDownTray className="w-5 h-5"/> Download</a>
+                 <a href={`data:image/png;base64,${generatedImage}`} download="dreampixel-card.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105"><HiArrowDownTray className="w-5 h-5"/> Download</a>
              </div>
         </div>
     );
 
     return (
         <div className="animate-fade-in">
+            <div className="text-center mb-8">
+                <h2 className="text-3xl md:text-4xl font-extrabold text-white">AI Visiting Card Maker</h2>
+                <p className="mt-2 text-lg text-slate-400 max-w-2xl mx-auto">Create a professional business card in seconds.</p>
+            </div>
             {isTemplateBrowserOpen && (
                 <TemplateBrowser
                     tool="visiting-card"
@@ -271,7 +269,7 @@ export const VisitingCardMaker: React.FC<VisitingCardMakerProps> = ({ onNavigate
                 />
             )}
             <ErrorMessage error={error} />
-            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
+            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-800 rounded-2xl shadow-lg">
                 {step === 'input' && renderInputStep()}
                 {step === 'promptSelection' && renderPromptSelectionStep()}
                 {step === 'generating' && renderGeneratingStep()}

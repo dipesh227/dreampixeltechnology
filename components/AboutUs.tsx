@@ -1,8 +1,12 @@
+
+
 import React from 'react';
 import { InfoPage } from './InfoPage';
+import { ViewType } from '../types';
 
 interface AboutUsProps {
     onNavigateHome: () => void;
+    onNavigate: (view: ViewType) => void;
 }
 
 export const AboutUs: React.FC<AboutUsProps> = ({ onNavigateHome }) => {

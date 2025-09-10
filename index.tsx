@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import { LocalizationProvider } from './context/LocalizationContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -16,7 +17,9 @@ root.render(
   <React.StrictMode>
     <ErrorBoundary>
         <AuthProvider>
-            <App />
+            <LocalizationProvider>
+                <App />
+            </LocalizationProvider>
         </AuthProvider>
     </ErrorBoundary>
   </React.StrictMode>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { AspectRatio } from '../types';
 import { ASPECT_RATIOS } from '../services/constants';
+import { useLocalization } from '../hooks/useLocalization';
 
 interface AspectRatioSelectorProps {
     selectedRatio: AspectRatio;
@@ -9,6 +10,7 @@ interface AspectRatioSelectorProps {
 }
 
 export const AspectRatioSelector: React.FC<AspectRatioSelectorProps> = ({ selectedRatio, onSelectRatio, availableRatios }) => {
+    const { t } = useLocalization();
     
     const ratiosToDisplay = availableRatios
         ? ASPECT_RATIOS.filter(r => availableRatios.includes(r.id))
@@ -16,7 +18,7 @@ export const AspectRatioSelector: React.FC<AspectRatioSelectorProps> = ({ select
 
     return (
         <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl">
-            <h2 className="text-xl font-bold text-white mb-4">Choose Aspect Ratio</h2>
+            <h2 className="text-xl font-bold text-white mb-4">{t('common.chooseAspectRatio')}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                 {ratiosToDisplay.map(({ id, name, icon }) => (
                     <button 

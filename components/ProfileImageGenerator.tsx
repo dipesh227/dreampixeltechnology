@@ -88,7 +88,6 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
         }
 
         if (session) {
-            // FIX: Added missing aspectRatio property to satisfy the ProfileImageJobData type.
             jobService.saveProfileImageJob({
                 userId: session.user.id,
                 description,
@@ -127,7 +126,6 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
         setStep('generating');
         setIsSaved(false);
         try {
-            // FIX: Added missing aspectRatio argument ('1:1') to the function call.
             const imageResult = await generateProfilePicture(prompt, headshot, '1:1');
             if (imageResult) {
                 setGeneratedImage(imageResult);
@@ -184,7 +182,7 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
                 </button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Upload a single, high-quality photo of your face, looking directly at the camera. Good lighting is key for the best results.">
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-800 rounded-xl" data-tooltip="Upload a single, high-quality photo of your face, looking directly at the camera. Good lighting is key for the best results.">
                     <h2 className="text-xl font-bold text-white mb-1">1. Upload Headshot</h2>
                     <p className="text-sm text-slate-400 mb-4">Provide one clear, forward-facing headshot.</p>
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
@@ -206,15 +204,17 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
                         </div>
                     }
                 </div>
-                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4" data-tooltip="Describe the purpose and vibe of your desired profile picture. For example, 'A professional and friendly headshot for LinkedIn' or 'A cool, vibrant avatar for my gaming profile'.">
-                    <div className="flex items-start gap-3">
-                        <HiOutlineDocumentText className="w-6 h-6 mt-1 text-purple-400"/>
+                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-800 rounded-xl space-y-4" data-tooltip="Describe the purpose and vibe of your desired profile picture. For example, 'A professional and friendly headshot for LinkedIn' or 'A cool, vibrant avatar for my gaming profile'.">
+                    <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center">
+                            <HiOutlineDocumentText className="w-6 h-6 text-purple-400"/>
+                        </div>
                         <div>
-                           <h3 className="text-md font-bold text-white">2. Describe Your Desired Look</h3>
-                           <p className="text-sm text-slate-400 mb-2">What's this for? (e.g., LinkedIn, Instagram, Gaming avatar)</p>
+                           <h3 className="text-lg font-bold text-white">2. Describe Your Desired Look</h3>
+                           <p className="text-sm text-slate-400">What's this for? (e.g., LinkedIn, Instagram, Gaming avatar)</p>
                         </div>
                     </div>
-                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., 'A professional and friendly headshot for my LinkedIn profile. I'm a marketing manager.'" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition text-sm" rows={6}></textarea>
+                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., 'A professional and friendly headshot for my LinkedIn profile. I'm a marketing manager.'" className="custom-textarea" rows={6}></textarea>
                 </div>
             </div>
             <StyleSelector
@@ -225,7 +225,7 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
                 onStyleSelect={setSelectedStyleId}
             />
              <div className="flex justify-center pt-4">
-                <button onClick={handleGenerateConcepts} disabled={isLoading || !description.trim() || !headshot} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
+                <button onClick={handleGenerateConcepts} disabled={isLoading || !description.trim() || !headshot} className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:from-slate-600 disabled:to-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
                     {isLoading ? loadingMessage : 'Generate Concepts'}
                 </button>
@@ -307,7 +307,6 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
                 </div>
                 <div className="space-y-6">
                     <h3 className="font-semibold text-white">Previews</h3>
-                    {/* LinkedIn Mockup */}
                     <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-left">
                         <div className="flex items-center gap-4">
                             {generatedImage && <img src={`data:image/png;base64,${generatedImage}`} className="w-16 h-16 rounded-full object-cover border-2 border-slate-600" />}
@@ -317,7 +316,6 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
                             </div>
                         </div>
                     </div>
-                     {/* Instagram Mockup */}
                      <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-left">
                         <div className="flex items-center gap-3">
                             {generatedImage && 
@@ -346,7 +344,7 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
                         <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save'}
                     </button>
                  </div>
-                 <a href={`data:image/png;base64,${generatedImage}`} download="dreampixel-profile.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
+                 <a href={`data:image/png;base64,${generatedImage}`} download="dreampixel-profile.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
                     <HiArrowDownTray className="w-5 h-5"/> Download
                  </a>
              </div>
@@ -363,7 +361,12 @@ export const ProfileImageGenerator: React.FC<ProfileImageGeneratorProps> = ({ on
                 />
             )}
             <ErrorMessage error={error} />
-            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
+            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-800 rounded-2xl shadow-lg">
+                <div className="text-center mb-8">
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-white">AI Profile Picture Generator</h2>
+                    <p className="mt-2 text-lg text-slate-400 max-w-2xl mx-auto">Create the perfect profile picture for any platform.</p>
+                </div>
+
                 {step === 'input' && renderInputStep()}
                 {step === 'promptSelection' && renderPromptSelectionStep()}
                 {step === 'generating' && renderGeneratingStep()}

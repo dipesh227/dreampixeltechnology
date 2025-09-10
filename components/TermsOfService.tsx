@@ -1,11 +1,15 @@
+
+
 import React from 'react';
 import { InfoPage } from './InfoPage';
+import { ViewType } from '../types';
 
 interface TermsOfServiceProps {
     onNavigateHome: () => void;
+    onNavigate: (view: ViewType) => void;
 }
 
-export const TermsOfService: React.FC<TermsOfServiceProps> = ({ onNavigateHome }) => {
+export const TermsOfService: React.FC<TermsOfServiceProps> = ({ onNavigateHome, onNavigate }) => {
     return (
         <InfoPage title="Terms of Service" onNavigateHome={onNavigateHome}>
             <p><strong>Last updated: October 27, 2023</strong></p>
@@ -23,13 +27,13 @@ export const TermsOfService: React.FC<TermsOfServiceProps> = ({ onNavigateHome }
             <p>You retain any and all of your rights to any Content you create or make available on or through the Service. We claim no ownership rights over your Content. The Service itself and its original content (excluding Content created by users), features, and functionality are and will remain the exclusive property of DreamPixel Technology.</p>
 
             <h2>Termination</h2>
-            <p>We may terminate or suspend your account and bar access to the Service immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever and without limitation, including but not limited to a breach of the Terms.</p>
+            <p>We may terminate or suspend your account and bar access to the Service immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever and without limitation, including but not to a breach of the Terms.</p>
 
             <h2>Changes</h2>
             <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.</p>
             
             <h2>Contact Us</h2>
-            <p>If you have any questions about these Terms, please <a href="/#contact">contact us</a>.</p>
+            <p>If you have any questions about these Terms, please <button onClick={() => onNavigate('contact')} className="font-semibold text-purple-400 hover:text-purple-300 hover:underline transition-colors">contact us</button>.</p>
         </InfoPage>
     );
 };

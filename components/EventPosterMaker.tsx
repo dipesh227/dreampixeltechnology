@@ -27,7 +27,6 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
     const [time, setTime] = useState('');
     const [venue, setVenue] = useState('');
     const [selectedStyleId, setSelectedStyleId] = useState<string>(EVENT_POSTER_STYLES[0].id);
-    // FIX: Added missing aspectRatio state required by service calls.
     const [aspectRatio, setAspectRatio] = useState<AspectRatio>('4:5');
     
     const [error, setError] = useState<string | null>(null);
@@ -92,7 +91,6 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
         }
 
         if (session) {
-            // FIX: Added missing aspectRatio property to the job data object.
             jobService.saveEventPosterJob({
                 userId: session.user.id,
                 headline,
@@ -110,7 +108,6 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
         setError(null);
         setIsSaved(false);
         try {
-            // FIX: Added missing aspectRatio argument to the function call.
             const result = await editEventPoster(originalImage, headline, branding, selectedStyle, { date, time, venue }, aspectRatio);
             if (result) {
                 setEditedImage(result);
@@ -153,11 +150,8 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
 
     const renderInputScreen = () => (
         <div className="space-y-8">
-            <h2 className="text-3xl font-bold text-center mb-2 text-white">AI Event Poster Maker</h2>
-            <p className="text-slate-400 text-center -mt-8 mb-10">Turn your event photos into promotional posters instantly.</p>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Upload the main photo from your event. High-resolution images work best.">
+                <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-800 rounded-xl" data-tooltip="Upload the main photo from your event. High-resolution images work best.">
                     <h3 className="text-xl font-bold text-white mb-1">1. Upload Event Photo</h3>
                     <p className="text-sm text-slate-400 mb-4">Provide one high-quality image from your event.</p>
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
@@ -178,29 +172,29 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
                         </div>
                     }
                 </div>
-                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl space-y-4">
+                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-800 rounded-xl space-y-4">
                     <h3 className="text-xl font-bold text-white mb-1">2. Add Text & Details</h3>
                     <div data-tooltip="This is the main, attention-grabbing text on your poster.">
                         <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineChatBubbleLeftRight className="w-5 h-5 text-pink-400"/> Headline</label>
-                        <input type="text" value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g., 'Annual Gala Dinner'" className="w-full p-2 mt-1 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                        <input type="text" value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g., 'Annual Gala Dinner'" className="custom-input text-sm mt-1" />
                     </div>
                      <div data-tooltip="Add your brand name, a sponsor's logo, or a website URL.">
                         <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineTag className="w-5 h-5 text-sky-400"/> Branding Details (Optional)</label>
-                        <input type="text" value={branding} onChange={e => setBranding(e.target.value)} placeholder="e.g., 'Sponsored by DreamPixel'" className="w-full p-2 mt-1 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                        <input type="text" value={branding} onChange={e => setBranding(e.target.value)} placeholder="e.g., 'Sponsored by DreamPixel'" className="custom-input text-sm mt-1" />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div data-tooltip="Date of the event.">
-                            <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineCalendar className="w-5 h-5 text-emerald-400"/> Date</label>
-                            <input type="text" value={date} onChange={e => setDate(e.target.value)} placeholder="e.g., October 26th" className="w-full p-2 mt-1 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                            <label className="font-semibold text-slate-300 flex items-center gap-2 text-sm"><HiOutlineCalendar className="w-5 h-5 text-emerald-400"/> Date</label>
+                            <input type="text" value={date} onChange={e => setDate(e.target.value)} placeholder="e.g., October 26th" className="custom-input text-sm mt-1" />
                         </div>
                         <div data-tooltip="Time of the event.">
-                            <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineClock className="w-5 h-5 text-emerald-400"/> Time</label>
-                            <input type="text" value={time} onChange={e => setTime(e.target.value)} placeholder="e.g., 7 PM onwards" className="w-full p-2 mt-1 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                            <label className="font-semibold text-slate-300 flex items-center gap-2 text-sm"><HiOutlineClock className="w-5 h-5 text-emerald-400"/> Time</label>
+                            <input type="text" value={time} onChange={e => setTime(e.target.value)} placeholder="e.g., 7 PM onwards" className="custom-input text-sm mt-1" />
                         </div>
                     </div>
                      <div data-tooltip="Location of the event.">
                         <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineMapPin className="w-5 h-5 text-amber-400"/> Venue</label>
-                        <input type="text" value={venue} onChange={e => setVenue(e.target.value)} placeholder="e.g., The Grand Ballroom" className="w-full p-2 mt-1 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
+                        <input type="text" value={venue} onChange={e => setVenue(e.target.value)} placeholder="e.g., The Grand Ballroom" className="custom-input text-sm mt-1" />
                     </div>
                 </div>
             </div>
@@ -217,7 +211,7 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
                 availableRatios={['4:5', '9:16', '1:1', '16:9']}
             />
              <div className="flex justify-center pt-8">
-                <button onClick={handleGenerate} disabled={isLoading || !originalImage || !headline.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
+                <button onClick={handleGenerate} disabled={isLoading || !originalImage || !headline.trim()} className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:from-slate-600 disabled:to-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
                     {isLoading ? loadingMessage : 'Create Poster'}
                 </button>
@@ -240,7 +234,7 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
                         <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save'}
                     </button>
                  </div>
-                 <a href={`data:image/png;base64,${editedImage}`} download="dreampixel-event-poster.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
+                 <a href={`data:image/png;base64,${editedImage}`} download="dreampixel-event-poster.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
                     <HiArrowDownTray className="w-5 h-5"/> Download Poster
                  </a>
              </div>
@@ -261,7 +255,12 @@ export const EventPosterMaker: React.FC<EventPosterMakerProps> = ({ onNavigateHo
     return (
         <div className="animate-fade-in">
             <ErrorMessage error={error} />
-            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
+            <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-800 rounded-2xl shadow-lg">
+                <div className="text-center mb-8">
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-white">AI Event Poster Maker</h2>
+                    <p className="mt-2 text-lg text-slate-400 max-w-2xl mx-auto">Turn your event photos into promotional posters instantly.</p>
+                </div>
+
                 {isLoading && renderGeneratingStep()}
                 {!isLoading && editedImage && renderResultScreen()}
                 {!isLoading && !editedImage && renderInputScreen()}

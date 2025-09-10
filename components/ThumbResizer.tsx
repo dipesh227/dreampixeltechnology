@@ -7,7 +7,7 @@ interface ThumbResizerProps {
 }
 
 const thumbConfig: ToolConfig = {
-    title: 'Thumb Impression Resizer',
+    titleKey: 'landing.toolThumbResizerTitle',
     outputWidth: 150,
     outputHeight: 100,
     minSizeKB: 5,

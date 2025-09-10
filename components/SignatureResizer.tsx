@@ -7,7 +7,7 @@ interface SignatureResizerProps {
 }
 
 const signatureConfig: ToolConfig = {
-    title: 'Signature Resizer',
+    titleKey: 'landing.toolSignatureResizerTitle',
     outputWidth: 150,
     outputHeight: 100,
     minSizeKB: 5,

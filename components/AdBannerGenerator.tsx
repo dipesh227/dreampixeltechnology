@@ -11,6 +11,7 @@ import TemplateBrowser from './TemplateBrowser';
 import StyleSelector from './StyleSelector';
 import { resizeImage } from '../utils/cropImage';
 import AspectRatioSelector from './AspectRatioSelector';
+import { useLocalization } from '../hooks/useLocalization';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -22,6 +23,7 @@ interface AdBannerGeneratorProps {
 
 export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, onBannerGenerated, onGenerating }) => {
     const { session } = useAuth();
+    const { t } = useLocalization();
     const [step, setStep] = useState<Step>('input');
     const [productImage, setProductImage] = useState<UploadedFile | null>(null);
     const [modelHeadshot, setModelHeadshot] = useState<UploadedFile | null>(null);
@@ -242,7 +244,7 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
             <div className="flex justify-end">
                 <button onClick={() => setIsTemplateBrowserOpen(true)} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors icon-hover-effect-blue">
                     <HiOutlineQueueList className="w-5 h-5 text-sky-400" />
-                    Browse Templates
+                    {t('common.browseTemplates')}
                 </button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -277,7 +279,7 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
                         <input value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g., 'Sound That Moves You'" className="w-full mt-2 p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                     </div>
                     <div data-tooltip="Include your brand name or any other text to be subtly included in the ad.">
-                        <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineTag className="w-5 h-5"/> Brand Details (Optional)</label>
+                        <label className="font-semibold text-slate-300 flex items-center gap-2"><HiOutlineTag className="w-5 h-5"/> Brand Details ({t('common.optional')})</label>
                         <input value={brandDetails} onChange={e => setBrandDetails(e.target.value)} placeholder="e.g., 'AudioVibe'" className="w-full mt-2 p-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 transition text-sm" />
                     </div>
                 </div>
@@ -292,7 +294,7 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
             <div className="flex justify-center pt-4">
                 <button onClick={handleGenerateConcepts} disabled={isLoading || !productImage || !modelHeadshot || !productDescription.trim() || !headline.trim()} className="flex items-center gap-3 px-8 py-4 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transform hover:scale-105">
                     {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
-                    {isLoading ? loadingMessage : 'Generate Ad Concepts'}
+                    {isLoading ? loadingMessage : t('common.generateConcepts')}
                 </button>
             </div>
         </div>
@@ -310,21 +312,21 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
                          data-tooltip={concept.structured_prompt ? JSON.stringify(concept.structured_prompt, null, 2) : 'No structured prompt available.'}
                     >
                         <div>
-                            {concept.isRecommended && (<div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2"><span className="px-3 py-1 text-xs font-semibold tracking-wider text-slate-900 uppercase bg-amber-400 rounded-full">Recommended</span></div>)}
-                            <h3 className="font-bold text-white mb-3 mt-3">Concept {index + 1}</h3>
+                            {concept.isRecommended && (<div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2"><span className="px-3 py-1 text-xs font-semibold tracking-wider text-slate-900 uppercase bg-amber-400 rounded-full">{t('common.recommended')}</span></div>)}
+                            <h3 className="font-bold text-white mb-3 mt-3">{t('thumbnailGenerator.concept', { index: index + 1 })}</h3>
                             <p className="text-slate-300 text-sm mb-4">{concept.prompt}</p>
-                            {concept.reason && (<div className="mt-4 pt-4 border-t border-slate-700/50"><p className="text-xs text-amber-300/80 italic"><span className="font-bold not-italic">Reason:</span> {concept.reason}</p></div>)}
+                            {concept.reason && (<div className="mt-4 pt-4 border-t border-slate-700/50"><p className="text-xs text-amber-300/80 italic"><span className="font-bold not-italic">{t('common.reason')}</span> {concept.reason}</p></div>)}
                         </div>
                         <div className="mt-6 flex justify-end">
                             <button onClick={(e) => { e.stopPropagation(); handleCopyPrompt(concept.prompt); }} className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors">
                                 {copiedPrompt === concept.prompt ? <HiCheck className="w-4 h-4 text-green-400" /> : <HiOutlineDocumentDuplicate className="w-4 h-4 icon-hover-effect" />}
-                                {copiedPrompt === concept.prompt ? 'Copied!' : 'Copy'}
+                                {copiedPrompt === concept.prompt ? t('common.copied') : t('common.copy')}
                             </button>
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="flex justify-center mt-10"><button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect"><HiArrowLeft className="w-5 h-5" /> Back</button></div>
+            <div className="flex justify-center mt-10"><button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect"><HiArrowLeft className="w-5 h-5" /> {t('common.back')}</button></div>
         </div>
     );
     
@@ -352,13 +354,13 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
              </div>
              <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4 mt-8">
                  <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect">
-                    <HiArrowLeft className="w-5 h-5 text-slate-300"/> Back to Settings
+                    <HiArrowLeft className="w-5 h-5 text-slate-300"/> {t('common.backToSettings')}
                  </button>
                  <button onClick={() => setStep('promptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect icon-hover-effect-yellow">
-                    <HiOutlineLightBulb className="w-5 h-5 text-yellow-400"/> Back to Concepts
+                    <HiOutlineLightBulb className="w-5 h-5 text-yellow-400"/> {t('common.backToConcepts')}
                  </button>
                  <button onClick={() => handleGenerateBanner(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-blue">
-                    <HiOutlineArrowPath className="w-5 h-5 text-sky-400"/> Regenerate
+                    <HiOutlineArrowPath className="w-5 h-5 text-sky-400"/> {t('common.regenerate')}
                  </button>
                  <div className="relative group" title={!session ? 'Please sign in to save creations' : ''}>
                     <button 
@@ -366,11 +368,11 @@ export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigate
                         disabled={isSaved || !session} 
                         className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-pink"
                     >
-                        <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save Creation'}
+                        <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? t('common.saved') : t('common.likeAndSave')}
                     </button>
                  </div>
                  <a href={`data:image/png;base64,${generatedBanner}`} download="dreampixel-banner.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
-                    <HiArrowDownTray className="w-5 h-5"/> Download
+                    <HiArrowDownTray className="w-5 h-5"/> {t('common.download')}
                  </a>
              </div>
         </div>

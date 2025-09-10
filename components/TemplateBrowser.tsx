@@ -4,6 +4,7 @@ import React from 'react';
 import { ToolType, TemplatePrefillData } from '../types';
 import { TEMPLATES } from '../services/templates';
 import { HiOutlineXMark, HiOutlineCheck } from 'react-icons/hi2';
+import { useLocalization } from '../hooks/useLocalization';
 
 interface TemplateBrowserProps {
     tool: ToolType;
@@ -12,6 +13,7 @@ interface TemplateBrowserProps {
 }
 
 const TemplateBrowser: React.FC<TemplateBrowserProps> = ({ tool, onClose, onSelect }) => {
+    const { t } = useLocalization();
     const filteredTemplates = TEMPLATES.filter(t => t.tool === tool);
 
     const handleSelect = (prefillData: TemplatePrefillData) => {
@@ -26,7 +28,7 @@ const TemplateBrowser: React.FC<TemplateBrowserProps> = ({ tool, onClose, onSele
                 onClick={e => e.stopPropagation()}
             >
                 <header className="flex items-center justify-between p-4 border-b border-slate-800 flex-shrink-0">
-                    <h2 className="text-lg font-bold text-white">Choose a Template</h2>
+                    <h2 className="text-lg font-bold text-white">{t('common.chooseTemplate')}</h2>
                     <button onClick={onClose} className="text-slate-500 hover:text-white">
                         <HiOutlineXMark className="w-6 h-6 icon-hover-effect"/>
                     </button>
@@ -46,7 +48,7 @@ const TemplateBrowser: React.FC<TemplateBrowserProps> = ({ tool, onClose, onSele
                             ))}
                         </div>
                     ) : (
-                        <p className="text-slate-500 text-center py-10">No templates available for this tool yet.</p>
+                        <p className="text-slate-500 text-center py-10">{t('common.noTemplates')}</p>
                     )}
                 </main>
             </div>

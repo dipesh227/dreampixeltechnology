@@ -5,9 +5,10 @@ import { getCroppedImg, resizeAndCompressImage, enhanceImageWithCanvas } from '.
 import { enhanceImage } from '../services/aiService';
 import { HiArrowUpTray, HiArrowDownTray, HiOutlineSparkles, HiOutlineCheckCircle, HiOutlineExclamationTriangle, HiXMark, HiArrowPath, HiOutlineDocumentText } from 'react-icons/hi2';
 import type { ExamPreset } from '../services/examPresets';
+import { useLocalization } from '../hooks/useLocalization';
 
 export interface ToolConfig {
-    title: string;
+    titleKey: string;
     outputWidth: number;
     outputHeight: number;
     minSizeKB: number;
@@ -22,6 +23,7 @@ interface ResizerToolProps {
 }
 
 export const ResizerTool: React.FC<ResizerToolProps> = ({ config, onNavigateHome, presets }) => {
+    const { t } = useLocalization();
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [originalFile, setOriginalFile] = useState<File | null>(null);
     const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
@@ -33,7 +35,6 @@ export const ResizerTool: React.FC<ResizerToolProps> = ({ config, onNavigateHome
     const [loadingMessage, setLoadingMessage] = useState('');
     const [error, setError] = useState<string | null>(null);
 
-    // New state for custom settings and enhancements
     const [useCustomSettings, setUseCustomSettings] = useState(false);
     const [customWidth, setCustomWidth] = useState(config.outputWidth);
     const [customHeight, setCustomHeight] = useState(config.outputHeight);
@@ -43,11 +44,10 @@ export const ResizerTool: React.FC<ResizerToolProps> = ({ config, onNavigateHome
     const [aiEnhance, setAiEnhance] = useState(false);
     
     const currentConfig = useCustomSettings
-        ? { title: config.title, outputWidth: customWidth, outputHeight: customHeight, minSizeKB: customMinSize, maxSizeKB: customMaxSize, aspect: customWidth > 0 && customHeight > 0 ? customWidth / customHeight : 1 }
-        : config;
+        ? { titleKey: config.titleKey, outputWidth: customWidth, outputHeight: customHeight, minSizeKB: customMinSize, maxSizeKB: customMaxSize, aspect: customWidth > 0 && customHeight > 0 ? customWidth / customHeight : 1 }
+        : { ...config, titleKey: config.titleKey };
         
     useEffect(() => {
-        // When AI Enhance is checked, disable and uncheck auto-enhance as AI is superior
         if (aiEnhance && autoEnhance) {
             setAutoEnhance(false);
         }
@@ -136,7 +136,7 @@ export const ResizerTool: React.FC<ResizerToolProps> = ({ config, onNavigateHome
 
     return (
         <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg max-w-5xl mx-auto animate-fade-in">
-            <h2 className="text-3xl font-bold text-center mb-2 text-white">{config.title}</h2>
+            <h2 className="text-3xl font-bold text-center mb-2 text-white">{t(config.titleKey)}</h2>
             <p className="text-slate-400 text-center mb-8">
                 Crop and resize your image to the required dimensions and file size.
             </p>
@@ -152,7 +152,7 @@ export const ResizerTool: React.FC<ResizerToolProps> = ({ config, onNavigateHome
                     <input type="file" id="file-upload" className="hidden" accept="image/png, image/jpeg" onChange={handleFileChange} />
                     <label htmlFor="file-upload" className="cursor-pointer">
                         <HiArrowUpTray className="w-8 h-8 mx-auto text-slate-500 mb-2"/>
-                        <p className="text-slate-300 font-semibold">Click to upload or drag & drop</p>
+                        <p className="text-slate-300 font-semibold">{t('common.uploadOrDrop')}</p>
                     </label>
                 </div>
             )}
@@ -240,7 +240,7 @@ export const ResizerTool: React.FC<ResizerToolProps> = ({ config, onNavigateHome
                             </button>
                             <button onClick={handleCreateImage} disabled={isLoading} className="flex items-center gap-3 px-8 py-3 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 transform hover:scale-105">
                                 {isLoading ? <div className="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div> : <HiOutlineSparkles className="w-6 h-6"/>}
-                                {isLoading ? loadingMessage : `Make ${config.title.split(' ')[0]}`}
+                                {isLoading ? loadingMessage : `Make ${t(config.titleKey).split(' ')[0]}`}
                             </button>
                         </div>
                     </div>
@@ -271,7 +271,7 @@ export const ResizerTool: React.FC<ResizerToolProps> = ({ config, onNavigateHome
                             download={`${originalFile?.name.split('.')[0]}_resized.jpeg`}
                             className="flex items-center gap-3 px-8 py-3 bg-primary-gradient text-white font-bold text-lg rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105"
                         >
-                            <HiArrowDownTray className="w-6 h-6"/> Download
+                            <HiArrowDownTray className="w-6 h-6"/> {t('common.download')}
                         </a>
                     </div>
                 </div>

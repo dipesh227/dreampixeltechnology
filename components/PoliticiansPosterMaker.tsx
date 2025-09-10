@@ -11,6 +11,7 @@ import TemplateBrowser from './TemplateBrowser';
 import StyleSelector from './StyleSelector';
 import { resizeImage } from '../utils/cropImage';
 import AspectRatioSelector from './AspectRatioSelector';
+import { useLocalization } from '../hooks/useLocalization';
 
 type Step = 'input' | 'promptSelection' | 'generating' | 'result';
 
@@ -22,6 +23,7 @@ interface PoliticiansPosterMakerProps {
 
 export const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ onNavigateHome, onPosterGenerated, onGenerating }) => {
     const { session } = useAuth();
+    const { t } = useLocalization();
     const [step, setStep] = useState<Step>('input');
     const [headshots, setHeadshots] = useState<UploadedFile[]>([]);
     const [selectedPartyId, setSelectedPartyId] = useState<string>(POLITICAL_PARTIES[0].id);
@@ -220,20 +222,20 @@ export const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ 
                     className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors icon-hover-effect-blue"
                 >
                     <HiOutlineQueueList className="w-5 h-5 text-sky-400" />
-                    Browse Templates
+                    {t('common.browseTemplates')}
                 </button>
             </div>
         
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip="Upload 1-5 photos of the politician. High-quality, forward-facing images produce the best results for face replication.">
-                    <h2 className="text-xl font-bold text-white mb-1">1. Upload Headshots</h2>
-                    <p className="text-sm text-slate-400 mb-4">Provide 1-5 images for the best face accuracy.</p>
+                    <h2 className="text-xl font-bold text-white mb-1">1. {t('thumbnailGenerator.uploadTitle')}</h2>
+                    <p className="text-sm text-slate-400 mb-4">{t('thumbnailGenerator.uploadDesc')}</p>
                     <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl text-center bg-slate-800/50 hover:border-slate-600 transition h-48 flex flex-col justify-center">
                          <input type="file" id="file-upload" className="hidden" multiple accept="image/png, image/jpeg" onChange={handleFileChange} disabled={headshots.length >= 5} />
                          <label htmlFor="file-upload" className={`cursor-pointer ${headshots.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <HiArrowUpTray className="w-8 h-8 mx-auto text-slate-500 mb-2"/>
-                            <p className="text-slate-300 font-semibold">Click to upload or drag & drop</p>
-                            <p className="text-xs text-slate-500">You can add {5 - headshots.length} more images.</p>
+                            <p className="text-slate-300 font-semibold">{t('common.uploadOrDrop')}</p>
+                            <p className="text-xs text-slate-500">{t('common.youCanAdd', { count: 5 - headshots.length })}</p>
                          </label>
                     </div>
                      {headshots.length > 0 && 
@@ -283,7 +285,7 @@ export const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ 
                          <div className="flex items-start gap-3">
                             <HiOutlineDocumentText className="w-6 h-6 mt-1 text-emerald-400"/>
                             <div>
-                               <h3 className="text-md font-bold text-white">4. Custom Text / Slogan <span className="text-slate-400 font-normal">(Optional)</span></h3>
+                               <h3 className="text-md font-bold text-white">4. Custom Text / Slogan <span className="text-slate-400 font-normal">({t('common.optional')})</span></h3>
                                <p className="text-sm text-slate-400 mb-2">Add a specific message to the poster.</p>
                             </div>
                         </div>
@@ -335,15 +337,15 @@ export const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ 
                             {concept.isRecommended && (
                                 <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
                                     <span className="px-3 py-1 text-xs font-semibold tracking-wider text-slate-900 uppercase bg-amber-400 rounded-full">
-                                        Recommended
+                                        {t('common.recommended')}
                                     </span>
                                 </div>
                             )}
-                            <h3 className="font-bold text-white mb-3 mt-3">Concept {index + 1}</h3>
+                            <h3 className="font-bold text-white mb-3 mt-3">{t('thumbnailGenerator.concept', { index: index + 1 })}</h3>
                             <p className="text-slate-300 text-sm mb-4">{concept.prompt}</p>
                             {concept.isRecommended && concept.reason && (
                                  <div className="mt-4 pt-4 border-t border-slate-700/50">
-                                    <p className="text-xs text-amber-300/80 italic"><span className="font-bold not-italic">Reason:</span> {concept.reason}</p>
+                                    <p className="text-xs text-amber-300/80 italic"><span className="font-bold not-italic">{t('common.reason')}</span> {concept.reason}</p>
                                 </div>
                             )}
                         </div>
@@ -353,7 +355,7 @@ export const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ 
                                 className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors"
                             >
                                 {copiedPrompt === concept.prompt ? <HiCheck className="w-4 h-4 text-green-400" /> : <HiOutlineDocumentDuplicate className="w-4 h-4 icon-hover-effect" />}
-                                {copiedPrompt === concept.prompt ? 'Copied!' : 'Copy'}
+                                {copiedPrompt === concept.prompt ? t('common.copied') : t('common.copy')}
                             </button>
                         </div>
                     </div>
@@ -361,7 +363,7 @@ export const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ 
             </div>
             <div className="flex justify-center mt-10">
                 <button onClick={() => setStep('input')} className="flex items-center gap-2 px-6 py-2 text-slate-400 hover:text-slate-300 bg-slate-800/50 border border-slate-700 rounded-lg transition-colors icon-hover-effect">
-                    <HiArrowLeft className="w-5 h-5" /> Back
+                    <HiArrowLeft className="w-5 h-5" /> {t('common.back')}
                 </button>
             </div>
         </div>
@@ -386,13 +388,13 @@ export const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ 
              )}
              <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4">
                  <button onClick={handleBackToSettings} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect">
-                    <HiArrowLeft className="w-5 h-5 text-slate-300"/> Back to Settings
+                    <HiArrowLeft className="w-5 h-5 text-slate-300"/> {t('common.backToSettings')}
                  </button>
                  <button onClick={() => setStep('promptSelection')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 icon-hover-effect icon-hover-effect-yellow">
-                    <HiOutlineLightBulb className="w-5 h-5 text-yellow-400"/> Back to Concepts
+                    <HiOutlineLightBulb className="w-5 h-5 text-yellow-400"/> {t('common.backToConcepts')}
                  </button>
                  <button onClick={() => handleGeneratePoster(finalPrompt)} disabled={isLoading} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-blue">
-                    <HiOutlineArrowPath className="w-5 h-5 text-sky-400"/> Regenerate
+                    <HiOutlineArrowPath className="w-5 h-5 text-sky-400"/> {t('common.regenerate')}
                  </button>
                  <div className="relative group" title={!session ? 'Please sign in to save creations' : ''}>
                     <button 
@@ -400,11 +402,11 @@ export const PoliticiansPosterMaker: React.FC<PoliticiansPosterMakerProps> = ({ 
                         disabled={isSaved || !session} 
                         className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-all duration-300 border border-slate-700 disabled:opacity-60 disabled:cursor-not-allowed icon-hover-effect icon-hover-effect-pink"
                     >
-                        <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? 'Saved!' : 'Like & Save Creation'}
+                        <HiOutlineHeart className={`w-5 h-5 transition-colors ${isSaved ? 'text-pink-500' : 'text-pink-400'}`} /> {isSaved ? t('common.saved') : t('common.likeAndSave')}
                     </button>
                  </div>
                  <a href={`data:image/png;base64,${generatedPoster}`} download="dreampixel-poster.png" className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
-                    <HiArrowDownTray className="w-5 h-5"/> Download
+                    <HiArrowDownTray className="w-5 h-5"/> {t('common.download')}
                  </a>
              </div>
         </div>

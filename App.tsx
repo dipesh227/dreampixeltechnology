@@ -6,6 +6,7 @@ import { ViewType } from './types';
 import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import MouseTrail from './components/MouseTrail';
+import ToolContainer from './components/ToolContainer';
 
 // Lazy load all generator components
 const ThumbnailGenerator = lazy(() => import('./components/ThumbnailGenerator').then(module => ({ default: module.ThumbnailGenerator })));
@@ -54,45 +55,6 @@ const App: React.FC = () => {
   const handleCreationGenerated = useCallback(() => {
     // Can be used to trigger a notification or update history count in the future
   }, []);
-
-
-  useEffect(() => {
-    const handleHashChange = () => {
-        const hash = window.location.hash.substring(1);
-        const validViews: ViewType[] = [
-            'landing', 'about', 'contact', 'privacy', 'terms',
-            'thumbnail', 'political', 'advertisement', 'social-campaign', 'video-script', 'profile', 'logo', 'image-enhancer', 
-            'headshot-maker', 'passport-photo', 'visiting-card', 'event-poster', 'newspaper',
-            'photo-resizer', 'signature-resizer', 'thumb-resizer'
-        ];
-        
-        if (validViews.includes(hash as ViewType)) {
-            setActiveView(hash as ViewType);
-        } else {
-            setActiveView('landing');
-        }
-    };
-
-    window.addEventListener('hashchange', handleHashChange, false);
-    handleHashChange();
-
-    return () => {
-        window.removeEventListener('hashchange', handleHashChange, false);
-    };
-}, []);
-
-useEffect(() => {
-    try {
-        const currentHash = window.location.hash.substring(1);
-        if (activeView === 'landing' || !activeView) {
-            if (currentHash) window.location.hash = '';
-        } else {
-            if (currentHash !== activeView) window.location.hash = activeView;
-        }
-    } catch (e) {
-        console.warn("Could not update URL hash, possibly in a sandboxed environment.");
-    }
-}, [activeView]);
 
   useEffect(() => {
     const viewTitles: Record<ViewType, string> = {
@@ -161,14 +123,18 @@ useEffect(() => {
         case 'thumb-resizer': return <ThumbResizer onNavigateHome={handleNavigateHome} />;
 
         // Info Pages
-        case 'about': return <AboutUs onNavigateHome={handleNavigateHome} />;
-        case 'contact': return <ContactUs onNavigateHome={handleNavigateHome} />;
-        case 'privacy': return <PrivacyPolicy onNavigateHome={handleNavigateHome} />;
-        case 'terms': return <TermsOfService onNavigateHome={handleNavigateHome} />;
+        case 'about': return <AboutUs onNavigateHome={handleNavigateHome} onNavigate={handleSetView} />;
+        case 'contact': return <ContactUs onNavigateHome={handleNavigateHome} onNavigate={handleSetView} />;
+        case 'privacy': return <PrivacyPolicy onNavigateHome={handleNavigateHome} onNavigate={handleSetView} />;
+        case 'terms': return <TermsOfService onNavigateHome={handleNavigateHome} onNavigate={handleSetView} />;
         
         default: return <LandingPage onSelectTool={handleSetView} />;
     }
   };
+
+  const isToolView = ![
+    'landing', 'about', 'contact', 'privacy', 'terms'
+  ].includes(activeView);
 
   return (
     <div className={`stars-bg text-slate-300 min-h-screen font-sans flex flex-col ${isGenerating ? 'generating-bg' : ''}`}>
@@ -177,9 +143,15 @@ useEffect(() => {
             onNavigateHome={handleNavigateHome}
             onLogin={handleOpenAuthModal}
         />
-        <main className="container mx-auto py-8 px-4 flex-grow">
+        <main className="container mx-auto pt-28 pb-8 px-4 flex-grow">
             <Suspense fallback={<ToolLoadingSpinner />}>
-                {renderActiveView()}
+                {isToolView ? (
+                  <ToolContainer>
+                    {renderActiveView()}
+                  </ToolContainer>
+                ) : (
+                  renderActiveView()
+                )}
             </Suspense>
         </main>
         <Footer onNavigate={handleSetView} />

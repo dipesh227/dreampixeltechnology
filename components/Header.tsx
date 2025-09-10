@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
 import { DreamLogo } from './icons/DreamLogo';
-import { HiOutlineArrowRightOnRectangle, HiOutlineUserCircle, HiBars3, HiXMark } from 'react-icons/hi2';
+import { HiOutlineArrowRightOnRectangle, HiOutlineUserCircle, HiBars3, HiXMark, HiLanguage } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
+import { useLocalization } from '../hooks/useLocalization';
 
 interface HeaderProps {
     onNavigateHome: () => void;
@@ -12,6 +13,7 @@ interface HeaderProps {
 const UserMenu: React.FC<{ inMobileMenu?: boolean }> = ({ inMobileMenu = false }) => {
     const { profile, logout, isLoggingOut } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
+    const { t } = useLocalization();
 
     if (!profile) return null;
 
@@ -35,12 +37,12 @@ const UserMenu: React.FC<{ inMobileMenu?: boolean }> = ({ inMobileMenu = false }
                     {isLoggingOut ? (
                         <>
                             <div className="w-4 h-4 border-2 border-t-transparent border-slate-300 rounded-full animate-spin"></div>
-                            Signing Out...
+                            {t('header.signingOut')}
                         </>
                     ) : (
                         <>
                             <HiOutlineArrowRightOnRectangle className="w-5 h-5"/>
-                            Sign Out
+                            {t('header.signOut')}
                         </>
                     )}
                 </button>
@@ -63,12 +65,12 @@ const UserMenu: React.FC<{ inMobileMenu?: boolean }> = ({ inMobileMenu = false }
                         {isLoggingOut ? (
                             <>
                                 <div className="w-4 h-4 border-2 border-t-transparent border-slate-300 rounded-full animate-spin"></div>
-                                Signing Out...
+                                {t('header.signingOut')}
                             </>
                         ) : (
                             <>
                                 <HiOutlineArrowRightOnRectangle className="w-5 h-5"/>
-                                Sign Out
+                                {t('header.signOut')}
                             </>
                         )}
                     </button>
@@ -81,6 +83,12 @@ const UserMenu: React.FC<{ inMobileMenu?: boolean }> = ({ inMobileMenu = false }
 
 const MobileMenu: React.FC<HeaderProps & { onClose: () => void }> = ({ onLogin, onClose }) => {
     const { session } = useAuth();
+    const { locale, changeLocale, t } = useLocalization();
+
+    const handleLanguageChange = () => {
+        changeLocale(locale === 'en' ? 'hi' : 'en');
+        onClose();
+    };
 
     return (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-lg z-50 flex flex-col animate-fade-in text-slate-200">
@@ -90,7 +98,15 @@ const MobileMenu: React.FC<HeaderProps & { onClose: () => void }> = ({ onLogin, 
                  </button>
             </div>
             <div className="flex flex-col justify-between flex-grow">
-                <div></div>
+                <div className="px-4 py-4">
+                    <button 
+                        onClick={handleLanguageChange}
+                        className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-slate-800 text-slate-200 font-semibold rounded-lg hover:bg-slate-700 transition-colors">
+                        <HiLanguage className="w-6 h-6" />
+                        {locale === 'en' ? 'हिन्दी में स्विच करें' : 'Switch to English'}
+                    </button>
+                </div>
+
                 {session ? (
                    <UserMenu inMobileMenu />
                 ) : (
@@ -99,7 +115,7 @@ const MobileMenu: React.FC<HeaderProps & { onClose: () => void }> = ({ onLogin, 
                             onClick={() => { onLogin(); onClose(); }}
                             className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-slate-200 text-slate-800 font-semibold rounded-lg hover:bg-white transition-colors">
                               <HiOutlineUserCircle className="w-6 h-6" />
-                              Login / Sign Up
+                              {t('header.login')}
                           </button>
                     </div>
                 )}
@@ -111,26 +127,37 @@ const MobileMenu: React.FC<HeaderProps & { onClose: () => void }> = ({ onLogin, 
 const Header: React.FC<HeaderProps> = (props) => {
   const { onNavigateHome, onLogin } = props;
   const { session } = useAuth();
+  const { locale, changeLocale, t } = useLocalization();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleLanguageChange = () => {
+    changeLocale(locale === 'en' ? 'hi' : 'en');
+  };
 
   return (
     <>
-      <header className="py-4 px-4 md:px-8 bg-slate-950/80 backdrop-blur-lg border-b border-slate-800 sticky top-0 z-40">
+      <header className="py-4 px-4 md:px-8 bg-slate-950/80 backdrop-blur-lg border-b border-slate-800/50 fixed top-0 w-full z-40">
         <div className="container mx-auto flex justify-between items-center">
-          {/* Left Side: Empty for balance */}
-          <div className="flex-1 flex justify-start"></div>
-
-          {/* Center Logo */}
-          <div className="flex-1 flex justify-center">
-            <div 
-              className="flex flex-col items-center justify-center cursor-pointer"
-              onClick={onNavigateHome}
-            >
-                <DreamLogo className="h-10 md:h-12 w-auto" />
+          <div className="flex-1 flex justify-start">
+            <div className="hidden lg:flex">
+                <button 
+                  onClick={handleLanguageChange} 
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
+                    <HiLanguage className="w-5 h-5" />
+                    {locale === 'en' ? 'हिन्दी' : 'English'}
+                </button>
             </div>
           </div>
 
-          {/* Right Side */}
+          <div className="flex-1 flex justify-center">
+            <div 
+              className="flex items-center justify-center cursor-pointer group"
+              onClick={onNavigateHome}
+            >
+                <DreamLogo className="h-10 md:h-12 w-auto transition-all duration-300 group-hover:drop-shadow-[0_0_5px_rgba(168,85,247,0.5)]" />
+            </div>
+          </div>
+
           <div className="flex-1 flex items-center gap-4 justify-end">
               <div className="hidden lg:flex">
                 {session ? (
@@ -138,19 +165,18 @@ const Header: React.FC<HeaderProps> = (props) => {
                 ) : (
                     <button 
                       onClick={onLogin} 
-                      className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-200 text-slate-800 hover:bg-white transition-colors">
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
                         <HiOutlineUserCircle className="w-5 h-5" />
-                        Login
+                        {t('header.login')}
                     </button>
                 )}
               </div>
               
-              {/* Mobile Menu Button */}
               <div className="lg:hidden">
                   <button 
                       onClick={() => setIsMenuOpen(true)}
                       className="p-2 rounded-md text-slate-400 hover:bg-slate-800"
-                      aria-label="Open menu"
+                      aria-label={t('header.openMenu')}
                   >
                       <HiBars3 className="w-7 h-7"/>
                   </button>

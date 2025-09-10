@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { HiOutlineChatBubbleLeftEllipsis, HiOutlineXMark } from 'react-icons/hi2';
 import * as feedbackService from '../services/feedbackService';
 import { useAuth } from '../context/AuthContext';
+import { useLocalization } from '../hooks/useLocalization';
 
 interface FeedbackModalProps {
     onClose: () => void;
@@ -12,6 +13,7 @@ const MAX_FEEDBACK_LENGTH = 2000;
 
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
     const { session } = useAuth();
+    const { t } = useLocalization();
     const [feedback, setFeedback] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -20,12 +22,10 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
 
     const handleFeedbackChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newFeedback = e.target.value;
-        // Prevent user from typing past the max length
         if (newFeedback.length <= MAX_FEEDBACK_LENGTH) {
             setFeedback(newFeedback);
         }
         
-        // Clear validation error as user types
         if (validationError) {
             setValidationError(null);
         }

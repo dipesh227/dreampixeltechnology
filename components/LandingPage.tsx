@@ -8,6 +8,7 @@ import {
     HiOutlineSparkles, HiOutlineFlag, HiOutlinePhoto, 
     HiOutlinePencil, HiOutlineHandThumbUp, HiBuildingStorefront
 } from 'react-icons/hi2';
+import { useLocalization } from '../hooks/useLocalization';
 
 interface LandingPageProps {
   onSelectTool: (tool: ToolType) => void;
@@ -15,94 +16,101 @@ interface LandingPageProps {
 
 interface Tool {
   id: ToolType;
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
   icon: React.ElementType;
-  color: string;
   isPopular?: boolean;
 }
 
 interface ToolCategory {
-  title: string;
+  titleKey: string;
   tools: Tool[];
+  color: string;
 }
 
 const toolCategories: ToolCategory[] = [
   {
-    title: 'For Content Creators',
+    titleKey: 'landing.categoryCreators',
+    color: 'text-red-400',
     tools: [
-      { id: 'thumbnail', title: 'Thumbnail Generator', description: 'Create viral YouTube thumbnails.', icon: HiOutlinePlay, color: 'text-red-400', isPopular: true },
-      { id: 'video-script', title: 'AI Video Script Writer', description: 'Generate scripts for short-form videos.', icon: HiOutlineDocumentText, color: 'text-red-400' },
-      { id: 'social-campaign', title: 'Content Factory', description: 'Run full social media campaigns.', icon: HiOutlineMegaphone, color: 'text-red-400' },
+      { id: 'thumbnail', titleKey: 'landing.toolThumbnailTitle', descriptionKey: 'landing.toolThumbnailDesc', icon: HiOutlinePlay, isPopular: true },
+      { id: 'video-script', titleKey: 'landing.toolVideoScriptTitle', descriptionKey: 'landing.toolVideoScriptDesc', icon: HiOutlineDocumentText },
+      { id: 'social-campaign', titleKey: 'landing.toolSocialCampaignTitle', descriptionKey: 'landing.toolSocialCampaignDesc', icon: HiOutlineMegaphone },
     ],
   },
   {
-    title: 'For Marketing',
+    titleKey: 'landing.categoryMarketing',
+    color: 'text-amber-400',
     tools: [
-      { id: 'advertisement', title: 'Ad Banner Generator', description: 'Design professional ad banners.', icon: HiBuildingStorefront, color: 'text-amber-400', isPopular: true },
-      { id: 'logo', title: 'AI Logo Generator', description: 'Create a unique brand logo.', icon: HiOutlineSparkles, color: 'text-amber-400' },
-      { id: 'event-poster', title: 'Event Poster Maker', description: 'Turn photos into event posters.', icon: HiOutlineTicket, color: 'text-amber-400' },
-      { id: 'newspaper', title: 'Newspaper Cutting Maker', description: 'Make realistic newspaper clippings.', icon: HiOutlineNewspaper, color: 'text-amber-400' },
+      { id: 'advertisement', titleKey: 'landing.toolAdBannerTitle', descriptionKey: 'landing.toolAdBannerDesc', icon: HiBuildingStorefront, isPopular: true },
+      { id: 'logo', titleKey: 'landing.toolLogoTitle', descriptionKey: 'landing.toolLogoDesc', icon: HiOutlineSparkles },
+      { id: 'event-poster', titleKey: 'landing.toolEventPosterTitle', descriptionKey: 'landing.toolEventPosterDesc', icon: HiOutlineTicket },
+      { id: 'newspaper', titleKey: 'landing.toolNewspaperTitle', descriptionKey: 'landing.toolNewspaperDesc', icon: HiOutlineNewspaper },
     ],
   },
   {
-    title: 'For Professionals',
+    titleKey: 'landing.categoryProfessionals',
+    color: 'text-sky-400',
     tools: [
-        { id: 'headshot-maker', title: 'HQ Headshot Maker', description: 'Generate professional headshots.', icon: HiOutlineBriefcase, color: 'text-sky-400', isPopular: true },
-        { id: 'profile', title: 'Profile Picture Generator', description: 'Create the perfect profile picture.', icon: HiOutlineUserCircle, color: 'text-sky-400' },
-        { id: 'visiting-card', title: 'AI Visiting Card Maker', description: 'Design professional business cards.', icon: HiOutlineIdentification, color: 'text-sky-400' },
-        { id: 'passport-photo', title: 'Passport Photo Maker', description: 'Create official passport photos.', icon: HiOutlineCamera, color: 'text-sky-400' },
+        { id: 'headshot-maker', titleKey: 'landing.toolHeadshotTitle', descriptionKey: 'landing.toolHeadshotDesc', icon: HiOutlineBriefcase, isPopular: true },
+        { id: 'profile', titleKey: 'landing.toolProfilePicTitle', descriptionKey: 'landing.toolProfilePicDesc', icon: HiOutlineUserCircle },
+        { id: 'visiting-card', titleKey: 'landing.toolVisitingCardTitle', descriptionKey: 'landing.toolVisitingCardDesc', icon: HiOutlineIdentification },
+        { id: 'passport-photo', titleKey: 'landing.toolPassportPhotoTitle', descriptionKey: 'landing.toolPassportPhotoDesc', icon: HiOutlineCamera },
     ],
   },
   {
-    title: 'Utilities & Campaigns',
+    titleKey: 'landing.categoryUtilities',
+    color: 'text-emerald-400',
     tools: [
-      { id: 'image-enhancer', title: 'AI Image Enhancer', description: '10x the quality of any image.', icon: HiOutlineSparkles, color: 'text-emerald-400' },
-      { id: 'political', title: 'Political Poster Maker', description: 'Design posters for campaigns.', icon: HiOutlineFlag, color: 'text-emerald-400' },
+      { id: 'image-enhancer', titleKey: 'landing.toolImageEnhancerTitle', descriptionKey: 'landing.toolImageEnhancerDesc', icon: HiOutlineSparkles },
+      { id: 'political', titleKey: 'landing.toolPoliticalPosterTitle', descriptionKey: 'landing.toolPoliticalPosterDesc', icon: HiOutlineFlag },
     ],
   },
   {
-    title: 'For Exam Applicants',
+    titleKey: 'landing.categoryApplicants',
+    color: 'text-fuchsia-400',
     tools: [
-      { id: 'photo-resizer', title: 'Photo Resizer', description: 'Resize photos for exam forms.', icon: HiOutlinePhoto, color: 'text-fuchsia-400' },
-      { id: 'signature-resizer', title: 'Signature Resizer', description: 'Resize signatures for forms.', icon: HiOutlinePencil, color: 'text-fuchsia-400' },
-      { id: 'thumb-resizer', title: 'Thumb Resizer', description: 'Resize thumb impressions.', icon: HiOutlineHandThumbUp, color: 'text-fuchsia-400' },
+      { id: 'photo-resizer', titleKey: 'landing.toolPhotoResizerTitle', descriptionKey: 'landing.toolPhotoResizerDesc', icon: HiOutlinePhoto },
+      { id: 'signature-resizer', titleKey: 'landing.toolSignatureResizerTitle', descriptionKey: 'landing.toolSignatureResizerDesc', icon: HiOutlinePencil },
+      { id: 'thumb-resizer', titleKey: 'landing.toolThumbResizerTitle', descriptionKey: 'landing.toolThumbResizerDesc', icon: HiOutlineHandThumbUp },
     ],
   },
 ];
 
 const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool }) => {
+    const { t } = useLocalization();
+
     return (
-        <div className="animate-fade-in space-y-12">
-            <div className="text-center max-w-3xl mx-auto">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight">
-                    Your Vision, <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">Amplified by AI</span>
+        <div className="animate-fade-in space-y-16">
+            <div className="text-center max-w-4xl mx-auto pt-8">
+                <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight tracking-tight">
+                    {t('landing.title1')} <span className="gradient-text">{t('landing.title2')}</span>
                 </h1>
-                <p className="mt-4 text-lg text-slate-400">
-                    The all-in-one content creation suite powered by Google Gemini. Go from idea to stunning visuals in seconds.
+                <p className="mt-6 text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
+                    {t('landing.subtitle')}
                 </p>
             </div>
-            <div className="space-y-10">
+            <div className="space-y-12">
                 {toolCategories.map((category) => (
-                    <div key={category.title}>
-                        <h2 className="text-xl font-bold text-white mb-4 tracking-wide">
-                            {category.title}
+                    <div key={category.titleKey}>
+                        <h2 className="text-2xl font-bold text-white mb-6 tracking-wide border-l-4 border-purple-500 pl-4">
+                            {t(category.titleKey)}
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {category.tools.map((tool) => (
                                 <button
                                     key={tool.id}
                                     onClick={() => onSelectTool(tool.id)}
-                                    className="w-full text-left p-6 rounded-xl tool-link bg-slate-900/60 border border-slate-700/50"
+                                    className="group w-full text-left p-6 rounded-xl bg-slate-900/60 border border-slate-800 transition-all duration-300 hover:border-purple-500/50 hover:bg-slate-800/80 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-900/30"
                                 >
-                                    <div className="flex items-center justify-between mb-3">
-                                        <div className={`p-2 bg-slate-800 rounded-lg`}>
-                                            <tool.icon className={`w-7 h-7 ${tool.color}`} />
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className={`p-2 bg-slate-800 rounded-lg transition-colors duration-300 group-hover:bg-slate-700`}>
+                                            <tool.icon className={`w-8 h-8 ${category.color} transition-transform duration-300 group-hover:scale-110`} />
                                         </div>
-                                        {tool.isPopular && <span className="text-xs font-semibold bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full">Popular</span>}
+                                        {tool.isPopular && <span className="text-xs font-semibold bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full">{t('landing.popular')}</span>}
                                     </div>
-                                    <h3 className="font-bold text-white">{tool.title}</h3>
-                                    <p className="text-sm text-slate-400 mt-1">{tool.description}</p>
+                                    <h3 className="font-bold text-white text-lg">{t(tool.titleKey)}</h3>
+                                    <p className="text-sm text-slate-400 mt-1">{t(tool.descriptionKey)}</p>
                                 </button>
                             ))}
                         </div>
