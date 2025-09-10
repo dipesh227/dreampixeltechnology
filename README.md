@@ -1,3 +1,4 @@
+
 # DreamPixel Technology - AI Content Creation Suite
 
 ![DreamPixel Logo](https://ai.dreampixeltechnology.in/logo.svg)
@@ -418,26 +419,8 @@ CREATE TABLE public.newspaper_cutting_jobs (
 ALTER TABLE public.newspaper_cutting_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can insert their own newspaper jobs" ON public.newspaper_cutting_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE TABLE public.caste_certificate_jobs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-  style_id TEXT,
-  name TEXT,
-  fathers_name TEXT,
-  mothers_name TEXT,
-  date_of_birth TEXT,
-  gender TEXT,
-  caste_community TEXT,
-  sub_caste TEXT,
-  address TEXT,
-  issuing_authority TEXT,
-  certificate_number TEXT,
-  issue_date TEXT,
-  photo_filename TEXT
-);
-ALTER TABLE public.caste_certificate_jobs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can insert their own caste certificate jobs" ON public.caste_certificate_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+-- Drop the caste_certificate_jobs table if it exists
+DROP TABLE IF EXISTS public.caste_certificate_jobs;
 
 ```
 </details>
@@ -776,31 +759,6 @@ CREATE TABLE public.newspaper_cutting_jobs (
   style_id TEXT,
   image_filename TEXT,
   aspect_ratio TEXT
-);
-```
-</details>
-
-<details>
-<summary><strong>caste_certificate_jobs</strong> - Logs inputs for caste certificate generation.</summary>
-
-```sql
-CREATE TABLE public.caste_certificate_jobs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-  style_id TEXT,
-  name TEXT,
-  fathers_name TEXT,
-  mothers_name TEXT,
-  date_of_birth TEXT,
-  gender TEXT,
-  caste_community TEXT,
-  sub_caste TEXT,
-  address TEXT,
-  issuing_authority TEXT,
-  certificate_number TEXT,
-  issue_date TEXT,
-  photo_filename TEXT
 );
 ```
 </details>

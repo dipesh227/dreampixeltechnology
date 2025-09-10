@@ -18,3 +18,5 @@ const thumbConfig: ToolConfig = {
 export const ThumbResizer: React.FC<ThumbResizerProps> = ({ onNavigateHome }) => {
     return <ResizerTool config={thumbConfig} onNavigateHome={onNavigateHome} presets={THUMB_PRESETS} />;
 };
+
+export default ThumbResizer;

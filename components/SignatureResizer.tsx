@@ -18,3 +18,5 @@ const signatureConfig: ToolConfig = {
 export const SignatureResizer: React.FC<SignatureResizerProps> = ({ onNavigateHome }) => {
     return <ResizerTool config={signatureConfig} onNavigateHome={onNavigateHome} presets={SIGNATURE_PRESETS} />;
 };
+
+export default SignatureResizer;

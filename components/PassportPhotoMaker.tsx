@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { UploadedFile, PassportPhotoStyle, PassportPhotoSize } from '../types';
+import { UploadedFile, PassportPhotoStyle, PassportPhotoSize, TemplatePrefillData } from '../types';
 import { generatePassportPhoto, enhanceImage } from '../services/aiService';
 import { PASSPORT_PHOTO_STYLES, PASSPORT_PHOTO_SIZES } from '../services/constants';
 import * as historyService from '../services/historyService';
 import * as jobService from '../services/jobService';
-import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiArrowLeft, HiOutlinePrinter } from 'react-icons/hi2';
+import { HiArrowDownTray, HiOutlineHeart, HiOutlineSparkles, HiArrowUpTray, HiXMark, HiArrowLeft, HiOutlinePrinter, HiOutlineQueueList } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import { resizeImage } from '../utils/cropImage';
+import TemplateBrowser from './TemplateBrowser';
 
 type Step = 'input' | 'generating' | 'result';
 
@@ -24,7 +25,8 @@ export const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNaviga
     const [selectedStyleId, setSelectedStyleId] = useState<string>(PASSPORT_PHOTO_STYLES[0].id);
     const [selectedSizeId, setSelectedSizeId] = useState<string>(PASSPORT_PHOTO_SIZES[0].id);
     const [customBackgroundColor, setCustomBackgroundColor] = useState<string>('#FFFFFF');
-    const [photoCount, setPhotoCount] = useState<number>(8);
+    const [photoCount, setPhotoCount] = useState<number>(10);
+    const [actualPhotoCount, setActualPhotoCount] = useState<number>(0);
 
     const [generatedSinglePhoto, setGeneratedSinglePhoto] = useState<string | null>(null);
     const [generatedSheet, setGeneratedSheet] = useState<string | null>(null);
@@ -32,6 +34,8 @@ export const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNaviga
     const [isLoading, setIsLoading] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState('');
     const [isSaved, setIsSaved] = useState(false);
+    const [isTemplateBrowserOpen, setIsTemplateBrowserOpen] = useState(false);
+
 
     useEffect(() => {
         onGenerating(isLoading);
@@ -59,6 +63,7 @@ export const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNaviga
         setError(null);
         setIsLoading(false);
         setIsSaved(false);
+        setActualPhotoCount(0);
     };
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,10 +80,11 @@ export const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNaviga
         }
     };
     
-    const createPrintSheet = useCallback(async (base64Image: string, size: PassportPhotoSize, count: number): Promise<string> => {
+    const createPrintSheet = useCallback(async (base64Image: string, size: PassportPhotoSize, count: number): Promise<{sheet: string, drawnCount: number}> => {
         const DPI = 300;
-        const SHEET_WIDTH_IN = 4;
-        const SHEET_HEIGHT_IN = 6;
+        // Use a 6x4 inch sheet (landscape) for more efficient packing, which is standard for photo prints.
+        const SHEET_WIDTH_IN = 6;
+        const SHEET_HEIGHT_IN = 4;
         
         const canvas = document.createElement('canvas');
         canvas.width = SHEET_WIDTH_IN * DPI;
@@ -99,16 +105,18 @@ export const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNaviga
         });
 
         let photosDrawn = 0;
-        const PADDING = 0.1 * DPI;
+        // Use a minimal padding to maximize paper usage, as requested.
+        const PADDING = 10; // 10px padding (~0.85mm)
 
-        for (let y = PADDING; y < canvas.height - photoHeightPx && photosDrawn < count; y += photoHeightPx + PADDING) {
-            for (let x = PADDING; x < canvas.width - photoWidthPx && photosDrawn < count; x += photoWidthPx + PADDING) {
+        for (let y = PADDING; (y + photoHeightPx) <= canvas.height && photosDrawn < count; y += photoHeightPx + PADDING) {
+            for (let x = PADDING; (x + photoWidthPx) <= canvas.width && photosDrawn < count; x += photoWidthPx + PADDING) {
                 ctx.drawImage(img, x, y, photoWidthPx, photoHeightPx);
                 photosDrawn++;
             }
         }
-
-        return canvas.toDataURL('image/jpeg', 0.95).split(',')[1];
+        
+        const sheet = canvas.toDataURL('image/jpeg', 0.95).split(',')[1];
+        return { sheet, drawnCount: photosDrawn };
     }, []);
 
     const handleGenerate = async () => {
@@ -157,8 +165,9 @@ export const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNaviga
                 if (!selectedSize) throw new Error("A size must be selected.");
                 
                 setLoadingMessage('Creating print-ready sheet...');
-                const sheet = await createPrintSheet(photoResult, selectedSize, photoCount);
+                const { sheet, drawnCount } = await createPrintSheet(photoResult, selectedSize, photoCount);
                 setGeneratedSheet(sheet);
+                setActualPhotoCount(drawnCount);
                 setStep('result');
             } else {
                 throw new Error("The AI failed to generate the photo. Please try another photo or style.");
@@ -190,10 +199,25 @@ export const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNaviga
             }
         }
     };
+    
+    const handleSelectTemplate = (prefill: TemplatePrefillData) => {
+        if (prefill.styleId) setSelectedStyleId(prefill.styleId);
+        if (prefill.sizeId) setSelectedSizeId(prefill.sizeId);
+        if (prefill.backgroundColor) setCustomBackgroundColor(prefill.backgroundColor);
+    };
 
     const renderInputStep = () => (
         <div className="space-y-8">
-            <h2 className="text-3xl font-bold text-center mb-2 text-white">Passport & Visa Photo Maker</h2>
+            <div className="flex justify-between items-center">
+                 <h2 className="text-3xl font-bold text-white">Passport & Visa Photo Maker</h2>
+                 <button
+                    onClick={() => setIsTemplateBrowserOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors icon-hover-effect-blue"
+                >
+                    <HiOutlineQueueList className="w-5 h-5 text-sky-400" />
+                    Browse Templates
+                </button>
+            </div>
             <p className="text-slate-400 text-center -mt-8 mb-10">Create official, compliant photos for any purpose in seconds.</p>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -307,9 +331,9 @@ export const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNaviga
                          </div>
                     </div>
                      <div className="flex flex-col items-center gap-4">
-                        <h3 className="font-bold text-xl text-white">Printable 4x6 Sheet ({photoCount} copies)</h3>
+                        <h3 className="font-bold text-xl text-white">Printable 4x6 Sheet ({actualPhotoCount} copies)</h3>
                          {generatedSheet && (
-                            <img src={`data:image/jpeg;base64,${generatedSheet}`} alt="Generated Print Sheet" className="rounded-lg shadow-lg border-2 border-slate-700 w-full" style={{aspectRatio: '4 / 6'}}/>
+                            <img src={`data:image/jpeg;base64,${generatedSheet}`} alt="Generated Print Sheet" className="rounded-lg shadow-lg border-2 border-slate-700 w-full" style={{aspectRatio: '6 / 4'}}/>
                          )}
                          <a href={`data:image/jpeg;base64,${generatedSheet}`} download="dreampixel-passport-sheet.jpg" className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary-gradient text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300">
                             <HiOutlinePrinter className="w-5 h-5"/> Download Sheet
@@ -328,6 +352,13 @@ export const PassportPhotoMaker: React.FC<PassportPhotoMakerProps> = ({ onNaviga
 
     return (
         <div className="animate-fade-in">
+            {isTemplateBrowserOpen && (
+                <TemplateBrowser
+                    tool="passport-photo"
+                    onClose={() => setIsTemplateBrowserOpen(false)}
+                    onSelect={handleSelectTemplate}
+                />
+            )}
             <ErrorMessage error={error} />
             <div className="p-4 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-lg">
                 {step === 'input' && renderInputStep()}

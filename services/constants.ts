@@ -1,4 +1,5 @@
-import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, PassportPhotoSize, VisitingCardStyle, EventPosterStyle, NewspaperStyle, AspectRatio, NewspaperLanguage, CasteCertificateStyle } from '../types';
+
+import { CreatorStyle, PoliticalParty, PosterStyle, AdStyle, ProfilePictureStyle, LogoStyle, HeadshotStyle, PassportPhotoStyle, PassportPhotoSize, VisitingCardStyle, EventPosterStyle, NewspaperStyle, AspectRatio, NewspaperLanguage } from '../types';
 
 // --- INLINED DATA FROM /data/*.json FILES ---
 
@@ -471,23 +472,27 @@ const adStylesData = {
 const profilePictureStylesData = {
     "male": [
         { "id": "male-corporate-headshot", "name": "Corporate Headshot", "tags": "LinkedIn, Professional", "stylePrompt": "A classic, professional corporate headshot. The man is wearing a sharp, dark business suit with a light-colored dress shirt. He has a confident, approachable smile. The background is a modern, softly blurred office interior. Lighting is a clean, three-point studio setup that is flattering and professional." },
-        { "id": "male-outdoor-candid", "name": "Outdoor Candid", "tags": "Casual, Natural", "stylePrompt": "A candid, natural-light portrait of a man outdoors. He is dressed in casual, stylish clothing like a sweater or jacket. The background is a scenic park or urban street with beautiful bokeh. The lighting is warm, golden-hour sunlight, creating a friendly and authentic feel." },
         { "id": "male-tech-startup", "name": "Tech Startup", "tags": "Modern, Confident", "stylePrompt": "A modern and confident headshot suitable for a tech entrepreneur. The man is wearing a smart-casual outfit (e.g., a high-quality t-shirt under a blazer). The background is a clean, minimalist setting, perhaps against a concrete or brick wall. Lighting is high-contrast and slightly dramatic." },
         { "id": "male-creative-studio", "name": "Creative Studio", "tags": "Artistic, Moody", "stylePrompt": "An artistic, moody portrait of a creative professional. He might be a photographer, designer, or artist. The lighting is low-key and dramatic, with strong shadows. The background is a dark, textured studio environment. His expression is thoughtful and intense." },
-        { "id": "male-vibrant-avatar", "name": "Vibrant Avatar", "tags": "Gaming, Social", "stylePrompt": "A hyper-vibrant, stylized avatar. The portrait has a colorful, graphic background with neon or abstract elements. The lighting on the man is high-energy, possibly with colored gels. His expression is energetic and engaging, perfect for a gaming or social media profile." },
-        { "id": "male-academic", "name": "Academic / Intellectual", "tags": "Smart, Author", "stylePrompt": "An intellectual-style portrait of a man in a study or library setting, surrounded by books. He wears glasses and a smart sweater. The lighting is warm and soft, creating a thoughtful and knowledgeable atmosphere." },
-        { "id": "male-fitness", "name": "Fitness / Active", "tags": "Sporty, Energetic", "stylePrompt": "An energetic portrait of a man in stylish athletic wear. The background is a modern gym or an outdoor running track. The lighting is bright and dynamic, highlighting muscle definition and conveying a sense of action and health." },
-        { "id": "male-film-noir", "name": "Film Noir", "tags": "B&W, Dramatic", "stylePrompt": "A dramatic, high-contrast black and white portrait in the style of classic film noir. The lighting is low-key with strong shadows (chiaroscuro). His expression is mysterious and intense. The setting is a dark, moody urban environment." }
+        { "id": "male-outdoor-candid", "name": "Outdoor Candid", "tags": "Casual, Natural", "stylePrompt": "A candid, natural-light portrait of a man outdoors. He is dressed in casual, stylish clothing like a sweater or jacket. The background is a scenic park or urban street with beautiful bokeh. The lighting is warm, golden-hour sunlight, creating a friendly and authentic feel." },
+        { "id": "male-academic", "name": "Academic / Author", "tags": "Intellectual, Trustworthy", "stylePrompt": "An intellectual-style portrait of a man in a study or library setting, surrounded by books. He wears glasses and a smart sweater or tweed jacket. The lighting is warm and soft, creating a thoughtful and knowledgeable atmosphere." },
+        { "id": "male-fitness-trainer", "name": "Fitness Trainer", "tags": "Active, Energetic", "stylePrompt": "An energetic portrait of a man in stylish athletic wear. The background is a modern gym with a shallow depth of field. The lighting is bright and dynamic, highlighting muscle definition and conveying a sense of action and health." },
+        { "id": "male-vibrant-gradient", "name": "Vibrant Gradient", "tags": "Social, Gaming", "stylePrompt": "A hyper-vibrant, stylized avatar. The portrait has a colorful, abstract gradient background. The lighting on the man is high-energy, possibly with colored rim lights. His expression is energetic and engaging, perfect for a gaming or social media profile." },
+        { "id": "male-film-noir", "name": "Film Noir B&W", "tags": "Dramatic, Mysterious", "stylePrompt": "A dramatic, high-contrast black and white portrait in the style of classic film noir. The lighting is low-key with strong shadows (chiaroscuro). His expression is mysterious and intense. The setting is a dark, moody urban environment at night." },
+        { "id": "male-doctor-surgeon", "name": "Doctor / Surgeon", "tags": "Medical, Professional", "stylePrompt": "A professional and reassuring portrait of a male doctor. He is wearing blue scrubs or a white coat with a stethoscope. The background is a clean, softly blurred modern clinic or hospital interior. The lighting is bright and clean, conveying trust and expertise." },
+        { "id": "male-architect-engineer", "name": "Architect / Engineer", "tags": "Industrial, Modern", "stylePrompt": "A confident portrait of a male architect or engineer on-site. He wears a smart casual shirt and a hard hat. The background is a modern construction site or a building with interesting geometric lines, softly blurred. The lighting is crisp, natural daylight." }
     ],
     "female": [
         { "id": "female-corporate-headshot", "name": "Corporate Headshot", "tags": "LinkedIn, Professional", "stylePrompt": "A classic, professional corporate headshot. The woman is wearing a tailored blazer and professional attire. She has a confident, warm smile. The background is a bright, softly blurred modern office. Lighting is soft and flattering, often from a large softbox to create a clean, approachable look." },
+        { "id": "female-ceo-boardroom", "name": "CEO / Executive", "tags": "Powerful, Confident", "stylePrompt": "A powerful and confident portrait of a female executive. She wears a sharp, elegant business suit. The background is a modern, high-rise boardroom with a city view. The lighting is professional and slightly dramatic, conveying authority and success." },
+        { "id": "female-creative-bold", "name": "Creative Director", "tags": "Artistic, Colorful", "stylePrompt": "A bold and creative portrait. The woman wears unique, artistic fashion and might have bold makeup. The background is vibrant and colorful, possibly a solid bright color or an interesting texture in a design studio. Lighting is high-contrast and fashion-oriented." },
         { "id": "female-lifestyle-blogger", "name": "Lifestyle Blogger", "tags": "Warm, Authentic", "stylePrompt": "A warm and authentic lifestyle portrait. The woman is dressed in fashionable, casual clothing. The setting could be a chic cafe or a beautifully decorated home interior, with a shallow depth of field. The lighting is soft, natural window light, creating a bright and airy feel." },
-        { "id": "female-elegant-minimalist", "name": "Elegant Minimalist", "tags": "Clean, Sophisticated", "stylePrompt": "A sophisticated and minimalist portrait. The woman has a simple, elegant look. The background is a solid, neutral color like light gray or beige. The lighting is soft and even. The overall mood is calm, confident, and high-end." },
-        { "id": "female-creative-bold", "name": "Creative & Bold", "tags": "Artistic, Colorful", "stylePrompt": "A bold and creative portrait. The woman wears unique, artistic fashion and might have bold makeup. The background is vibrant and colorful, possibly a solid bright color or an interesting texture. Lighting is high-contrast and fashion-oriented." },
-        { "id": "female-cozy-natural", "name": "Cozy & Natural", "tags": "Casual, Relatable", "stylePrompt": "A cozy and natural portrait. The woman is wearing comfortable clothing like a knit sweater. The background is a warm, inviting indoor space. The lighting is soft and warm, perhaps from a nearby lamp or window, creating a relatable and down-to-earth feeling." },
-        { "id": "female-academic", "name": "Academic / Intellectual", "tags": "Smart, Professional", "stylePrompt": "An intellectual-style portrait of a woman in a bright, modern office or study. She wears smart, professional attire. The lighting is clean and natural, creating a mood of intelligence and competence." },
-        { "id": "female-fitness", "name": "Fitness / Active", "tags": "Healthy, Strong", "stylePrompt": "An inspiring portrait of a woman in fashionable activewear. The setting is a bright, airy yoga studio or a scenic outdoor location at sunrise. The lighting is natural and energetic, conveying health and strength." },
-        { "id": "female-film-noir", "name": "Film Noir", "tags": "B&W, Elegant", "stylePrompt": "An elegant, high-contrast black and white portrait in the style of a classic Hollywood film star. The lighting creates dramatic shadows and highlights. Her expression is confident and alluring. The mood is timeless and glamorous." }
+        { "id": "female-academic-professor", "name": "Academic / Professor", "tags": "Intellectual, Professional", "stylePrompt": "An intellectual-style portrait of a woman in a bright, modern office or library. She wears smart, professional attire and perhaps glasses. The lighting is clean and natural, creating a mood of intelligence and competence." },
+        { "id": "female-fitness-yogainstructor", "name": "Fitness / Yoga Instructor", "tags": "Healthy, Serene", "stylePrompt": "An inspiring portrait of a woman in fashionable activewear. The setting is a bright, airy yoga studio with plants or a scenic outdoor location at sunrise. The lighting is natural and energetic, conveying health, strength, and serenity." },
+        { "id": "female-cozy-natural", "name": "Cozy & Natural", "tags": "Casual, Relatable", "stylePrompt": "A cozy and natural portrait. The woman is wearing comfortable clothing like a knit sweater. The background is a warm, inviting indoor space with soft furnishings. The lighting is soft and warm, perhaps from a nearby lamp or window, creating a relatable and down-to-earth feeling." },
+        { "id": "female-film-noir", "name": "Film Noir B&W", "tags": "Elegant, Glamorous", "stylePrompt": "An elegant, high-contrast black and white portrait in the style of a classic Hollywood film star. The lighting creates dramatic shadows and highlights. Her expression is confident and alluring. The mood is timeless and glamorous." },
+        { "id": "female-doctor-medical", "name": "Doctor / Medical", "tags": "Professional, Caring", "stylePrompt": "A warm and professional portrait of a female doctor. She wears a white coat over scrubs, with a friendly and trustworthy expression. The background is a clean, modern medical office, softly out of focus. Lighting is bright and reassuring." },
+        { "id": "female-scientist-lab", "name": "Scientist / Researcher", "tags": "Intelligent, Focused", "stylePrompt": "A portrait of a female scientist in a modern laboratory. She wears a lab coat and safety glasses, looking focused and intelligent. The background contains scientific equipment, softly blurred. The lighting is clean and bright, highlighting her expertise." }
     ]
 };
 
@@ -717,25 +722,3 @@ export const EVENT_POSTER_STYLES: EventPosterStyle[] = eventPosterStylesData;
 export const NEWSPAPER_STYLES: NewspaperStyles = newspaperStylesData;
 export const NEWSPAPER_LANGUAGES: NewspaperLanguage[] = newspaperLanguagesData;
 export const ASPECT_RATIOS: { id: AspectRatio; name: string; icon: string }[] = aspectRatiosData;
-export const CASTE_CERTIFICATE_STYLES: CasteCertificateStyle[] = [
-    {
-        id: 'central-obc',
-        name: 'Central Government (OBC)',
-        stylePrompt: 'A formal Government of India caste certificate for Other Backward Class (OBC). Features the Ashoka Lion Capital emblem prominently at the top. The layout is clean and uses both English and Hindi (Devanagari script) text. The color scheme is based on the Indian flag. It includes fields for certificate number, date, and a space for an official seal and signature of a District Magistrate.'
-    },
-    {
-        id: 'up-sc',
-        name: 'Uttar Pradesh (SC)',
-        stylePrompt: 'An official caste certificate from the Government of Uttar Pradesh for Scheduled Caste (SC). It features the Uttar Pradesh state emblem (a circle with fish and bow-arrow). The document is bilingual (Hindi and English). The style is very official, with a clear layout and a designated space for the applicant\'s photo. Issued by a Tehsildar.'
-    },
-    {
-        id: 'maharashtra-vjnt',
-        name: 'Maharashtra (VJNT)',
-        stylePrompt: 'A caste certificate from the Government of Maharashtra for Vimukta Jati & Nomadic Tribes (VJNT). Features the Maharashtra state emblem. The document is primarily in Marathi with English translations. The design is modern but official, often with a QR code and a digital signature section. The paper has a slight colored tint.'
-    },
-    {
-        id: 'karnataka-st',
-        name: 'Karnataka (ST)',
-        stylePrompt: 'A caste certificate from the Government of Karnataka for Scheduled Tribe (ST). Features the Karnataka state emblem (Gandaberunda). The text is in Kannada and English. The layout is structured and includes detailed family information. The certificate has a unique holographic seal and a barcode for verification.'
-    }
-];

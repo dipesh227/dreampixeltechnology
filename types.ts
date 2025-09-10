@@ -1,5 +1,6 @@
+
 // FIX: Removed 'social' from ToolType as it is not an implemented tool and was causing a type error. The 'social-campaign' tool handles all social media functionality.
-export type ToolType = 'thumbnail' | 'advertisement' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'social-campaign' | 'newspaper' | 'photo-resizer' | 'signature-resizer' | 'thumb-resizer' | 'caste-certificate';
+export type ToolType = 'thumbnail' | 'advertisement' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'social-campaign' | 'newspaper' | 'photo-resizer' | 'signature-resizer' | 'thumb-resizer';
 
 export type PageType = 'about' | 'contact' | 'privacy' | 'terms';
 export type ViewType = ToolType | 'landing' | PageType;
@@ -99,12 +100,6 @@ export interface NewspaperStyle {
     stylePrompt: string;
 }
 
-export interface CasteCertificateStyle {
-    id: string;
-    name: string;
-    stylePrompt: string;
-}
-
 export type AspectRatio = '1:1' | '16:9' | '9:16' | '4:5' | '1.91:1' | '3.5:2' | '2:3.5';
 
 export interface UploadedFile {
@@ -183,18 +178,9 @@ export interface TemplatePrefillData {
     newspaperName?: string;
     date?: string;
     language?: string;
-    // Caste Certificate
-    ccName?: string;
-    ccFathersName?: string;
-    ccMothersName?: string;
-    ccDob?: string;
-    ccGender?: string; // Male, Female, Other
-    ccCaste?: string;
-    ccSubCaste?: string;
-    ccAddress?: string;
-    ccIssuingAuthority?: string;
-    ccCertNumber?: string;
-    ccIssueDate?: string;
+    // Passport Photo
+    sizeId?: string;
+    backgroundColor?: string;
 }
 
 export interface Template {

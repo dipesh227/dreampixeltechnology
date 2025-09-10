@@ -18,3 +18,5 @@ const photoConfig: ToolConfig = {
 export const PhotoResizer: React.FC<PhotoResizerProps> = ({ onNavigateHome }) => {
     return <ResizerTool config={photoConfig} onNavigateHome={onNavigateHome} presets={PHOTO_PRESETS} />;
 };
+
+export default PhotoResizer;

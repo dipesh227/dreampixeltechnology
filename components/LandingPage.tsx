@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Tool, ToolType, ConnectedAccount } from '../types';
 import { 
@@ -7,7 +8,7 @@ import {
     // Added for new sections
     HiOutlineCursorArrowRays, HiOutlineDocumentText, HiOutlinePaintBrush, HiOutlineClock,
     // Added for new resizer tools
-    HiOutlineScissors, HiOutlinePencilSquare, HiOutlineHandThumbUp, HiOutlineDocumentCheck
+    HiOutlineScissors, HiOutlinePencilSquare, HiOutlineHandThumbUp
 } from 'react-icons/hi2';
 import SocialConnect from './SocialConnect';
 
@@ -31,7 +32,6 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ to
         'event-poster': { icon: HiOutlineTicket, gradient: 'from-rose-400 to-red-500' },
         'social-campaign': { icon: HiOutlineBuildingStorefront, gradient: 'from-indigo-500 to-violet-600' },
         newspaper: { icon: HiOutlineNewspaper, gradient: 'from-stone-500 to-gray-600'},
-        'caste-certificate': { icon: HiOutlineDocumentCheck, gradient: 'from-orange-500 to-amber-600' },
         'photo-resizer': { icon: HiOutlineScissors, gradient: 'from-green-500 to-emerald-600' },
         'signature-resizer': { icon: HiOutlinePencilSquare, gradient: 'from-sky-500 to-cyan-600' },
         'thumb-resizer': { icon: HiOutlineHandThumbUp, gradient: 'from-gray-500 to-slate-600' },
@@ -78,7 +78,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccoun
         { id: 'visiting-card', title: "AI Visiting Card Maker", description: "Design professional business cards with your name, title, contact details, and optional logo.", enabled: true },
         { id: 'event-poster', title: "AI Event Poster Maker", description: "Turn your event photos into promotional posters by adding stylish text and branding.", enabled: true },
         { id: 'newspaper', title: "Newspaper Cutting Maker", description: "Create realistic newspaper clippings from your photos and text for fun or announcements.", enabled: true },
-        { id: 'caste-certificate', title: "Caste Certificate Maker", description: "Generate realistic-looking (but unofficial) caste certificates for novelty or personal use.", enabled: true },
         { id: 'photo-resizer', title: "Photo Resizer", description: "Crop and resize photos to exact pixel dimensions (150x200) and file size (10-50KB) for applications.", enabled: true },
         { id: 'signature-resizer', title: "Signature Resizer", description: "Crop and resize signatures to exact dimensions (150x100) and file size (5-20KB) for online forms.", enabled: true },
         { id: 'thumb-resizer', title: "Thumb Impression Resizer", description: "Crop and resize thumb impressions to exact dimensions (150x100) and file size (5-20KB).", enabled: true },
@@ -94,7 +93,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccoun
         {
             icon: HiOutlinePaintBrush,
             title: "Effortless Visual Design Powered by AI",
-            description: "No design skills needed. Just provide your text and images, and let our AI handle the layout, branding, and creative composition for you.",
+            description: "No design skills are needed. Just provide your text and images, and let our AI handle the layout, branding, and creative composition for you.",
             gradient: "from-pink-500 to-rose-500"
         },
         {

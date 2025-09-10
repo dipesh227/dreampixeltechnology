@@ -1,3 +1,4 @@
+
 import { supabase } from './supabaseClient';
 import { AspectRatio, UploadedFile } from '../types';
 
@@ -384,47 +385,5 @@ export const saveNewspaperJob = async (data: NewspaperJobData): Promise<void> =>
         if (error) throw error;
     } catch (error) {
         console.error("Failed to save newspaper job", error);
-    }
-};
-
-// Caste Certificate Job
-interface CasteCertificateJobData {
-    userId: string;
-    styleId: string;
-    name: string;
-    fathersName: string;
-    mothersName: string;
-    dob: string;
-    gender: string;
-    caste: string;
-    subCaste: string;
-    address: string;
-    issuingAuthority: string;
-    certNumber: string;
-    issueDate: string;
-    photoFilename: string;
-}
-
-export const saveCasteCertificateJob = async (data: CasteCertificateJobData): Promise<void> => {
-    try {
-        const { error } = await supabase.from('caste_certificate_jobs').insert({
-            user_id: data.userId,
-            style_id: data.styleId,
-            name: data.name,
-            fathers_name: data.fathersName,
-            mothers_name: data.mothersName,
-            date_of_birth: data.dob,
-            gender: data.gender,
-            caste_community: data.caste,
-            sub_caste: data.subCaste,
-            address: data.address,
-            issuing_authority: data.issuingAuthority,
-            certificate_number: data.certNumber,
-            issue_date: data.issueDate,
-            photo_filename: data.photoFilename
-        });
-        if (error) throw error;
-    } catch (error) {
-        console.error("Failed to save caste certificate job", error);
     }
 };

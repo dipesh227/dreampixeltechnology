@@ -25,7 +25,6 @@ const VisitingCardMaker = lazy(() => import('./components/VisitingCardMaker').th
 const EventPosterMaker = lazy(() => import('./components/EventPosterMaker').then(module => ({ default: module.EventPosterMaker })));
 const SocialMediaCampaignFactory = lazy(() => import('./components/SocialMediaCampaignFactory').then(module => ({ default: module.SocialMediaCampaignFactory })));
 const NewspaperCuttingMaker = lazy(() => import('./components/NewspaperCuttingMaker').then(module => ({ default: module.NewspaperCuttingMaker })));
-const CasteCertificateMaker = lazy(() => import('./components/CasteCertificateMaker').then(module => ({ default: module.CasteCertificateMaker })));
 const AboutUs = lazy(() => import('./components/AboutUs').then(module => ({ default: module.AboutUs })));
 const ContactUs = lazy(() => import('./components/ContactUs').then(module => ({ default: module.ContactUs })));
 const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy').then(module => ({ default: module.PrivacyPolicy })));
@@ -66,7 +65,7 @@ const App: React.FC = () => {
             'thumbnail', 'advertisement', 'political', 'profile', 'logo', 
             'image-enhancer', 'headshot-maker', 'passport-photo', 
             'visiting-card', 'event-poster', 'social-campaign', 'newspaper',
-            'photo-resizer', 'signature-resizer', 'thumb-resizer', 'caste-certificate'
+            'photo-resizer', 'signature-resizer', 'thumb-resizer'
         ];
         
         if (validViews.includes(hash as ViewType)) {
@@ -157,7 +156,6 @@ useEffect(() => {
         'event-poster': 'AI Event Poster Maker',
         'social-campaign': 'AI Social Media Content Factory',
         newspaper: 'AI Newspaper Cutting Maker',
-        'caste-certificate': 'Caste Certificate Maker',
         'photo-resizer': 'Photo Resizer',
         'signature-resizer': 'Signature Resizer',
         'thumb-resizer': 'Thumb Impression Resizer',
@@ -237,7 +235,7 @@ useEffect(() => {
         case 'social-campaign': return <SocialMediaCampaignFactory onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
         case 'newspaper': return <NewspaperCuttingMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         // FIX: Corrected typo from `handleGeneratingStatus` to `handleGeneratingStatusChange`.
-        case 'caste-certificate': return <CasteCertificateMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        
         // FIX: Added missing cases for resizer tools.
         case 'photo-resizer': return <PhotoResizer onNavigateHome={handleNavigateHome} />;
         case 'signature-resizer': return <SignatureResizer onNavigateHome={handleNavigateHome} />;
