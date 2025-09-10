@@ -1,6 +1,16 @@
 
-// FIX: Removed 'social' from ToolType as it is not an implemented tool and was causing a type error. The 'social-campaign' tool handles all social media functionality.
-export type ToolType = 'thumbnail' | 'advertisement' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'social-campaign' | 'newspaper' | 'video-script-writer' | 'photo-resizer' | 'signature-resizer' | 'thumb-resizer';
+export type ToolType = 
+  // For Creators
+  'thumbnail' | 'video-script' | 'social-campaign' |
+  // For Marketing & Branding
+  'advertisement' | 'logo' | 'event-poster' | 'newspaper' | 'visiting-card' |
+  // For Professionals
+  'headshot-maker' | 'profile' | 'passport-photo' | 'image-enhancer' |
+  // For Campaigns
+  'political' |
+  // For Exam Applicants
+  'photo-resizer' | 'signature-resizer' | 'thumb-resizer';
+
 
 export type PageType = 'about' | 'contact' | 'privacy' | 'terms';
 export type ViewType = ToolType | 'landing' | PageType;
@@ -173,7 +183,6 @@ export interface TemplatePrefillData {
     epTime?: string;
     epVenue?: string;
     // Newspaper
-    // FIX: Added missing properties for Newspaper templates to resolve type error.
     bodyText?: string;
     newspaperName?: string;
     date?: string;
