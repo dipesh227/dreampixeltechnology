@@ -20,7 +20,6 @@ interface AdBannerGeneratorProps {
     onGenerating: (isGenerating: boolean) => void;
 }
 
-// FIX: Added a return statement to the component to render JSX, resolving the type error where the function returned 'void'.
 export const AdBannerGenerator: React.FC<AdBannerGeneratorProps> = ({ onNavigateHome, onBannerGenerated, onGenerating }) => {
     const { session } = useAuth();
     const [step, setStep] = useState<Step>('input');

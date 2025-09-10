@@ -474,14 +474,20 @@ const profilePictureStylesData = {
         { "id": "male-outdoor-candid", "name": "Outdoor Candid", "tags": "Casual, Natural", "stylePrompt": "A candid, natural-light portrait of a man outdoors. He is dressed in casual, stylish clothing like a sweater or jacket. The background is a scenic park or urban street with beautiful bokeh. The lighting is warm, golden-hour sunlight, creating a friendly and authentic feel." },
         { "id": "male-tech-startup", "name": "Tech Startup", "tags": "Modern, Confident", "stylePrompt": "A modern and confident headshot suitable for a tech entrepreneur. The man is wearing a smart-casual outfit (e.g., a high-quality t-shirt under a blazer). The background is a clean, minimalist setting, perhaps against a concrete or brick wall. Lighting is high-contrast and slightly dramatic." },
         { "id": "male-creative-studio", "name": "Creative Studio", "tags": "Artistic, Moody", "stylePrompt": "An artistic, moody portrait of a creative professional. He might be a photographer, designer, or artist. The lighting is low-key and dramatic, with strong shadows. The background is a dark, textured studio environment. His expression is thoughtful and intense." },
-        { "id": "male-vibrant-avatar", "name": "Vibrant Avatar", "tags": "Gaming, Social", "stylePrompt": "A hyper-vibrant, stylized avatar. The portrait has a colorful, graphic background with neon or abstract elements. The lighting on the man is high-energy, possibly with colored gels. His expression is energetic and engaging, perfect for a gaming or social media profile." }
+        { "id": "male-vibrant-avatar", "name": "Vibrant Avatar", "tags": "Gaming, Social", "stylePrompt": "A hyper-vibrant, stylized avatar. The portrait has a colorful, graphic background with neon or abstract elements. The lighting on the man is high-energy, possibly with colored gels. His expression is energetic and engaging, perfect for a gaming or social media profile." },
+        { "id": "male-academic", "name": "Academic / Intellectual", "tags": "Smart, Author", "stylePrompt": "An intellectual-style portrait of a man in a study or library setting, surrounded by books. He wears glasses and a smart sweater. The lighting is warm and soft, creating a thoughtful and knowledgeable atmosphere." },
+        { "id": "male-fitness", "name": "Fitness / Active", "tags": "Sporty, Energetic", "stylePrompt": "An energetic portrait of a man in stylish athletic wear. The background is a modern gym or an outdoor running track. The lighting is bright and dynamic, highlighting muscle definition and conveying a sense of action and health." },
+        { "id": "male-film-noir", "name": "Film Noir", "tags": "B&W, Dramatic", "stylePrompt": "A dramatic, high-contrast black and white portrait in the style of classic film noir. The lighting is low-key with strong shadows (chiaroscuro). His expression is mysterious and intense. The setting is a dark, moody urban environment." }
     ],
     "female": [
         { "id": "female-corporate-headshot", "name": "Corporate Headshot", "tags": "LinkedIn, Professional", "stylePrompt": "A classic, professional corporate headshot. The woman is wearing a tailored blazer and professional attire. She has a confident, warm smile. The background is a bright, softly blurred modern office. Lighting is soft and flattering, often from a large softbox to create a clean, approachable look." },
         { "id": "female-lifestyle-blogger", "name": "Lifestyle Blogger", "tags": "Warm, Authentic", "stylePrompt": "A warm and authentic lifestyle portrait. The woman is dressed in fashionable, casual clothing. The setting could be a chic cafe or a beautifully decorated home interior, with a shallow depth of field. The lighting is soft, natural window light, creating a bright and airy feel." },
         { "id": "female-elegant-minimalist", "name": "Elegant Minimalist", "tags": "Clean, Sophisticated", "stylePrompt": "A sophisticated and minimalist portrait. The woman has a simple, elegant look. The background is a solid, neutral color like light gray or beige. The lighting is soft and even. The overall mood is calm, confident, and high-end." },
         { "id": "female-creative-bold", "name": "Creative & Bold", "tags": "Artistic, Colorful", "stylePrompt": "A bold and creative portrait. The woman wears unique, artistic fashion and might have bold makeup. The background is vibrant and colorful, possibly a solid bright color or an interesting texture. Lighting is high-contrast and fashion-oriented." },
-        { "id": "female-cozy-natural", "name": "Cozy & Natural", "tags": "Casual, Relatable", "stylePrompt": "A cozy and natural portrait. The woman is wearing comfortable clothing like a knit sweater. The background is a warm, inviting indoor space. The lighting is soft and warm, perhaps from a nearby lamp or window, creating a relatable and down-to-earth feeling." }
+        { "id": "female-cozy-natural", "name": "Cozy & Natural", "tags": "Casual, Relatable", "stylePrompt": "A cozy and natural portrait. The woman is wearing comfortable clothing like a knit sweater. The background is a warm, inviting indoor space. The lighting is soft and warm, perhaps from a nearby lamp or window, creating a relatable and down-to-earth feeling." },
+        { "id": "female-academic", "name": "Academic / Intellectual", "tags": "Smart, Professional", "stylePrompt": "An intellectual-style portrait of a woman in a bright, modern office or study. She wears smart, professional attire. The lighting is clean and natural, creating a mood of intelligence and competence." },
+        { "id": "female-fitness", "name": "Fitness / Active", "tags": "Healthy, Strong", "stylePrompt": "An inspiring portrait of a woman in fashionable activewear. The setting is a bright, airy yoga studio or a scenic outdoor location at sunrise. The lighting is natural and energetic, conveying health and strength." },
+        { "id": "female-film-noir", "name": "Film Noir", "tags": "B&W, Elegant", "stylePrompt": "An elegant, high-contrast black and white portrait in the style of a classic Hollywood film star. The lighting creates dramatic shadows and highlights. Her expression is confident and alluring. The mood is timeless and glamorous." }
     ]
 };
 
@@ -495,7 +501,15 @@ const logoStylesData = {
         { "id": "logo-tech-gradient", "name": "Tech Gradient", "tags": "SaaS, Digital, Vibrant", "stylePrompt": "A vibrant, modern logo for a tech company or app. It features an abstract shape or a stylized initial created with a smooth, bright color gradient (e.g., blue to purple, pink to orange). The font for the company name is a clean, geometric sans-serif. Vector graphic on a dark or white background." },
         { "id": "logo-luxury-serif", "name": "Luxury Serif", "tags": "Elegant, Fashion, High-End", "stylePrompt": "An elegant and luxurious wordmark logo. The entire focus is on the company name, typeset in a beautiful, high-contrast serif font with perfect kerning. The style is timeless and sophisticated. Typically black, white, or a metallic color like gold. Vector graphic on a solid background." },
         { "id": "logo-abstract-mark", "name": "Abstract Mark", "tags": "Conceptual, Unique, Versatile", "stylePrompt": "A unique and memorable abstract logo mark. The shape is non-representational but is designed to conceptually represent the brand's values (e.g., movement, connection, growth). The design is simple enough to be recognizable at any size. Paired with a clean sans-serif wordmark. Vector graphic on a solid background." },
-        { "id": "logo-negative-space", "name": "Negative Space", "tags": "Clever, Smart, Minimalist", "stylePrompt": "A clever logo that uses negative space to create a dual image or reveal a hidden symbol. The design is minimalist and intelligent. For example, a letterform that contains the silhouette of an object in its counter-space. Typically single color to emphasize the effect. Flat vector graphic on a solid background." }
+        { "id": "logo-negative-space", "name": "Negative Space", "tags": "Clever, Smart, Minimalist", "stylePrompt": "A clever logo that uses negative space to create a dual image or reveal a hidden symbol. The design is minimalist and intelligent. For example, a letterform that contains the silhouette of an object in its counter-space. Typically single color to emphasize the effect. Flat vector graphic on a solid background." },
+        { "id": "logo-bold-typography", "name": "Bold Wordmark", "tags": "Strong, Modern, Impactful", "stylePrompt": "A powerful and confident wordmark logo. The design is purely typographic, using a heavy, bold sans-serif font (like Bebas Neue or Montserrat Black). The kerning is tight to create a solid, impactful block of text. Single, strong color on a solid white background. Vector graphic." },
+        { "id": "logo-elegant-script", "name": "Elegant Script", "tags": "Signature, Personal, Luxury", "stylePrompt": "A sophisticated logo that looks like a signature. It uses a flowing, elegant script font. Perfect for personal brands, photographers, or luxury boutiques. The style is personal and high-end. Single color, often black, gold, or silver. Vector graphic on a solid background." },
+        { "id": "logo-industrial-stencil", "name": "Industrial Stencil", "tags": "Rugged, Urban, Strong", "stylePrompt": "A rugged, industrial logo using a stencil or slab-serif font. The aesthetic is masculine, utilitarian, and strong. May incorporate blocky shapes or a distressed texture. The color palette is often monochrome or uses dark, muted colors. Vector graphic." },
+        { "id": "logo-3d-gradient", "name": "3D Gradient", "tags": "Modern, Tech, App", "stylePrompt": "A modern logo with a 3D effect, using gradients and subtle shadows to create depth. The shape is often a simple, abstract form or a stylized letter. The colors are bright and vibrant. Popular for tech startups and apps. Vector graphic." },
+        { "id": "logo-line-art", "name": "Minimalist Line Art", "tags": "Elegant, Simple, Boutique", "stylePrompt": "An elegant, minimalist logo created with a single, continuous, monolinear line. It forms a simple icon, often related to the brand's name or industry (e.g., a flower, an animal, an object). Paired with a clean, light sans-serif font. Vector graphic on a solid background." },
+        { "id": "logo-watercolor-splash", "name": "Watercolor Splash", "tags": "Artistic, Creative, Soft", "stylePrompt": "An artistic logo featuring a soft, organic watercolor splash or texture as a background element. The typography is often a delicate script or serif font overlaid on the texture. The mood is creative, gentle, and handmade. Vector graphic with texture." },
+        { "id": "logo-futuristic-glitch", "name": "Futuristic Glitch", "tags": "Tech, Gaming, Edgy", "stylePrompt": "A futuristic logo for a tech or gaming brand. It uses a glitch effect, with fragmented lines and distorted typography. The color palette often includes neon colors like cyan and magenta on a dark background. Vector graphic." },
+        { "id": "logo-flat-icon", "name": "Friendly Flat Icon", "tags": "Simple, Modern, App", "stylePrompt": "A simple and friendly logo featuring a flat design icon. The shapes are clean, with no gradients or shadows. The icon is easily recognizable and scalable, perfect for an app icon. Paired with a rounded, sans-serif font. Vector graphic." }
     ]
 };
 
@@ -522,48 +536,16 @@ const politicalPartiesData = [
 ];
 
 const posterStylesData = [
-    { 
-        "id": "vikas", 
-        "name": "Vikas", 
-        "tags": "Development & Progress", 
-        "stylePrompt": "A clean, modern, and optimistic style. Use bright lighting, images of infrastructure and development, and a hopeful tone. The design should be professional and forward-looking." 
-    },
-    { 
-        "id": "jan-andolan", 
-        "name": "Jan Andolan", 
-        "tags": "Movement & Protest", 
-        "stylePrompt": "A gritty, high-contrast, and impactful style. Use imagery of crowds and activism. The typography should be bold and stencil-like. The mood is urgent and revolutionary." 
-    },
-    { 
-        "id": "yuva-shakti", 
-        "name": "Yuva Shakti", 
-        "tags": "Youth & Energy", 
-        "stylePrompt": "A vibrant, energetic, and modern style targeting the youth. Use dynamic layouts, bright colors, and images of young, aspirational people. The typography is trendy and bold." 
-    },
-    { 
-        "id": "parivartan", 
-        "name": "Parivartan", 
-        "tags": "Change & Hope", 
-        "stylePrompt": "A hopeful and emotional style focused on change. Use imagery of sunrises, open hands, and diverse groups of people. The color palette is often light and optimistic. The typography is clean and inspiring." 
-    },
-    { 
-        "id": "garib-kalyan", 
-        "name": "Garib Kalyan", 
-        "tags": "Welfare & Empathy", 
-        "stylePrompt": "An empathetic and grounded style focused on social welfare. Use authentic, emotional portraits of common people. The color palette is earthy and warm. The mood is one of care, support, and empathy." 
-    },
-    { 
-        "id": "raksha", 
-        "name": "Raksha", 
-        "tags": "Security & Strength", 
-        "stylePrompt": "A strong, patriotic, and bold style focused on national security. Use imagery of the military, national symbols, and strong leaders. The colors are often derived from the national flag. The typography is bold and authoritative." 
-    },
-    { 
-        "id": "classic-propaganda", 
-        "name": "Classic Propaganda", 
-        "tags": "Vintage & Bold", 
-        "stylePrompt": "A vintage propaganda poster style, reminiscent of old political art. Use bold, graphic illustrations, limited color palettes (e.g., red, black, beige), and strong, commanding typography. The mood is powerful and nostalgic." 
-    }
+    { "id": "vikas", "name": "Vikas", "tags": "Development & Progress", "stylePrompt": "A clean, modern, and optimistic style. Use bright lighting, images of infrastructure and development, and a hopeful tone. The design should be professional and forward-looking." },
+    { "id": "jan-andolan", "name": "Jan Andolan", "tags": "Movement & Protest", "stylePrompt": "A gritty, high-contrast, and impactful style. Use imagery of crowds and activism. The typography should be bold and stencil-like. The mood is urgent and revolutionary." },
+    { "id": "yuva-shakti", "name": "Yuva Shakti", "tags": "Youth & Energy", "stylePrompt": "A vibrant, energetic, and modern style targeting the youth. Use dynamic layouts, bright colors, and images of young, aspirational people. The typography is trendy and bold." },
+    { "id": "parivartan", "name": "Parivartan", "tags": "Change & Hope", "stylePrompt": "A hopeful and emotional style focused on change. Use imagery of sunrises, open hands, and diverse groups of people. The color palette is often light and optimistic. The typography is clean and inspiring." },
+    { "id": "garib-kalyan", "name": "Garib Kalyan", "tags": "Welfare & Empathy", "stylePrompt": "An empathetic and grounded style focused on social welfare. Use authentic, emotional portraits of common people. The color palette is earthy and warm. The mood is one of care, support, and empathy." },
+    { "id": "raksha", "name": "Raksha", "tags": "Security & Strength", "stylePrompt": "A strong, patriotic, and bold style focused on national security. Use imagery of the military, national symbols, and strong leaders. The colors are often derived from the national flag. The typography is bold and authoritative." },
+    { "id": "classic-propaganda", "name": "Classic Propaganda", "tags": "Vintage & Bold", "stylePrompt": "A vintage propaganda poster style, reminiscent of old political art. Use bold, graphic illustrations, limited color palettes (e.g., red, black, beige), and strong, commanding typography. The mood is powerful and nostalgic." },
+    { "id": "minimalist-modern", "name": "Minimalist Modern", "tags": "Clean, Typographic", "stylePrompt": "A clean, minimalist design with a strong focus on typography. Uses a lot of negative space, a simple color scheme, and a clean, sans-serif font. The message is direct and clear. The mood is modern, sophisticated, and confident." },
+    { "id": "retro-vintage", "name": "Retro / Vintage", "tags": "Nostalgic, 70s style", "stylePrompt": "A retro poster style inspired by the 1970s. Uses warm, faded colors, vintage fonts, and a slightly aged paper texture. Imagery should have a nostalgic, film-like quality. The mood is authentic and classic." },
+    { "id": "corporate-clean", "name": "Corporate Clean", "tags": "Professional, Trustworthy", "stylePrompt": "A clean, professional, and trustworthy style suitable for policy announcements. Uses a corporate color palette (often blues and whites), structured layouts, and clear, legible fonts. The design conveys stability and competence." }
 ];
 
 const posterThemesData = [
@@ -584,7 +566,12 @@ const headshotStylesData = [
     { "id": "headshot-creative", "name": "Creative", "tags": "Portfolio, Arts", "stylePrompt": "An artistic, moody portrait. The lighting is dramatic and low-key (Rembrandt lighting). The background is a dark, textured studio environment. The expression is thoughtful and intense. Clothing is stylish and creative." },
     { "id": "headshot-casual", "name": "Outdoor/Casual", "tags": "Social Media, Friendly", "stylePrompt": "A candid, natural-light portrait outdoors. The subject is dressed in stylish, casual clothing. The background is a scenic park with beautiful bokeh. Lighting is warm, golden-hour sunlight for a friendly and authentic feel." },
     { "id": "headshot-minimalist", "name": "Minimalist", "tags": "Modern, Clean", "stylePrompt": "A sophisticated and minimalist portrait. The background is a solid, neutral color like light gray or beige. The lighting is soft and even. The overall mood is calm, confident, and high-end. Clothing is simple and elegant." },
-    { "id": "headshot-dramatic", "name": "Dramatic", "tags": "Actor, Performer", "stylePrompt": "A high-contrast, black and white headshot. The lighting is dramatic, creating strong shadows that define facial features. The expression is intense and captivating. The background is solid black." }
+    { "id": "headshot-dramatic-bw", "name": "Dramatic B&W", "tags": "Actor, Performer", "stylePrompt": "A high-contrast, black and white headshot. The lighting is dramatic, creating strong shadows that define facial features. The expression is intense and captivating. The background is solid black." },
+    { "id": "headshot-tech-startup", "name": "Tech Startup", "tags": "Modern, Confident", "stylePrompt": "A modern headshot with a confident vibe. The subject wears smart-casual attire. The background is a clean but interesting texture, like a brick wall or modern architecture. Lighting is crisp and slightly high-contrast." },
+    { "id": "headshot-warm-approachable", "name": "Warm & Approachable", "tags": "Therapist, Coach", "stylePrompt": "A headshot with a very warm and friendly feel. The subject has a genuine, welcoming smile. Lighting is soft and flattering. The color palette is warm. The background is an inviting, softly-focused indoor space." },
+    { "id": "headshot-high-fashion", "name": "High Fashion", "tags": "Editorial, Stylized", "stylePrompt": "An editorial, high-fashion style headshot. Posing is more stylized, and lighting is more experimental (e.g., beauty dish, colored gels). The look is polished, aspirational, and suitable for a magazine feature." },
+    { "id": "headshot-environmental", "name": "Environmental", "tags": "Storytelling, Authentic", "stylePrompt": "An environmental portrait that shows the subject in their natural work environment (e.g., a chef in a kitchen, an artist in a studio). It tells a story about their profession. Lighting is naturalistic to the location." },
+    { "id": "headshot-vibrant-color", "name": "Vibrant Color", "tags": "Bold, Energetic", "stylePrompt": "A bold and energetic headshot. The background is a solid, vibrant color (e.g., teal, orange, pink) that makes the subject pop. Lighting is bright and even. The expression is lively and confident." }
 ];
 
 const passportPhotoSizesData = [
@@ -621,14 +608,26 @@ const visitingCardStylesData = [
     { "id": "vc-minimalist", "name": "Minimalist", "tags": "Clean, Modern", "stylePrompt": "A clean, minimalist design with lots of white space. Uses a modern sans-serif font like Helvetica or Inter. The layout is simple and balanced. The color palette is monochrome or uses one subtle accent color." },
     { "id": "vc-corporate", "name": "Corporate", "tags": "Professional, Trustworthy", "stylePrompt": "A professional and traditional corporate design. Uses a classic serif or sans-serif font like Times New Roman or Arial. The layout is structured and grid-based. The color palette is typically blue, grey, and white, conveying stability." },
     { "id": "vc-creative", "name": "Creative", "tags": "Bold, Artistic", "stylePrompt": "A bold, artistic, and unconventional design. Uses unique typography, possibly a script or display font. The layout is asymmetrical and dynamic. The color palette is vibrant and uses bold color combinations." },
-    { "id": "vc-luxury", "name": "Luxury", "tags": "Elegant, Premium", "stylePrompt": "An elegant and luxurious design. Uses a sophisticated serif font and may incorporate a monogram. The design might feature high-quality textures like marble or linen. The color palette includes rich colors like black, gold, silver, or deep jewel tones." }
+    { "id": "vc-luxury", "name": "Luxury", "tags": "Elegant, Premium", "stylePrompt": "An elegant and luxurious design. Uses a sophisticated serif font and may incorporate a monogram. The design might feature high-quality textures like marble or linen. The color palette includes rich colors like black, gold, silver, or deep jewel tones." },
+    { "id": "vc-bold-graphic", "name": "Bold & Graphic", "tags": "Confident, Modern", "stylePrompt": "A high-impact design that uses bold typography, strong color blocking, and high contrast. The layout is confident and modern. Great for making a strong first impression." },
+    { "id": "vc-tech-futuristic", "name": "Tech / Futuristic", "tags": "Sleek, Dark Mode", "stylePrompt": "A sleek, futuristic design, often with a dark background. Uses neon accents, geometric lines, and a clean sans-serif font. Conveys innovation and cutting-edge technology." },
+    { "id": "vc-eco-natural", "name": "Eco / Natural", "tags": "Organic, Earthy", "stylePrompt": "An eco-friendly design aesthetic. Uses earthy tones (greens, browns, beige), recycled paper textures, and perhaps some simple, organic line art (like leaves). Conveys sustainability and authenticity." },
+    { "id": "vc-photo-centric", "name": "Photo-centric", "tags": "Personal, Visual", "stylePrompt": "A design where a professional photo of the person is a key element. Ideal for realtors, consultants, or artists. The photo is well-integrated with clean typography." },
+    { "id": "vc-swiss-design", "name": "Swiss Design", "tags": "Grid, Typographic", "stylePrompt": "An ultra-clean design based on the Swiss design style. It uses a strict grid, a single sans-serif font (like Helvetica), and a focus on typographic hierarchy. The aesthetic is timeless, structured, and highly legible." },
+    { "id": "vc-vertical-layout", "name": "Vertical Layout", "tags": "Unique, Modern", "stylePrompt": "A modern design with a vertical (portrait) orientation instead of the traditional horizontal layout. This unique format stands out and allows for creative use of space." }
 ];
 
 const eventPosterStylesData = [
     { "id": "ep-modern", "name": "Modern & Clean", "tags": "Sleek, Minimal", "stylePrompt": "Use a clean, bold sans-serif font. The text should be placed with a clear hierarchy and generous spacing. The overall effect should be modern, sleek, and highly legible." },
     { "id": "ep-grunge", "name": "Grunge & Edgy", "tags": "Urban, Textured", "stylePrompt": "Use a distressed, textured, or stencil font. The text can be overlaid with a gritty texture. The colors should be high-contrast and slightly desaturated. The layout can be chaotic and energetic." },
     { "id": "ep-corporate", "name": "Corporate & Formal", "tags": "Professional, Elegant", "stylePrompt": "Use a classic serif or a clean sans-serif font. The text layout should be structured and professional. The color palette should be conservative, such as blues, greys, and whites. Add a subtle drop shadow for readability." },
-    { "id": "ep-festive", "name": "Festive & Fun", "tags": "Playful, Colorful", "stylePrompt": "Use a playful, rounded, or script font. The text should be vibrant and can have a slight glow or outline. The layout should be fun and dynamic, possibly with text at an angle. Use bright, cheerful colors." }
+    { "id": "ep-festive", "name": "Festive & Fun", "tags": "Playful, Colorful", "stylePrompt": "Use a playful, rounded, or script font. The text should be vibrant and can have a slight glow or outline. The layout should be fun and dynamic, possibly with text at an angle. Use bright, cheerful colors." },
+    { "id": "ep-minimalist-swiss", "name": "Minimalist Swiss", "tags": "Typographic, Grid", "stylePrompt": "A minimalist design inspired by Swiss graphic design. It relies on a strong grid system, bold sans-serif typography (like Helvetica), and a very limited color palette. The focus is on clarity and structure." },
+    { "id": "ep-retro-vintage", "name": "Retro / Vintage", "tags": "Nostalgic, 70s", "stylePrompt": "A retro-inspired design. Use fonts, color palettes (e.g., warm oranges, browns, yellows), and textures that evoke a specific decade like the 1970s. The typography should be stylized and bold." },
+    { "id": "ep-luxury-elegant", "name": "Luxury & Elegant", "tags": "Exclusive, Gala", "stylePrompt": "An elegant and luxurious style for high-end events. Use sophisticated serif or script fonts, a refined color palette (black, gold, silver, deep jewel tones), and a balanced, spacious layout. Conveys exclusivity and class." },
+    { "id": "ep-photographic", "name": "Photographic Focus", "tags": "Image-driven, Clean", "stylePrompt": "The design is dominated by a powerful, high-quality photograph. The text is cleanly and artistically integrated over the image, ensuring readability without distracting from the photo." },
+    { "id": "ep-illustrated", "name": "Illustrated / Cartoon", "tags": "Playful, Unique", "stylePrompt": "A design that uses custom illustrations or a cartoon style as the main visual. The text style should complement the illustration, often using a playful or hand-drawn font. This style is unique and engaging." },
+    { "id": "ep-dark-moody", "name": "Dark & Moody", "tags": "Cinematic, High-Impact", "stylePrompt": "A dark, high-impact design. Uses a dark background with dramatic lighting on the text and key elements. The typography is often bold and cinematic. This style creates a sense of drama and excitement." }
 ];
 
 const newspaperStylesData = {

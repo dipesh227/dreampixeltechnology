@@ -236,23 +236,23 @@ useEffect(() => {
         case 'event-poster': return <EventPosterMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'social-campaign': return <SocialMediaCampaignFactory onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
         case 'newspaper': return <NewspaperCuttingMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
-// FIX: Corrected typo from `handleGeneratingStatus` to `handleGeneratingStatusChange` and closed the component tag.
+        // FIX: Corrected typo from `handleGeneratingStatus` to `handleGeneratingStatusChange`.
         case 'caste-certificate': return <CasteCertificateMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
-// FIX: Added missing cases for resizer tools.
+        // FIX: Added missing cases for resizer tools.
         case 'photo-resizer': return <PhotoResizer onNavigateHome={handleNavigateHome} />;
         case 'signature-resizer': return <SignatureResizer onNavigateHome={handleNavigateHome} />;
         case 'thumb-resizer': return <ThumbResizer onNavigateHome={handleNavigateHome} />;
-// FIX: Added missing cases for info pages.
+        // FIX: Added missing cases for info pages.
         case 'about': return <AboutUs onNavigateHome={handleNavigateHome} />;
         case 'contact': return <ContactUs onNavigateHome={handleNavigateHome} />;
         case 'privacy': return <PrivacyPolicy onNavigateHome={handleNavigateHome} />;
         case 'terms': return <TermsOfService onNavigateHome={handleNavigateHome} />;
-// FIX: Added a default case to ensure a value is always returned.
+        // FIX: Added a default case to ensure a value is always returned.
         default: return <LandingPage onSelectTool={handleSetView} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
     }
   };
 
-// FIX: Added the main return statement for the component to render the UI layout.
+  // FIX: Added the main return statement for the component to render the UI layout.
   return (
     <div className="bg-slate-950 text-slate-200 min-h-screen font-sans antialiased relative">
       <MouseTrail />
