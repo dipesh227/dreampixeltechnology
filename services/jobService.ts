@@ -1,4 +1,5 @@
 
+
 import { supabase } from './supabaseClient';
 import { AspectRatio, UploadedFile } from '../types';
 
@@ -385,5 +386,45 @@ export const saveNewspaperJob = async (data: NewspaperJobData): Promise<void> =>
         if (error) throw error;
     } catch (error) {
         console.error("Failed to save newspaper job", error);
+    }
+};
+
+// Video Script Job
+interface VideoScriptJobData {
+    userId: string;
+    topic: string;
+    tone: string;
+    audience: string;
+}
+
+export const saveVideoScriptJob = async (data: VideoScriptJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('video_script_jobs').insert({
+            user_id: data.userId,
+            topic: data.topic,
+            tone: data.tone,
+            audience: data.audience,
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save video script job", error);
+    }
+};
+
+// Video Topic Suggestion Job
+interface VideoTopicSuggestionJobData {
+    userId: string;
+    imageFilename: string;
+}
+
+export const saveVideoTopicSuggestionJob = async (data: VideoTopicSuggestionJobData): Promise<void> => {
+    try {
+        const { error } = await supabase.from('video_topic_suggestion_jobs').insert({
+            user_id: data.userId,
+            image_filename: data.imageFilename
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error("Failed to save video topic suggestion job", error);
     }
 };

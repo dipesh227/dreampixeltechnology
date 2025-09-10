@@ -4,7 +4,7 @@ import { Tool, ToolType, ConnectedAccount } from '../types';
 import { 
     HiOutlinePhoto, HiOutlineMegaphone, HiOutlineUserGroup, HiOutlineUserCircle, HiOutlineSwatch, 
     HiOutlineSparkles, HiOutlineIdentification, HiOutlineCreditCard, HiOutlineClipboardDocumentList, 
-    HiOutlineTicket, HiOutlineBuildingStorefront, HiOutlineNewspaper,
+    HiOutlineTicket, HiOutlineBuildingStorefront, HiOutlineNewspaper, HiOutlineFilm,
     // Added for new sections
     HiOutlineCursorArrowRays, HiOutlineDocumentText, HiOutlinePaintBrush, HiOutlineClock,
     // Added for new resizer tools
@@ -31,6 +31,7 @@ const ToolCard: React.FC<{ tool: Tool; onClick: () => void }> = React.memo(({ to
         'visiting-card': { icon: HiOutlineClipboardDocumentList, gradient: 'from-slate-400 to-slate-600' },
         'event-poster': { icon: HiOutlineTicket, gradient: 'from-rose-400 to-red-500' },
         'social-campaign': { icon: HiOutlineBuildingStorefront, gradient: 'from-indigo-500 to-violet-600' },
+        'video-script-writer': { icon: HiOutlineFilm, gradient: 'from-sky-500 to-cyan-500' },
         newspaper: { icon: HiOutlineNewspaper, gradient: 'from-stone-500 to-gray-600'},
         'photo-resizer': { icon: HiOutlineScissors, gradient: 'from-green-500 to-emerald-600' },
         'signature-resizer': { icon: HiOutlinePencilSquare, gradient: 'from-sky-500 to-cyan-600' },
@@ -70,6 +71,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectTool, connectedAccoun
         { id: 'advertisement', title: "Ad Banner Generator", description: "Instantly produce professional advertisement banners for your marketing campaigns and social media.", enabled: true },
         { id: 'political', title: "Politician's Poster Maker", description: "Generate timely and impactful posters for political campaigns based on current events and topics.", enabled: true },
         { id: 'social-campaign', title: "AI Social Media Content Factory", description: "Generate a full campaign, a single post, or content based on real-time trends, all from one powerful tool.", enabled: true },
+        { id: 'video-script-writer', title: "AI Video Script Writer", description: "Generate structured video scripts (Hook, Intro, Main Content, CTA) and VEO prompts from a simple topic.", enabled: true },
         { id: 'profile', title: "Profile Picture Generator", description: "Craft the perfect profile picture for LinkedIn, Instagram, or any platform using your headshot.", enabled: true },
         { id: 'logo', title: "AI Logo Generator", description: "Generate unique logos for your brand, with or without a mascot from a headshot.", enabled: true },
         { id: 'image-enhancer', title: "AI Image Enhancer", description: "Automatically improve image quality, lighting, and clarity with a single click. Upscale and refine.", enabled: true },

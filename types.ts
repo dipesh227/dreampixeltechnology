@@ -1,6 +1,6 @@
 
 // FIX: Removed 'social' from ToolType as it is not an implemented tool and was causing a type error. The 'social-campaign' tool handles all social media functionality.
-export type ToolType = 'thumbnail' | 'advertisement' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'social-campaign' | 'newspaper' | 'photo-resizer' | 'signature-resizer' | 'thumb-resizer';
+export type ToolType = 'thumbnail' | 'advertisement' | 'political' | 'profile' | 'logo' | 'image-enhancer' | 'headshot-maker' | 'passport-photo' | 'visiting-card' | 'event-poster' | 'social-campaign' | 'newspaper' | 'video-script-writer' | 'photo-resizer' | 'signature-resizer' | 'thumb-resizer';
 
 export type PageType = 'about' | 'contact' | 'privacy' | 'terms';
 export type ViewType = ToolType | 'landing' | PageType;
@@ -222,4 +222,26 @@ export interface SocialCampaign {
 export interface NewspaperLanguage {
   id: string;
   name: string;
+}
+
+// For AI Video Script Writer
+export interface VideoScript {
+    title: string;
+    hook: string;
+    intro: string;
+    mainContent: { scene: number; visual: string; voiceover: string; }[];
+    outro: string;
+    callToAction: string;
+}
+
+export interface VeoPrompt {
+    prompt: string;
+    style_directives: string[];
+    cinematic_terms: string[];
+    negative_prompt: string;
+}
+
+export interface VideoScriptResponse {
+    script: VideoScript;
+    veoPrompt: VeoPrompt;
 }

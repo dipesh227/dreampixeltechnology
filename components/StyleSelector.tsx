@@ -68,13 +68,23 @@ const StyleSelector: React.FC<StyleSelectorProps> = ({ title, tooltip, stylesDat
         if (isCategorized) {
             for (const category of initialCategories) {
                 if ((stylesData as { [key: string]: Style[] })[category]?.some(style => style.id === selectedStyleId)) {
-                    setActiveCategory(category);
+                    if (category !== activeCategory) {
+                        setActiveCategory(category);
+                    }
                     break;
                 }
             }
         }
-    }, [selectedStyleId, isCategorized, initialCategories, stylesData]);
+    }, [selectedStyleId, isCategorized, initialCategories, stylesData, activeCategory]);
     
+    const handleCategoryClick = (category: string) => {
+        setActiveCategory(category);
+        const newStyles = (stylesData as { [key: string]: Style[] })[category];
+        // Automatically select the first style in the new category to maintain a consistent state.
+        if (newStyles && newStyles.length > 0) {
+            onStyleSelect(newStyles[0].id);
+        }
+    };
 
     return (
         <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-lg border border-slate-700/50 rounded-xl" data-tooltip={tooltip}>
@@ -84,7 +94,7 @@ const StyleSelector: React.FC<StyleSelectorProps> = ({ title, tooltip, stylesDat
                      {categories.map(category => (
                         <button 
                             key={category} 
-                            onClick={() => setActiveCategory(category)} 
+                            onClick={() => handleCategoryClick(category)} 
                             className={`px-4 py-1.5 text-sm rounded-full transition-colors duration-200 ${activeCategory === category ? 'bg-primary-gradient text-white font-semibold' : 'bg-slate-800 hover:bg-slate-700'}`}
                         >
                            {category.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}

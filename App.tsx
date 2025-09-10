@@ -25,6 +25,7 @@ const VisitingCardMaker = lazy(() => import('./components/VisitingCardMaker').th
 const EventPosterMaker = lazy(() => import('./components/EventPosterMaker').then(module => ({ default: module.EventPosterMaker })));
 const SocialMediaCampaignFactory = lazy(() => import('./components/SocialMediaCampaignFactory').then(module => ({ default: module.SocialMediaCampaignFactory })));
 const NewspaperCuttingMaker = lazy(() => import('./components/NewspaperCuttingMaker').then(module => ({ default: module.NewspaperCuttingMaker })));
+const VideoScriptWriter = lazy(() => import('./components/VideoScriptWriter').then(module => ({ default: module.VideoScriptWriter })));
 const AboutUs = lazy(() => import('./components/AboutUs').then(module => ({ default: module.AboutUs })));
 const ContactUs = lazy(() => import('./components/ContactUs').then(module => ({ default: module.ContactUs })));
 const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy').then(module => ({ default: module.PrivacyPolicy })));
@@ -64,7 +65,7 @@ const App: React.FC = () => {
             'landing', 'about', 'contact', 'privacy', 'terms', 
             'thumbnail', 'advertisement', 'political', 'profile', 'logo', 
             'image-enhancer', 'headshot-maker', 'passport-photo', 
-            'visiting-card', 'event-poster', 'social-campaign', 'newspaper',
+            'visiting-card', 'event-poster', 'social-campaign', 'newspaper', 'video-script-writer',
             'photo-resizer', 'signature-resizer', 'thumb-resizer'
         ];
         
@@ -155,6 +156,7 @@ useEffect(() => {
         'visiting-card': 'AI Visiting Card Maker',
         'event-poster': 'AI Event Poster Maker',
         'social-campaign': 'AI Social Media Content Factory',
+        'video-script-writer': 'AI Video Script Writer',
         newspaper: 'AI Newspaper Cutting Maker',
         'photo-resizer': 'Photo Resizer',
         'signature-resizer': 'Signature Resizer',
@@ -234,6 +236,7 @@ useEffect(() => {
         case 'event-poster': return <EventPosterMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         case 'social-campaign': return <SocialMediaCampaignFactory onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} connectedAccounts={connectedAccounts} onToggleConnect={handleToggleConnect} />;
         case 'newspaper': return <NewspaperCuttingMaker onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
+        case 'video-script-writer': return <VideoScriptWriter onNavigateHome={handleNavigateHome} onCreationGenerated={onCreationGenerated} onGenerating={handleGeneratingStatusChange} />;
         // FIX: Corrected typo from `handleGeneratingStatus` to `handleGeneratingStatusChange`.
         
         // FIX: Added missing cases for resizer tools.

@@ -1,4 +1,5 @@
 
+
 # DreamPixel Technology - AI Content Creation Suite
 
 ![DreamPixel Logo](https://ai.dreampixeltechnology.in/logo.svg)
@@ -13,6 +14,7 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
     -   YouTube Thumbnail Generator
     -   Ad Banner Generator
     -   AI Social Media Content Factory **(Now includes single post, trend-based, and full campaign generation!)**
+    -   AI Video Script Writer **(Now with image-to-topic suggestions and structured JSON prompts for video models!)**
     -   Politician's Poster Maker
     -   Social Media Profile Picture Generator
     -   AI Logo Generator
@@ -21,7 +23,7 @@ DreamPixel is a powerful, all-in-one AI-powered content creation suite designed 
     -   Passport Photo Maker
     -   AI Visiting Card Maker 
     -   AI Event Poster Maker
-    -   AI Newspaper Cutting Maker **(New!)**
+    -   AI Newspaper Cutting Maker
 -   **Secure Google Authentication**: Sign in to save and manage your creations securely.
 -   **Database Encryption**: User-submitted prompts and feedback are encrypted at rest in the database using `pgsodium` for enhanced privacy.
 -   **Focused on Google Gemini**: Built to exclusively use Google's powerful Gemini AI models for the best results.
@@ -422,6 +424,27 @@ CREATE POLICY "Users can insert their own newspaper jobs" ON public.newspaper_cu
 -- Drop the caste_certificate_jobs table if it exists
 DROP TABLE IF EXISTS public.caste_certificate_jobs;
 
+-- Add the new video_script_jobs table
+CREATE TABLE public.video_script_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  topic TEXT,
+  tone TEXT,
+  audience TEXT
+);
+ALTER TABLE public.video_script_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own video script jobs" ON public.video_script_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Add the new video_topic_suggestion_jobs table
+CREATE TABLE public.video_topic_suggestion_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  image_filename TEXT
+);
+ALTER TABLE public.video_topic_suggestion_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own video topic jobs" ON public.video_topic_suggestion_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
 ```
 </details>
 
@@ -759,6 +782,34 @@ CREATE TABLE public.newspaper_cutting_jobs (
   style_id TEXT,
   image_filename TEXT,
   aspect_ratio TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>video_script_jobs</strong> - Logs inputs for video script generation.</summary>
+
+```sql
+CREATE TABLE public.video_script_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  topic TEXT,
+  tone TEXT,
+  audience TEXT
+);
+```
+</details>
+
+<details>
+<summary><strong>video_topic_suggestion_jobs</strong> - Logs inputs for video topic suggestions from images.</summary>
+
+```sql
+CREATE TABLE public.video_topic_suggestion_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  image_filename TEXT
 );
 ```
 </details>
